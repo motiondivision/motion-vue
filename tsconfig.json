@@ -1,0 +1,8 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": "."
+  },
+  "exclude": ["node_modules", "**/__tests__/*"]
+}

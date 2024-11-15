@@ -1,0 +1,41 @@
+{
+  "name": "vue-motion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "index.js",
+  "scripts": {
+    "dev:play": "pnpm --filter './playground/nuxt' dev",
+    "dev": "pnpm --filter './packages/vue' dev",
+    "build": "pnpm --filter './packages/**' build",
+    "prepare": "husky install",
+    "docs:install": "pnpm --filter docs install",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs docs:build",
+    "docs:gen": "pnpm --filter docs docs:gen",
+    "docs:contributors": "pnpm --filter docs docs:contributors"
+  },
+  "dependencies": {
+    "@vueuse/core": "^11.1.0",
+    "framer-motion": "11.11.11",
+    "hey-listen": "^1.0.8",
+    "vite": "^5.4.8",
+    "vue": "^3.4.38"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.27.3",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@vue/tsconfig": "^0.5.1",
+    "eslint": "^9.9.1",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.9",
+    "typescript": "^5.5.4"
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix"
+  }
+}
