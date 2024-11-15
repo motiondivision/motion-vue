@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: /@v4
+        uses: actions/checkout@v4
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -29,7 +29,6 @@ jobs:
         with:
           version: 9
           run_install: false
-
 
       - name: Get pnpm store directory
         shell: bash
