@@ -38,9 +38,10 @@ export const Primitive = defineComponent({
     if (typeof asTag === 'string' && SELF_CLOSING_TAGS.includes(asTag))
       return () => h(asTag, attrs)
 
-    if (asTag !== 'template')
-      return () => h(props.as, attrs, { default: slots.default })
+    if (asTag !== 'template') {
+      return () => h(props.as, attrs, slots.default)
+    }
 
-    return () => h(Slot, attrs, { default: slots.default })
+    return () => h(Slot, attrs, slots.default)
   },
 })
