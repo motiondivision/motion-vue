@@ -191,20 +191,115 @@ createApp(App).mount('#app')`,
     },
     ...components,
     'src/assets/global.css': {
-      content: `body {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 120px;
-  width: 100vw;
-  height: 100vh;
-  background-color: hsl(var(--background));
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  color: hsl(var(--foreground));
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "rlig" 1, "calt" 1;
-} 
+      content: `
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+      
+      @layer base {
+      :root {
+      --background: 0 0% 100%;
+      --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 3.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%;
+      --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%;
+      --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%;
+      --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%;
+      --accent-foreground: 240 5.9% 10%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 5.9% 90%;
+      --input: 240 5.9% 90%;
+      --ring: 240 5% 64.9%;
+      --radius: 0.5rem;
+    }
+
+    .dark {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 240 10% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 85.7% 97.3%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 240 4.9% 83.9%;
+    }
+
+
+    * {
+      @apply border-border;
+    }
+    html {
+      -webkit-text-size-adjust: 100%;
+      font-variation-settings: normal;
+    }
+    body {
+      @apply bg-background text-foreground min-h-screen antialiased font-sans;
+      font-feature-settings: "rlig" 1, "calt" 1;
+    }
+
+    /* Mobile tap highlight */
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-tap-highlight-color */
+    html {
+      -webkit-tap-highlight-color: rgba(128, 128, 128, 0.5);
+    }
+
+    /* === Scrollbars === */
+
+    ::-webkit-scrollbar {
+      @apply w-2;
+      @apply h-2;
+    }
+
+    ::-webkit-scrollbar-track {
+      @apply !bg-muted;
+    }
+    ::-webkit-scrollbar-thumb {
+      @apply rounded-sm !bg-muted-foreground/30;
+    }
+
+    /* Firefox */
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color#browser_compatibility */
+    html {
+      scrollbar-color: hsl(215.4 16.3% 46.9% / 0.3);
+    }
+
+    html.dark {
+      scrollbar-color: hsl(215.4 16.3% 56.9% / 0.3);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .antialised {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+}˝
 
 #app {
   @apply w-full flex items-center justify-center px-12;

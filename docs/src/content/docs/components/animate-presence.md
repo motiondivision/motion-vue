@@ -12,4 +12,8 @@ import { AnimatePresence } from 'motion-v'
 
 ## exit Animation
 
-<component-preview  name="AnimateExit"/>
+<ComponentPreview name="MotionExit" />
+
+## multiple children
+
+<ComponentPreview name="AnimatePresenceMultiple" />

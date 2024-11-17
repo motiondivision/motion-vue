@@ -19,7 +19,6 @@ const props = withDefaults(defineProps<{
   sfcTsCode?: string
   sfcTsHtml?: string
 }>(), { align: 'center' })
-
 const key = ref(0)
 </script>
 

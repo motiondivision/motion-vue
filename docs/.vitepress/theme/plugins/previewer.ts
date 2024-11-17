@@ -18,7 +18,6 @@ export default function (md: MarkdownRenderer) {
       const { name, attrs } = props
       const pluginPath = dirname(__dirname)
       const srcPath = resolve(pluginPath, '../../src/lib/registry/new-york/example/', `${name}.vue`).replace(/\\/g, '/')
-
       if (!fs.existsSync(srcPath)) {
         console.error(`rendering ${path}: ${srcPath} does not exist`)
         return defaultRender!(tokens, idx, options, env, self)
@@ -29,14 +28,12 @@ export default function (md: MarkdownRenderer) {
         '@/lib/registry/new-york/',
         '@/components/',
       )
-
       const demoScripts = generateDemoComponent(md, env, {
         attrs,
         props,
         code,
         path: srcPath,
       })
-
       return demoScripts
     }
   }
