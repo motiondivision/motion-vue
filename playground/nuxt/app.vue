@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AnimatePresence, Motion } from 'motion-vue'
+import { AnimatePresence, Motion } from 'motion-v'
 
 const show = ref(true)
 </script>

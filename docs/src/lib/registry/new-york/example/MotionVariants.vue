@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Motion } from 'motion-vue'
+import { Motion } from 'motion-v'
 
 const container = {
   hidden: { opacity: 1, scale: 0 },

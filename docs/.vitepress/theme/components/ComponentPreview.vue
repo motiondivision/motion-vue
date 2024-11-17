@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/registry/new-yor
 import { cn } from '@/lib/utils'
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
-import { Motion } from 'motion-vue'
+import { Motion } from 'motion-v'
 
 defineOptions({
   inheritAttrs: false,

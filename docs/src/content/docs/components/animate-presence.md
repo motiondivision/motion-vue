@@ -7,7 +7,7 @@ source: packages/motion/src/components/Motion.vue
 ## import
 
 ```ts
-import { AnimatePresence } from 'motion-vue'
+import { AnimatePresence } from 'motion-v'
 ```
 
 ## exit Animation

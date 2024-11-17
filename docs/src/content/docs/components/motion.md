@@ -7,7 +7,7 @@ source: packages/motion/src/components/Motion.vue
 ## Import
 
 ```ts
-import { Motion } from 'motion-vue'
+import { Motion } from 'motion-v'
 ```
 
 ## Animation

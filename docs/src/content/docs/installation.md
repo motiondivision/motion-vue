@@ -4,5 +4,5 @@ description: .
 ---
 
 ```bash
-npm i motion-vue
+npm i motion-v
 ```

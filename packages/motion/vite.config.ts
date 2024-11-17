@@ -25,7 +25,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      name: 'motion-vue',
+      name: 'motion-v',
       fileName: (format, name) => {
         return `${name}.${format === 'es' ? 'js' : 'umd.cjs'}`
       },

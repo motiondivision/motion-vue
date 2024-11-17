@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DOMKeyframesDefinition } from 'framer-motion'
-import { AnimatePresence, Motion } from 'motion-vue'
+import { AnimatePresence, Motion } from 'motion-v'
 import { ref } from 'vue'
 
 const show = ref(true)

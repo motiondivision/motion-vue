@@ -81,7 +81,7 @@ function constructFiles(componentName: string, style: Style, sources: Record<str
     'class-variance-authority': 'latest',
     'tailwind-merge': 'latest',
     'tailwindcss-animate': 'latest',
-    'motion-vue': 'latest',
+    'motion-v': 'latest',
     'typescript': 'latest',
   }
 
@@ -125,7 +125,7 @@ function constructFiles(componentName: string, style: Style, sources: Record<str
   const files = {
     'package.json': {
       content: {
-        name: `motion-vue-${componentName.toLowerCase().replace(/ /g, '-')}`,
+        name: `motion-v-${componentName.toLowerCase().replace(/ /g, '-')}`,
         scripts: { start: `vite` },
         dependencies,
         devDependencies,

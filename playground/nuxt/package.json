@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "motion-vue": "workspace:*",
+    "motion-v": "workspace:*",
     "nuxt": "^3.13.0",
     "vue": "latest",
     "vue-router": "latest"
