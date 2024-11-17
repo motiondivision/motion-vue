@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMagicKeys, useToggle } from '@vueuse/core'
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { Content, useData, useRoute, useRouter } from 'vitepress'
 import { SearchIcon } from 'lucide-vue-next'
 import { type NavItem, docsConfig } from '../config/docs'
@@ -30,7 +30,7 @@ const toggleDark = useToggle(isDark)
 const links = [
   {
     name: 'GitHub',
-    href: 'https://github.com/radix-vue/shadcn-vue',
+    href: 'https://github.com/rick-hup/motion-vue',
     icon: RadixIconsGithubLogo,
   },
   // {
@@ -77,17 +77,13 @@ watch(() => $route.path, (n) => {
 <template>
   <div class="flex min-h-screen flex-col bg-background">
     <header class="sticky z-40 top-0 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div
-        class="container flex justify-between h-14 max-w-screen-2xl items-center"
-      >
+      <div class="container flex justify-between h-14 max-w-screen-2xl items-center">
         <MobileNav />
 
         <div class="mr-4 hidden md:flex">
           <Logo />
 
-          <nav
-            class="flex items-center space-x-6 text-sm font-medium"
-          >
+          <nav class="flex items-center space-x-6 text-sm font-medium">
             <a
               v-for="route in docsConfig.mainNav"
               :key="route.title"
@@ -156,6 +152,7 @@ watch(() => $route.path, (n) => {
         name="fade"
         mode="out-in"
       >
+        <!-- eslint-disable-next-line vue/require-component-is -->
         <component
           is="docs"
           v-if="$route.path.includes('docs')"
@@ -167,6 +164,7 @@ watch(() => $route.path, (n) => {
             <Content :key="$route.path" />
           </Transition>
         </component>
+        <!-- eslint-disable-next-line vue/require-component-is -->
         <component
           is="examples"
           v-else-if="$route.path.includes('examples')"
@@ -205,9 +203,7 @@ watch(() => $route.path, (n) => {
           <CommandEmpty>
             No results found.
           </CommandEmpty>
-          <CommandList
-            @escape-key-down=" isOpen = false"
-          >
+          <CommandList @escape-key-down=" isOpen = false">
             <CommandGroup heading="Links">
               <CommandItem
                 v-for="item in docsConfig.mainNav"
@@ -245,11 +241,10 @@ watch(() => $route.path, (n) => {
               <CommandItem
                 value="light-theme"
                 class="py-3"
-                @select="
-                  () => {
-                    isDark = false;
-                    isOpen = false;
-                  }
+                @select="() => {
+                  isDark = false;
+                  isOpen = false;
+                }
                 "
               >
                 <RadixIconsSun class="mr-2 h-5 w-5" />
@@ -258,11 +253,10 @@ watch(() => $route.path, (n) => {
               <CommandItem
                 value="dark-theme"
                 class="py-3"
-                @select="
-                  () => {
-                    isDark = true;
-                    isOpen = false;
-                  }
+                @select="() => {
+                  isDark = true;
+                  isOpen = false;
+                }
                 "
               >
                 <RadixIconsMoon class="mr-2 h-5 w-5" />
