@@ -12,7 +12,7 @@
     "dev": "pnpm --filter './packages/vue' dev",
     "build": "pnpm --filter './packages/**' build",
     "test": "pnpm --filter './packages/motion' test",
-    "prepare": "husky install",
+    "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm --filter docs build",
@@ -38,18 +38,18 @@
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@vue/tsconfig": "^0.5.1",
     "eslint": "^9.9.1",
-    "husky": "^9.1.5",
     "lint-staged": "^15.2.9",
     "semantic-release": "^24.2.0",
+    "simple-git-hooks": "^2.11.1",
     "typescript": "^5.5.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged",
+    "commit-msg": "pnpm commitlint --edit ${1}"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
+      "eslint --fix"
     ]
   }
 }
