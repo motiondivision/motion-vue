@@ -53,11 +53,10 @@ jobs:
       - name: Build Docs
         run: pnpm docs:build
 
-      # Run a action to publish docs
+         # Run a action to publish docs
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3.9.0
+        uses: cloudflare/pages-action@v1.5.0
         with:
-          wranglerVersion: 3.5.1
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: motion-vue
@@ -69,3 +68,4 @@ jobs:
           # branch: main
           # Optional: Change the working directory
           workingDirectory: docs
+          wranglerVersion: '3'
