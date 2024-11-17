@@ -1,68 +1,43 @@
-name: Build
+name: Release
 
 on:
   push:
-    branches:
-      - master
-    paths:
-      - 'packages/**'
-
-  pull_request:
-    paths:
-      - 'packages/**'
+    tags:
+      - 'v*'
 
 jobs:
-  build:
+  release:
+    permissions:
+      id-token: write
+      contents: write
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Setup Node.js environment
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: lts/*
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
 
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
-        with:
-          version: 9
-          run_install: false
+      - run: npx changelogithub
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: pnpm i
 
-      - name: Test
-        run: pnpm test
+      - name: PNPM build
+        run: pnpm run build
 
-      - name: Build
-        run: pnpm --filter motion-vue build
-
-      - name: Check for errors
-        run: |
-          if [ $? -eq 0 ]; then
-            echo "Build succeeded"
-          else
-            echo "Build failed"
-            exit 1
-          fi
-
-      - name: Release
+      - name: Publish to NPM
+        run: pnpm -r publish --access public --no-git-checks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx --no-install semantic-release
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NPM_CONFIG_PROVENANCE: true
