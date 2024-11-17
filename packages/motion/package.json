@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "dev": "vite build --watch",
-    "build:rs": "rslib build",
+    "build": "vite build",
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },

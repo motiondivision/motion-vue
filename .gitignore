@@ -50,3 +50,4 @@ jspm_packages/
 *.sln
 *.sw?
 docs/.vitepress/cache/**/*
+prompts
