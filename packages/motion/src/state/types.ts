@@ -14,10 +14,23 @@ export interface InViewOptions {
   margin?: MarginType
   amount?: 'some' | 'all' | number
 }
+interface BoundingBox {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+export interface DragOptions {
+  constraints?: false | Partial<BoundingBox>
+  dragSnapToOrigin?: boolean
+}
 export interface Options {
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
   press?: string | Variant
+  drag?: boolean | 'x' | 'y'
+  dragOptions?: DragOptions
+  whileDrag?: string | Variant
   hover?: string | Variant
   initial?: string | Variant | boolean
   animate?: string | Variant

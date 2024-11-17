@@ -5,7 +5,7 @@ import type { MotionEventNames } from '../types'
 // }
 
 export function dispatchPointerEvent(
-  element: Element,
+  element: HTMLElement,
   name: MotionEventNames,
   event: any,
 ) {

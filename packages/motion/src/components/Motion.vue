@@ -2,13 +2,13 @@
 import type { CSSProperties, IntrinsicElementAttributes } from 'vue'
 import { Primitive } from './Primitive'
 import { isSvgTag } from './utils'
-import { MotionState, mountedStates } from '@/state/motion-state'
+import { MotionState } from '@/state/motion-state'
 
 type ElementType = keyof IntrinsicElementAttributes
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div'">
-import { nextTick, onMounted, onUnmounted, onUpdated, ref } from 'vue'
+import { onMounted, onUnmounted, onUpdated, ref } from 'vue'
 import type { Options } from '@/state/types'
 import { usePrimitiveElement } from './usePrimitiveElement'
 import { injectAnimatePresence, injectMotion, provideMotion } from './context'
