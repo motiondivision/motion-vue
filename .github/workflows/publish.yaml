@@ -57,7 +57,7 @@ jobs:
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3.9.0
         with:
-         wranglerVersion: 3.5.1
+          wranglerVersion: 3.5.1
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: motion-vue
