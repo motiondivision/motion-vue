@@ -1,6 +1,5 @@
 import { getParameters } from 'codesandbox/lib/api/define'
 import sdk from '@stackblitz/sdk'
-import { dependencies as deps } from '../../../package.json'
 import tailwindConfigRaw from '../../../tailwind.config?raw'
 import type { Style } from '@/lib/registry/styles'
 
@@ -76,17 +75,13 @@ function constructFiles(componentName: string, style: Style, sources: Record<str
     },
   }
 
-  const iconPackage = style === 'default' ? 'lucide-vue-next' : '@radix-icons/vue'
   const dependencies = {
     'vue': 'latest',
-    'radix-vue': deps['radix-vue'],
-    '@radix-ui/colors': 'latest',
     'clsx': 'latest',
     'class-variance-authority': 'latest',
     'tailwind-merge': 'latest',
     'tailwindcss-animate': 'latest',
-    [iconPackage]: 'latest',
-    'shadcn-vue': 'latest',
+    'motion-vue': 'latest',
     'typescript': 'latest',
   }
 
@@ -115,15 +110,23 @@ function constructFiles(componentName: string, style: Style, sources: Record<str
     }
   })
 
-  // @ts-expect-error componentName migth not exist in Index
-  const demoIndex: any = {}
-  const registryDependencies = demoIndex[style]?.[componentName as any]?.registryDependencies?.filter(i => i !== 'utils')
+  interface DemoIndexEntry {
+    registryDependencies?: string[]
+  }
+
+  interface DemoIndex {
+    [style: string]: {
+      [component: string]: DemoIndexEntry
+    }
+  }
+
+  const demoIndex: DemoIndex = {}
 
   const files = {
     'package.json': {
       content: {
-        name: `shadcn-vue-${componentName.toLowerCase().replace(/ /g, '-')}`,
-        scripts: { start: `shadcn-vue add ${registryDependencies?.join(' ')} -y && vite` },
+        name: `motion-vue-${componentName.toLowerCase().replace(/ /g, '-')}`,
+        scripts: { start: `vite` },
         dependencies,
         devDependencies,
       },

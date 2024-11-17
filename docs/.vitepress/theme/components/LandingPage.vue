@@ -40,7 +40,7 @@ import HomeDemo from './demos/HomeDemo.vue'
         Get Started
       </a>
       <a
-        href="https://github.com/radix-vue/shadcn-vue"
+        href="https://github.com/rick-hup/motion-vue"
         target="_blank"
         :class="cn(
           buttonVariants({ variant: 'outline' }),

@@ -39,7 +39,7 @@ export default defineConfig({
   ],
 
   sitemap: {
-    hostname: 'https://www.shadcn-vue.com',
+    hostname: 'https://www.motion-vue.com',
     transformItems(items) {
       return items.filter(item => !item.url.includes('migration'))
     },
@@ -51,8 +51,7 @@ export default defineConfig({
       provider: 'local',
     },
     editLink: {
-      pattern: '',
-      // pattern: 'https://github.com/radix-vue/shadcn-vue/tree/dev/apps/www/src/:path',
+      pattern: 'https://github.com/rick-hup/motion-vue/tree/master/docs/src/:path',
       text: 'Edit this page on GitHub',
     },
   },

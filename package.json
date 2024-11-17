@@ -11,12 +11,14 @@
     "dev:play": "pnpm --filter './playground/nuxt' dev",
     "dev": "pnpm --filter './packages/vue' dev",
     "build": "pnpm --filter './packages/**' build",
+    "test": "pnpm --filter './packages/motion' test",
     "prepare": "husky install",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
-    "docs:build": "pnpm --filter docs docs:build",
+    "docs:build": "pnpm --filter docs build",
     "docs:gen": "pnpm --filter docs docs:gen",
-    "docs:contributors": "pnpm --filter docs docs:contributors"
+    "docs:contributors": "pnpm --filter docs docs:contributors",
+    "lint-staged": "lint-staged"
   },
   "dependencies": {
     "@vueuse/core": "^11.1.0",
@@ -36,6 +38,12 @@
     "typescript": "^5.5.4"
   },
   "lint-staged": {
-    "*.js": "eslint --fix"
+    "*.{js,ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

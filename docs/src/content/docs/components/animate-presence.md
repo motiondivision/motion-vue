@@ -1,7 +1,7 @@
 ---
 title: AnimatePresence
 description: Animate components when they're removed from the Vue tree.
-source: packages/vue/src/components/Motion.vue
+source: packages/motion/src/components/Motion.vue
 ---
 
 ## import

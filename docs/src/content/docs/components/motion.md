@@ -1,7 +1,7 @@
 ---
 title: Motion
 description: Motion components are foundational DOM primitives that provide declarative animation capabilities.
-source: packages/vue/src/components/Motion.vue
+source: packages/motion/src/components/Motion.vue
 ---
 
 ## Import

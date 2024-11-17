@@ -26,11 +26,6 @@ export const docsConfig: DocsConfig = {
       title: 'Documentation',
       href: '/docs/introduction',
     },
-    // {
-    //   title: 'GitHub',
-    //   href: 'https://github.com/radix-vue/shadcn-vue',
-    //   external: true,
-    // },
   ],
   sidebarNav: [
     {

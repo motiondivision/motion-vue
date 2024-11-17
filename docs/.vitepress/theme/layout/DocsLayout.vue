@@ -12,7 +12,7 @@ import ChevronRightIcon from '~icons/lucide/chevron-right'
 const $route = useRoute()
 const { frontmatter } = useData()
 
-const sourceLink = 'https://github.com/radix-vue/shadcn-vue/tree/dev/'
+const sourceLink = 'https://github.com/rick-hup/motion-vue/tree/master/'
 </script>
 
 <template>
