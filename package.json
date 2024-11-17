@@ -4,7 +4,8 @@
   "private": true,
   "description": "",
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "homepage": "https://motion.seacoly.me/",
   "keywords": [],
   "main": "index.js",
   "scripts": {
