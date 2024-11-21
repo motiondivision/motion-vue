@@ -8,7 +8,7 @@ export interface StateHandlers {
 export interface Gesture {
   isActive: (options: Options) => void
   subscribe: (
-    element: Element,
+    element: HTMLElement,
     stateHandlers: StateHandlers,
     options: Options
   ) => () => void

@@ -26,18 +26,14 @@ export default defineConfig({
   build: {
     lib: {
       name: 'motion-v',
-      fileName: (format, name) => {
-        return `${name}.${format === 'es' ? 'js' : 'umd.cjs'}`
-      },
-      entry: {
-        index: path.resolve(__dirname, 'src/index.ts'),
-      },
+      formats: ['es', 'cjs'],
+      fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      entry: path.resolve(__dirname, 'src/index.ts'),
     },
     rollupOptions: {
       external: [
         'vue',
         // 'framer-motion',
-        'radix-vue',
       ],
     },
   },
