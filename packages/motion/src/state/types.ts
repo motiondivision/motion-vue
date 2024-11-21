@@ -1,6 +1,5 @@
 import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
-import type { animate } from 'framer-motion/dom'
-import type { CSSProperties } from 'vue'
+import type { MotionValue, animate } from 'framer-motion/dom'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 
@@ -25,6 +24,9 @@ export interface DragOptions {
   constraints?: false | Partial<BoundingBox>
   dragSnapToOrigin?: boolean
 }
+export type MotionStyle = Partial<{
+  [K in keyof Variant]: Variant[K] | MotionValue
+}>
 export interface Options {
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
@@ -36,8 +38,8 @@ export interface Options {
   variants?: {
     [k: string]: Variant
   }
+  style?: MotionStyle
   transition?: DynamicAnimationOptions
-  style?: CSSProperties
   onMotionStart?: (target: DOMKeyframesDefinition) => void
   onMotionComplete?: (target: DOMKeyframesDefinition) => void
   onHoverStart?: (e: PointerEvent) => void

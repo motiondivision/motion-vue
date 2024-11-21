@@ -1,3 +1,4 @@
+export * from './transform'
 import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
 
 export interface Variant extends DOMKeyframesDefinition {

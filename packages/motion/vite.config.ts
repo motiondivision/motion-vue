@@ -27,7 +27,7 @@ export default defineConfig({
     lib: {
       name: 'motion-v',
       formats: ['es', 'cjs'],
-      fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`,
       entry: path.resolve(__dirname, 'src/index.ts'),
     },
     rollupOptions: {

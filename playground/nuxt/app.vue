@@ -1,32 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AnimatePresence, Motion } from 'motion-v'
+import { Motion, motionValue } from 'motion-v'
 
 const show = ref(true)
+const y = motionValue(0)
+setTimeout(() => {
+  y.set(100)
+}, 2000)
 </script>
 
 <template>
   <div class="flex flex-col items-center">
-    <button
-      class="mb-4"
-      @click="show = !show"
+    <Motion
+      v-show="show"
+      class="w-20 h-20 bg-purple-500 rounded-md"
+      :style="{
+        x: 100,
+        y: 100,
+      }"
     >
-      toggle
-    </button>
-    <AnimatePresence>
-      <Motion
-        v-show="show"
-        class="w-20 h-20 bg-purple-500 rounded-md"
-        drag
-        :animate="{ scale: 2,
-                    transition: {
-                      duration: 10,
-                    },
-        }"
-      >
-        content
-      </Motion>
-    </AnimatePresence>
+      content
+    </Motion>
   </div>
 </template>
 

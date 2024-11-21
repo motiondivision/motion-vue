@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { CSSProperties, IntrinsicElementAttributes } from 'vue'
+import type { IntrinsicElementAttributes } from 'vue'
 import { Primitive } from './Primitive'
 import { isSvgTag } from './utils'
 import { MotionState } from '@/state/motion-state'
@@ -17,15 +17,14 @@ import { createStyles, style } from '@/state/style'
 export interface MotionProps<T extends ElementType = 'div'> extends Options {
   as?: T
   asChild?: boolean
-  style?: CSSProperties
-  hover?: Options['hover']
-  press?: Options['press']
-  inView?: Options['inView']
-  inViewOptions?: Options['inViewOptions']
 }
 
 type ComBindProps = /* @vue-ignore */ Omit<IntrinsicElementAttributes[T], keyof Options | 'style' | 'as' | 'asChild'>
 
+defineOptions({
+  name: 'Motion',
+  inheritAttrs: true,
+})
 const props = withDefaults(defineProps<MotionProps<T> & ComBindProps>(), {
   as: 'div' as T,
   asChild: false,
@@ -104,7 +103,7 @@ function getStyle() {
   if (isSvgTag(props.as)) {
     return props.style
   }
-  return !state.isMounted() ? { ...props.style, ...createStyles(state.getTarget()) } : props.style
+  return !state.isMounted() ? { ...createStyles(props.style), ...createStyles(state.getTarget()) } : createStyles(props.style)
 }
 </script>
 
