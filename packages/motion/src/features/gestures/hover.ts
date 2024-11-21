@@ -1,9 +1,9 @@
 import { dispatchPointerEvent } from '@/utils/events'
 import type { Gesture } from './types'
 import type { MotionState } from '@/state/motion-state'
-import { BaseGesture } from '@/state/features/gestures'
+import { BaseGesture } from '@/features'
 
-function mouseEvent(element: Element, name: 'hoverstart' | 'hoverend', action: VoidFunction) {
+function mouseEvent(element: HTMLElement, name: 'hoverstart' | 'hoverend', action: VoidFunction) {
   return (event: PointerEvent) => {
     if (event.pointerType && event.pointerType !== 'mouse')
       return

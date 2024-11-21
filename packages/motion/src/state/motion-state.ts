@@ -6,18 +6,18 @@ import { isDef } from '@vueuse/core'
 import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
 import { animate } from 'framer-motion/dom'
 import { getOptions, hasChanged, noop, resolveVariant } from '@/state/utils'
-import { FeatureManager } from '@/state/features'
+import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 
-const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit'] as const
+const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
 type StateType = typeof STATE_TYPES[number]
 export const mountedStates = new WeakMap<Element, MotionState>()
 
 export class MotionState {
-  private element: Element | null = null
+  private element: HTMLElement | null = null
   private context: MotionStateContext = {}
 
   private parent?: MotionState
@@ -67,7 +67,7 @@ export class MotionState {
     return isDef(this.options.initial) ? this.options.initial : this.context.initial
   }
 
-  mount(element: Element) {
+  mount(element: HTMLElement) {
     invariant(
       Boolean(element),
       'Animation state must be mounted with valid Element',

@@ -1,10 +1,10 @@
-import type { AnimateOptions } from '@/types'
+import type { Options } from '@/state/types'
 import type { DynamicAnimationOptions, Variant } from 'framer-motion'
 import type { VNode } from 'vue'
 
 export function resolveVariant(
-  definition?: AnimateOptions['initial'],
-  variants?: AnimateOptions['variants'],
+  definition?: Options['initial'],
+  variants?: Options['variants'],
 ): Variant | undefined {
   if (typeof definition === 'object') {
     return definition

@@ -17,14 +17,12 @@ const show = ref(true)
       <Motion
         v-show="show"
         class="w-20 h-20 bg-purple-500 rounded-md"
-        :initial="{ scale: 0 }"
-        :animate="{ scale: 1 }"
-        :exit="{ scale: 0,
-                 transition: {
-                   duration: 5,
-                 },
+        drag
+        :animate="{ scale: 2,
+                    transition: {
+                      duration: 10,
+                    },
         }"
-        :transition="{ duration: 5 }"
       >
         content
       </Motion>

@@ -7,12 +7,23 @@ type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Variant extends DOMKeyframesDefinition {
   transition?: DynamicAnimationOptions
 }
+export type VariantLabels = string | Variant
 type MarginValue = `${number}${'px' | '%'}`
 type MarginType = MarginValue | `${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue} ${MarginValue}`
 export interface InViewOptions {
   root?: Element | Document
   margin?: MarginType
   amount?: 'some' | 'all' | number
+}
+interface BoundingBox {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+export interface DragOptions {
+  constraints?: false | Partial<BoundingBox>
+  dragSnapToOrigin?: boolean
 }
 export interface Options {
   inViewOptions?: InViewOptions & { once?: boolean }

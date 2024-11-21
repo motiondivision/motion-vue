@@ -4,16 +4,6 @@ export interface Variant extends DOMKeyframesDefinition {
   transition?: DynamicAnimationOptions
 }
 
-export interface AnimateOptions {
-  initial?: string | Variant | boolean
-  animate?: string | Variant
-  exit?: string | Variant
-  variants?: {
-    [k: string]: Variant
-  }
-  transition?: DynamicAnimationOptions
-}
-
 export type MotionEventNames =
   | 'motionstart'
   | 'motioncomplete'
@@ -23,3 +13,8 @@ export type MotionEventNames =
   | 'pressend'
   | 'viewenter'
   | 'viewleave'
+  | 'dragstart'
+  | 'dragend'
+  | 'dragcancel'
+  | 'dragmove'
+  | 'drag'

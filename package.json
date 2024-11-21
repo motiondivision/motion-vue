@@ -10,7 +10,7 @@
   "main": "index.js",
   "scripts": {
     "dev:play": "pnpm --filter './playground/nuxt' dev",
-    "dev": "pnpm --filter './packages/vue' dev",
+    "dev": "pnpm --filter './packages/motion' dev",
     "build": "pnpm --filter './packages/**' build",
     "test": "pnpm --filter './packages/motion' test",
     "prepare": "pnpm simple-git-hooks",
