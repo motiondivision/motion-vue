@@ -7,6 +7,7 @@ type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Variant extends DOMKeyframesDefinition {
   transition?: DynamicAnimationOptions
 }
+export type VariantLabels = string | Variant
 type MarginValue = `${number}${'px' | '%'}`
 type MarginType = MarginValue | `${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue} ${MarginValue}`
 export interface InViewOptions {
@@ -28,9 +29,6 @@ export interface Options {
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
   press?: string | Variant
-  drag?: boolean | 'x' | 'y'
-  dragOptions?: DragOptions
-  whileDrag?: string | Variant
   hover?: string | Variant
   initial?: string | Variant | boolean
   animate?: string | Variant

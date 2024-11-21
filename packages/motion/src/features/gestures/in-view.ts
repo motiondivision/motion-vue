@@ -1,6 +1,6 @@
 import { dispatchPointerEvent } from '@/utils/events'
 import type { MotionState } from '@/state/motion-state'
-import { BaseGesture } from '@/state/features/gestures'
+import { BaseGesture } from '@/features'
 import { inView } from 'framer-motion/dom'
 
 export class InViewGesture extends BaseGesture {

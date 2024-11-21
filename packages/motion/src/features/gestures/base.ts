@@ -1,5 +1,5 @@
 import { dispatchPointerEvent } from '@/utils/events'
-import { Feature } from '@/state/features/feature'
+import { Feature } from '@/features/feature'
 import type { MotionEventNames } from '@/types'
 
 export abstract class BaseGesture extends Feature {

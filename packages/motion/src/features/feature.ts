@@ -1,5 +1,11 @@
 import type { MotionState } from '@/state/motion-state'
-import { DragGesture, EventFeature, HoverGesture, InViewGesture, PressGesture } from './'
+import {
+  // DragGesture,
+  EventFeature,
+  HoverGesture,
+  InViewGesture,
+  PressGesture,
+} from './'
 
 export abstract class Feature {
   state: MotionState
@@ -22,7 +28,7 @@ export class FeatureManager {
       new HoverGesture(state),
       new PressGesture(state),
       new InViewGesture(state),
-      new DragGesture(state),
+      // new DragGesture(state),
       new EventFeature(state),
     ]
   }

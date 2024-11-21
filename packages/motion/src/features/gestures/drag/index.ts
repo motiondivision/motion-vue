@@ -1,6 +1,6 @@
 import { dispatchPointerEvent } from '@/utils/events'
 import type { MotionState } from '@/state/motion-state'
-import { BaseGesture } from '@/state/features/gestures'
+import { BaseGesture } from '@/features/gestures'
 import { animate } from 'framer-motion/dom'
 import type { DragOptions } from '@/state/types'
 
@@ -11,7 +11,7 @@ export class DragGesture extends BaseGesture {
   private constraints?: DragOptions['constraints']
 
   isActive() {
-    return Boolean(this.state.getOptions().drag)
+    return Boolean(this.state.getOptions())
   }
 
   constructor(state: MotionState) {
