@@ -18,7 +18,7 @@ export class DragGesture extends BaseGesture {
     super(state)
     this.subscribeEvents = () => {
       const element = this.state.getElement()
-      const options = this.state.getOptions().dragOptions || {}
+      const options = (this.state.getOptions() as any).dragOptions || {}
       this.constraints = options.constraints
 
       const onPointerMove = (event: PointerEvent) => {
