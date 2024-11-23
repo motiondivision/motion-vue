@@ -63,5 +63,45 @@ export const docsConfig: DocsConfig = {
         },
       ],
     },
+    {
+      title: 'Motion Values',
+      items: [
+        {
+          title: 'Overview',
+          href: '/docs/motion-values/overview',
+          items: [],
+        },
+        {
+          title: 'useMotionValueEvent',
+          href: '/docs/motion-values/use-motion-value-event',
+          items: [],
+        },
+        {
+          title: 'useMotionTemplate',
+          href: '/docs/motion-values/use-motion-template',
+          items: [],
+        },
+        {
+          title: 'useScroll',
+          href: '/docs/motion-values/use-scroll',
+          items: [],
+        },
+        {
+          title: 'useSpring',
+          href: '/docs/motion-values/use-spring',
+          items: [],
+        },
+        {
+          title: 'useTime',
+          href: '/docs/motion-values/use-time',
+          items: [],
+        },
+        {
+          title: 'useTransform',
+          href: '/docs/motion-values/use-transform',
+          items: [],
+        },
+      ],
+    },
   ],
 }

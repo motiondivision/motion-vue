@@ -1,54 +1,22 @@
-<script setup>
-import { Motion } from 'motion-v'
+<script setup lang="ts">
 import { ref } from 'vue'
+import { Motion } from 'motion-v'
+import { useFollowPointer } from './demos/use-follow-pointer.js'
 
-const variants = {
-  normal: {
-    x: 2,
-  },
-  animate: {
-    x: [0, 30, -30, 20, -20, 0],
-  },
-}
+const spring = { damping: 3, stiffness: 50, restDelta: 0.001 }
 
-const controls = ref()
+const boxRef = ref()
+const { x, y } = useFollowPointer(boxRef)
 </script>
 
 <template>
-  <div
-    className="cursor-pointer select-none p-2 hover:bg-accent rounded-md transition-colors duration-200 flex items-center justify-center overflow-hidden"
-    role="button"
-    tabindex="0"
-    @mouseenter="() => (controls = variants.animate)"
-    @mouseleave="() => (controls = variants.normal)"
-  >
-    <Motion
-      d="M17 12H7"
-      :variants="variants"
-      initial="normal"
-      :animate="controls"
-      class="bg-black w-[10px] h-[10px]"
-    />
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <Motion
-        as="path"
-        d="M17 12H7"
-        :variants="variants"
-        initial="normal"
-        :animate="controls"
-      />
-      <path d="M19 18H5" />
-      <path d="M21 6H3" />
-    </svg>
-  </div>
+  <Motion
+    ref="boxRef"
+    :style="{ x, y }"
+  />
+  <!-- <Motion
+    ref="boxRef"
+    class-name="box"
+    :style="{ x, y }"
+  /> -->
 </template>

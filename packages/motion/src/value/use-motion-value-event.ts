@@ -16,9 +16,11 @@ export function useMotionValueEvent<
   event: EventName,
   callback: MotionValueEventCallbacks<V>[EventName],
 ) {
-  value.on(event, callback)
+  const unlisten = value.on(event, callback)
 
   onUnmounted(() => {
-    value.clearListeners()
+    unlisten()
   })
+
+  return unlisten
 }

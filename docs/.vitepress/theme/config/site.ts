@@ -10,6 +10,6 @@ export const siteConfig = {
 
 export const announcementConfig = {
   icon: '✨',
-  title: 'New',
+  title: 'New v0.2.0',
   link: '/docs/introduction.html',
 }
