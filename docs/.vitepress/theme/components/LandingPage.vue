@@ -29,7 +29,11 @@ import HomeDemo from './demos/HomeDemo.vue'
     </a>
     <PageHeaderHeading>Motion Vue</PageHeaderHeading>
     <PageHeaderDescription>
-      A Vue 3 motion library to power your app. Based on Framer Motion animate.
+      A Vue 3 motion library to power your app. based on <a
+        href="https://motion.dev/docs/animate"
+        target="_blank"
+        class="text-primary"
+      >Motion animate</a> .
     </PageHeaderDescription>
 
     <section class="flex w-full items-center space-x-4 pb-8 pt-4 md:pb-10">
