@@ -49,7 +49,7 @@ onMounted(() => {
   state.mount(currentElement.value)
   state.update({
     ...props,
-    style: { ...props.style, ...createStyles(state.getTarget()) },
+    style: { ...createStyles(state.getTarget()), ...props.style },
     initial: presenceInitial.value === false
       ? presenceInitial.value
       : (

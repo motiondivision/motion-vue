@@ -1,8 +1,7 @@
 import type { TransformOptions } from '@/types'
-import type { MotionValue } from 'framer-motion/dom'
-import type { Ref } from 'vue'
-import { computed, ref, watch } from 'vue'
-import { transform } from 'framer-motion/dom'
+import { type MotionValue, transform } from 'framer-motion/dom'
+import { useComputed } from './use-computed'
+import { useCombineMotionValues } from '@/value/use-combine-values'
 
 type InputRange = number[]
 type SingleTransformer<I, O> = (input: I) => O
@@ -64,6 +63,8 @@ export function useTransform<I, O>(
   options?: TransformOptions<O>
 ): MotionValue<O>
 
+export function useTransform<I, O>(transformer: () => O): MotionValue<O>
+
 export function useTransform<I, O>(
   input: MotionValue<I>,
   transformer: SingleTransformer<I, O>
@@ -88,42 +89,39 @@ export function useTransform<I, O>(
   options?: TransformOptions<O>,
 ): MotionValue<O> {
   if (typeof input === 'function') {
-    // return computed(() => input())
+    return useComputed(input)
   }
+
+  const transformer
+        = typeof inputRangeOrTransformer === 'function'
+          ? inputRangeOrTransformer
+          : transform(inputRangeOrTransformer!, outputRange!, options)
+  return Array.isArray(input)
+    ? useListTransform(
+      input,
+      transformer as MultiTransformer<string | number, O>,
+    )
+    : useListTransform([input], ([latest]) =>
+      (transformer as SingleTransformer<I, O>)(latest))
 }
 
-// 创建范围转换器
-function createRangeTransformer<O>(
-  inputRange: InputRange,
-  outputRange: O[],
-  options: TransformOptions<O> = {},
-): SingleTransformer<number, O> {
-  const { clamp = true } = options
+function useListTransform<I, O>(
+  values: MotionValue<I>[],
+  transformer: MultiTransformer<I, O>,
+): MotionValue<O> {
+  const latest: I[] = []
 
-  return (value: number) => {
-    // 找到value在inputRange中的位置
-    let i = 1
-    for (; i < inputRange.length - 1; i++) {
-      if (value < inputRange[i])
-        break
+  const { value, subscribe } = useCombineMotionValues(() => {
+    latest.length = 0
+    const numValues = values.length
+    for (let i = 0; i < numValues; i++) {
+      latest[i] = values[i].get()
     }
 
-    const start = i - 1
-    const end = i
+    return transformer(latest)
+  })
 
-    // 计算插值
-    const progress = (value - inputRange[start]) / (inputRange[end] - inputRange[start])
+  subscribe(values)
 
-    if (typeof outputRange[0] === 'number') {
-      const result = (outputRange[start] as number)
-        + progress * ((outputRange[end] as number) - (outputRange[start] as number))
-
-      if (clamp) {
-        return Math.min(Math.max(result, outputRange[0] as number), outputRange[outputRange.length - 1] as number) as O
-      }
-      return result as O
-    }
-
-    return outputRange[start]
-  }
+  return value
 }

@@ -4,5 +4,6 @@
     "composite": true,
     "baseUrl": "."
   },
+  "include": ["./packages/**/*"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }

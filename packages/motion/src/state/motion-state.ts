@@ -3,7 +3,7 @@ import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { createDOMVisualElement } from 'framer-motion/dist/es/animation/utils/create-visual-element.mjs'
 import { isDef } from '@vueuse/core'
-import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
+import type { DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
 import { animate } from 'framer-motion/dom'
 import { getOptions, hasChanged, noop, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
@@ -33,6 +33,8 @@ export class MotionState {
 
   private target: DOMKeyframesDefinition
   private featureManager: FeatureManager
+
+  private visualElement: VisualElement
   constructor(options: Options, parent?: MotionState) {
     this.options = options
     this.parent = parent
@@ -78,6 +80,7 @@ export class MotionState {
       createDOMVisualElement(element)
     }
     const visualElement = visualElementStore.get(element)
+    this.visualElement = visualElement
     visualElement.update(this.options as any, this.parent?.context as any)
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {
@@ -104,6 +107,8 @@ export class MotionState {
 
   update(options: Options) {
     this.options = options
+    this.visualElement.update(this.options as any, this.parent?.context as any)
+
     // 更新特征
     this.featureManager.update()
     // 更新动画
@@ -165,6 +170,7 @@ export class MotionState {
       }
       if (hasChanged(prevTarget[key], this.target[key])) {
         this.baseTarget[key] ??= style.get(this.element, key) as string
+        console.log(this.element, key, this.target[key] === 'none' ? transformResetValue[key] : this.target[key])
         animationFactories.push(
           () => {
             return animate(
