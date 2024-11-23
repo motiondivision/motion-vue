@@ -51,3 +51,4 @@ jspm_packages/
 *.sw?
 docs/.vitepress/cache/**/*
 prompts
+.npmrc
