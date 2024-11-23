@@ -1,6 +1,6 @@
 {
   "name": "motion-v",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -15,10 +15,10 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.umd.cjs"
     }
   },
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
