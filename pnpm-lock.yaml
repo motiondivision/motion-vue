@@ -170,8 +170,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       motion-v:
-        specifier: 0.2.1
-        version: 0.2.1
+        specifier: link:../packages/motion
+        version: link:../packages/motion
       pathe:
         specifier: ^1.1.2
         version: 1.1.2
@@ -5251,9 +5251,6 @@ packages:
 
   mlly@1.7.1:
     resolution: {integrity: sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==}
-
-  motion-v@0.2.1:
-    resolution: {integrity: sha512-BFqvZtHvgIX38ZHhboJVmrWCTK1VQa6VnE34JnQUigNNeXn6V50dFsabFFowG2I+fk48/OojKqZh/06PrXiveA==}
 
   move-concurrently@1.0.1:
     resolution: {integrity: sha512-hdrFxZOycD/g6A6SoI2bB5NA/5NEqD0569+S47WZhPvm46sD50ZHdYaFmnua5lndde9rCHGjmfK7Z8BuCt/PcQ==}
@@ -13314,14 +13311,6 @@ snapshots:
       pathe: 1.1.2
       pkg-types: 1.2.0
       ufo: 1.5.4
-
-  motion-v@0.2.1:
-    dependencies:
-      framer-motion: 11.11.11
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - react
-      - react-dom
 
   move-concurrently@1.0.1:
     dependencies:

@@ -101,6 +101,11 @@ export const docsConfig: DocsConfig = {
           href: '/docs/motion-values/use-transform',
           items: [],
         },
+        {
+          title: 'useVelocity',
+          href: '/docs/motion-values/use-velocity',
+          items: [],
+        },
       ],
     },
   ],

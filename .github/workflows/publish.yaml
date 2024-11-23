@@ -47,7 +47,9 @@ jobs:
       - name: Install dependencies
         run: pnpm i --no-frozen-lockfile
 
-        
+      - name: Build Motion
+        run: pnpm build
+
       - name: Build Docs
         run: pnpm docs:build
 
