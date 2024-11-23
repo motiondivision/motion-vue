@@ -24,7 +24,7 @@ export abstract class BaseGesture extends Feature {
 }
 
 export function createGestureEvent(
-  element: Element,
+  element: HTMLElement,
   name: MotionEventNames,
   action: VoidFunction,
 ) {

@@ -1,9 +1,14 @@
 {
   "name": "motion-v",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "",
   "author": "",
   "license": "MIT",
+  "homepage": "https://github.com/rick-hup/motion-vue",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rick-hup/motion-vue.git"
+  },
   "keywords": [],
   "sideEffects": false,
   "exports": {
@@ -24,7 +29,8 @@
     "dev": "vite build --watch",
     "build": "vite build",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "pub:release": "pnpm publish --access public"
   },
   "dependencies": {
     "framer-motion": "11.11.11"

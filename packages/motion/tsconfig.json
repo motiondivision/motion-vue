@@ -8,11 +8,9 @@
       // left for the users to include, because that would require:
       //   - either the project doesn't need to support older versions of browsers;
       //   - or the project has properly included the necessary polyfills.
-      "ES2020",
-
+      "ES2023",
       "DOM",
       "DOM.Iterable"
-
       // No `ScriptHost` because Vue 3 dropped support for IE
     ],
     "baseUrl": ".",
@@ -22,6 +20,6 @@
     // Set to empty to avoid accidental inclusion of unwanted types
     "types": []
   },
-  "include": ["src"],
+  "include": ["./src/**/*.vue", "./src/**/*.ts"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }

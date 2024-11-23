@@ -1,9 +1,5 @@
-import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
-
-export interface Variant extends DOMKeyframesDefinition {
-  transition?: DynamicAnimationOptions
-}
-
+export * from './transform'
+export * from './framer-motion'
 export type MotionEventNames =
   | 'motionstart'
   | 'motioncomplete'

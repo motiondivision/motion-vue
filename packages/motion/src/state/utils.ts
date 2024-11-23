@@ -1,6 +1,6 @@
 import type { Options } from '@/state/types'
 import type { DynamicAnimationOptions, Variant } from 'framer-motion'
-import type { VNode } from 'vue'
+import type { IntrinsicElementAttributes } from 'vue'
 
 export function resolveVariant(
   definition?: Options['initial'],
@@ -61,14 +61,69 @@ export function isNumber(value: any): boolean {
   return typeof value === 'number'
 }
 
-export function isElement(vNode: VNode) {
-  return typeof vNode.type !== 'symbol'
-}
+type ElementType = keyof IntrinsicElementAttributes
 
-export function getChildKey(vNode: VNode) {
-  return vNode.key
-}
+export const svgElements = [
+  'animate',
+  'circle',
+  'defs',
+  'desc',
+  'ellipse',
+  'g',
+  'image',
+  'line',
+  'filter',
+  'marker',
+  'mask',
+  'metadata',
+  'path',
+  'pattern',
+  'polygon',
+  'polyline',
+  'rect',
+  'stop',
+  'svg',
+  'switch',
+  'symbol',
+  'text',
+  'tspan',
+  'use',
+  'view',
+  'clipPath',
+  'feBlend',
+  'feColorMatrix',
+  'feComponentTransfer',
+  'feComposite',
+  'feConvolveMatrix',
+  'feDiffuseLighting',
+  'feDisplacementMap',
+  'feDistantLight',
+  'feDropShadow',
+  'feFlood',
+  'feFuncA',
+  'feFuncB',
+  'feFuncG',
+  'feFuncR',
+  'feGaussianBlur',
+  'feImage',
+  'feMerge',
+  'feMergeNode',
+  'feMorphology',
+  'feOffset',
+  'fePointLight',
+  'feSpecularLighting',
+  'feSpotLight',
+  'feTile',
+  'feTurbulence',
+  'foreignObject',
+  'linearGradient',
+  'radialGradient',
+  'textPath',
+] as const
+type UnionStringArray<T extends Readonly<string[]>> = T[number]
+export type SVGElements = UnionStringArray<typeof svgElements>
 
-export function setStaticValue() {
-
+const svgElementSet = new Set(svgElements)
+export function isSVGElement(as: ElementType): as is SVGElements {
+  return svgElementSet.has(as as SVGElements)
 }

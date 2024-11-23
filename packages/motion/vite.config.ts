@@ -21,13 +21,16 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
       'framer-motion/dist/es/animation/utils/create-visual-element.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/utils/create-visual-element.mjs'),
       'framer-motion/dist/es/render/store.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/store.mjs'),
+      'motion-value': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/value/index.mjs'),
+      'framer-main-animation': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/animators/MainThreadAnimation.mjs'),
+      'animate': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/animate/index.mjs'),
     },
   },
   build: {
     lib: {
       name: 'motion-v',
       formats: ['es', 'cjs'],
-      fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`,
       entry: path.resolve(__dirname, 'src/index.ts'),
     },
     rollupOptions: {

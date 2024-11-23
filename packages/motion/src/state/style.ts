@@ -1,6 +1,8 @@
 import type { DOMKeyframesDefinition } from 'framer-motion'
 import { isCssVar, isNumber } from './utils'
 import { buildTransformTemplate, isTransform, transformAlias, transformDefinitions } from './transform'
+import { isMotionValue } from '@/utils'
+import type { MotionStyle } from '@/state/types'
 
 type MotionStyleKey = Exclude<
   keyof CSSStyleDeclaration,
@@ -29,12 +31,12 @@ export const style = {
   },
 }
 
-export function createStyles(keyframes?: DOMKeyframesDefinition): any {
+export function createStyles(keyframes?: MotionStyle | DOMKeyframesDefinition): any {
   const initialKeyframes: any = {}
   const transforms: [string, any][] = []
-  for (let key in keyframes) {
-    const value = keyframes[key as keyof typeof keyframes]
-
+  for (let key in keyframes as any) {
+    let value = keyframes[key]
+    value = isMotionValue(value) ? value.get() : value
     if (isTransform(key)) {
       if (key in transformAlias) {
         key = transformAlias[key as keyof typeof transformAlias]

@@ -1,44 +1,54 @@
-<script setup lang="ts">
+<script setup>
+import { Motion } from 'motion-v'
 import { ref } from 'vue'
-import { AnimatePresence, Motion } from 'motion-v'
 
-const show = ref(true)
+const variants = {
+  normal: {
+    x: 2,
+  },
+  animate: {
+    x: [0, 30, -30, 20, -20, 0],
+  },
+}
+
+const controls = ref()
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
-    <button
-      class="mb-4"
-      @click="show = !show"
+  <div
+    className="cursor-pointer select-none p-2 hover:bg-accent rounded-md transition-colors duration-200 flex items-center justify-center overflow-hidden"
+    role="button"
+    tabindex="0"
+    @mouseenter="() => (controls = variants.animate)"
+    @mouseleave="() => (controls = variants.normal)"
+  >
+    <Motion
+      d="M17 12H7"
+      :variants="variants"
+      initial="normal"
+      :animate="controls"
+      class="bg-black w-[10px] h-[10px]"
+    />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     >
-      toggle
-    </button>
-    <AnimatePresence>
       <Motion
-        v-show="show"
-        class="w-20 h-20 bg-purple-500 rounded-md"
-        drag
-        :animate="{ scale: 2,
-                    transition: {
-                      duration: 10,
-                    },
-        }"
-      >
-        content
-      </Motion>
-    </AnimatePresence>
+        as="path"
+        d="M17 12H7"
+        :variants="variants"
+        initial="normal"
+        :animate="controls"
+      />
+      <path d="M19 18H5" />
+      <path d="M21 6H3" />
+    </svg>
   </div>
 </template>
-
-<style>
-.v-enter-active,
-.v-leave-active {
-  transition: all 5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-  transform: translateX(100px);
-}
-</style>
