@@ -18,3 +18,9 @@ declare module 'framer-main-animation' {
   export const animateValue: typeof animateValueF
   export type MainThreadAnimation = ReturnType<typeof animateValueF>
 }
+
+declare module 'animate' {
+  import type { animate as animateF } from 'framer-motion'
+
+  export const animate: typeof animateF
+}

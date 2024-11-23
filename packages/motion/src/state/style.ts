@@ -34,7 +34,7 @@ export const style = {
 export function createStyles(keyframes?: MotionStyle | DOMKeyframesDefinition): any {
   const initialKeyframes: any = {}
   const transforms: [string, any][] = []
-  for (let key in keyframes) {
+  for (let key in keyframes as any) {
     let value = keyframes[key]
     value = isMotionValue(value) ? value.get() : value
     if (isTransform(key)) {

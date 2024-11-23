@@ -23,6 +23,7 @@ export default defineConfig({
       'framer-motion/dist/es/render/store.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/store.mjs'),
       'motion-value': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/value/index.mjs'),
       'framer-main-animation': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/animators/MainThreadAnimation.mjs'),
+      'animate': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/animate/index.mjs'),
     },
   },
   build: {

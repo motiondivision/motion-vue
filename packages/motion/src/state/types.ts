@@ -1,5 +1,8 @@
+import type { TransformProperties } from '@/types'
 import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
-import type { MotionValue, animate } from 'framer-motion/dom'
+import type { MotionValue } from 'framer-motion/dom'
+import type { animate } from 'animate'
+import type { IntrinsicElementAttributes } from 'vue'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 
@@ -27,7 +30,10 @@ export interface DragOptions {
 export type MotionStyle = Partial<{
   [K in keyof Variant]: Variant[K] | MotionValue
 }>
+export type ElementType = keyof IntrinsicElementAttributes
+
 export interface Options {
+  as?: ElementType
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
   press?: string | Variant
@@ -39,6 +45,10 @@ export interface Options {
     [k: string]: Variant
   }
   style?: MotionStyle
+  transformTemplate?: (
+    transform: TransformProperties,
+    generatedTransform: string
+  ) => string
   transition?: DynamicAnimationOptions
   onMotionStart?: (target: DOMKeyframesDefinition) => void
   onMotionComplete?: (target: DOMKeyframesDefinition) => void

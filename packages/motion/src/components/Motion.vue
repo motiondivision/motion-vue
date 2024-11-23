@@ -1,8 +1,9 @@
 <script lang="ts">
 import type { IntrinsicElementAttributes } from 'vue'
 import { Primitive } from './Primitive'
-import { isSvgTag } from './utils'
+// import { isSvgTag } from './utils'
 import { MotionState } from '@/state/motion-state'
+import { isSVGElement } from '@/state/utils'
 
 type ElementType = keyof IntrinsicElementAttributes
 </script>
@@ -47,6 +48,9 @@ provideMotion(state)
 const { primitiveElement, currentElement } = usePrimitiveElement()
 onMounted(() => {
   state.mount(currentElement.value)
+  if (isSVGElement(props.as)) {
+    style.set(currentElement.value, 'opacity', '')
+  }
   state.update({
     ...props,
     style: { ...createStyles(state.getTarget()), ...props.style },
@@ -62,27 +66,7 @@ onUnmounted(() => {
   unmounted = true
 })
 
-let manuallyAppliedMotionStyles = false
 onUpdated(() => {
-  /**
-   * Vue reapplies all styles every render, rather than diffing and
-   * only reapplying the ones that change. This means that initially
-   * calculated motion styles also get reapplied every render, leading
-   * to incorrect animation origins.
-   *
-   * To prevent this, once an element is mounted we hand over these
-   * styles to Motion. This will currently still lead to a jump if interrupting
-   * transforms in browsers where the number polyfill is used.
-   */
-  if (!manuallyAppliedMotionStyles && currentElement.value) {
-    manuallyAppliedMotionStyles = true
-
-    const styles = createStyles(state.getTarget())
-    for (const key in styles) {
-      style.set(currentElement.value, key, styles[key])
-    }
-  }
-
   state.update({
     ...props,
     initial: presenceInitial.value === false
@@ -93,15 +77,9 @@ onUpdated(() => {
   })
 })
 
-function getSVGProps() {
-  if (!state.isMounted() && isSvgTag(props.as)) {
-    return state.getTarget()
-  }
-}
-
 function getStyle() {
-  if (isSvgTag(props.as)) {
-    return props.style
+  if (isSVGElement(props.as) && !state.isMounted()) {
+    return { opacity: 0 }
   }
   return !state.isMounted() ? { ...createStyles(props.style), ...createStyles(state.getTarget()) } : createStyles(props.style)
 }
@@ -113,7 +91,6 @@ function getStyle() {
     ref="primitiveElement"
     :as="as"
     :as-child="asChild"
-    v-bind="getSVGProps()"
     :style="getStyle()"
   >
     <slot />

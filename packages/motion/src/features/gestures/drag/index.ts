@@ -1,7 +1,7 @@
 import { dispatchPointerEvent } from '@/utils/events'
 import type { MotionState } from '@/state/motion-state'
 import { BaseGesture } from '@/features/gestures'
-import { animate } from 'framer-motion/dom'
+import { animate } from 'animate'
 import type { DragOptions } from '@/state/types'
 
 export class DragGesture extends BaseGesture {
