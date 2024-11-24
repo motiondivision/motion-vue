@@ -2,8 +2,6 @@
 
 A animation library designed for Vue 3, Powered by [Motion](https://www.framer.com/motion/).
 
-I love framer-motion - it makes creating animations super easy! While it doesn't support Vue 3, but recently framer-motion has separated some of its animation code from React. So I thought I'd try building a Vue animation library that matches framer-motion's API as a fun practice project.
-
 ## Features
 
 - 🎨 Declarative Animation API

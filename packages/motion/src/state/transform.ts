@@ -39,7 +39,7 @@ export const transformDefinitions = new Map<string, CssPropertyDefinition>()
 /**
  * Generate a list of every possible transform key
  */
-const transforms = ['x', 'y', 'z']
+const transforms = ['transformPerspective', 'x', 'y', 'z', 'translateX', 'translateY', 'translateZ', 'scale', 'scaleX', 'scaleY', 'rotate', 'rotateX', 'rotateY', 'rotateZ', 'skew', 'skewX', 'skewY']
 order.forEach((name) => {
   axes.forEach((axis) => {
     transforms.push(name + axis)

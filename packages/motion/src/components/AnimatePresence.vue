@@ -6,7 +6,10 @@ import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/com
 // 定义组件Props接口
 export interface AnimatePresenceProps {
   // 动画模式: wait(等待前一个完成), popLayout(弹出布局), sync(同步)
-  mode?: 'wait' | 'popLayout' | 'sync'
+  mode?: 'wait'
+  // TODO: support popLayout
+  //  | 'popLayout'
+  | 'sync'
   // 是否显示初始动画
   initial?: boolean
   // 是否支持多个元素同时动画
@@ -33,6 +36,9 @@ const { initial } = toRefs(props)
 // 提供动画上下文
 provideAnimatePresence({
   initial,
+  safeUnmount(el) {
+    return !doneCallbacks.has(el)
+  },
 })
 // 处理元素进入动画
 function enter(el: Element) {
@@ -54,6 +60,8 @@ function exit(el: Element, done: VoidFunction) {
   removeDoneCallback(el)
   function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
+      doneCallbacks.delete(el)
+      state.unmount()
       done()
     }
   }

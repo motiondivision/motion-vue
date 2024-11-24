@@ -34,7 +34,7 @@ export class MotionState {
   private target: DOMKeyframesDefinition
   private featureManager: FeatureManager
 
-  private visualElement: VisualElement
+  public visualElement: VisualElement
   constructor(options: Options, parent?: MotionState) {
     this.options = options
     this.parent = parent

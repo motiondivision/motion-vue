@@ -1,22 +1,52 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Motion } from 'motion-v'
-import { useFollowPointer } from './demos/use-follow-pointer.js'
+import { Motion, useMotionValue } from 'motion-v'
 
-const spring = { damping: 3, stiffness: 50, restDelta: 0.001 }
-
-const boxRef = ref()
-const { x, y } = useFollowPointer(boxRef)
+const draw = {
+  hidden: { pathLength: 0,
+    //  opacity: 0
+  },
+  visible: {
+    pathLength: 1,
+    opacity: 1,
+    transition: {
+      pathLength: { duration: 1.5, bounce: 0 },
+      // opacity: { duration: 1 },
+    },
+  },
+}
+const opacity = useMotionValue(0)
 </script>
 
 <template>
-  <Motion
-    ref="boxRef"
-    :style="{ x, y }"
-  />
-  <!-- <Motion
-    ref="boxRef"
-    class-name="box"
-    :style="{ x, y }"
-  /> -->
+  <div>
+    <Motion
+      as="svg"
+      width="600"
+      height="600"
+      viewBox="0 0 600 600"
+      data-a="123"
+    >
+      <Motion
+        as="circle"
+        cx="300"
+        cy="300"
+        r="80"
+        stroke="#ff0055"
+        :initial="{
+          opacity: 0,
+        }"
+        :animate="{
+          opacity: 1,
+        }"
+      />
+    </Motion>
+  </div>
 </template>
+
+<style scoped>
+circle {
+  stroke-width: 10px;
+  stroke-linecap: round;
+  fill: transparent;
+}
+</style>
