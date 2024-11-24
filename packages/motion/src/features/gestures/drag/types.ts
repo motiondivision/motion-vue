@@ -1,4 +1,4 @@
-import type { VariantLabels } from '@/state/types'
+import type { VariantLabels } from '@/types'
 
 export interface BoundingBox {
   top: number

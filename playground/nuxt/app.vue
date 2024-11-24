@@ -14,11 +14,19 @@ const draw = {
     },
   },
 }
-const opacity = useMotionValue(0)
+const opacity = useMotionValue('300')
+setTimeout(() => {
+  opacity.set('200')
+}, 1000)
+const data = ref(123)
+setTimeout(() => {
+  data.value = 456
+}, 3000)
 </script>
 
 <template>
   <div>
+    {{ data }}
     <Motion
       as="svg"
       width="600"
@@ -28,17 +36,14 @@ const opacity = useMotionValue(0)
     >
       <Motion
         as="circle"
-        cx="300"
+        :cx="opacity"
         cy="300"
         r="80"
         stroke="#ff0055"
-        :initial="{
-          opacity: 0,
-        }"
-        :animate="{
-          opacity: 1,
-        }"
-      />
+        data-aa="123"
+      >
+        <!-- <circle /> -->
+      </Motion>
     </Motion>
   </div>
 </template>

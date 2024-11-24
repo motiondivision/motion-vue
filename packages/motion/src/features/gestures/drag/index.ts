@@ -2,7 +2,7 @@ import { dispatchPointerEvent } from '@/utils/events'
 import type { MotionState } from '@/state/motion-state'
 import { BaseGesture } from '@/features/gestures'
 import { animate } from 'animate'
-import type { DragOptions } from '@/state/types'
+import type { DragOptions } from './types'
 
 export class DragGesture extends BaseGesture {
   private isDragging = false
@@ -28,20 +28,20 @@ export class DragGesture extends BaseGesture {
         const deltaX = event.clientX - this.startPosition.x
         const deltaY = event.clientY - this.startPosition.y
 
-        let newX = this.currentPosition.x + deltaX
-        let newY = this.currentPosition.y + deltaY
+        const newX = this.currentPosition.x + deltaX
+        const newY = this.currentPosition.y + deltaY
 
         // 应用约束
-        if (this.constraints) {
-          if (this.constraints.left !== undefined)
-            newX = Math.max(this.constraints.left, newX)
-          if (this.constraints.right !== undefined)
-            newX = Math.min(this.constraints.right, newX)
-          if (this.constraints.top !== undefined)
-            newY = Math.max(this.constraints.top, newY)
-          if (this.constraints.bottom !== undefined)
-            newY = Math.min(this.constraints.bottom, newY)
-        }
+        // if (this.constraints) {
+        //   if (this.constraints.left !== undefined)
+        //     newX = Math.max(this.constraints.left, newX)
+        //   if (this.constraints.right !== undefined)
+        //     newX = Math.min(this.constraints.right, newX)
+        //   if (this.constraints.top !== undefined)
+        //     newY = Math.max(this.constraints.top, newY)
+        //   if (this.constraints.bottom !== undefined)
+        //     newY = Math.min(this.constraints.bottom, newY)
+        // }
 
         // 更新元素位置
         element.style.transform = `translate(${newX}px, ${newY}px)`

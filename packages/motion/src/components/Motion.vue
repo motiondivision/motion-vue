@@ -1,30 +1,30 @@
 <script lang="ts">
-import type { IntrinsicElementAttributes } from 'vue'
 import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
 import { isSVGElement } from '@/state/utils'
 import { injectAnimatePresence } from './presence'
+import { isMotionValue } from '@/utils'
+import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div'">
-import { getCurrentInstance, onBeforeMount, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
-import type { ElementType, Options } from '@/state/types'
+import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 import { injectMotion, provideMotion } from './context'
-import { createStyles } from '@/state/style'
+import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
 export interface MotionProps<T extends ElementType = 'div'> extends Options {
   as?: T
   asChild?: boolean
 }
+type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
 
-type ComBindProps = /* @vue-ignore */ Omit<IntrinsicElementAttributes[T], keyof Options | 'style' | 'as' | 'asChild'>
-
+type ComBindProps = /* @vue-ignore */ Omit<IntrinsicElementAttributesAsMotionValues[T], keyof Options | 'style' | 'as' | 'asChild'>
 defineOptions({
   name: 'Motion',
-  inheritAttrs: true,
+  inheritAttrs: false,
 })
 
-const props = withDefaults(defineProps<MotionProps<T> & ComBindProps>(), {
+const props = withDefaults(defineProps<ComBindProps & MotionProps<T>>(), {
   as: 'div' as T,
   asChild: false,
   initial: undefined,
@@ -35,28 +35,23 @@ const props = withDefaults(defineProps<MotionProps<T> & ComBindProps>(), {
 
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
+const attrs = useAttrs()
 const state = new MotionState(
   {
+    ...attrs,
     ...props,
   },
   parentState!,
 )
 provideMotion(state)
 
-// const { primitiveElement, currentElement } = usePrimitiveElement()
-const attrs = useAttrs()
 const instance = getCurrentInstance()
-onBeforeMount(() => {
+onMounted(() => {
   state.mount(instance?.vnode.el as HTMLElement)
   state.update({
     ...attrs,
     ...props,
     style: { ...createStyles(state.getTarget()), ...props.style },
-    initial: presenceInitial.value === false
-      ? presenceInitial.value
-      : (
-          props.initial === true ? undefined : props.initial
-        ),
   })
 })
 
@@ -77,13 +72,24 @@ onUpdated(() => {
   })
 })
 
-function getStyle() {
-  if (!isSVGElement(props.as))
-    return !state.isMounted() ? { ...createStyles(props.style), ...createStyles(state.getTarget()) } : createStyles(props.style)
-}
+function getProps() {
+  const attrsProps = { ...attrs }
+  Object.keys(attrs).forEach((key) => {
+    if (isMotionValue(attrs[key]))
+      attrsProps[key] = attrs[key].get()
+  })
+  let styleProps: Record<string, any> = {}
 
-function getSVGProps() {
-  return (!state.isMounted() && isSVGElement(props.as)) ? state.visualElement?.latestValues : undefined
+  if (!state.isMounted()) {
+    if (isSVGElement(props.as)) {
+      const { attributes, style } = convertSvgStyleToAttributes(state.getTarget())
+      Object.assign(attrsProps, attributes)
+      Object.assign(styleProps, style, props.style)
+    }
+  }
+  styleProps = createStyles(styleProps)
+  attrsProps.style = createStyles(styleProps)
+  return attrsProps
 }
 </script>
 
@@ -92,8 +98,7 @@ function getSVGProps() {
   <Primitive
     :as="as"
     :as-child="asChild"
-    :style="getStyle()"
-    v-bind="getSVGProps()"
+    v-bind="getProps()"
   >
     <slot />
   </Primitive>

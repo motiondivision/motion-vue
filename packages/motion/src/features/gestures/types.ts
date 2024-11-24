@@ -1,4 +1,4 @@
-import type { Options } from '@/state/types'
+import type { Options } from '@/types'
 
 export interface StateHandlers {
   enable: VoidFunction

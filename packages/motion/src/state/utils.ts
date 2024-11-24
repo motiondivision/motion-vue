@@ -1,4 +1,4 @@
-import type { Options } from '@/state/types'
+import type { Options } from '@/types'
 import type { DynamicAnimationOptions, Variant } from 'framer-motion'
 import type { IntrinsicElementAttributes } from 'vue'
 

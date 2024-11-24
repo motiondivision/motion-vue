@@ -1,4 +1,4 @@
-import type { AnimationFactory, MotionStateContext, Options } from '@/state/types'
+import type { AnimationFactory, MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { createDOMVisualElement } from 'framer-motion/dist/es/animation/utils/create-visual-element.mjs'
@@ -81,7 +81,7 @@ export class MotionState {
     }
     const visualElement = visualElementStore.get(element)
     this.visualElement = visualElement
-    visualElement.triggerBuild()
+    // visualElement.triggerBuild()
     visualElement.update(this.options as any, this.parent?.context as any)
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {

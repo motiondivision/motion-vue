@@ -1,5 +1,5 @@
 import { isDef } from '@vueuse/core'
-import type { CssPropertyDefinition, CssPropertyDefinitionMap } from './types'
+import type { CssPropertyDefinition, CssPropertyDefinitionMap } from '@/types'
 import { noopReturn } from './utils'
 
 const rotation: CssPropertyDefinition = {

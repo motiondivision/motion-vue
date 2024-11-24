@@ -1,4 +1,4 @@
-import type { Variant } from './types'
+import type { Variant } from '@/types'
 
 export type MotionEventNames =
   | 'motionstart'
