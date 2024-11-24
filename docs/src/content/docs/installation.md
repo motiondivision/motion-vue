@@ -1,6 +1,5 @@
 ---
 title: Installation
-description: .
 ---
 
 ```bash

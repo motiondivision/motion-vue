@@ -86,6 +86,9 @@ function getProps() {
       Object.assign(attrsProps, attributes)
       Object.assign(styleProps, style, props.style)
     }
+    else {
+      Object.assign(styleProps, props.style, state.getTarget())
+    }
   }
   styleProps = createStyles(styleProps)
   attrsProps.style = createStyles(styleProps)
