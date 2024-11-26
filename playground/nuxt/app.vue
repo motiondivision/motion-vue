@@ -41,6 +41,10 @@ setTimeout(() => {
         r="80"
         stroke="#ff0055"
         data-aa="123"
+        :animate="{
+          x: 100,
+          y: 280,
+        }"
       >
         <!-- <circle /> -->
       </Motion>

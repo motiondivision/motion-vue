@@ -5,6 +5,7 @@ import {
   HoverGesture,
   InViewGesture,
   PressGesture,
+  SVGFeature,
 } from './'
 
 export abstract class Feature {
@@ -28,7 +29,7 @@ export class FeatureManager {
       new HoverGesture(state),
       new PressGesture(state),
       new InViewGesture(state),
-      // new DragGesture(state),
+      new SVGFeature(state),
       new EventFeature(state),
     ]
   }

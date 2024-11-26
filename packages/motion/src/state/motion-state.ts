@@ -81,7 +81,6 @@ export class MotionState {
     }
     const visualElement = visualElementStore.get(element)
     this.visualElement = visualElement
-    // visualElement.triggerBuild()
     visualElement.update(this.options as any, this.parent?.context as any)
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {
