@@ -1,0 +1,20 @@
+{
+  "name": "plugins",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "scripts": {
+    "build:plugins": "unbuild"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.14.1592",
+    "@nuxt/schema": "^3.14.1592",
+    "motion-v": "workspace:*"
+  },
+  "devDependencies": {
+    "unbuild": "^2.0.0"
+  }
+}

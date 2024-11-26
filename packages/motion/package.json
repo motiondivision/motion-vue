@@ -20,11 +20,33 @@
       "types": "./dist/src/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.umd.cjs"
+    },
+    "./nuxt": {
+      "import": {
+        "types": "./dist/nuxt/index.d.mts",
+        "default": "./dist/nuxt/index.mjs"
+      },
+      "require": {
+        "types": "./dist/nuxt/index.d.cts",
+        "default": "./dist/nuxt/index.cjs"
+      }
     }
   },
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "types": "./dist/src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*/index.d.ts",
+        "./dist/index.d.ts"
+      ],
+      "nuxt": [
+        "./dist/nuxt/index.d.mts",
+        "./dist/nuxt/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "./LICENSE",
     "./dist"
