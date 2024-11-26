@@ -42,8 +42,8 @@ const icon = {
     >
       <Motion
         class="bg-white w-1/3 aspect-square rounded-2xl"
-        :initial="{ scale: 0 }"
-        :animate="{ rotate: 180, scale: 1 }"
+        :initial="{ scale: 0, opacity: 0 }"
+        :animate="{ rotate: 180, scale: 1, opacity: 1 }"
         :transition="{
           type: 'spring',
           stiffness: 260,

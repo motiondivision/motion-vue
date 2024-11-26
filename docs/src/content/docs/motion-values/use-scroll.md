@@ -4,7 +4,7 @@ title: useScroll
 
 `useScroll` is used to create scroll-linked animations, like progress indicators and parallax effects.
 
-```
+```ts
 const { scrollYProgress } = useScroll()
 
 <Motion :style="{ scaleX: scrollYProgress }" />
@@ -13,9 +13,8 @@ const { scrollYProgress } = useScroll()
 
 ## Usage
 
-```
-import { useScroll } from "motion-v"
-
+```ts
+import { useScroll } from 'motion-v'
 ```
 `useScroll` returns four motion values:
 
@@ -26,11 +25,11 @@ import { useScroll } from "motion-v"
 
 By default, `useScroll` tracks the page scroll.
 
-```
+```ts
 const { scrollY } = useScroll()
 
-useMotionValueEvent(scrollY, "change", (latest) => {
-  console.log("Page scroll: ", latest)
+useMotionValueEvent(scrollY, 'change', (latest) => {
+  console.log('Page scroll: ', latest)
 })
 ```
 

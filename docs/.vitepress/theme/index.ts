@@ -3,9 +3,8 @@ import Layout from './layout/MainLayout.vue'
 import DocsLayout from './layout/DocsLayout.vue'
 import * as components from './components'
 import './style.css'
-import './styles/vp-doc.css'
 import './styles/shiki.css'
-import './styles/themes.css'
+import './styles/vp-doc.css'
 
 export default {
   Layout,

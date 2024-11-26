@@ -1,3 +1,5 @@
+import { version } from '../../../package.json'
+
 export const siteConfig = {
   name: 'motion-vue',
   url: 'https://motion-vue.com',
@@ -10,6 +12,6 @@ export const siteConfig = {
 
 export const announcementConfig = {
   icon: '✨',
-  title: 'New v0.2.0',
+  title: `New v${version}`,
   link: '/docs/introduction.html',
 }

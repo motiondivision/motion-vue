@@ -13,19 +13,18 @@ Whenever a motion value within the string template updates, the returned motion 
 
 ## Usage
 
-```
-import { useMotionTemplate } from "motion-v"
-
+```ts
+import { useMotionTemplate } from 'motion-v'
 ```
 
 `useMotionTemplate` is a "tagged template", so rather than being called like a normal function, it's called as a string template:
 
-```vue
-useMotionValue``
+```ts
+useMotionTemplate``
 ```
 This string template can accept both text and other motion values:
 
-```
+```ts
 const blur = motionValue(10)
 const saturate = motionValue(50)
 const filter = useMotionTemplate`blur(${blur}px) saturate(${saturate}%)`
@@ -36,7 +35,7 @@ const filter = useMotionTemplate`blur(${blur}px) saturate(${saturate}%)`
 
 The latest value of the returned motion value will be the string template with each provided motion value replaced with its latest value.
 
-```
+```ts
 const shadowX = useSpring(0)
 const shadowY = motionValue(0)
 

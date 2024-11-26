@@ -4,7 +4,7 @@ title: useMotionValueEvent
 
 `useMotionValueEvent` manages a motion value event handler throughout the lifecycle of a Vue component.
 
-```
+```ts
 <script setup lang="ts">
 import { motionValue, useMotionValueEvent } from 'motion-v'
 
@@ -28,9 +28,8 @@ When the component is unmounted, event handlers will be safely cleaned up.
 
 ## Usage
 
-```
-import { useMotionValueEvent } from "motion-v"
-
+```ts
+import { useMotionValueEvent } from 'motion-v'
 ```
 
 To add an event listener to a motion value, provide the value, event name and callback:
