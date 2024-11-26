@@ -6,8 +6,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev --port 3001",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "preview": "nuxt preview"
   },
   "dependencies": {
     "motion-v": "workspace:*",
