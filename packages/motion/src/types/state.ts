@@ -1,6 +1,5 @@
 import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
-import type { MotionValue } from 'framer-motion/dom'
-import type { animate } from 'animate'
+import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
 

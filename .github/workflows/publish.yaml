@@ -1,13 +1,11 @@
 name: Publish Docs
 
 on:
-  push:
-    paths:
-      - 'docs/**'
   pull_request:
+  push:
+    branches: ["master"]
     paths:
       - 'docs/**'
-
 jobs:
   publish:
     runs-on: ubuntu-latest

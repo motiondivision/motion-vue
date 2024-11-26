@@ -1,57 +1,54 @@
-<script setup lang="ts">
-import { Motion, useMotionValue } from 'motion-v'
+<script setup>
+import { Motion } from 'motion-v'
+import { ref } from 'vue'
 
-const draw = {
-  hidden: { pathLength: 0,
-    //  opacity: 0
+const variants = {
+  normal: {
+    x: 2,
   },
-  visible: {
-    pathLength: 1,
-    opacity: 1,
-    transition: {
-      pathLength: { duration: 1.5, bounce: 0 },
-      // opacity: { duration: 1 },
-    },
+  animate: {
+    x: [0, 30, -30, 20, -20, 0],
   },
 }
-const opacity = useMotionValue('300')
-setTimeout(() => {
-  opacity.set('200')
-}, 1000)
-const data = ref(123)
-setTimeout(() => {
-  data.value = 456
-}, 3000)
+
+const controls = ref()
 </script>
 
 <template>
-  <div>
-    {{ data }}
+  <div
+    className="cursor-pointer select-none p-2 hover:bg-accent rounded-md transition-colors duration-200 flex items-center justify-center overflow-hidden"
+    role="button"
+    tabindex="0"
+    @mouseenter="() => (controls = variants.animate)"
+    @mouseleave="() => (controls = variants.normal)"
+  >
     <Motion
-      as="svg"
-      width="600"
-      height="600"
-      viewBox="0 0 600 600"
-      data-a="123"
+      d="M17 12H7"
+      :variants="variants"
+      initial="normal"
+      :animate="controls"
+      class="bg-black w-[10px] h-[10px]"
+    />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     >
       <Motion
-        as="circle"
-        :cx="opacity"
-        cy="300"
-        r="80"
-        stroke="#ff0055"
-        data-aa="123"
-      >
-        <!-- <circle /> -->
-      </Motion>
-    </Motion>
+        as="path"
+        d="M17 12H7"
+        :variants="variants"
+        initial="normal"
+        :animate="controls"
+      />
+      <path d="M19 18H5" />
+      <path d="M21 6H3" />
+    </svg>
   </div>
 </template>
-
-<style scoped>
-circle {
-  stroke-width: 10px;
-  stroke-linecap: round;
-  fill: transparent;
-}
-</style>

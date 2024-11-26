@@ -4,7 +4,7 @@ import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { createDOMVisualElement } from 'framer-motion/dist/es/animation/utils/create-visual-element.mjs'
 import { isDef } from '@vueuse/core'
 import type { DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
-import { animate } from 'animate'
+import { animate } from 'framer-motion/dom'
 import { getOptions, hasChanged, noop, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
@@ -81,7 +81,6 @@ export class MotionState {
     }
     const visualElement = visualElementStore.get(element)
     this.visualElement = visualElement
-    // visualElement.triggerBuild()
     visualElement.update(this.options as any, this.parent?.context as any)
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {
