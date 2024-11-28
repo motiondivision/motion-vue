@@ -4,13 +4,23 @@ description: Motion components are foundational DOM primitives that provide decl
 source: packages/motion/src/components/Motion.vue
 ---
 
+<Description>
+
+The `motion` component is the primary building block for animations in Motion for Vue. It can be rendered as any HTML or SVG element by using the `as` prop, such as `<Motion as="div"/>` or `<Motion as="circle"/>`. Alternatively, you can pass `asChild` to render a child component directly.
+
+</Description>
+
 ## Import
 
 ```ts
 import { Motion } from 'motion-v'
 ```
 
-## Animation
+Now You can write declarative animations through the Motion component. Simply pass the desired animation values to the `animate` prop
+
+Here are some examples
+
+## Basic Animation
 <ComponentPreview name="MotionBasic" />
 
 ## Keyframes
@@ -42,3 +52,63 @@ Like animate, these can either be set as an object of properties (each with thei
 The `inView` prop will animate a component in or out of view when it enters  the viewport.
 
 <ComponentPreview name="MotionInView"/>
+
+## Props
+
+## animation
+
+### `initial`
+
+The `initial` visual state of the `Motion` component.
+
+This can be set as an animation target:
+
+```vue
+<Motion :initial="{ x: 0, opacity: 0 }" />
+```
+variants:
+```vue
+<Motion initial="closed" :variants="{ open: { x: 100 }, closed: { x: 0 } }" />
+```
+or you can pass `false` to disable the initial animation:
+```vue
+<Motion :initial="false" />
+```
+
+### `animate`
+
+The `animate` prop is used to set the animation target. When the component is mounted or the `animate` prop is updated, it will animate to the `animate` target.
+
+```vue
+<Motion :initial="{ x: 0, opacity: 0 }" :animate="{ x: 100, opacity: 1 }" />
+```
+`variants`:
+```vue
+<Motion
+  initial="closed"
+  animate="open"
+  :variants="{ open: { x: 100 }, closed: { x: 0 } }"
+/>
+```
+
+### `transition`
+
+The `transition` prop is used to set the transition of the animation.
+```vue
+<Motion
+  :initial="{ x: 0, opacity: 0 }"
+  :animate="{ x: 100, opacity: 1 }"
+  :transition="{
+    duration: 1,
+    x: { type: 'spring', stiffness: 260, damping: 20 },
+  }"
+/>
+```
+
+### `inView`
+
+The `inView` prop is used to animate a component in or out of view when it enters  the viewport.
+
+```vue
+<Motion :initial="{ y: 10, opacity: 0 }" :inView="{ y: 0, opacity: 1 }" />
+```
