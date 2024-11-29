@@ -11,7 +11,7 @@ export class SVGFeature extends Feature {
     if (!isSVGElement(instance)) {
       return
     }
-    const visualElement = this.state.visualElement
+    const visualElement = this.state.getVisualElement()
     frame.read(() => {
       try {
         (visualElement.renderState as any).dimensions

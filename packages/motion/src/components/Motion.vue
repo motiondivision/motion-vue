@@ -31,6 +31,10 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T>>(), {
   animate: undefined,
   hover: undefined,
   inView: undefined,
+  layout: false,
+  layoutId: undefined,
+  layoutScroll: false,
+  layoutRoot: false,
 } as any) as MotionProps<T>
 
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
@@ -78,7 +82,9 @@ function getProps() {
     if (isMotionValue(attrs[key]))
       attrsProps[key] = attrs[key].get()
   })
-  let styleProps: Record<string, any> = {}
+  let styleProps: Record<string, any> = {
+    ...props.style,
+  }
 
   if (!state.isMounted()) {
     if (isSVGElement(props.as)) {
@@ -87,7 +93,7 @@ function getProps() {
       Object.assign(styleProps, style, props.style)
     }
     else {
-      Object.assign(styleProps, props.style, state.getTarget())
+      Object.assign(styleProps, state.getTarget(), props.style)
     }
   }
   styleProps = createStyles(styleProps)

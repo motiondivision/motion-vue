@@ -18,3 +18,9 @@ declare module 'framer-main-animation' {
   export const animateValue: typeof animateValueF
   export type MainThreadAnimation = ReturnType<typeof animateValueF>
 }
+
+declare module 'framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs' {
+  import type { IProjectionNode } from 'framer-motion'
+
+  export const HTMLProjectionNode: IProjectionNode
+}

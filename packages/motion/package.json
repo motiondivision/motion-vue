@@ -18,8 +18,8 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.umd.cjs"
+      "import": "./dist/es/index.mjs",
+      "require": "./dist/cjs/index.js"
     },
     "./nuxt": {
       "import": {
@@ -32,14 +32,14 @@
       }
     }
   },
-  "main": "./dist/index.umd.cjs",
-  "module": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.mjs",
   "types": "./dist/src/index.d.ts",
   "typesVersions": {
     "*": {
       "*": [
         "./dist/*/index.d.ts",
-        "./dist/index.d.ts"
+        "./dist/src/index.d.ts"
       ],
       "nuxt": [
         "./dist/nuxt/index.d.mts",
@@ -53,7 +53,7 @@
   ],
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "build": "rm -rf dist && vite build",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "pub:release": "pnpm publish --access public"

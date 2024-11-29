@@ -112,3 +112,46 @@ The `inView` prop is used to animate a component in or out of view when it enter
 ```vue
 <Motion :initial="{ y: 10, opacity: 0 }" :inView="{ y: 0, opacity: 1 }" />
 ```
+
+## Layout Animation
+
+Layout animations allow components to animate between different layouts. When the layout prop is set to true, the component will automatically animate to its new position when its layout changes.
+
+### Basic Layout Animation
+
+```vue
+<Motion
+  :layout="true"
+  class="box"
+  :animate="{ width: isExpanded ? '300px' : '100px' }"
+/>
+```
+
+### Layout ID
+
+The `layoutId` prop allows multiple components to be linked together. When components share the same `layoutId`, they will animate between each other's positions when they are added or removed.
+
+```vue
+<Motion
+  :layout="true"
+  layoutId="shared-box"
+  class="box"
+  v-if="showFirst"
+/>
+
+<Motion
+  :layout="true"
+  layoutId="shared-box"
+  class="box"
+  v-else
+/>
+```
+
+### Layout Options
+
+- `layout`: Enable layout animations. Can be `true`, `'position'`, `'size'`, or `'preserve-aspect'`
+- `layoutId`: String to link components for shared layout animations
+- `layoutScroll`: Whether to include scroll offset in layout calculations
+- `layoutRoot`: Whether this component is the root of a layout group
+
+<ComponentPreview name="MotionLayout" />

@@ -4,6 +4,7 @@ import {
   EventFeature,
   HoverGesture,
   InViewGesture,
+  LayoutFeature,
   PressGesture,
   SVGFeature,
 } from './'
@@ -31,6 +32,7 @@ export class FeatureManager {
       new InViewGesture(state),
       new SVGFeature(state),
       new EventFeature(state),
+      new LayoutFeature(state),
     ]
   }
 

@@ -100,8 +100,11 @@ const key = ref(0)
           v-if="sfcTsHtml"
           class="language-vue"
           style="flex: 1;"
-          v-html="decodeURIComponent(sfcTsHtml)"
-        />
+        >
+          <button class="copy" />
+          <span class="lang">vue</span>
+          <pre v-html="`${decodeURIComponent(sfcTsHtml)}`" />
+        </div>
         <slot v-else />
       </TabsContent>
     </Tabs>
