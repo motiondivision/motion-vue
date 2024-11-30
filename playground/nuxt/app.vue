@@ -1,54 +1,29 @@
-<script setup>
-import { Motion } from 'motion-v'
+<script setup lang="ts">
+import { AnimatePresence, Motion } from 'motion-v'
 import { ref } from 'vue'
 
-const variants = {
-  normal: {
-    x: 2,
-  },
-  animate: {
-    x: [0, 30, -30, 20, -20, 0],
-  },
-}
-
-const controls = ref()
+const show = ref(true)
 </script>
 
 <template>
-  <div
-    className="cursor-pointer select-none p-2 hover:bg-accent rounded-md transition-colors duration-200 flex items-center justify-center overflow-hidden"
-    role="button"
-    tabindex="0"
-    @mouseenter="() => (controls = variants.animate)"
-    @mouseleave="() => (controls = variants.normal)"
-  >
-    <Motion
-      d="M17 12H7"
-      :variants="variants"
-      initial="normal"
-      :animate="controls"
-      class="bg-black w-[10px] h-[10px]"
-    />
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
+  <div class="w-1/3 flex items-center justify-center h-screen">
+    <AnimatePresence>
       <Motion
-        as="path"
-        d="M17 12H7"
-        :variants="variants"
-        initial="normal"
-        :animate="controls"
+        v-show="show"
+        class="bg-purple-500 w-20 h-20 aspect-square rounded-2xl"
+        :initial="{ scale: 0 }"
+        :animate="{ rotate: 180, scale: 1 }"
+        :exit="{ rotate: 0, scale: 0 }"
+        :transition="{
+          // type: 'spring',
+          // stiffness: 260,
+          // damping: 20,
+          duration: 3,
+        }"
       />
-      <path d="M19 18H5" />
-      <path d="M21 6H3" />
-    </svg>
+    </AnimatePresence>
+    <button @click="show = !show">
+      {{ show ? 'hide' : 'show' }}
+    </button>
   </div>
 </template>

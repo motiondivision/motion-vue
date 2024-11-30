@@ -6,7 +6,7 @@
   "author": "",
   "license": "MIT",
   "homepage": "https://github.com/rick-hup/motion-vue",
-  "keywords": [],
+  "keywords": ["vue", "motion", "motionone", "framer-motion"],
   "main": "index.js",
   "scripts": {
     "dev:play": "pnpm --filter './playground/nuxt' dev",

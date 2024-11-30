@@ -112,3 +112,67 @@ The `inView` prop is used to animate a component in or out of view when it enter
 ```vue
 <Motion :initial="{ y: 10, opacity: 0 }" :inView="{ y: 0, opacity: 1 }" />
 ```
+
+### `inViewOptions`
+
+The `inViewOptions` prop allows you to customize the behavior of the `inView` animation with the following options:
+
+#### `margin`
+default: `0`
+
+The `margin` option allows you to set the margin around the component that should be in view for the animation to trigger.
+
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ margin: 100 }" />
+```
+
+#### `once`
+default: `false`
+
+The `once` option allows you to set the animation to trigger only once when the component enters the viewport.
+
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ once: true }" />
+```
+#### `root`
+default : `window`
+
+The `root` option allows you to set the root element that the `inView` animation should be relative to.
+
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ root: document.getElementById('my-element') }" />
+```
+
+#### `amount`
+
+default: `some`
+
+The `amount` option allows you to set the amount of the component that should be in view for the animation to trigger.
+
+You can set the `amount` to `all`, which means the animation will trigger when the entire component is in view.
+
+or you can set a number, which means the animation will trigger when the component is in view by the amount of the component that is in view.
+
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ amount: 'all' }" />
+```
+
+### `exit`
+
+The `exit` prop defines the animation target when a `Motion` component wrapped by `AnimatePresence` is removed from the DOM (when `v-show` or `v-if` evaluates to false). This enables smooth exit animations as elements are unmounted.
+
+### `as`
+
+default: `div`
+
+The `as` prop allows you to set the HTML element that the `Motion` component should render as.
+
+```vue
+<Motion as="a" />
+```
+
+### `asChild`
+
+default: `false`
+
+The `asChild` prop allows you to pass a child component directly to the `Motion` component.
