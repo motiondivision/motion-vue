@@ -18,7 +18,7 @@ const show = ref(true)
           // type: 'spring',
           // stiffness: 260,
           // damping: 20,
-          duration: 3,
+          duration: 0.3,
         }"
       />
     </AnimatePresence>
