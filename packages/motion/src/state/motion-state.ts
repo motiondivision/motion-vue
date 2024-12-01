@@ -18,7 +18,6 @@ export const mountedStates = new WeakMap<Element, MotionState>()
 
 export class MotionState {
   private element: HTMLElement | null = null
-  private context: MotionStateContext = {}
 
   private parent?: MotionState
   private options: Options
@@ -39,7 +38,6 @@ export class MotionState {
     this.options = options
     this.parent = parent
     this.depth = parent?.depth + 1 || 0
-    this.initContext()
     const initialVariantSource = options.initial === false ? 'animate' : 'initial'
     this.featureManager = new FeatureManager(this)
     /**
@@ -48,16 +46,21 @@ export class MotionState {
     this.initTarget(initialVariantSource)
   }
 
-  private initContext() {
-    for (const name of STATE_TYPES) {
-      // 为每个状态类型设置上下文
-      // 如果options中对应的状态类型是字符串，则直接使用
-      // 否则，尝试从父级上下文中获取对应的状态类型值
-      this.context[name as keyof typeof this.context]
-        = typeof this.options[name] === 'string'
-          ? this.options[name]
-          : this.parent?.context[name]
+  private _context: MotionStateContext | null = null
+
+  get context() {
+    if (!this._context) {
+      const handler = {
+        get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
+          return typeof this.options[prop] === 'string'
+            ? this.options[prop]
+            : this.parent?.context[prop]
+        },
+      }
+
+      this._context = new Proxy({} as MotionStateContext, handler)
     }
+    return this._context
   }
 
   private initTarget(initialVariantSource: string) {
@@ -108,7 +111,6 @@ export class MotionState {
   update(options: Options) {
     this.options = options
     this.visualElement.update(this.options as any, this.parent?.context as any)
-
     // 更新特征
     this.featureManager.update()
     // 更新动画

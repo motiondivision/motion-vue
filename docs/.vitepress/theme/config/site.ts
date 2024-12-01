@@ -13,5 +13,5 @@ export const siteConfig = {
 export const announcementConfig = {
   icon: '✨',
   title: `New v${version}`,
-  link: '/docs/introduction.html',
+  link: 'https://github.com/rick-hup/motion-vue/releases',
 }

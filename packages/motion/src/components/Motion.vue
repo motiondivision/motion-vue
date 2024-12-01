@@ -78,7 +78,9 @@ function getProps() {
     if (isMotionValue(attrs[key]))
       attrsProps[key] = attrs[key].get()
   })
-  let styleProps: Record<string, any> = {}
+  let styleProps: Record<string, any> = {
+    ...props.style,
+  }
 
   if (!state.isMounted()) {
     if (isSVGElement(props.as)) {
