@@ -138,6 +138,7 @@ export class MotionState {
       const variant = resolveVariant(
         isDef(this.options[name]) ? this.options[name] : this.context[name],
         this.options.variants,
+        this.options.custom,
       )
       if (!variant)
         continue

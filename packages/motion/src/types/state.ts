@@ -30,7 +30,8 @@ export type MotionStyle = Partial<{
   [K in keyof Variant]: Variant[K] | MotionValue
 }>
 export type ElementType = keyof IntrinsicElementAttributes
-export interface Options {
+export interface Options<T = any> {
+  custom?: T
   as?: ElementType
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
@@ -40,7 +41,7 @@ export interface Options {
   animate?: string | Variant
   exit?: string | Variant
   variants?: {
-    [k: string]: Variant
+    [k: string]: Variant | ((custom: T) => Variant)
   }
   style?: MotionStyle
   transformTemplate?: (
