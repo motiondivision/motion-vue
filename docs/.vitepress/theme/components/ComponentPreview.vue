@@ -95,12 +95,14 @@ const key = ref(0)
           />
         </div>
       </TabsContent>
-      <TabsContent value="code">
+      <TabsContent
+        value="code"
+      >
         <div
           v-if="sfcTsHtml"
           class="language-vue"
           style="flex: 1;"
-          v-html="decodeURIComponent(sfcTsHtml)"
+          v-html="`<button title='Copy Code' class='copy'>Copy Code</button><span class='lang'>vue</span>${decodeURIComponent(sfcTsHtml)}`"
         />
         <slot v-else />
       </TabsContent>
