@@ -5,12 +5,14 @@ import type { IntrinsicElementAttributes } from 'vue'
 export function resolveVariant(
   definition?: Options['initial'],
   variants?: Options['variants'],
+  custom?: Options['custom'],
 ): Variant | undefined {
   if (typeof definition === 'object') {
     return definition
   }
   else if (definition && variants) {
-    return variants[definition as string] as Variant
+    const variant = variants[definition as string]
+    return typeof variant === 'function' ? variant(custom) : variant
   }
 }
 

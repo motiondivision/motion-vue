@@ -61,7 +61,7 @@ function exit(el: Element, done: VoidFunction) {
     if (e?.detail?.isExit) {
       removeDoneCallback(el)
       done()
-      if ((el as any).__vnode.ctx.isUnmounted) {
+      if (!el.isConnected) {
         state.unmount()
       }
     }

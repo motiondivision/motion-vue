@@ -7,12 +7,12 @@ import { isMotionValue } from '@/utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 </script>
 
-<script setup lang="ts" generic="T extends ElementType = 'div'">
+<script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
 import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 import { injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
-export interface MotionProps<T extends ElementType = 'div'> extends Options {
+export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
   as?: T
   asChild?: boolean
 }
@@ -24,7 +24,7 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const props = withDefaults(defineProps<ComBindProps & MotionProps<T>>(), {
+const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   as: 'div' as T,
   asChild: false,
   initial: undefined,
@@ -32,7 +32,6 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T>>(), {
   hover: undefined,
   inView: undefined,
 } as any) as MotionProps<T>
-
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
 const attrs = useAttrs()

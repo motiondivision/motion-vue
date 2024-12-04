@@ -1,4 +1,5 @@
 export * from './feature'
-export * from './gestures'
 export * from './events'
+export * from './gestures'
 export * from './svg'
+export * from './feature-manager'

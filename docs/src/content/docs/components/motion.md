@@ -91,6 +91,12 @@ The `animate` prop is used to set the animation target. When the component is mo
 />
 ```
 
+### `custom`
+
+The `custom` prop is used to pass through to dynamic variants.
+
+<ComponentPreview name="CustomVariant" />
+
 ### `transition`
 
 The `transition` prop is used to set the transition of the animation.

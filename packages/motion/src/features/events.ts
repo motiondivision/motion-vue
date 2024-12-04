@@ -1,5 +1,5 @@
 import type { MotionEventNames } from '@/types'
-import { Feature } from './feature'
+import { Feature } from '@/features'
 
 export class EventFeature extends Feature {
   private handlers: Partial<Record<MotionEventNames, (event: Event) => void>> = {}
