@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Motion } from 'motion-v'
+import { Motion, useAnimate } from 'motion-v'
 
 const custom = ref(100)
 const variants = {
@@ -11,10 +11,26 @@ const variants = {
     transition: { delay: custom * 0.2 },
   }),
 }
+const [scope, animate] = useAnimate<HTMLUListElement>()
+onMounted(() => {
+  animate('li', {
+    x: 100,
+  })
+})
 </script>
 
 <template>
+  <Motion as-child>
+    <div>13</div>
+  </Motion>
+  <ul>
+    <li>123</li>
+    <li>123</li>
+    <li>123</li>
+    <li>123</li>
+  </ul>
   <Motion
+    ref="scope"
     as="ul"
     initial="invisible"
     animate="visible"

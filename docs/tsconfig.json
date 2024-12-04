@@ -1,6 +1,7 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
+    "jsx": "preserve",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "module": "ESNext",

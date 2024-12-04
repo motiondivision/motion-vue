@@ -5,3 +5,5 @@ export { default as AnimatePresence, type AnimatePresenceProps } from './compone
 export * from './value'
 export * from './constants'
 export type { Variant, Options } from './types'
+export * from './animation'
+export * from './utils'
