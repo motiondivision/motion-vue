@@ -69,11 +69,16 @@ const isInView = useInView(scope, {
 ```
 - `amount`: 'some' | 'all' | 0-1. The amount of an element that should enter the viewport to be considered in view.
 
-Default: `'some'`.
+Default: `some`.
 ```ts
 const isInView = useInView(scope, {
   amount: 'all',
 })
 ```
 
-<ComponentPreview name="InViewMotion" />
+<iframe src="https://stackblitz.com/edit/qvapj3?ctl=1&embed=1&file=src%2FApp.vue&hideExplorer=1"
+     style="width:100%; height: 500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="motion-use-spring"
+    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts allow-downloads allow-pointer-lock"
+   ></iframe>
