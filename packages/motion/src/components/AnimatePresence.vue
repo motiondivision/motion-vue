@@ -20,7 +20,7 @@ export interface AnimatePresenceProps {
 // 定义组件选项
 defineOptions({
   name: 'AnimatePresence',
-  inheritAttrs: false, // 禁止继承属性到根元素
+  inheritAttrs: true,
 })
 
 // 设置Props默认值
@@ -56,17 +56,19 @@ function exit(el: Element, done: VoidFunction) {
   if (!state) {
     return done()
   }
-  state.setActive('exit', true)
   removeDoneCallback(el)
   function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
-      doneCallbacks.delete(el)
-      state.unmount()
+      removeDoneCallback(el)
       done()
+      if (!el.isConnected) {
+        state.unmount()
+      }
     }
   }
   doneCallbacks.set(el, doneCallback)
   el.addEventListener('motioncomplete', doneCallback)
+  state.setActive('exit', true)
 }
 </script>
 
@@ -77,7 +79,6 @@ function exit(el: Element, done: VoidFunction) {
     :tag="multiple ? as : undefined"
     :css="false"
     :mode="mode === 'wait' ? 'out-in' : undefined"
-    v-bind="$attrs"
     @enter="enter"
     @leave="exit"
   >

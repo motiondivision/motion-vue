@@ -32,7 +32,8 @@ export type MotionStyle = Partial<{
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
-export interface Options extends LayoutOptions {
+export interface Options<T = any> extends LayoutOptions {
+  custom?: T
   as?: ElementType
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
@@ -42,7 +43,7 @@ export interface Options extends LayoutOptions {
   animate?: string | Variant
   exit?: string | Variant
   variants?: {
-    [k: string]: Variant
+    [k: string]: Variant | ((custom: T) => Variant)
   }
   style?: MotionStyle
   transformTemplate?: (

@@ -5,15 +5,14 @@ import PageHeaderDescription from '../components/PageHeaderDescription.vue'
 import { announcementConfig } from '../config/site'
 import GitHubIcon from '~icons/radix-icons/github-logo'
 
-import { buttonVariants } from '@/lib/registry/new-york/ui/button'
 import { Separator } from '@/lib/registry/new-york/ui/separator'
-import { cn } from '@/lib/utils'
 
 import HomeDemo from './demos/HomeDemo.vue'
+import Button from '@/lib/registry/new-york/ui/button/Button.vue'
 </script>
 
 <template>
-  <PageHeader class="page-header pb-8">
+  <PageHeader class="page-header pb-8 items-center mx-auto">
     <a
       :href="announcementConfig.link"
       class="inline-flex items-center rounded-lg bg-muted px-3 py-1 text-sm font-medium"
@@ -28,32 +27,33 @@ import HomeDemo from './demos/HomeDemo.vue'
       <!-- <ArrowRightIcon class="ml-1 h-4 w-4" /> -->
     </a>
     <PageHeaderHeading>Motion Vue</PageHeaderHeading>
-    <PageHeaderDescription>
+    <PageHeaderDescription class="max-w-[440px] text-secondary-foreground">
       A Vue 3 motion library to power your app. based on <a
         href="https://motion.dev/docs/animate"
         target="_blank"
-        class="text-primary"
-      >Motion animate</a> .
+      >
+        Motion animate
+      </a> .
     </PageHeaderDescription>
 
-    <section class="flex w-full items-center space-x-4 pb-8 pt-4 md:pb-10">
-      <a
+    <section class="flex w-full items-center justify-center space-x-4 pb-8 pt-4 md:pb-10">
+      <Button
+        as="a"
         href="/docs/introduction"
-        :class="cn(buttonVariants(), 'rounded-[6px]')"
+        class="rounded-full"
       >
         Get Started
-      </a>
-      <a
+      </Button>
+      <Button
+        as="a"
+        variant="secondary"
         href="https://github.com/rick-hup/motion-vue"
         target="_blank"
-        :class="cn(
-          buttonVariants({ variant: 'outline' }),
-          'rounded-[6px]',
-        )"
+        class="rounded-full shadow"
       >
         <GitHubIcon class="mr-2 h-4 w-4" />
         GitHub
-      </a>
+      </Button>
     </section>
   </PageHeader>
   <HomeDemo />

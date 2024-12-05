@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMagicKeys, useToggle } from '@vueuse/core'
+import { useMagicKeys } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import { Content, useData, useRoute, useRouter } from 'vitepress'
 import { SearchIcon } from 'lucide-vue-next'
@@ -17,7 +17,7 @@ import RadixIconsSun from '~icons/radix-icons/sun'
 import { Dialog, DialogContent } from '@/lib/registry/new-york/ui/dialog'
 import { Toaster as DefaultToaster, Toaster as NewYorkToaster } from '@/lib/registry/new-york/ui/toast'
 import { Toaster as NewYorkSonner } from '@/lib/registry/new-york/ui/sonner'
-
+import LightDarkSwitch from './LightDarkSwitch.vue'
 import File from '~icons/radix-icons/file'
 import Circle from '~icons/radix-icons/circle'
 
@@ -25,7 +25,6 @@ const { frontmatter, isDark } = useData()
 
 const $route = useRoute()
 const $router = useRouter()
-const toggleDark = useToggle(isDark)
 
 const links = [
   {
@@ -130,18 +129,7 @@ watch(() => $route.path, (n) => {
               />
             </Button>
 
-            <Button
-              class="flex items-center justify-center"
-              aria-label="Toggle dark mode"
-              variant="ghost"
-              size="icon"
-              @click="toggleDark()"
-            >
-              <component
-                :is="isDark ? RadixIconsSun : RadixIconsMoon"
-                class="w-[20px] h-[20px] text-foreground"
-              />
-            </Button>
+            <LightDarkSwitch />
           </div>
         </div>
       </div>

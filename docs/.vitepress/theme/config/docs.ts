@@ -108,5 +108,25 @@ export const docsConfig: DocsConfig = {
         },
       ],
     },
+    {
+      title: 'Hooks',
+      items: [
+        {
+          title: 'useAnimate',
+          href: '/docs/hooks/use-animate',
+          items: [],
+        },
+        {
+          title: 'useInView',
+          href: '/docs/hooks/use-in-view',
+          items: [],
+        },
+        {
+          title: 'useAnimateFrame',
+          href: '/docs/hooks/use-animate-frame',
+          items: [],
+        },
+      ],
+    },
   ],
 }

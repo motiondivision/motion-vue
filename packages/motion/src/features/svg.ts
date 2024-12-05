@@ -33,6 +33,6 @@ export class SVGFeature extends Feature {
   }
 
   unmount() {
-    console.log('SVGRender unmount')
+    // console.log('SVGRender unmount')
   }
 }

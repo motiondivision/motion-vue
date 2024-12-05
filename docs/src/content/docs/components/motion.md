@@ -91,6 +91,12 @@ The `animate` prop is used to set the animation target. When the component is mo
 />
 ```
 
+### `custom`
+
+The `custom` prop is used to pass through to dynamic variants.
+
+<ComponentPreview name="CustomVariant" />
+
 ### `transition`
 
 The `transition` prop is used to set the transition of the animation.
@@ -113,45 +119,66 @@ The `inView` prop is used to animate a component in or out of view when it enter
 <Motion :initial="{ y: 10, opacity: 0 }" :inView="{ y: 0, opacity: 1 }" />
 ```
 
-## Layout Animation
+### `inViewOptions`
 
-Layout animations allow components to animate between different layouts. When the layout prop is set to true, the component will automatically animate to its new position when its layout changes.
+The `inViewOptions` prop allows you to customize the behavior of the `inView` animation with the following options:
 
-### Basic Layout Animation
+#### `margin`
+default: `0`
 
-```vue
-<Motion
-  :layout="true"
-  class="box"
-  :animate="{ width: isExpanded ? '300px' : '100px' }"
-/>
-```
-
-### Layout ID
-
-The `layoutId` prop allows multiple components to be linked together. When components share the same `layoutId`, they will animate between each other's positions when they are added or removed.
+The `margin` option allows you to set the margin around the component that should be in view for the animation to trigger.
 
 ```vue
-<Motion
-  :layout="true"
-  layoutId="shared-box"
-  class="box"
-  v-if="showFirst"
-/>
-
-<Motion
-  :layout="true"
-  layoutId="shared-box"
-  class="box"
-  v-else
-/>
+<Motion :inView="{ x: 0 }" :inViewOptions="{ margin: 100 }" />
 ```
 
-### Layout Options
+#### `once`
+default: `false`
 
-- `layout`: Enable layout animations. Can be `true`, `'position'`, `'size'`, or `'preserve-aspect'`
-- `layoutId`: String to link components for shared layout animations
-- `layoutScroll`: Whether to include scroll offset in layout calculations
-- `layoutRoot`: Whether this component is the root of a layout group
+The `once` option allows you to set the animation to trigger only once when the component enters the viewport.
 
-<ComponentPreview name="MotionLayout" />
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ once: true }" />
+```
+#### `root`
+default : `window`
+
+The `root` option allows you to set the root element that the `inView` animation should be relative to.
+
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ root: document.getElementById('my-element') }" />
+```
+
+#### `amount`
+
+default: `some`
+
+The `amount` option allows you to set the amount of the component that should be in view for the animation to trigger.
+
+You can set the `amount` to `all`, which means the animation will trigger when the entire component is in view.
+
+or you can set a number, which means the animation will trigger when the component is in view by the amount of the component that is in view.
+
+```vue
+<Motion :inView="{ x: 0 }" :inViewOptions="{ amount: 'all' }" />
+```
+
+### `exit`
+
+The `exit` prop defines the animation target when a `Motion` component wrapped by `AnimatePresence` is removed from the DOM (when `v-show` or `v-if` evaluates to false). This enables smooth exit animations as elements are unmounted.
+
+### `as`
+
+default: `div`
+
+The `as` prop allows you to set the HTML element that the `Motion` component should render as.
+
+```vue
+<Motion as="a" />
+```
+
+### `asChild`
+
+default: `false`
+
+The `asChild` prop allows you to pass a child component directly to the `Motion` component.

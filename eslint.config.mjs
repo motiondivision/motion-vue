@@ -26,6 +26,7 @@ export default antfu(
       'unicorn/prefer-number-properties': 'off',
       'unused-imports/no-unused-vars': 'off',
       'regexp/no-super-linear-backtracking': 'off',
+      'vue/no-parsing-error': [2, { 'x-invalid-namespace': false }],
     },
   },
   {
