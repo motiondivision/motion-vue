@@ -1,8 +1,12 @@
 declare module 'framer-motion/dist/es/render/store.mjs' {
 }
 
-declare module 'framer-motion/dist/es/animation/utils/create-visual-element.mjs' {
-  export const createDOMVisualElement: (element: Element) => any
+declare module 'framer-motion/dist/es/render/html/HTMLVisualElement.mjs' {
+  export const HTMLVisualElement: any
+}
+
+declare module 'framer-motion/dist/es/render/svg/SVGVisualElement.mjs' {
+  export const SVGVisualElement: any
 }
 
 declare module 'motion-value' {
@@ -23,4 +27,26 @@ declare module 'framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs' {
   import type { IProjectionNode } from 'framer-motion'
 
   export const HTMLProjectionNode: IProjectionNode
+}
+
+declare module 'framer-motion/dist/es/projection/styles/scale-border-radius.mjs' {
+
+  export const correctBorderRadius: any
+}
+
+declare module 'framer-motion/dist/es/projection/styles/scale-box-shadow.mjs' {
+  export const correctBoxShadow: any
+}
+
+declare module 'framer-motion/dist/es/projection/styles/scale-correction.mjs' {
+  import type { addScaleCorrector as addScaleCorrectorF } from 'framer-motion'
+
+  export const addScaleCorrector: typeof addScaleCorrectorF
+}
+
+declare module 'framer-motion/dist/es/projection/node/state.mjs' {
+  export const globalProjectionState: {
+    hasAnimatedSinceResize: boolean
+    hasEverUpdated: boolean
+  }
 }

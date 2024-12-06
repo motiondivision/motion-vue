@@ -1,7 +1,6 @@
 import type { AnimationFactory, MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
-import { createDOMVisualElement } from 'framer-motion/dist/es/animation/utils/create-visual-element.mjs'
 import { isDef } from '@vueuse/core'
 import type { DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
 import { animate } from 'framer-motion/dom'
@@ -11,6 +10,7 @@ import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
+import { createVisualElement } from '@/state/create-visual-element'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
 type StateType = typeof STATE_TYPES[number]
@@ -33,15 +33,32 @@ export class MotionState {
   private target: DOMKeyframesDefinition
   private featureManager: FeatureManager
 
-  private visualElement: VisualElement
-  public getVisualElement() {
-    return this.visualElement
-  }
+  public visualElement: VisualElement
 
   constructor(options: Options, parent?: MotionState) {
     this.options = options
     this.parent = parent
     this.depth = parent?.depth + 1 || 0
+    /**
+     * create visualElement
+     */
+    this.visualElement = createVisualElement(this.options.as!, {
+      presenceContext: null,
+      parent: parent?.visualElement,
+      props: {
+        ...this.options,
+      },
+      visualState: {
+        renderState: {
+          transform: {},
+          transformOrigin: {},
+          style: {},
+          vars: {},
+          attrs: {},
+        },
+        latestValues: {},
+      },
+    })
     const initialVariantSource = options.initial === false ? 'animate' : 'initial'
     this.featureManager = new FeatureManager(this)
     /**
@@ -84,19 +101,18 @@ export class MotionState {
     this.element = element
     mountedStates.set(element, this)
     if (!visualElementStore.get(element)) {
-      createDOMVisualElement(element)
+      this.visualElement.mount(element)
+      visualElementStore.set(element, this.visualElement)
     }
-    const visualElement = visualElementStore.get(element)
-    this.visualElement = visualElement
-    visualElement.update(this.options as any, this.parent?.context as any)
+    this.visualElement.update(this.options as any, this.parent?.context as any)
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {
-        visualElement.setStaticValue(key, this.initial[key])
+        this.visualElement.setStaticValue(key, this.initial[key])
       }
     }
     else if (typeof this.initial === 'string' && this.options.variants) {
       for (const key in this.options.variants[this.initial]) {
-        visualElement.setStaticValue(key, this.options.variants[this.initial][key])
+        this.visualElement.setStaticValue(key, this.options.variants[this.initial][key])
       }
     }
 

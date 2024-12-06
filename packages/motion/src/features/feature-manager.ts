@@ -1,4 +1,4 @@
-import { EventFeature, type Feature, HoverGesture, InViewGesture, PressGesture, SVGFeature } from '@/features'
+import { EventFeature, type Feature, HoverGesture, InViewGesture, LayoutFeature, PressGesture, SVGFeature } from '@/features'
 import type { MotionState } from '@/state'
 
 export class FeatureManager {
@@ -11,6 +11,7 @@ export class FeatureManager {
       new InViewGesture(state),
       new SVGFeature(state),
       new EventFeature(state),
+      new LayoutFeature(state),
     ]
   }
 
