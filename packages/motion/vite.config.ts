@@ -52,7 +52,11 @@ export default defineConfig({
           globals: {
             vue: 'Vue',
           },
-          entryFileNames: '[name].mjs',
+          entryFileNames(chunkInfo) {
+            if (chunkInfo.name.includes('node_modules'))
+              return `${chunkInfo.name.replace(/node_modules/g, 'external')}.mjs`
+            return '[name].mjs'
+          },
           dir: './dist/es',
           exports: 'named',
           preserveModules: true,
