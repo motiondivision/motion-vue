@@ -7,7 +7,7 @@ function isSVGElement(element: Element) {
 
 export class SVGFeature extends Feature {
   mount() {
-    const instance = this.state.getElement() as Element
+    const instance = this.state.element as Element
     if (!isSVGElement(instance)) {
       return
     }

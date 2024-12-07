@@ -9,7 +9,7 @@ import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValu
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
 import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
-import { injectMotion, provideMotion } from './context'
+import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
 export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
+const layoutGroup = injectLayoutGroup({} as any)
 
 const state = new MotionState(
   {
@@ -47,6 +48,7 @@ const state = new MotionState(
   },
   parentState!,
 )
+
 provideMotion(state)
 
 const instance = getCurrentInstance()
@@ -107,6 +109,7 @@ function getProps() {
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"
+    :data-layout-group-key="layoutGroup?.key?.value"
   >
     <slot />
   </Primitive>

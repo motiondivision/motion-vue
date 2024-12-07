@@ -11,7 +11,7 @@ export class InViewGesture extends BaseGesture {
   constructor(state: MotionState) {
     super(state)
     this.subscribeEvents = () => {
-      const element = this.state.getElement()
+      const element = this.state.element
       const { once, ...viewOptions } = this.state.getOptions()?.inViewOptions || {}
       return inView(element, (enterEntry) => {
         this.state.setActive('inView', true)

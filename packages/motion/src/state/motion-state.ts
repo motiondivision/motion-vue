@@ -17,8 +17,7 @@ type StateType = typeof STATE_TYPES[number]
 export const mountedStates = new WeakMap<Element, MotionState>()
 
 export class MotionState {
-  private element: HTMLElement | null = null
-
+  public element: HTMLElement | null = null
   private parent?: MotionState
   private options: Options
   private activeStates: Partial<Record<StateType, boolean>> = {
@@ -240,10 +239,6 @@ export class MotionState {
 
   getOptions() {
     return this.options
-  }
-
-  getElement() {
-    return this.element
   }
 
   getTarget() {

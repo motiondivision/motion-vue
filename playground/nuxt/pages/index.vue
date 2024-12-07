@@ -4,6 +4,7 @@ const routes = [
   { path: '/flex-layout', name: 'Flex Layout Switch Animation' },
   { path: '/scale-correction-z', name: 'Scale Correction Animation' },
   { path: '/layout-id-tabs', name: 'Layout ID Tabs Animation' },
+  { path: '/layout-group', name: 'Layout Group Animation' },
 ]
 </script>
 
@@ -26,4 +27,5 @@ const routes = [
 </template>
 
 <style scoped>
+
 </style>

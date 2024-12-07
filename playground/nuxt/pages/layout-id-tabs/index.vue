@@ -43,7 +43,7 @@ const selectedTab = ref(tabs[0])
   </div>
 </template>
 
-<style>
+<style scoped>
 .window {
   width: 480px;
   height: 360px;
