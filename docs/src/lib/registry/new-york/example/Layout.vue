@@ -7,7 +7,7 @@ const showFirst = ref(true)
 </script>
 
 <template>
-  <div class="flex flex-col p-8 h-screen">
+  <div class="flex flex-col p-8 ">
     <!-- Basic Layout Animation -->
     <div class="space-y-4">
       <button @click="isExpanded = !isExpanded">
