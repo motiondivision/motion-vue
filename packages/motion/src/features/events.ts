@@ -5,7 +5,7 @@ export class EventFeature extends Feature {
   private handlers: Partial<Record<MotionEventNames, (event: Event) => void>> = {}
 
   mount() {
-    const element = this.state.getElement()
+    const element = this.state.element
     if (!element)
       return
 
@@ -60,7 +60,7 @@ export class EventFeature extends Feature {
   }
 
   unmount() {
-    const element = this.state.getElement()
+    const element = this.state.element
     if (!element)
       return
 

@@ -2,6 +2,7 @@ const components = {
   motion: [
     'Motion',
     'MotionPresence',
+    'LayoutGroup',
   ],
 }
 
@@ -16,6 +17,11 @@ export const utilities = {
     'useSpring',
     'useScroll',
     'useMotionValue',
+    'useVelocity',
+    'useAnimate',
+    'useInView',
+    'useAnimationFrame',
+    'useMotionValueEvent',
   ],
 }
 

@@ -9,7 +9,7 @@ import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValu
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
 import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
-import { injectMotion, provideMotion } from './context'
+import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
 export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
@@ -31,10 +31,16 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   animate: undefined,
   hover: undefined,
   inView: undefined,
+  layout: false,
+  layoutId: undefined,
+  layoutScroll: false,
+  layoutRoot: false,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
+const layoutGroup = injectLayoutGroup({} as any)
+
 const state = new MotionState(
   {
     ...attrs,
@@ -42,6 +48,7 @@ const state = new MotionState(
   },
   parentState!,
 )
+
 provideMotion(state)
 
 const instance = getCurrentInstance()
@@ -50,7 +57,6 @@ onMounted(() => {
   state.update({
     ...attrs,
     ...props,
-    style: { ...createStyles(state.getTarget()), ...props.style },
   })
 })
 
@@ -88,11 +94,11 @@ function getProps() {
       Object.assign(styleProps, style, props.style)
     }
     else {
-      Object.assign(styleProps, props.style, state.getTarget())
+      Object.assign(styleProps, state.getTarget(), props.style)
     }
   }
   styleProps = createStyles(styleProps)
-  attrsProps.style = createStyles(styleProps)
+  attrsProps.style = styleProps
   return attrsProps
 }
 </script>
@@ -103,6 +109,7 @@ function getProps() {
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"
+    :data-layout-group-key="layoutGroup?.key?.value"
   >
     <slot />
   </Primitive>

@@ -10,7 +10,7 @@ export class PressGesture extends BaseGesture {
   constructor(state: MotionState) {
     super(state)
     this.subscribeEvents = () => {
-      const element = this.state.getElement()
+      const element = this.state.element
 
       const onPointerUp = (event: PointerEvent) => {
         this.state.setActive('press', false)

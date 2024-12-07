@@ -61,6 +61,21 @@ export const docsConfig: DocsConfig = {
           href: '/docs/components/animate-presence',
           items: [],
         },
+        {
+          title: 'LayoutGroup',
+          href: '/docs/components/layout-group',
+          items: [],
+        },
+      ],
+    },
+    {
+      title: 'Animation',
+      items: [
+        {
+          title: 'Layout',
+          href: '/docs/animation/layout',
+          items: [],
+        },
       ],
     },
     {
