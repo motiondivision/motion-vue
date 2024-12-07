@@ -39,6 +39,7 @@ export class MotionState {
     this.options = options
     this.parent = parent
     this.depth = parent?.depth + 1 || 0
+
     /**
      * create visualElement
      */

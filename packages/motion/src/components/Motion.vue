@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
+
 const state = new MotionState(
   {
     ...attrs,
@@ -54,7 +55,6 @@ onMounted(() => {
   state.update({
     ...attrs,
     ...props,
-    style: { ...createStyles(state.getTarget()), ...props.style },
   })
 })
 
@@ -96,7 +96,7 @@ function getProps() {
     }
   }
   styleProps = createStyles(styleProps)
-  attrsProps.style = createStyles(styleProps)
+  attrsProps.style = styleProps
   return attrsProps
 }
 </script>

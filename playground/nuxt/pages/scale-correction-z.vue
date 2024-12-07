@@ -27,8 +27,8 @@ function toggleOpen() {
     <Motion
       :layout="true"
       :data-open="isOpen"
-      :initial="{ borderRadius: 50 }"
-      class="h-[100px] w-[100px] flex rounded items-center justify-center bg-white data-[open=true]:h-[200px] data-[open=true]:w-[400px]"
+      :initial="{ borderRadius: '50px' }"
+      class="h-[100px] w-[100px] flex  items-center justify-center bg-white data-[open=true]:h-[200px] data-[open=true]:w-[400px]"
       @click="toggleOpen"
     >
       <Motion
@@ -41,7 +41,7 @@ function toggleOpen() {
 </template>
 
 <style>
-.App {
+.app {
   @apply bg-gradient-to-tr from-[#7b2ff7] to-[#f107a3] bg-no-repeat flex justify-center items-center;
 
 }
