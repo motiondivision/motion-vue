@@ -1,7 +1,7 @@
 const components = {
   motion: [
     'Motion',
-    'MotionPresence',
+    'AnimatePresence',
     'LayoutGroup',
   ],
 }

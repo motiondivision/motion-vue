@@ -19,7 +19,7 @@ const selectedTab = ref(tabs[0])
 
 <template>
   <div class="flex justify-center items-center ">
-    <div class="window">
+    <div class="window bg-background">
       <nav>
         <ul>
           <li
@@ -60,19 +60,16 @@ const selectedTab = ref(tabs[0])
   max-width: 80vw;
   height: 360px;
   border-radius: 10px;
-  background: white;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 nav {
-  background: #fdfdfd;
   padding: 5px 5px 0;
   border-radius: 10px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom: 1px solid #eeeeee;
   height: 44px;
 }
 .tabs {
@@ -115,11 +112,10 @@ li {
   width: 100%;
   padding: 10px 15px;
   position: relative;
-  background: white;
   cursor: pointer;
   height: 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex: 1;
   min-width: 0;
