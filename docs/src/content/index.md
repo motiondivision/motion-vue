@@ -7,4 +7,4 @@ title: Motion for Vue
 import LandingPage from "../../.vitepress/theme/components/LandingPage.vue"
 </script>
 
-<LandingPage />
+<LandingPage  />

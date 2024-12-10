@@ -13,6 +13,9 @@ import Button from '@/lib/registry/new-york/ui/button/Button.vue'
 
 <template>
   <PageHeader class="page-header pb-8 items-center mx-auto">
+    <div class="text-primary text-opacity-20">
+      text
+    </div>
     <a
       :href="announcementConfig.link"
       class="inline-flex items-center rounded-lg bg-muted px-3 py-1 text-sm font-medium"
