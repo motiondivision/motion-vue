@@ -13,9 +13,6 @@ import Button from '@/lib/registry/new-york/ui/button/Button.vue'
 
 <template>
   <PageHeader class="page-header pb-8 items-center mx-auto">
-    <div class="text-primary text-opacity-20">
-      text
-    </div>
     <a
       :href="announcementConfig.link"
       class="inline-flex items-center rounded-lg bg-muted px-3 py-1 text-sm font-medium"
@@ -29,15 +26,17 @@ import Button from '@/lib/registry/new-york/ui/button/Button.vue'
       </span>
       <!-- <ArrowRightIcon class="ml-1 h-4 w-4" /> -->
     </a>
-    <PageHeaderHeading>Motion Vue</PageHeaderHeading>
-    <PageHeaderDescription class="max-w-[440px] text-secondary-foreground">
-      A Vue 3 motion library to power your app. based on <a
-        href="https://motion.dev/docs/animate"
-        target="_blank"
-      >
-        Motion animate
-      </a> .
-    </PageHeaderDescription>
+    <PageHeaderHeading>Motion for Vue</PageHeaderHeading>
+    <div class="max-w-[440px]">
+      <PageHeaderDescription class="text-primary/80">
+        A powerful animation library for Vue 3, based on <a
+          href="https://motion.dev/docs/animate"
+          target="_blank"
+        >
+          Framer Motion
+        </a>.
+      </PageHeaderDescription>
+    </div>
 
     <section class="flex w-full items-center justify-center space-x-4 pb-8 pt-4 md:pb-10">
       <Button
