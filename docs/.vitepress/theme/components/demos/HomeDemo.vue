@@ -18,7 +18,7 @@ const items = {
   },
 }
 
-const list = [0, 1, 2, 3, 4]
+const list = [0, 1, 2, 3]
 
 const icon = {
   hidden: {
@@ -66,16 +66,15 @@ const icon = {
           type: 'spring',
           stiffness: 260,
           damping: 20,
+          staggerChildren: 0.2,
+          delayChildren: 0.3,
         }"
         class="rounded-2xl overflow-hidden  list-none p-2  grid-cols-2 grid-rows-2 aspect-square bg-white/20 w-1/2  grid"
       >
         <Motion
-          v-for="(item, i) in list"
+          v-for="(item) in list"
           :key="item"
           :variants="items"
-          :transition="{
-            delay: 0.3 + i * 0.2,
-          }"
           class="bg-white rounded-full origin-center"
         />
       </Motion>
