@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, toRefs } from 'vue'
+import { Transition, TransitionGroup, toRefs, watch } from 'vue'
 import { mountedStates } from '@/state'
-import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
+import { doneCallbacks, provideAnimatePresence, removeDoneCallback, unPresenceDom } from '@/components/presence'
+import { injectLayoutGroup, provideLayoutGroup } from './context'
+import { useForceUpdate } from './use-force-update'
+import { useIdle } from '@vueuse/core'
+import { useLayoutGroup } from './use-layout-group'
+import type { AnimatePresenceProps } from './type'
 
 // 定义组件Props接口
-export interface AnimatePresenceProps {
-  // 动画模式: wait(等待前一个完成), popLayout(弹出布局), sync(同步)
-  mode?: 'wait'
-  // TODO: support popLayout
-  //  | 'popLayout'
-  | 'sync'
-  // 是否显示初始动画
-  initial?: boolean
-  // 是否支持多个元素同时动画
-  multiple?: boolean
-  as?: string
-}
 
 // 定义组件选项
 defineOptions({
@@ -48,18 +41,27 @@ function enter(el: Element) {
   }
   removeDoneCallback(el)
   state.setActive('exit', false)
+  unPresenceDom.value.delete(el)
+  state.isPresence.value = true
 }
 
+const layoutGroup = useLayoutGroup(props as any)
 // 处理元素退出动画
 function exit(el: Element, done: VoidFunction) {
+  unPresenceDom.value.set(el, true)
   const state = mountedStates.get(el)
   if (!state) {
     return done()
   }
+  state.isPresence.value = false
   removeDoneCallback(el)
   function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
       removeDoneCallback(el)
+      unPresenceDom.value.delete(el)
+      // trigger projection update
+      state.visualElement.projection?.willUpdate()
+      layoutGroup.forceRender?.()
       done()
       if (!el.isConnected) {
         state.unmount()

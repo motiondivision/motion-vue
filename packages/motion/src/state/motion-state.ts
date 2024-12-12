@@ -12,6 +12,7 @@ import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
+import { ref } from 'vue'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
 type StateType = typeof STATE_TYPES[number]
@@ -19,6 +20,10 @@ export const mountedStates = new WeakMap<Element, MotionState>()
 
 export class MotionState {
   public element: HTMLElement | null = null
+  /**
+   * when in AnimatePresence, whether the element is trigger exit transition
+   */
+  public isPresence = ref(true)
   private parent?: MotionState
   private options: Options
   private activeStates: Partial<Record<StateType, boolean>> = {
@@ -76,7 +81,7 @@ export class MotionState {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
           return typeof this.options[prop] === 'string'
             ? this.options[prop]
-            : prop === 'initial' && this.parent?.context[prop]
+            : (prop === 'initial') && this.parent?.context[prop]
         },
       }
 
@@ -155,7 +160,6 @@ export class MotionState {
       if (!this.activeStates[name])
         continue
       const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
-
       const variant = resolveVariant(
         definition,
         this.options.variants,
@@ -213,9 +217,13 @@ export class MotionState {
     })
 
     let getChildAnimations: () => Promise<any> = () => Promise.resolve()
+    let childAnimations: any[] = []
+
     // animate variants children
-    if (Object.keys(transition).length) {
-      getChildAnimations = animateVariantsChildren(this, activeState)
+    if (Object.keys(activeState).length) {
+      const { getAnimations, animations } = animateVariantsChildren(this, activeState)
+      getChildAnimations = getAnimations
+      childAnimations = animations
     }
 
     // Wait for all animation states to read from the DOM
@@ -248,9 +256,8 @@ export class MotionState {
       animationPromise = Promise.all([getAnimation(), getChildAnimations()])
     }
 
-    if (!animations?.length)
+    if (!animations?.length && !childAnimations.length)
       return
-
     const animationTarget = this.target
     this.element.dispatchEvent(motionEvent('motionstart', animationTarget))
     const isExit = this.activeStates.exit

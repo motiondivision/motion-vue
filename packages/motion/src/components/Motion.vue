@@ -8,7 +8,7 @@ import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValu
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -57,6 +57,11 @@ onMounted(() => {
   state.update({
     ...attrs,
     ...props,
+    initial: presenceInitial.value === false
+      ? presenceInitial.value
+      : (
+          props.initial === true ? undefined : props.initial
+        ),
   })
 })
 

@@ -62,7 +62,7 @@ export interface Options<T = any> extends LayoutOptions {
     transform: TransformProperties,
     generatedTransform: string
   ) => string
-  transition?: DynamicAnimationOptions
+  transition?: AnimateOptions
   onMotionStart?: (target: DOMKeyframesDefinition) => void
   onMotionComplete?: (target: DOMKeyframesDefinition) => void
   onHoverStart?: (e: PointerEvent) => void

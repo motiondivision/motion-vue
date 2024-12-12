@@ -7,6 +7,7 @@ const routes = [
   { path: '/scale-correction-z', name: 'Scale Correction Animation' },
   { path: '/layout-id-tabs', name: 'Layout ID Tabs Animation' },
   { path: '/layout-group', name: 'Layout Group Animation' },
+  { path: '/pop-layout', name: 'Pop Layout Animation' },
 ]
 const isShow = ref(true)
 function handleClick() {

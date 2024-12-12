@@ -6,26 +6,25 @@ const props = defineProps<{
   layout?: boolean
 }>()
 const isOpen = ref(false)
-const layoutGroup = injectLayoutGroup({} as any)
+const layoutGroup = injectLayoutGroup({})
 function handleClick() {
   isOpen.value = !isOpen.value
   layoutGroup?.forceRender?.()
 }
-onUpdated(() => {
-  console.log('onUpdated', layoutGroup)
-})
 </script>
 
 <template>
   <Motion
-    class="bg-gray-100 p-4 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
+    class="bg-gray-100 p-4  cursor-pointer hover:bg-gray-200 transition-colors"
     :layout="true"
+    :initial="{ borderRadius: '8px' }"
     @click="handleClick"
   >
     <Motion
       as="header"
       class="text-lg font-semibold"
       :layout="true"
+      :data-a="isOpen"
     >
       {{ isOpen ? 'close' : 'open' }}
     </Motion>

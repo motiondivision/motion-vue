@@ -13,8 +13,12 @@ export type ActiveVariant = {
 }
 export function animateVariantsChildren(state: MotionState, activeState: ActiveVariant) {
   const variantChildren = state.visualElement.variantChildren
-  if (!variantChildren?.size)
-    return () => Promise.resolve()
+  if (!variantChildren?.size) {
+    return {
+      animations: [],
+      getAnimations: () => Promise.resolve(),
+    }
+  }
 
   const animationFactories: AnimationFactory[] = []
 
@@ -63,7 +67,8 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
     }
   })
 
-  return () => {
-    return Promise.all(animationFactories.map(factory => factory()))
+  return {
+    animations: animationFactories,
+    getAnimations: () => Promise.all(animationFactories.map(factory => factory())),
   }
 }

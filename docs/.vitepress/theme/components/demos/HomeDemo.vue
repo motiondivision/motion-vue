@@ -66,7 +66,7 @@ const icon = {
           type: 'spring',
           stiffness: 260,
           damping: 20,
-          staggerChildren: 0.2,
+          staggerChildren: 0.1,
           delayChildren: 0.3,
         }"
         class="rounded-2xl overflow-hidden  list-none p-2  grid-cols-2 grid-rows-2 aspect-square bg-white/20 w-1/2  grid"
