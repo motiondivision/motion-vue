@@ -12,18 +12,14 @@ import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
-import { ref } from 'vue'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
 type StateType = typeof STATE_TYPES[number]
 export const mountedStates = new WeakMap<Element, MotionState>()
-
+let id = 0
 export class MotionState {
+  public readonly id: string
   public element: HTMLElement | null = null
-  /**
-   * when in AnimatePresence, whether the element is trigger exit transition
-   */
-  public isPresence = ref(true)
   private parent?: MotionState
   private options: Options
   private activeStates: Partial<Record<StateType, boolean>> = {
@@ -41,6 +37,7 @@ export class MotionState {
   public visualElement: VisualElement
 
   constructor(options: Options, parent?: MotionState) {
+    this.id = `motion-state-${id++}`
     this.options = options
     this.parent = parent
     this.depth = parent?.depth + 1 || 0
@@ -255,12 +252,19 @@ export class MotionState {
     else {
       animationPromise = Promise.all([getAnimation(), getChildAnimations()])
     }
+    const isExit = this.activeStates.exit
 
-    if (!animations?.length && !childAnimations.length)
+    if (!animations?.length && !childAnimations.length) {
+      if (isExit) {
+        this.element.dispatchEvent(motionEvent('motionstart', this.target))
+        this.element.dispatchEvent(motionEvent('motioncomplete', {
+          ...this.target,
+        }, isExit))
+      }
       return
+    }
     const animationTarget = this.target
     this.element.dispatchEvent(motionEvent('motionstart', animationTarget))
-    const isExit = this.activeStates.exit
     animationPromise
       .then(() => {
         this.element.dispatchEvent(motionEvent('motioncomplete', {

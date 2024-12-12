@@ -21,9 +21,6 @@ function handleClick() {
     <AnimatePresence>
       <Motion
         v-if="isShow"
-        :exit="{
-          opacity: 0,
-        }"
         layout
         class="bg-white w-20 h-20 rounded"
         @click="handleClick"
