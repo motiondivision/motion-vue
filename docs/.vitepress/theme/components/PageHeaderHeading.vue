@@ -7,7 +7,7 @@ import { Motion } from 'motion-v'
   <Motion
     as="h1"
     :class="cn(
-      'text-3xl font-bold leading-tight text-secondary-foreground tracking-tighter md:text-5xl lg:leading-[1.1]',
+      'text-3xl font-bold leading-tight text-foreground tracking-tighter md:text-5xl lg:leading-[1.1]',
       $attrs.class ?? '',
     )"
     :initial="{ opacity: 0, y: 30 }"

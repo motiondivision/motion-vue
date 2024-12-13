@@ -55,7 +55,6 @@ export default defineConfig({
       text: 'Edit this page on GitHub',
     },
   },
-
   srcDir: path.resolve(__dirname, '../src'),
   markdown: {
     theme: cssVariables,
@@ -79,15 +78,12 @@ export default defineConfig({
       },
     },
     plugins: [
-      Icons({ compiler: 'vue3', autoInstall: true }),
+      Icons({ compiler: 'vue3', autoInstall: true }) as any,
     ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '../src'),
       },
-    },
-    ssr: {
-      noExternal: ['vue-sonner'],
     },
   },
 })

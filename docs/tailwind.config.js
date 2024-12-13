@@ -47,10 +47,6 @@ export default {
           DEFAULT: 'rgb(var(--card) / <alpha-value>)',
           foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
         },
-        success: {
-          DEFAULT: 'rgb(var(--success) / <alpha-value>)',
-          foreground: 'rgb(var(--success-foreground) / <alpha-value>)',
-        },
       },
       borderRadius: {
         lg: 'var(--radius)',
