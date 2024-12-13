@@ -5,9 +5,21 @@ import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
+export interface Orchestration {
+  delay?: number
 
+  when?: false | 'beforeChildren' | 'afterChildren' | string
+  delayChildren?: number
+
+  staggerChildren?: number
+
+  staggerDirection?: number
+}
+export interface AnimateOptions extends Omit<Orchestration, 'delay'>, DynamicAnimationOptions {
+
+}
 export interface Variant extends DOMKeyframesDefinition {
-  transition?: DynamicAnimationOptions
+  transition?: AnimateOptions
 }
 export type VariantLabels = string | Variant
 type MarginValue = `${number}${'px' | '%'}`
@@ -50,7 +62,7 @@ export interface Options<T = any> extends LayoutOptions {
     transform: TransformProperties,
     generatedTransform: string
   ) => string
-  transition?: DynamicAnimationOptions
+  transition?: AnimateOptions
   onMotionStart?: (target: DOMKeyframesDefinition) => void
   onMotionComplete?: (target: DOMKeyframesDefinition) => void
   onHoverStart?: (e: PointerEvent) => void

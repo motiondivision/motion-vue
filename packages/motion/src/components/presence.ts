@@ -1,7 +1,9 @@
 import { createContext } from '@/utils'
-import type { Ref } from 'vue'
+import { type Ref, ref } from 'vue'
 
-export const doneCallbacks = new Map<Element, VoidFunction>()
+export const doneCallbacks = new WeakMap<Element, VoidFunction>()
+
+export const unPresenceDom = ref(new WeakMap<Element, boolean>())
 
 export function removeDoneCallback(element: Element) {
   const prevDoneCallback = doneCallbacks.get(element)

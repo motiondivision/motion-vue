@@ -7,6 +7,7 @@ const routes = [
   { path: '/scale-correction-z', name: 'Scale Correction Animation' },
   { path: '/layout-id-tabs', name: 'Layout ID Tabs Animation' },
   { path: '/layout-group', name: 'Layout Group Animation' },
+  { path: '/pop-layout', name: 'Pop Layout Animation' },
 ]
 const isShow = ref(true)
 function handleClick() {
@@ -20,9 +21,6 @@ function handleClick() {
     <AnimatePresence>
       <Motion
         v-if="isShow"
-        :exit="{
-          opacity: 0,
-        }"
         layout
         class="bg-white w-20 h-20 rounded"
         @click="handleClick"
