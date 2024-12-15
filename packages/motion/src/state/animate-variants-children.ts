@@ -1,8 +1,9 @@
 import type { MotionState } from '@/state/motion-state'
+import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
-import { getOptions, resolveVariant } from '@/state/utils'
+import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import type { AnimateOptions, AnimationFactory } from '@/types'
-import type { DynamicAnimationOptions } from 'framer-motion'
+import type { DynamicAnimationOptions, VisualElement } from 'framer-motion'
 import { animate } from 'framer-motion/dom'
 
 export type ActiveVariant = {
@@ -22,8 +23,12 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
 
   const animationFactories: AnimationFactory[] = []
 
-  Array.from(variantChildren).forEach((child, index) => {
+  Array.from(variantChildren).forEach((child: VisualElement & { state: MotionState }, index) => {
+    const prevTarget = child.state.target
+    const childState = child.state
+    childState.target = {}
     for (const name in activeState) {
+      childState.activeStates[name] = true
       const { definition, transition } = activeState[name]
       const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition
 
@@ -42,10 +47,21 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
       )
       const animationOptions: { [key: string]: DynamicAnimationOptions } = {}
 
-      for (const key in variant) {
-        if (child.latestValues[key] !== variant[key]) {
+      const allTarget = { ...prevTarget, ...variant }
+      console.log('allTarget', allTarget)
+      for (const key in allTarget) {
+        if (key === 'transition')
+          continue
+
+        childState.target[key] = allTarget[key]
+        if (childState.target[key] === undefined) {
+          childState.target[key] = childState.baseTarget[key]
+        }
+        if (hasChanged(prevTarget[key], childState.target[key])) {
+          childState.baseTarget[key] ??= style.get(child.current as Element, key)
+          console.log('childState.baseTarget[key]', childState.target[key])
           animationOptions[key] = getOptions(
-            Object.assign({}, variant.transition, child.props.transition),
+            Object.assign({}, allTarget.transition, child.props.transition),
             key,
           )
           animationFactories.push(
@@ -53,7 +69,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
               return animate(
                 child.current,
                 {
-                  [key]: variant[key] === 'none' ? transformResetValue[key] : variant[key],
+                  [key]: childState.target[key] === 'none' ? transformResetValue[key] : childState.target[key],
                 },
                 {
                   ...(animationOptions[key] || {}),

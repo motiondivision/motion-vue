@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AnimatePresence, LayoutGroup, Motion, injectLayoutGroup } from 'motion-v'
+import { AnimatePresence, Motion } from 'motion-v'
 
 const count = ref(0)
 const items = ref([0])
@@ -16,12 +16,10 @@ function addItem() {
   items.value = [...items.value, count.value]
 }
 
-const layoutGroup = injectLayoutGroup({})
 function removeItemById(id: any) {
   const newItems = [...items.value]
   removeItem(newItems, id)
   items.value = newItems
-  // layoutGroup?.forceRender?.()
 }
 </script>
 
@@ -48,7 +46,7 @@ function removeItemById(id: any) {
     </div>
     <AnimatePresence
       class="flex flex-col w-[300px] h-[300px] gap-5 p-0 list-none"
-      mode="popLayout"
+      :mode="popLayout ? 'popLayout' : 'wait'"
       multiple
       as="ul"
     >

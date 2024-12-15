@@ -41,6 +41,9 @@ export class HoverGesture extends BaseGesture {
       })
       const onLeave = mouseEvent(element, 'hoverend', () => {
         this.state.setActive('hover', false)
+        this.state.visualElement.variantChildren?.forEach((child) => {
+          (child as any).state.setActive('hover', false)
+        })
       })
       element.addEventListener('pointerenter', onEnter as EventListener)
       element.addEventListener('pointerleave', onLeave as EventListener)

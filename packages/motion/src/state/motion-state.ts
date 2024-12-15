@@ -22,16 +22,16 @@ export class MotionState {
   public element: HTMLElement | null = null
   private parent?: MotionState
   private options: Options
-  private activeStates: Partial<Record<StateType, boolean>> = {
+  public activeStates: Partial<Record<StateType, boolean>> = {
     initial: true,
     animate: true,
   }
 
   private depth: number
 
-  private baseTarget: DOMKeyframesDefinition
+  public baseTarget: DOMKeyframesDefinition
 
-  private target: DOMKeyframesDefinition
+  public target: DOMKeyframesDefinition
   private featureManager: FeatureManager
 
   public visualElement: VisualElement
@@ -50,6 +50,8 @@ export class MotionState {
       parent: parent?.visualElement,
       props: {
         ...this.options,
+        whileHover: this.options.hover,
+        whileTap: this.options.press,
       },
       visualState: {
         renderState: {
@@ -78,7 +80,7 @@ export class MotionState {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
           return typeof this.options[prop] === 'string'
             ? this.options[prop]
-            : (prop === 'initial') && this.parent?.context[prop]
+            : this.parent?.context[prop]
         },
       }
 
@@ -96,6 +98,14 @@ export class MotionState {
     return isDef(this.options.initial) ? this.options.initial : this.context.initial
   }
 
+  updateOptions() {
+    this.visualElement.update({
+      ...this.options as any,
+      whileHover: this.options.hover,
+      whileTap: this.options.press,
+    }, this.parent?.context as any)
+  }
+
   mount(element: HTMLElement) {
     invariant(
       Boolean(element),
@@ -107,7 +117,11 @@ export class MotionState {
       this.visualElement.mount(element)
       visualElementStore.set(element, this.visualElement)
     }
-    this.visualElement.update(this.options as any, this.parent?.context as any)
+    // 添加state引用到visualElement
+    (this.visualElement as any).state = this
+
+    this.updateOptions()
+
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {
         this.visualElement.setStaticValue(key, this.initial[key])
@@ -133,7 +147,7 @@ export class MotionState {
 
   update(options: Options) {
     this.options = options
-    this.visualElement.update(this.options as any, this.parent?.context as any)
+    this.updateOptions()
     // 更新特征
     this.featureManager.update()
     // 更新动画
@@ -141,7 +155,7 @@ export class MotionState {
   }
 
   setActive(name: StateType, isActive: boolean) {
-    if (!this.element)
+    if (!this.element || this.activeStates[name] === isActive)
       return
     this.activeStates[name] = isActive
     scheduleAnimation(this as any)
@@ -284,9 +298,5 @@ export class MotionState {
 
   getOptions() {
     return this.options
-  }
-
-  getTarget() {
-    return this.target
   }
 }

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { Motion, injectLayoutGroup } from 'motion-v'
+import { Motion } from 'motion-v'
 
 const props = defineProps<{
   content: string
   layout?: boolean
 }>()
 const isOpen = ref(false)
-const layoutGroup = injectLayoutGroup({})
 function handleClick() {
   isOpen.value = !isOpen.value
-  layoutGroup?.forceRender?.()
 }
 </script>
 

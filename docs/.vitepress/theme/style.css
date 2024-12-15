@@ -11,8 +11,8 @@
 		--card-foreground: 10 10 10;
 		--popover: 255 255 255;
 		--popover-foreground: 10 10 10;
-		--primary: 26 26 26;
-		--primary-foreground: 250 250 250;
+		--primary: 59 130 246;
+		--primary-foreground: 241 245 249;
 		--secondary: 244 244 245;
 		--secondary-foreground: 26 26 26;
 		--muted: 244 244 245;
@@ -34,8 +34,8 @@
 		--card-foreground: 250 250 250;
 		--popover: 10 10 10;
 		--popover-foreground: 250 250 250;
-		--primary: 250 250 250;
-		--primary-foreground: 26 26 26;
+		--primary: 99 102 241;
+		--primary-foreground: 244 244 245;
 		--secondary: 41 41 41;
 		--secondary-foreground: 250 250 250;
 		--muted: 41 41 41;

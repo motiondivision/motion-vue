@@ -6,7 +6,12 @@
   "author": "",
   "license": "MIT",
   "homepage": "https://github.com/rick-hup/motion-vue",
-  "keywords": ["vue", "motion", "motionone", "framer-motion"],
+  "keywords": [
+    "vue",
+    "motion",
+    "motionone",
+    "framer-motion"
+  ],
   "main": "index.js",
   "scripts": {
     "dev:play": "pnpm --filter './playground/nuxt' dev",
@@ -49,5 +54,6 @@
     "*.{js,ts,vue}": [
       "eslint --fix"
     ]
-  }
+  },
+  "packageManager": "pnpm@9.15.0+sha1.8bfdb6d72b4d5fdf87d21d27f2bfbe2b21dd2629"
 }

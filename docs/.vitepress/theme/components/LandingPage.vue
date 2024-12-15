@@ -4,7 +4,6 @@ import PageHeaderHeading from '../components/PageHeaderHeading.vue'
 import PageHeaderDescription from '../components/PageHeaderDescription.vue'
 import { announcementConfig } from '../config/site'
 import GitHubIcon from '~icons/radix-icons/github-logo'
-import { Motion } from 'motion-v'
 import { Separator } from '@/lib/registry/new-york/ui/separator'
 
 import HomeDemo from './demos/HomeDemo.vue'
@@ -26,7 +25,7 @@ import Button from '@/lib/registry/new-york/ui/button/Button.vue'
     </a>
     <PageHeaderHeading>Motion for Vue</PageHeaderHeading>
     <div class="max-w-[440px]">
-      <PageHeaderDescription class="text-primary/80">
+      <PageHeaderDescription class="text-muted-foreground/80">
         A powerful animation library for Vue 3, based on <a
           href="https://motion.dev/docs/animate"
           target="_blank"

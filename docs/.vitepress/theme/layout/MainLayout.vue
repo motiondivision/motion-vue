@@ -3,7 +3,7 @@ import { useMagicKeys } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import { Content, useData, useRoute, useRouter } from 'vitepress'
 import { SearchIcon } from 'lucide-vue-next'
-import { type NavItem, docsConfig } from '../config/docs'
+import type { NavItem } from '../config/docs'
 import Logo from '../components/Logo.vue'
 import MobileNav from '../components/MobileNav.vue'
 
@@ -65,8 +65,8 @@ watch(() => $route.path, (n) => {
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-background">
-    <header class="sticky z-40 top-0 bg-background/80 backdrop-blur-lg  border-border">
+  <div class="flex min-h-screen flex-col  dark:bg-[radial-gradient(#ffffff22_1px,transparent_1px)] [background-size:16px_16px] bg-[radial-gradient(#00000021_1px,transparent_1px)]">
+    <header class="sticky z-40 top-0 bg-background/75  backdrop-blur-lg  border-border">
       <div class="container mx-auto flex items-center justify-between h-16 px-4">
         <MobileNav />
 
@@ -111,7 +111,7 @@ watch(() => $route.path, (n) => {
       </div>
     </header>
 
-    <div class="flex-1  bg-background">
+    <div class="flex-1  ">
       <!-- eslint-disable-next-line vue/require-component-is -->
       <component
         is="docs"
