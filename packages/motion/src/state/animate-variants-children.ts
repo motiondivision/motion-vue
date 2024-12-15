@@ -48,7 +48,6 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
       const animationOptions: { [key: string]: DynamicAnimationOptions } = {}
 
       const allTarget = { ...prevTarget, ...variant }
-      console.log('allTarget', allTarget)
       for (const key in allTarget) {
         if (key === 'transition')
           continue
@@ -59,7 +58,6 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
         }
         if (hasChanged(prevTarget[key], childState.target[key])) {
           childState.baseTarget[key] ??= style.get(child.current as Element, key)
-          console.log('childState.baseTarget[key]', childState.target[key])
           animationOptions[key] = getOptions(
             Object.assign({}, allTarget.transition, child.props.transition),
             key,
@@ -82,7 +80,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
       }
     }
   })
-
+  console.log('animationFactories', animationFactories.length)
   return {
     animations: animationFactories,
     getAnimations: () => Promise.all(animationFactories.map(factory => factory())),

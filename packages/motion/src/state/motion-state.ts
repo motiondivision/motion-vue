@@ -52,6 +52,7 @@ export class MotionState {
         ...this.options,
         whileHover: this.options.hover,
         whileTap: this.options.press,
+        whileInView: this.options.inView,
       },
       visualState: {
         renderState: {
@@ -103,15 +104,17 @@ export class MotionState {
       ...this.options as any,
       whileHover: this.options.hover,
       whileTap: this.options.press,
+      whileInView: this.options.inView,
     }, this.parent?.context as any)
   }
 
-  mount(element: HTMLElement) {
+  mount(element: HTMLElement, options: Options) {
     invariant(
       Boolean(element),
       'Animation state must be mounted with valid Element',
     )
     this.element = element
+    this.options = options
     mountedStates.set(element, this)
     if (!visualElementStore.get(element)) {
       this.visualElement.mount(element)
@@ -135,6 +138,7 @@ export class MotionState {
 
     // 挂载特征
     this.featureManager.mount()
+    scheduleAnimation(this as any)
   }
 
   unmount() {
@@ -167,10 +171,12 @@ export class MotionState {
     const activeState: ActiveVariant = {}
     const animationOptions: { [key: string]: DynamicAnimationOptions } = {}
     let transition: AnimateOptions
+
     for (const name of STATE_TYPES) {
       if (!this.activeStates[name])
         continue
       const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
+
       const variant = resolveVariant(
         definition,
         this.options.variants,
@@ -183,7 +189,6 @@ export class MotionState {
           transition,
         }
       }
-
       if (!variant)
         continue
 
@@ -213,6 +218,7 @@ export class MotionState {
       }
       if (hasChanged(prevTarget[key], this.target[key])) {
         this.baseTarget[key] ??= style.get(this.element, key) as string
+        console.log('animationOptions11', key, this.target[key])
         animationFactories.push(
           () => {
             return animate(

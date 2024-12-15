@@ -53,8 +53,7 @@ provideMotion(state)
 
 const instance = getCurrentInstance()
 onMounted(() => {
-  state.mount(instance?.vnode.el as HTMLElement)
-  state.update({
+  state.mount(instance?.vnode.el as HTMLElement, {
     ...attrs,
     ...props,
     initial: presenceInitial.value === false

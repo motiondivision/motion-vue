@@ -1,18 +1,4 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "compilerOptions": {
-    "jsx": "preserve",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "baseUrl": ".",
-    "module": "ESNext",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "types": ["unplugin-icons/types/vue", "node"],
-    "declaration": false,
-    "outDir": "dist",
-    "sourceMap": true
-  },
-  "include": ["src", ".vitepress/**/*.vue", "scripts/build-registry.ts", ".vitepress/**/*.mts", ".vitepress/**/*.vue", "src/lib/**/*"],
-  "exclude": ["node_modules"]
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json"
 }
