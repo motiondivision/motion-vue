@@ -89,6 +89,7 @@ function getProps() {
   })
   let styleProps: Record<string, any> = {
     ...props.style,
+    ...state.visualElement?.latestValues,
   }
 
   if (!state.isMounted()) {

@@ -12,7 +12,9 @@ const items = [...Array(3)].map((_, i) => ({
 </script>
 
 <template>
-  <main class="p-8 space-y-12">
+  <main
+    class="p-8 space-y-12"
+  >
     <div class="space-y-4">
       <h3 class="text-xl font-semibold">
         1. without LayoutGroup
@@ -21,6 +23,7 @@ const items = [...Array(3)].map((_, i) => ({
         <ToggleContent
           v-for="item in items"
           :key="item.id"
+          :layout="true"
           :content="item.content"
         />
       </div>

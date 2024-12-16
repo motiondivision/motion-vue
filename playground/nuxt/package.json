@@ -9,6 +9,7 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
+    "@number-flow/vue": "^0.3.2",
     "motion-v": "workspace:*",
     "nuxt": "^3.13.0",
     "vue": "latest",
