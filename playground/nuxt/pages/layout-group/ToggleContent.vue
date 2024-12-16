@@ -9,6 +9,7 @@ const isOpen = ref(false)
 function handleClick() {
   isOpen.value = !isOpen.value
 }
+const test1 = props.test
 </script>
 
 <template>

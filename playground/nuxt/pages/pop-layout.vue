@@ -64,7 +64,9 @@ function removeItemById(id: any) {
             duration: 0.5,
           },
         }"
-        :transition="{ type: 'spring' }"
+        :transition="{
+          type: 'spring',
+        }"
         :layout="true"
         class="block h-20 flex-[0_0_80px] bg-pink-500 rounded-[20px] p-0 m-0 list-none"
         @click="removeItemById(id)"

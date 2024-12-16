@@ -8,6 +8,7 @@ const routes = [
   { path: '/layout-id-tabs', name: 'Layout ID Tabs Animation' },
   { path: '/layout-group', name: 'Layout Group Animation' },
   { path: '/pop-layout', name: 'Pop Layout Animation' },
+  { path: '/scroll-progress', name: 'Scroll Progress Animation' },
 ]
 const isShow = ref(true)
 function handleClick() {
@@ -17,15 +18,6 @@ function handleClick() {
 
 <template>
   <div class="flex flex-col p-8 h-screen bg-gradient-to-tr from-[#7b2ff7] to-[#f107a3]">
-    {{ isShow }}
-    <AnimatePresence>
-      <Motion
-        v-if="isShow"
-        layout
-        class="bg-white w-20 h-20 rounded"
-        @click="handleClick"
-      />
-    </AnimatePresence>
     <div class="max-w-md mx-auto w-full space-y-4 mt-20">
       <h1 class="text-2xl font-bold text-white mb-8">
         Motion-V 动画演示

@@ -27,7 +27,7 @@ export class MotionState {
     animate: true,
   }
 
-  private depth: number
+  public depth: number
 
   public baseTarget: DOMKeyframesDefinition
 
@@ -218,7 +218,6 @@ export class MotionState {
       }
       if (hasChanged(prevTarget[key], this.target[key])) {
         this.baseTarget[key] ??= style.get(this.element, key) as string
-        console.log('animationOptions11', key, this.target[key])
         animationFactories.push(
           () => {
             return animate(
@@ -296,10 +295,6 @@ export class MotionState {
 
   isMounted() {
     return Boolean(this.element)
-  }
-
-  getDepth() {
-    return this.depth
   }
 
   getOptions() {
