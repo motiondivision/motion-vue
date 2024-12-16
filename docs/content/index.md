@@ -31,8 +31,3 @@ A powerful animation library for Vue 3, based on <a
           Motion
         </a>.
 ::
-
-::LoadingData
-
----
----

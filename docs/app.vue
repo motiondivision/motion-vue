@@ -2,7 +2,6 @@
 const { page } = useContent()
 const config = useConfig()
 const route = useRoute()
-const colorMode = useColorMode()
 useSeoMeta({
   description: config.value.site.description,
   ogDescription: config.value.site.description,
@@ -21,6 +20,7 @@ useServerHead({
   <NuxtLoadingIndicator
     class="z-100 bg-primary/80"
   />
+  <LayoutHeader />
   <div class="min-h-screen pt-14 dark:bg-[radial-gradient(#ffffff22_1px,transparent_1px)] [background-size:16px_16px] bg-[radial-gradient(#00000021_1px,transparent_1px)]">
     <div
       v-if="route.path !== '/'"

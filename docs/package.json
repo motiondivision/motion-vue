@@ -12,12 +12,14 @@
   "dependencies": {
     "@iconify-json/lucide": "^1.2.18",
     "@iconify/utils": "^2.2.0",
+    "@internationalized/date": "^3.6.0",
     "@nuxt/image": "1.8.1",
     "@nuxtjs/tailwindcss": "6.12.2",
     "@radix-icons/vue": "^1.0.0",
     "@vueuse/core": "^12.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "json5": "^2.2.3",
     "motion-v": "link:../packages/motion",
     "nuxt": "^3.14.1592",
     "nuxt-og-image": "^4.0.1",
@@ -34,7 +36,9 @@
   "devDependencies": {
     "@nuxt/content": "^2.13.4",
     "@nuxt/icon": "^1.10.1",
+    "@nuxt/kit": "^3.14.1592",
     "@nuxtjs/color-mode": "^3.5.2",
+    "hast": "^1.0.0",
     "js-yaml": "^4.1.0",
     "parse-entities": "^4.0.2",
     "shiki": "^1.24.2"
