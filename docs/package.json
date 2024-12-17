@@ -3,8 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "docs:build": "nuxt build",
-    "docs:dev": "nuxt dev",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
     "docs:generate": "nuxt generate",
     "docs:preview": "nuxt preview",
     "docs:postinstall": "nuxt prepare"
