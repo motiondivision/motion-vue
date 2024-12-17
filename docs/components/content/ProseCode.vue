@@ -72,7 +72,7 @@ const icon = computed(() => {
     <div class="bg-muted/30">
       <UiScrollArea :style="[parsedMeta.has('height') && `height: ${parsedMeta.get('height')}px`]">
         <div
-          class="overflow-x-auto py-3 text-sm"
+          class="overflow-x-auto py-3 text-sm max-h-[500px]"
           :class="[
             !inGroup && !filename && 'inline-copy',
             !language && 'pl-3', !inGroup,

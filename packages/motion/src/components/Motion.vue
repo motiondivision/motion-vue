@@ -4,6 +4,7 @@ import { MotionState } from '@/state/motion-state'
 import { isSVGElement } from '@/state/utils'
 import { injectAnimatePresence } from './presence'
 import { isMotionValue } from '@/utils'
+import { getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 </script>
 
@@ -51,9 +52,9 @@ const state = new MotionState(
 
 provideMotion(state)
 
-const instance = getCurrentInstance()
+const instance = getCurrentInstance().proxy
 onMounted(() => {
-  state.mount(instance?.vnode.el as HTMLElement, {
+  state.mount(getMotionElement(instance.$el), {
     ...attrs,
     ...props,
     initial: presenceInitial.value === false
@@ -65,7 +66,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (safeUnmount(instance?.vnode.el as HTMLElement))
+  if (safeUnmount(getMotionElement(instance.$el)))
     state.unmount()
 })
 

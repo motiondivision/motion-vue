@@ -59,7 +59,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
         if (hasChanged(prevTarget[key], childState.target[key])) {
           childState.baseTarget[key] ??= style.get(child.current as Element, key)
           animationOptions[key] = getOptions(
-            Object.assign({}, allTarget.transition, child.props.transition),
+            Object.assign({}, transition, allTarget.transition, child.props.transition),
             key,
           )
           animationFactories.push(

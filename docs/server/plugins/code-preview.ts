@@ -41,7 +41,7 @@ export default defineNitroPlugin((nitro) => {
     // 使用正则表达式一次性匹配所有props
     const PROPS_REGEX = /(\w+)="([^"]*)"/g
 
-    file.body = await file.body.replace(
+    file.body = file.body.replaceAll(
       /<ComponentPreview\s+([^>]+)\/>/g,
       (_, bindingValue) => {
         const matches = Array.from(bindingValue.matchAll(PROPS_REGEX))
@@ -53,12 +53,14 @@ export default defineNitroPlugin((nitro) => {
         }
 
         const files = getComponentFiles(props.name)
-        return `<ComponentPreview 
-          name="${props.name}"
-          :files='${JSON.stringify(files)}'
-        >
-        </ComponentPreview>
-        `
+        return `::ComponentPreview
+---
+name:
+  ${props.name}
+files:
+  ${JSON.stringify(files)}
+---
+::        `
       },
     )
   })
