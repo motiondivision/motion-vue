@@ -1,5 +1,6 @@
 export interface LayoutOptions {
-  'layout'?: boolean
+  'layout'?: boolean | 'position' | 'size' | 'preserve-aspect'
+
   'layoutId'?: string
   'layoutScroll'?: boolean
   'layoutRoot'?: boolean

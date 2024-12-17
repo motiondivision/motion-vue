@@ -2,6 +2,7 @@ import { dispatchPointerEvent } from '@/utils/events'
 import type { MotionState } from '@/state/motion-state'
 import { BaseGesture } from '@/features'
 import { inView } from 'framer-motion/dom'
+import type { VisualElement } from 'framer-motion'
 
 export class InViewGesture extends BaseGesture {
   isActive() {
@@ -15,6 +16,9 @@ export class InViewGesture extends BaseGesture {
       const { once, ...viewOptions } = this.state.getOptions()?.inViewOptions || {}
       return inView(element, (enterEntry) => {
         this.state.setActive('inView', true)
+        this.state.visualElement.variantChildren?.forEach((child: VisualElement & { state: MotionState }) => {
+          child.state.setActive('inView', true)
+        })
         dispatchPointerEvent(element, 'viewenter', enterEntry)
         if (!once) {
           return (leaveEntry) => {

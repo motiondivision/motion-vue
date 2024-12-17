@@ -1,9 +1,10 @@
-import tailwindcssAnimate from 'tailwindcss-animate'
+const animate = require('tailwindcss-animate')
 
 /** @type {import('tailwindcss').Config} */
-export default {
-  darkMode: 'class',
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx,md}', './.vitepress/**/*.{vue,js,ts,jsx,tsx}'],
+module.exports = {
+  darkMode: ['class'],
+  safelist: ['dark'],
+  prefix: '',
   theme: {
     container: {
       center: true,
@@ -49,12 +50,10 @@ export default {
         },
       },
       borderRadius: {
+        xl: 'calc(var(--radius) + 4px)',
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-      },
-      boxShadow: {
-        switch: 'rgba(0, 0, 0, 0.3) 0px 0px 1px, rgba(0, 0, 0, 0.2) 0px 1px 2px',
       },
       keyframes: {
         'accordion-down': {
@@ -75,12 +74,12 @@ export default {
         },
       },
       animation: {
-        'accordion-down': 'accordion-down 0.2s ease-in-out',
-        'accordion-up': 'accordion-up 0.2s ease-in-out',
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
         'collapsible-down': 'collapsible-down 0.2s ease-in-out',
         'collapsible-up': 'collapsible-up 0.2s ease-in-out',
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [animate],
 }

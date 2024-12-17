@@ -1,9 +1,9 @@
 <script lang="ts">
 import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
-import { isSVGElement } from '@/state/utils'
 import { injectAnimatePresence } from './presence'
 import { isMotionValue } from '@/utils'
+import { getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 </script>
 
@@ -51,17 +51,21 @@ const state = new MotionState(
 
 provideMotion(state)
 
-const instance = getCurrentInstance()
+const instance = getCurrentInstance().proxy
 onMounted(() => {
-  state.mount(instance?.vnode.el as HTMLElement)
-  state.update({
+  state.mount(getMotionElement(instance.$el), {
     ...attrs,
     ...props,
+    initial: presenceInitial.value === false
+      ? presenceInitial.value
+      : (
+          props.initial === true ? undefined : props.initial
+        ),
   })
 })
 
 onUnmounted(() => {
-  if (safeUnmount(instance?.vnode.el as HTMLElement))
+  if (safeUnmount(getMotionElement(instance.$el)))
     state.unmount()
 })
 
@@ -78,6 +82,7 @@ onUpdated(() => {
 })
 
 function getProps() {
+  const isSVG = state.visualElement.type === 'svg'
   const attrsProps = { ...attrs }
   Object.keys(attrs).forEach((key) => {
     if (isMotionValue(attrs[key]))
@@ -85,17 +90,16 @@ function getProps() {
   })
   let styleProps: Record<string, any> = {
     ...props.style,
+    ...(isSVG ? {} : state.visualElement.latestValues),
+  }
+  if (isSVG) {
+    const { attributes, style } = convertSvgStyleToAttributes(state.target)
+    Object.assign(attrsProps, attributes)
+    Object.assign(styleProps, style, props.style)
   }
 
   if (!state.isMounted()) {
-    if (isSVGElement(props.as)) {
-      const { attributes, style } = convertSvgStyleToAttributes(state.getTarget())
-      Object.assign(attrsProps, attributes)
-      Object.assign(styleProps, style, props.style)
-    }
-    else {
-      Object.assign(styleProps, state.getTarget(), props.style)
-    }
+    Object.assign(styleProps, state.target, props.style)
   }
   styleProps = createStyles(styleProps)
   attrsProps.style = styleProps

@@ -1,12 +1,18 @@
 {
   "name": "vue-motion",
-  "version": "0.4.1",
+  "version": "0.5.0-beta.1",
   "private": true,
+  "packageManager": "pnpm@9.15.0+sha1.8bfdb6d72b4d5fdf87d21d27f2bfbe2b21dd2629",
   "description": "",
   "author": "",
   "license": "MIT",
   "homepage": "https://github.com/rick-hup/motion-vue",
-  "keywords": ["vue", "motion", "motionone", "framer-motion"],
+  "keywords": [
+    "vue",
+    "motion",
+    "motionone",
+    "framer-motion"
+  ],
   "main": "index.js",
   "scripts": {
     "dev:play": "pnpm --filter './playground/nuxt' dev",

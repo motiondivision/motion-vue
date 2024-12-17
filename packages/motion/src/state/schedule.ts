@@ -32,5 +32,5 @@ export function unscheduleAnimation(state: MotionState) {
 }
 
 function compareByDepth(a: MotionState, b: MotionState) {
-  return a.getDepth() - b.getDepth()
+  return a.depth - b.depth
 }

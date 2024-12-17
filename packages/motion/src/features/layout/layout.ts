@@ -48,9 +48,7 @@ export class LayoutFeature extends Feature {
       })
       onBeforeUnmount(() => {
         if (visualElement.projection) {
-          visualElement.projection.unmount()
-          if (this.layoutGroup?.group)
-            this.layoutGroup.group.remove(visualElement.projection)
+          visualElement.projection.willUpdate()
         }
       })
     }
@@ -77,6 +75,10 @@ export class LayoutFeature extends Feature {
   }
 
   unmount() {
-    // this.state.visualElement.projection?.unmount()
+    if (this.state.visualElement.projection) {
+      this.state.visualElement.projection.unmount()
+      if (this.layoutGroup?.group)
+        this.layoutGroup.group.remove(this.state.visualElement.projection)
+    }
   }
 }
