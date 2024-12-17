@@ -4,7 +4,6 @@ import type { NavItem } from '@nuxt/content'
 const { link } = defineProps<{
   link: NavItem
 }>()
-console.log('link,', link)
 </script>
 
 <template>

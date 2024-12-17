@@ -218,12 +218,13 @@ export class MotionState {
       }
       if (hasChanged(prevTarget[key], this.target[key])) {
         this.baseTarget[key] ??= style.get(this.element, key) as string
+        const keyValue = this.target[key] === 'none' ? transformResetValue[key] : this.target[key]
         animationFactories.push(
           () => {
             return animate(
               this.element,
               {
-                [key]: this.target[key] === 'none' ? transformResetValue[key] : this.target[key],
+                [key]: keyValue,
               },
               (animationOptions[key] || {}) as any,
             )

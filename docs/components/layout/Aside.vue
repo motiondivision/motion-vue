@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{ isMobile: boolean }>()
-
+defineEmits(['close'])
 const { navDirFromPath } = useContentHelpers()
 const { navigation } = useContent()
 const config = useConfig()
@@ -26,10 +26,6 @@ const path = computed(() => useRoute().path)
     class="relative h-full overflow-hidden py-6 pr-6 text-sm md:pr-4"
     type="hover"
   >
-    <!-- <LayoutHeaderNavMobile
-      v-if="props.isMobile"
-      class="mb-5 border-b pb-2"
-    /> -->
     <ul
       v-if="config?.aside.useLevel"
       class="flex flex-col gap-1 border-b pb-4"
@@ -72,6 +68,11 @@ const path = computed(() => useRoute().path)
       :links="tree"
       :level="0"
       :class="[config?.aside.useLevel ? 'pt-4' : 'pt-1']"
+      @click="$emit('close')"
     />
+    <!-- <LayoutHeaderNavMobile
+      v-if="props.isMobile"
+      class="mb-5 border-b pb-2"
+    /> -->
   </UiScrollArea>
 </template>

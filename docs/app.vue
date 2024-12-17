@@ -21,6 +21,8 @@ useServerHead({
     class="z-100 bg-primary/80"
   />
   <LayoutHeader />
+  <LayoutMobileNav />
+
   <div class="min-h-screen pt-14 dark:bg-[radial-gradient(#ffffff22_1px,transparent_1px)] [background-size:16px_16px] bg-[radial-gradient(#00000021_1px,transparent_1px)]">
     <div
       v-if="route.path !== '/'"
@@ -44,6 +46,7 @@ useServerHead({
     </div>
     <NuxtPage v-else />
   </div>
+  <LayoutIsLand v-if="page?.island" />
 </template>
 
 <style>

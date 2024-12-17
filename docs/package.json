@@ -3,16 +3,17 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "docs:build": "nuxt build",
+    "docs:dev": "nuxt dev",
+    "docs:generate": "nuxt generate",
+    "docs:preview": "nuxt preview",
+    "docs:postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.18",
     "@iconify/utils": "^2.2.0",
     "@internationalized/date": "^3.6.0",
+    "@number-flow/vue": "^0.3.2",
     "@nuxt/image": "1.8.1",
     "@nuxtjs/tailwindcss": "6.12.2",
     "@radix-icons/vue": "^1.0.0",

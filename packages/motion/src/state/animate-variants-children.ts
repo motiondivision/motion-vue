@@ -62,12 +62,13 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
             Object.assign({}, transition, allTarget.transition, child.props.transition),
             key,
           )
+          const keyValue = childState.target[key] === 'none' ? transformResetValue[key] : childState.target[key]
           animationFactories.push(
             () => {
               return animate(
                 child.current,
                 {
-                  [key]: childState.target[key] === 'none' ? transformResetValue[key] : childState.target[key],
+                  [key]: keyValue,
                 },
                 {
                   ...(animationOptions[key] || {}),
@@ -80,7 +81,6 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
       }
     }
   })
-  console.log('animationFactories', animationFactories.length)
   return {
     animations: animationFactories,
     getAnimations: () => Promise.all(animationFactories.map(factory => factory())),

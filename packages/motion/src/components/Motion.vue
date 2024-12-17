@@ -1,7 +1,6 @@
 <script lang="ts">
 import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
-import { isSVGElement } from '@/state/utils'
 import { injectAnimatePresence } from './presence'
 import { isMotionValue } from '@/utils'
 import { getMotionElement } from './utils'
@@ -83,6 +82,7 @@ onUpdated(() => {
 })
 
 function getProps() {
+  const isSVG = state.visualElement.type === 'svg'
   const attrsProps = { ...attrs }
   Object.keys(attrs).forEach((key) => {
     if (isMotionValue(attrs[key]))
@@ -90,18 +90,16 @@ function getProps() {
   })
   let styleProps: Record<string, any> = {
     ...props.style,
-    ...state.visualElement?.latestValues,
+    ...(isSVG ? {} : state.visualElement.latestValues),
+  }
+  if (isSVG) {
+    const { attributes, style } = convertSvgStyleToAttributes(state.target)
+    Object.assign(attrsProps, attributes)
+    Object.assign(styleProps, style, props.style)
   }
 
   if (!state.isMounted()) {
-    if (isSVGElement(props.as)) {
-      const { attributes, style } = convertSvgStyleToAttributes(state.target)
-      Object.assign(attrsProps, attributes)
-      Object.assign(styleProps, style, props.style)
-    }
-    else {
-      Object.assign(styleProps, state.target, props.style)
-    }
+    Object.assign(styleProps, state.target, props.style)
   }
   styleProps = createStyles(styleProps)
   attrsProps.style = styleProps
