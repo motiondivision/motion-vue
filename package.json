@@ -6,7 +6,7 @@
   "description": "",
   "author": "",
   "license": "MIT",
-  "homepage": "https://github.com/rick-hup/motion-vue",
+  "homepage": "https://github.com/unovue/motion-vue",
   "keywords": [
     "vue",
     "motion",
@@ -22,7 +22,7 @@
     "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
-    "docs:build": "pnpm --filter docs build",
+    "docs:build": "pnpm --filter docs docs:generate",
     "docs:gen": "pnpm --filter docs docs:gen",
     "docs:contributors": "pnpm --filter docs docs:contributors",
     "lint-staged": "lint-staged",
