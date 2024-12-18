@@ -22,6 +22,8 @@ export class MotionState {
   public element: HTMLElement | null = null
   private parent?: MotionState
   private options: Options
+
+  private isFirstAnimate = true
   public activeStates: Partial<Record<StateType, boolean>> = {
     initial: true,
     animate: true,
@@ -173,6 +175,12 @@ export class MotionState {
     let transition: AnimateOptions
 
     for (const name of STATE_TYPES) {
+      if (name === 'initial') {
+        if (!this.isFirstAnimate) {
+          continue
+        }
+        this.isFirstAnimate = false
+      }
       if (!this.activeStates[name])
         continue
       const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]

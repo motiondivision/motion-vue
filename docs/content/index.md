@@ -1,8 +1,7 @@
 ---
-title: Home
+title: Motion Vue
 navigation: false
 ---
-
 ::hero
 ---
 announcement:

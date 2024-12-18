@@ -1,6 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
+  nitro: {
+    preset: 'cloudflare-pages',
+  },
+  experimental: {
+    payloadExtraction: false,
+  },
+  compatibilityDate: '2024-12-16',
   devtools: { enabled: true },
   vite: {
     optimizeDeps: {
@@ -67,5 +73,8 @@ export default defineNuxtConfig({
       sizeLimitKb: 512,
     },
   },
-  ssr: true,
+  // ssr: false,
+  // ogImage: {
+  //   enabled: false,
+  // },
 })

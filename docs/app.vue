@@ -18,6 +18,7 @@ useServerHead({
   <NuxtLoadingIndicator
     class="z-100 bg-primary/80"
   />
+  <!-- ClientOnly -->
   <LayoutHeader />
   <LayoutMobileNav />
 
@@ -37,14 +38,15 @@ useServerHead({
           v-if="page?.aside ?? true"
           class="fixed top-[102px] z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto md:sticky md:top-[60px] md:block"
         >
-          <LayoutAside :is-mobile="false" />
+          <ClientOnly>
+            <LayoutAside :is-mobile="false" />
+          </ClientOnly>
         </aside>
         <NuxtPage />
       </div>
     </div>
     <NuxtPage v-else />
   </div>
-  <LayoutIsLand v-if="page?.island" />
 </template>
 
 <style>

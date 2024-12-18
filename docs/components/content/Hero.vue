@@ -21,10 +21,17 @@ const {
     target?: Target
   }]
 }>()
+const key = ref(0)
+onMounted(() => {
+  setTimeout(() => {
+    key.value++
+  }, 2000)
+})
 </script>
 
 <template>
   <Motion
+    :data-key="key"
     as="section"
     initial="hidden"
     in-view="visible"
