@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { initialTabs as tabs } from './ingredients.ts'
+import { initialTabs as tabs } from './ingredients'
 import { AnimatePresence, Motion } from 'motion-v'
 
 const selectedTab = ref(tabs[0])
@@ -47,6 +47,7 @@ const selectedTab = ref(tabs[0])
 .window {
   width: 480px;
   height: 360px;
+  max-width: 320px;
   border-radius: 10px;
   background: white;
   overflow: hidden;

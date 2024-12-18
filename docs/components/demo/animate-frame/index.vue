@@ -7,7 +7,9 @@ const cubeRef = ref<HTMLElement | null>(null)
 useAnimationFrame((t) => {
   const rotate = Math.sin(t / 10000) * 200
   const y = (1 + Math.sin(t / 1000)) * -50
-  cubeRef.value!.style.transform = `translateY(${y}px) rotateX(${rotate}deg) rotateY(${rotate}deg)`
+  if (cubeRef.value) {
+    cubeRef.value!.style.transform = `translateY(${y}px) rotateX(${rotate}deg) rotateY(${rotate}deg)`
+  }
 })
 </script>
 

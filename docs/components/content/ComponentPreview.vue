@@ -23,6 +23,7 @@ const key = ref(0)
 <template>
   <div class="border rounded-lg mt-4 relative">
     <Motion
+      :key="key"
       :as-child="true"
       :initial="{ rotate: 0 }"
       :animate="{ rotate: 360 }"
