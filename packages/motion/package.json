@@ -4,10 +4,10 @@
   "description": "",
   "author": "",
   "license": "MIT",
-  "homepage": "https://github.com/rick-hup/motion-vue",
+  "homepage": "https://github.com/unovue/motion-vue",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rick-hup/motion-vue.git"
+    "url": "https://github.com/unovue/motion-vue.git"
   },
   "keywords": [
     "vue",
@@ -69,6 +69,7 @@
     "@vue/test-utils": "^2.4.5",
     "framer-motion": "^11.0.0",
     "jsdom": "^24.0.0",
+    "vite": "^5.4.8",
     "vite-plugin-dts": "^4.2.4",
     "vitest": "^1.4.0"
   }

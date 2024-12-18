@@ -14,7 +14,7 @@ actions:
     leftIcon: 'uil:rocket'
   - name: GitHub
     variant: outline
-    to: https://github.com/rick-hup/motion-vue
+    to: https://github.com/unovue/motion-vue
     leftIcon: 'uil:github'
 ---
 
