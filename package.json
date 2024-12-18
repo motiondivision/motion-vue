@@ -1,6 +1,6 @@
 {
   "name": "vue-motion",
-  "version": "0.5.0-beta.1",
+  "version": "0.5.0-beta.2",
   "private": true,
   "packageManager": "pnpm@9.15.0+sha1.8bfdb6d72b4d5fdf87d21d27f2bfbe2b21dd2629",
   "description": "",
@@ -22,7 +22,7 @@
     "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
-    "docs:build": "pnpm --filter docs docs:generate",
+    "docs:build": "pnpm --filter docs build",
     "docs:gen": "pnpm --filter docs docs:gen",
     "docs:contributors": "pnpm --filter docs docs:contributors",
     "lint-staged": "lint-staged",
