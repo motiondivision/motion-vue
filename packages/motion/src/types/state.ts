@@ -3,6 +3,7 @@ import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
+import type { DragProps } from '@/features/gestures/drag/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -29,22 +30,12 @@ export interface InViewOptions {
   margin?: MarginType
   amount?: 'some' | 'all' | number
 }
-interface BoundingBox {
-  top: number
-  right: number
-  bottom: number
-  left: number
-}
-export interface DragOptions {
-  constraints?: false | Partial<BoundingBox>
-  dragSnapToOrigin?: boolean
-}
 export type MotionStyle = Partial<{
   [K in keyof Variant]: Variant[K] | MotionValue
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
-export interface Options<T = any> extends LayoutOptions {
+export interface Options<T = any> extends LayoutOptions, DragProps {
   custom?: T
   as?: ElementType
   inViewOptions?: InViewOptions & { once?: boolean }

@@ -9,10 +9,12 @@ const items = [...Array(3)].map((_, i) => ({
             nulla asperiores corporis architecto odio, officiis iusto 
             dolores libero quos voluptatibus, voluptas dicta? Impedit.`,
 }))
+const domRef = ref<HTMLDivElement>()
 </script>
 
 <template>
   <main
+    ref="domRef"
     class="p-8 space-y-12"
   >
     <div class="space-y-4">
@@ -25,6 +27,7 @@ const items = [...Array(3)].map((_, i) => ({
           :key="item.id"
           :layout="true"
           :content="item.content"
+          :drag-constraints="domRef"
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Motion } from 'motion-v'
 const props = defineProps<{
   content: string
   layout?: boolean
+  dragConstraints?: any
 }>()
 const isOpen = ref(false)
 function handleClick() {
