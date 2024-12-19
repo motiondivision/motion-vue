@@ -4,7 +4,7 @@ import { BaseGesture } from '@/features'
 
 export class PressGesture extends BaseGesture {
   isActive() {
-    return Boolean(this.state.getOptions().press)
+    return Boolean(this.state.options.press)
   }
 
   constructor(state: MotionState) {

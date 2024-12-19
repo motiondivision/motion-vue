@@ -12,45 +12,45 @@ export class EventFeature extends Feature {
     // 动画事件
     this.handlers.motionstart = (event: Event) => {
       const target = (event as CustomEvent).detail.target
-      this.state.getOptions().onMotionStart?.(target)
+      this.state.options.onMotionStart?.(target)
     }
 
     this.handlers.motioncomplete = (event: Event) => {
       const target = (event as CustomEvent).detail.target
-      this.state.getOptions().onMotionComplete?.(target)
+      this.state.options.onMotionComplete?.(target)
     }
 
     // hover事件
     this.handlers.hoverstart = (event: Event) => {
       const e = (event as CustomEvent).detail
-      this.state.getOptions().onHoverStart?.(e)
+      this.state.options.onHoverStart?.(e)
     }
 
     this.handlers.hoverend = (event: Event) => {
       const e = (event as CustomEvent).detail
-      this.state.getOptions().onHoverEnd?.(e)
+      this.state.options.onHoverEnd?.(e)
     }
 
     // press事件
     this.handlers.pressstart = (event: Event) => {
       const e = (event as CustomEvent).detail
-      this.state.getOptions().onPressStart?.(e)
+      this.state.options.onPressStart?.(e)
     }
 
     this.handlers.pressend = (event: Event) => {
       const e = (event as CustomEvent).detail
-      this.state.getOptions().onPressEnd?.(e)
+      this.state.options.onPressEnd?.(e)
     }
 
     // 视图事件
     this.handlers.viewenter = (event: Event) => {
       const target = (event as CustomEvent).detail.target
-      this.state.getOptions().onViewEnter?.(target)
+      this.state.options.onViewEnter?.(target)
     }
 
     this.handlers.viewleave = (event: Event) => {
       const target = (event as CustomEvent).detail.target
-      this.state.getOptions().onViewLeave?.(target)
+      this.state.options.onViewLeave?.(target)
     }
 
     // 注册所有事件监听

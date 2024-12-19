@@ -6,14 +6,14 @@ import type { VisualElement } from 'framer-motion'
 
 export class InViewGesture extends BaseGesture {
   isActive() {
-    return Boolean(this.state.getOptions().inView)
+    return Boolean(this.state.options.inView)
   }
 
   constructor(state: MotionState) {
     super(state)
     this.subscribeEvents = () => {
       const element = this.state.element
-      const { once, ...viewOptions } = this.state.getOptions()?.inViewOptions || {}
+      const { once, ...viewOptions } = this.state.options.inViewOptions || {}
       return inView(element, (enterEntry) => {
         this.state.setActive('inView', true)
         this.state.visualElement.variantChildren?.forEach((child: VisualElement & { state: MotionState }) => {

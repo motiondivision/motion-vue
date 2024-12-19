@@ -8,7 +8,7 @@ import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValu
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, getCurrentInstance, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -52,6 +52,11 @@ const state = new MotionState(
 provideMotion(state)
 
 const instance = getCurrentInstance().proxy
+
+onBeforeMount(() => {
+  state.beforeMount()
+})
+
 onMounted(() => {
   state.mount(getMotionElement(instance.$el), {
     ...attrs,
@@ -64,9 +69,17 @@ onMounted(() => {
   })
 })
 
+onBeforeUnmount(() => {
+  state.beforeUnmount()
+})
+
 onUnmounted(() => {
   if (safeUnmount(getMotionElement(instance.$el)))
     state.unmount()
+})
+
+onBeforeUpdate(() => {
+  state.beforeUpdate()
 })
 
 onUpdated(() => {

@@ -21,7 +21,7 @@ export class MotionState {
   public readonly id: string
   public element: HTMLElement | null = null
   private parent?: MotionState
-  private options: Options
+  public options: Options
 
   private isFirstAnimate = true
   public activeStates: Partial<Record<StateType, boolean>> = {
@@ -110,6 +110,10 @@ export class MotionState {
     }, this.parent?.context as any)
   }
 
+  beforeMount() {
+    this.featureManager.beforeMount()
+  }
+
   mount(element: HTMLElement, options: Options) {
     invariant(
       Boolean(element),
@@ -143,12 +147,20 @@ export class MotionState {
     scheduleAnimation(this as any)
   }
 
+  beforeUnmount() {
+    this.featureManager.beforeUnmount()
+  }
+
   unmount() {
     mountedStates.delete(this.element)
     unscheduleAnimation(this as any)
     visualElementStore.get(this.element)?.unmount()
     // 卸载特征
     this.featureManager.unmount()
+  }
+
+  beforeUpdate() {
+    this.featureManager.beforeUpdate()
   }
 
   update(options: Options) {

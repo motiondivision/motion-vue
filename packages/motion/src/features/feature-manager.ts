@@ -19,11 +19,23 @@ export class FeatureManager {
     this.features.forEach(feature => feature.mount())
   }
 
+  beforeMount() {
+    this.features.forEach(feature => feature.beforeMount?.())
+  }
+
   unmount() {
     this.features.forEach(feature => feature.unmount())
   }
 
   update() {
-    this.features.forEach(feature => feature.update())
+    this.features.forEach(feature => feature.update?.())
+  }
+
+  beforeUpdate() {
+    this.features.forEach(feature => feature.beforeUpdate())
+  }
+
+  beforeUnmount() {
+    this.features.forEach(feature => feature.beforeUnmount())
   }
 }
