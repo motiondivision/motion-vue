@@ -14,9 +14,6 @@ const Component = defineAsyncComponent({
 })
 
 const activeTab = ref(0)
-const lang = computed(() => {
-  return props.files?.[activeTab.value]?.name?.split('.').pop()
-})
 const key = ref(0)
 </script>
 
@@ -50,17 +47,31 @@ const key = ref(0)
         <button
           v-for="(file, index) in props.files"
           :key="file.name"
-          class="px-4 py-2 text-sm"
-          :class="{ 'border-b-2 border-primary': activeTab === index }"
+          class="px-4 py-2 text-sm relative text-muted-foreground hover:text-primary"
+          :class="{ 'text-primary': activeTab === index }"
           @click="activeTab = index"
         >
           {{ file.name }}
+          <div
+            class="absolute bottom-0 left-1/2 w-1/2 -translate-x-1/2 "
+          >
+            <Motion
+              v-if="activeTab === index"
+              :layout-id="`code-${props.name}-tab-id`"
+              class="h-1 bg-primary rounded-full"
+            />
+          </div>
         </button>
       </div>
-      <MDC
-        :value="`\`\`\`${lang}\n${props.files[activeTab]?.code}\n\`\`\``"
+      <div
         class="[&>div]:rounded-none [&>div]:border-none [&>div]:shadow-none [&>div]:!mb-0"
-      />
+      >
+        <slot
+          :name="`slot-${activeTab}`"
+        >
+          {{ props.files[activeTab]?.name }}
+        </slot>
+      </div>
     </div>
   </div>
 </template>

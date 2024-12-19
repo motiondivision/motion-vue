@@ -33,6 +33,7 @@ const path = computed(() => useRoute().path)
       <li
         v-for="link in navigation"
         :key="link.id"
+        @click="$emit('close')"
       >
         <NuxtLink
           :to="link._path"

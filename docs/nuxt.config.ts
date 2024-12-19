@@ -73,7 +73,7 @@ export default defineNuxtConfig({
       sizeLimitKb: 512,
     },
   },
-  // ssr: false,
+  ssr: true,
   // ogImage: {
   //   enabled: false,
   // },

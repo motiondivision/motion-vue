@@ -53,15 +53,32 @@ export default defineNitroPlugin((nitro) => {
         }
 
         const files = getComponentFiles(props.name)
+        const fileNoCode = files.map((file) => {
+          return {
+            ...file,
+            code: '',
+          }
+        })
         return `::ComponentPreview
 ---
 name:
   ${props.name}
 files:
-  ${JSON.stringify(files)}
+  ${JSON.stringify(fileNoCode)}
 ---
-::        `
+${generateCodeSlots(files)}
+::`
       },
     )
   })
 })
+
+function generateCodeSlots(files: ComponentFile[]) {
+  return files.map((file, i) => {
+    return `#slot-${i} 
+\`\`\`${file.name.split('.')[1]}
+${file.code}
+\`\`\`
+`
+  }).join('\n')
+}
