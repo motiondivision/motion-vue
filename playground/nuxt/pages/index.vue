@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { AnimatePresence, Motion } from 'motion-v'
-
 const routes = [
   { path: '/layout', name: 'Basic Layout Animation' },
   { path: '/flex-layout', name: 'Flex Layout Switch Animation' },
@@ -9,6 +7,7 @@ const routes = [
   { path: '/layout-group', name: 'Layout Group Animation' },
   { path: '/pop-layout', name: 'Pop Layout Animation' },
   { path: '/scroll-progress', name: 'Scroll Progress Animation' },
+  { path: '/pan', name: 'Pan Animation' },
 ]
 const isShow = ref(true)
 function handleClick() {
