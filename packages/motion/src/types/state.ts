@@ -5,6 +5,7 @@ import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { PressProps } from '@/features/gestures/press/types'
 import type { HoverProps } from '@/features/gestures/hover/types'
+import type { InViewProps } from '@/features/gestures/in-view/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -24,13 +25,7 @@ export interface Variant extends DOMKeyframesDefinition {
   transition?: AnimateOptions
 }
 export type VariantLabels = string | Variant
-type MarginValue = `${number}${'px' | '%'}`
-type MarginType = MarginValue | `${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue} ${MarginValue}`
-export interface InViewOptions {
-  root?: Element | Document
-  margin?: MarginType
-  amount?: 'some' | 'all' | number
-}
+
 interface BoundingBox {
   top: number
   right: number
@@ -46,12 +41,9 @@ export type MotionStyle = Partial<{
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
-export interface Options<T = any> extends LayoutOptions, PressProps, HoverProps {
+export interface Options<T = any> extends LayoutOptions, PressProps, HoverProps, InViewProps {
   custom?: T
   as?: ElementType
-  inViewOptions?: InViewOptions & { once?: boolean }
-  inView?: string | Variant
-  hover?: string | Variant
   initial?: string | Variant | boolean
   animate?: string | Variant
   exit?: string | Variant
@@ -64,8 +56,6 @@ export interface Options<T = any> extends LayoutOptions, PressProps, HoverProps 
     generatedTransform: string
   ) => string
   transition?: AnimateOptions
-  onViewEnter?: (target: Element) => void
-  onViewLeave?: (target: Element) => void
 }
 
 export interface MotionStateContext {

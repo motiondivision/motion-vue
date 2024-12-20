@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { AnimatePresence, Motion } from 'motion-v'
-
 const routes = [
   { path: '/layout', name: 'Basic Layout Animation' },
   { path: '/flex-layout', name: 'Flex Layout Switch Animation' },
@@ -11,11 +9,9 @@ const routes = [
   { path: '/scroll-progress', name: 'Scroll Progress Animation' },
   { path: '/press', name: 'Press Animation' },
   { path: '/hover', name: 'Hover Animation' },
+  { path: '/in-view', name: 'In View Animation' },
 ]
 const isShow = ref(true)
-function handleClick() {
-  isShow.value = !isShow.value
-}
 </script>
 
 <template>
