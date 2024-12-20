@@ -9,39 +9,6 @@ export class EventFeature extends Feature {
     if (!element)
       return
 
-    // 动画事件
-    this.handlers.motionstart = (event: Event) => {
-      const target = (event as CustomEvent).detail.target
-      this.state.options.onMotionStart?.(target)
-    }
-
-    this.handlers.motioncomplete = (event: Event) => {
-      const target = (event as CustomEvent).detail.target
-      this.state.options.onMotionComplete?.(target)
-    }
-
-    // hover事件
-    this.handlers.hoverstart = (event: Event) => {
-      const e = (event as CustomEvent).detail
-      this.state.options.onHoverStart?.(e)
-    }
-
-    this.handlers.hoverend = (event: Event) => {
-      const e = (event as CustomEvent).detail
-      this.state.options.onHoverEnd?.(e)
-    }
-
-    // press事件
-    this.handlers.pressstart = (event: Event) => {
-      const e = (event as CustomEvent).detail
-      this.state.options.onPressStart?.(e)
-    }
-
-    this.handlers.pressend = (event: Event) => {
-      const e = (event as CustomEvent).detail
-      this.state.options.onPressEnd?.(e)
-    }
-
     // 视图事件
     this.handlers.viewenter = (event: Event) => {
       const target = (event as CustomEvent).detail.target

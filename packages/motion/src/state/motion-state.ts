@@ -176,6 +176,9 @@ export class MotionState {
     if (!this.element || this.activeStates[name] === isActive)
       return
     this.activeStates[name] = isActive
+    this.visualElement.variantChildren?.forEach((child) => {
+      ((child as any).state as MotionState).setActive(name, isActive)
+    })
     scheduleAnimation(this as any)
   }
 

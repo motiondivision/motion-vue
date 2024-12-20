@@ -9,6 +9,8 @@ const routes = [
   { path: '/layout-group', name: 'Layout Group Animation' },
   { path: '/pop-layout', name: 'Pop Layout Animation' },
   { path: '/scroll-progress', name: 'Scroll Progress Animation' },
+  { path: '/press', name: 'Press Animation' },
+  { path: '/hover', name: 'Hover Animation' },
 ]
 const isShow = ref(true)
 function handleClick() {

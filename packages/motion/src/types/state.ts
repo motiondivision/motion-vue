@@ -3,6 +3,8 @@ import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
+import type { PressProps } from '@/features/gestures/press/types'
+import type { HoverProps } from '@/features/gestures/hover/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -44,12 +46,11 @@ export type MotionStyle = Partial<{
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
-export interface Options<T = any> extends LayoutOptions {
+export interface Options<T = any> extends LayoutOptions, PressProps, HoverProps {
   custom?: T
   as?: ElementType
   inViewOptions?: InViewOptions & { once?: boolean }
   inView?: string | Variant
-  press?: string | Variant
   hover?: string | Variant
   initial?: string | Variant | boolean
   animate?: string | Variant
@@ -63,12 +64,6 @@ export interface Options<T = any> extends LayoutOptions {
     generatedTransform: string
   ) => string
   transition?: AnimateOptions
-  onMotionStart?: (target: DOMKeyframesDefinition) => void
-  onMotionComplete?: (target: DOMKeyframesDefinition) => void
-  onHoverStart?: (e: PointerEvent) => void
-  onHoverEnd?: (e: PointerEvent) => void
-  onPressStart?: (e: PointerEvent) => void
-  onPressEnd?: (e: PointerEvent) => void
   onViewEnter?: (target: Element) => void
   onViewLeave?: (target: Element) => void
 }
