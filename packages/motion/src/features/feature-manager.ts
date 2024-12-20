@@ -12,6 +12,7 @@ export class FeatureManager {
       new SVGFeature(state),
       new LayoutFeature(state),
       new PanGesture(state),
+      // new DragGesture(state),
     ]
   }
 

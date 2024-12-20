@@ -11,12 +11,13 @@ const routes = [
   { path: '/press', name: 'Press Animation' },
   { path: '/hover', name: 'Hover Animation' },
   { path: '/in-view', name: 'In View Animation' },
+  { path: '/drag', name: 'Drag Animation' },
 ]
 const isShow = ref(true)
 </script>
 
 <template>
-  <div class="flex flex-col p-8 h-screen bg-gradient-to-tr from-[#7b2ff7] to-[#f107a3]">
+  <div class="flex flex-col p-8 h-screen overflow-auto bg-gradient-to-tr from-[#7b2ff7] to-[#f107a3]">
     <div class="max-w-md mx-auto w-full space-y-4 mt-20">
       <h1 class="text-2xl font-bold text-white mb-8">
         Motion-V 动画演示

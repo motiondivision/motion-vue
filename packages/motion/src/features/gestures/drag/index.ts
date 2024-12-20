@@ -1,4 +1,5 @@
 import { Feature } from '@/features/feature'
+import { VisualElementDragControls } from '@/features/gestures/drag/VisualElementDragControls'
 import { noop } from '@/utils'
 
 export class DragGesture extends Feature {
@@ -7,14 +8,15 @@ export class DragGesture extends Feature {
   removeGroupControls: Function = noop
   removeListeners: Function = noop
 
-  constructor() {
-    this.controls = new VisualElementDragControls(node)
+  constructor(state) {
+    super(state)
+    this.controls = new VisualElementDragControls(state.visualElement)
   }
 
   mount() {
     // If we've been provided a DragControls for manual control over the drag gesture,
     // subscribe this component to it on mount.
-    const { dragControls } = this.node.getProps()
+    const { dragControls } = this.state.options
 
     if (dragControls) {
       this.removeGroupControls = dragControls.subscribe(this.controls)

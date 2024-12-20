@@ -1,3 +1,4 @@
+import { isWillChangeMotionValue } from '@/value/use-will-change/is'
 import type { VisualElement } from 'framer-motion'
 
 export function addValueToWillChange(

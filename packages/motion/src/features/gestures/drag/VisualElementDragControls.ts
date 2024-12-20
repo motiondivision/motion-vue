@@ -1,9 +1,9 @@
 import type { MotionProps } from '@/components/Motion.vue'
-import { extractEventInfo } from '@/events'
+import { addDomEvent, addPointerEvent, extractEventInfo } from '@/events'
 import type { Lock } from '@/features/gestures/drag/lock'
 import { getGlobalLock } from '@/features/gestures/drag/lock'
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
-import { applyConstraints, calcRelativeConstraints, calcViewportConstraints, defaultElastic, rebaseAxisConstraints, resolveDragElastic } from '@/features/gestures/drag/utils/constraints'
+import { applyConstraints, calcOrigin, calcRelativeConstraints, calcViewportConstraints, defaultElastic, rebaseAxisConstraints, resolveDragElastic } from '@/features/gestures/drag/utils/constraints'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 import type { PanInfo } from '@/features/gestures/pan/PanSession'
 import { PanSession } from '@/features/gestures/pan/PanSession'
@@ -14,11 +14,14 @@ import type { Options } from '@/types'
 import { getContextWindow } from '@/utils'
 import { percent } from '@/value/types/numbers/units'
 import { addValueToWillChange } from '@/value/use-will-change/add-will-change'
-import type { BoundingBox, Point, Transition, VisualElement } from 'framer-motion'
+import type { Axis, BoundingBox, Point, Transition, VisualElement } from 'framer-motion'
 import { frame } from 'framer-motion/dom'
-import { invariant } from 'framer-motion'
 import { measurePageBox } from '@/projection/utils/measure'
 import { convertBoundingBoxToBox, convertBoxToBoundingBox } from '@/projection/conversion'
+import { animateMotionValue } from 'framer-motion/dist/es/animation/interfaces/motion-value.mjs'
+import { mixNumber } from '@/utils/mix/number'
+import type { LayoutUpdateData } from '@/projection/node/types'
+import { invariant } from 'hey-listen'
 
 export const elementDragControls = new WeakMap<
   VisualElement,
@@ -155,7 +158,7 @@ export class VisualElementDragControls {
 
     const onMove = (event: PointerEvent, info: PanInfo) => {
       // latestPointerEvent = event
-
+      console.log('onMove')
       const {
         dragPropagation,
         dragDirectionLock,
@@ -520,7 +523,7 @@ export class VisualElementDragControls {
 
     const { drag, dragConstraints } = this.getProps()
     const { projection } = this.visualElement
-    if (!isRefObject(dragConstraints) || !projection || !this.constraints)
+    if (!isHTMLElement(dragConstraints) || !projection || !this.constraints)
       return
 
     /**
@@ -595,7 +598,7 @@ export class VisualElementDragControls {
 
     const measureDragConstraints = () => {
       const { dragConstraints } = this.getProps()
-      if (isRefObject(dragConstraints) && dragConstraints.current) {
+      if (isHTMLElement(dragConstraints)) {
         this.constraints = this.resolveRefConstraints()
       }
     }
@@ -654,7 +657,7 @@ export class VisualElementDragControls {
   }
 
   getProps(): Options {
-    const props = this.visualElement.getProps() as Options
+    const props = (this.visualElement.getProps() as any) as Options
     const {
       drag = false,
       dragDirectionLock = false,
@@ -713,5 +716,5 @@ export function expectsResolvedDragConstraints({
   dragConstraints,
   onMeasureDragConstraints,
 }: MotionProps) {
-  return isRefObject(dragConstraints) && !!onMeasureDragConstraints
+  return isHTMLElement(dragConstraints) && !!onMeasureDragConstraints
 }

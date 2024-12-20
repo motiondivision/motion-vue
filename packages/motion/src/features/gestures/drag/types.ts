@@ -1,3 +1,4 @@
+import type { DragControls } from '@/features/gestures/drag/use-drag-controls'
 import type { Axis, BoundingBox, DragElastic, InertiaOptions, PanInfo } from 'framer-motion'
 
 export interface ResolvedConstraints {
@@ -182,4 +183,56 @@ export interface DragProps extends DragHandlers {
    * ```
    */
   dragTransition?: InertiaOptions
+  /**
+   * By default, if `drag` is defined on a component then an event listener will be attached
+   * to automatically initiate dragging when a user presses down on it.
+   *
+   * By setting `dragListener` to `false`, this event listener will not be created.
+   *
+   * ```jsx
+   * const dragControls = useDragControls()
+   *
+   * function startDrag(event) {
+   *   dragControls.start(event, { snapToCursor: true })
+   * }
+   *
+   * return (
+   *   <>
+   *     <div onPointerDown={startDrag} />
+   *     <motion.div
+   *       drag="x"
+   *       dragControls={dragControls}
+   *       dragListener={false}
+   *     />
+   *   </>
+   * )
+   * ```
+   */
+  dragListener?: boolean
+
+  /**
+   * Usually, dragging is initiated by pressing down on a component and moving it. For some
+   * use-cases, for instance clicking at an arbitrary point on a video scrubber, we
+   * might want to initiate dragging from a different component than the draggable one.
+   *
+   * By creating a `dragControls` using the `useDragControls` hook, we can pass this into
+   * the draggable component's `dragControls` prop. It exposes a `start` method
+   * that can start dragging from pointer events on other components.
+   *
+   * ```jsx
+   * const dragControls = useDragControls()
+   *
+   * function startDrag(event) {
+   *   dragControls.start(event, { snapToCursor: true })
+   * }
+   *
+   * return (
+   *   <>
+   *     <div onPointerDown={startDrag} />
+   *     <motion.div drag="x" dragControls={dragControls} />
+   *   </>
+   * )
+   * ```
+   */
+  dragControls?: DragControls
 }

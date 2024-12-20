@@ -1,5 +1,8 @@
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
+import { calcLength } from '@/projection/geometry/delta-calc'
+import { clamp } from '@/utils/clamp'
 import { mixNumber } from '@/utils/mix/number'
+import { progress as calcProgress } from '@/utils/progress'
 import type { Axis, BoundingBox, Box, DragElastic } from 'framer-motion'
 
 /**
@@ -152,4 +155,23 @@ export function calcViewportAxisConstraints(
   }
 
   return { min, max }
+}
+
+/**
+ * Calculate a transform origin relative to the source axis, between 0-1, that results
+ * in an asthetically pleasing scale/transform needed to project from source to target.
+ */
+export function calcOrigin(source: Axis, target: Axis): number {
+  let origin = 0.5
+  const sourceLength = calcLength(source)
+  const targetLength = calcLength(target)
+
+  if (targetLength > sourceLength) {
+    origin = calcProgress(target.min, target.max - sourceLength, source.min)
+  }
+  else if (sourceLength > targetLength) {
+    origin = calcProgress(source.min, source.max - targetLength, target.min)
+  }
+
+  return clamp(0, 1, origin)
 }
