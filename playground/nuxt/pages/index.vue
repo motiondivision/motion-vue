@@ -8,11 +8,11 @@ const routes = [
   { path: '/pop-layout', name: 'Pop Layout Animation' },
   { path: '/scroll-progress', name: 'Scroll Progress Animation' },
   { path: '/pan', name: 'Pan Animation' },
+  { path: '/press', name: 'Press Animation' },
+  { path: '/hover', name: 'Hover Animation' },
+  { path: '/in-view', name: 'In View Animation' },
 ]
 const isShow = ref(true)
-function handleClick() {
-  isShow.value = !isShow.value
-}
 </script>
 
 <template>

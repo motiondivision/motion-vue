@@ -4,6 +4,9 @@ import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
+import type { PressProps } from '@/features/gestures/press/types'
+import type { HoverProps } from '@/features/gestures/hover/types'
+import type { InViewProps } from '@/features/gestures/in-view/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -23,25 +26,26 @@ export interface Variant extends DOMKeyframesDefinition {
   transition?: AnimateOptions
 }
 export type VariantLabels = string | Variant
-type MarginValue = `${number}${'px' | '%'}`
-type MarginType = MarginValue | `${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue} ${MarginValue}`
-export interface InViewOptions {
-  root?: Element | Document
-  margin?: MarginType
-  amount?: 'some' | 'all' | number
+
+interface BoundingBox {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+export interface DragOptions {
+  constraints?: false | Partial<BoundingBox>
+  dragSnapToOrigin?: boolean
 }
 export type MotionStyle = Partial<{
   [K in keyof Variant]: Variant[K] | MotionValue
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
-export interface Options<T = any> extends LayoutOptions, DragProps {
+export interface Options<T = any> extends
+  LayoutOptions, PressProps, HoverProps, InViewProps, DragProps {
   custom?: T
   as?: ElementType
-  inViewOptions?: InViewOptions & { once?: boolean }
-  inView?: string | Variant
-  press?: string | Variant
-  hover?: string | Variant
   initial?: string | Variant | boolean
   animate?: string | Variant
   exit?: string | Variant
@@ -54,14 +58,6 @@ export interface Options<T = any> extends LayoutOptions, DragProps {
     generatedTransform: string
   ) => string
   transition?: AnimateOptions
-  onMotionStart?: (target: DOMKeyframesDefinition) => void
-  onMotionComplete?: (target: DOMKeyframesDefinition) => void
-  onHoverStart?: (e: PointerEvent) => void
-  onHoverEnd?: (e: PointerEvent) => void
-  onPressStart?: (e: PointerEvent) => void
-  onPressEnd?: (e: PointerEvent) => void
-  onViewEnter?: (target: Element) => void
-  onViewLeave?: (target: Element) => void
 }
 
 export interface MotionStateContext {
