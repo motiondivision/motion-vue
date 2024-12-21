@@ -3,7 +3,7 @@ import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { isDef } from '@vueuse/core'
 import type { AnimationPlaybackControls, DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
-import { animate } from 'framer-motion/dom'
+import { animate, noop } from 'framer-motion/dom'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
@@ -12,7 +12,6 @@ import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
-import { noop } from '@/utils'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
 type StateType = typeof STATE_TYPES[number]

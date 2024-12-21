@@ -1,14 +1,28 @@
 <script setup lang="ts">
 import { Motion } from 'motion-v'
+
+const constraintsRef = ref<HTMLDivElement>()
+const dragEnd = ref(false)
+function handleDragEnd() {
+  dragEnd.value = !dragEnd.value
+}
 </script>
 
 <template>
   <div class="flex items-center justify-center h-screen">
-    <div class="w-[300px] h-[300px] bg-red-500">
+    <div
+      ref="constraintsRef"
+      class="w-[300px] h-[300px] bg-blue-300 rounded"
+    >
       <Motion
-        layout
+        :initial="{ x: 0, y: 0 }"
+        :animate="{ x: 100, y: 100 }"
+        :transition="{ duration: 5 }"
         drag
-        class="w-[100px] h-[100px] bg-blue-500"
+        :drag-constraints="constraintsRef"
+        class="w-[100px] h-[100px] bg-blue-500 rounded"
+        :data-end="dragEnd"
+        @drag-end="handleDragEnd"
       />
     </div>
   </div>

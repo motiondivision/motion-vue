@@ -158,14 +158,12 @@ export class VisualElementDragControls {
 
     const onMove = (event: PointerEvent, info: PanInfo) => {
       // latestPointerEvent = event
-      console.log('onMove')
       const {
         dragPropagation,
         dragDirectionLock,
         onDirectionLock,
         onDrag,
       } = this.getProps()
-
       // If we didn't successfully receive the gesture lock, early return.
       if (!dragPropagation && !this.openGlobalLock)
         return
@@ -182,7 +180,6 @@ export class VisualElementDragControls {
 
         return
       }
-
       // Update each point with the latest position
       this.updateAxis('x', info.point, offset)
       this.updateAxis('y', info.point, offset)
@@ -213,6 +210,8 @@ export class VisualElementDragControls {
       )
 
     const { dragSnapToOrigin } = this.getProps()
+    console.log('onMove init')
+
     this.panSession = new PanSession(
       originEvent,
       {
@@ -448,7 +447,6 @@ export class VisualElementDragControls {
     const axisValue = this.getAxisMotionValue(axis)
 
     addValueToWillChange(this.visualElement, axis)
-
     return (axisValue as any).start(
       animateMotionValue(
         axis,

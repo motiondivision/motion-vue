@@ -1,4 +1,4 @@
-import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
+import type { DOMKeyframesDefinition, DynamicAnimationOptions, Target, TargetAndTransition } from 'framer-motion'
 import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
@@ -7,6 +7,8 @@ import type { DragProps } from '@/features/gestures/drag/types'
 import type { PressProps } from '@/features/gestures/press/types'
 import type { HoverProps } from '@/features/gestures/hover/types'
 import type { InViewProps } from '@/features/gestures/in-view/types'
+import type { LayoutGroupState } from '@/components/context'
+import type { PanProps } from '@/features/gestures/pan/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -22,6 +24,11 @@ export interface Orchestration {
 export interface AnimateOptions extends Omit<Orchestration, 'delay'>, DynamicAnimationOptions {
 
 }
+export type TargetResolver = (
+  custom: any,
+  current: Target,
+  velocity: Target
+) => TargetAndTransition | string
 export interface Variant extends DOMKeyframesDefinition {
   transition?: AnimateOptions
 }
@@ -43,7 +50,9 @@ export type MotionStyle = Partial<{
 export type ElementType = keyof IntrinsicElementAttributes
 
 export interface Options<T = any> extends
-  LayoutOptions, PressProps, HoverProps, InViewProps, DragProps {
+  LayoutOptions, PressProps,
+  HoverProps, InViewProps, DragProps,
+  PanProps {
   custom?: T
   as?: ElementType
   initial?: string | Variant | boolean
@@ -58,6 +67,7 @@ export interface Options<T = any> extends
     generatedTransform: string
   ) => string
   transition?: AnimateOptions
+  layoutGroup?: LayoutGroupState
 }
 
 export interface MotionStateContext {

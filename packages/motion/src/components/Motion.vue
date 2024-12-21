@@ -35,6 +35,8 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   layoutId: undefined,
   layoutScroll: false,
   layoutRoot: false,
+  dragListener: true,
+  dragElastic: 0.2,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
@@ -45,6 +47,7 @@ const state = new MotionState(
   {
     ...attrs,
     ...props,
+    layoutGroup,
   },
   parentState!,
 )
@@ -61,6 +64,7 @@ onMounted(() => {
   state.mount(getMotionElement(instance.$el), {
     ...attrs,
     ...props,
+    layoutGroup,
     initial: presenceInitial.value === false
       ? presenceInitial.value
       : (
@@ -116,6 +120,7 @@ function getProps() {
   }
   styleProps = createStyles(styleProps)
   attrsProps.style = styleProps
+  // console.log('styleProps', styleProps)
   return attrsProps
 }
 </script>

@@ -1,6 +1,6 @@
 import { Feature } from '@/features/feature'
 import { VisualElementDragControls } from '@/features/gestures/drag/VisualElementDragControls'
-import { noop } from '@/utils'
+import { noop } from 'framer-motion/dom'
 
 export class DragGesture extends Feature {
   controls: VisualElementDragControls
@@ -21,7 +21,6 @@ export class DragGesture extends Feature {
     if (dragControls) {
       this.removeGroupControls = dragControls.subscribe(this.controls)
     }
-
     this.removeListeners = this.controls.addListeners() || noop
   }
 

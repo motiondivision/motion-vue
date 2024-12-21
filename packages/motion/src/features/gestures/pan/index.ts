@@ -1,9 +1,9 @@
-import { frame } from 'framer-motion/dom'
+import { frame, noop } from 'framer-motion/dom'
 import type { PanInfo } from './PanSession'
 import { PanSession } from './PanSession'
 import { addPointerEvent } from '@/events'
 import { Feature } from '@/features/feature'
-import { getContextWindow, noop } from '@/utils'
+import { getContextWindow } from '@/utils'
 
 type PanEventHandler = (event: PointerEvent, info: PanInfo) => void
 function asyncHandler(handler?: PanEventHandler) {
@@ -31,14 +31,21 @@ export class PanGesture extends Feature {
   }
 
   createPanHandlers() {
-    const { onPanSessionStart, onPanStart, onPan, onPanEnd }
-      = this.state.visualElement.getProps()
-
     return {
-      onSessionStart: asyncHandler(onPanSessionStart),
-      onStart: asyncHandler(onPanStart),
-      onMove: onPan,
+      onSessionStart: asyncHandler((_, info) => {
+        const { onPanSessionStart } = this.state.options
+        onPanSessionStart && onPanSessionStart(_, info)
+      }),
+      onStart: asyncHandler((_, info) => {
+        const { onPanStart } = this.state.options
+        onPanStart && onPanStart(_, info)
+      }),
+      onMove: (event, info) => {
+        const { onPan } = this.state.options
+        onPan && onPan(event, info)
+      },
       onEnd: (event: PointerEvent, info: PanInfo) => {
+        const { onPanEnd } = this.state.options
         delete this.session
         if (onPanEnd) {
           frame.postRender(() => onPanEnd(event, info))
@@ -51,12 +58,12 @@ export class PanGesture extends Feature {
     this.removePointerDownListener = addPointerEvent(
       this.state.element!,
       'pointerdown',
-      (event: PointerEvent) => this.onPointerDown(event),
+      this.onPointerDown.bind(this),
     )
   }
 
   update() {
-    this.session && this.session.updateHandlers(this.createPanHandlers())
+    // this.session && this.session.updateHandlers(this.createPanHandlers())
   }
 
   unmount() {

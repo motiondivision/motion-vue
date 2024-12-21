@@ -185,10 +185,7 @@ export class PanSession {
       addPointerEvent(
         this.contextWindow,
         'pointerup',
-        () => {
-          console.log('pointerup')
-          this.handlePointerUp
-        },
+        this.handlePointerUp,
       ),
       addPointerEvent(
         this.contextWindow,
@@ -230,13 +227,11 @@ export class PanSession {
   private handlePointerMove = (event: PointerEvent, info: EventInfo) => {
     this.lastMoveEvent = event
     this.lastMoveEventInfo = transformPoint(info, this.transformPagePoint)
-    console.log('move')
     // Throttle mouse move event to once per frame
     frame.update(this.updatePoint, true)
   }
 
   private handlePointerUp = (event: PointerEvent, info: EventInfo) => {
-    console.log('end up')
     this.end()
 
     const { onEnd, onSessionEnd, resumeAnimation } = this.handlers
@@ -265,7 +260,6 @@ export class PanSession {
   }
 
   end() {
-    console.log('end')
     this.removeListeners && this.removeListeners()
     cancelFrame(this.updatePoint)
   }
