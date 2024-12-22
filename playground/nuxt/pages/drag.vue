@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { Motion } from 'motion-v'
+import { AnimatePresence, Motion } from 'motion-v'
 
 const constraintsRef = ref<HTMLDivElement>()
 const dragEnd = ref(false)
 function handleDragEnd() {
   dragEnd.value = !dragEnd.value
+}
+
+const show = ref(true)
+function handleClick() {
+  show.value = !show.value
 }
 </script>
 
@@ -14,16 +19,21 @@ function handleDragEnd() {
       ref="constraintsRef"
       class="w-[300px] h-[300px] bg-blue-300 rounded"
     >
-      <Motion
-        :initial="{ x: 0, y: 0 }"
-        :animate="{ x: 100, y: 100 }"
-        :transition="{ duration: 5 }"
-        drag
-        :drag-constraints="constraintsRef"
-        class="w-[100px] h-[100px] bg-blue-500 rounded"
-        :data-end="dragEnd"
-        @drag-end="handleDragEnd"
-      />
+      <AnimatePresence>
+        <Motion
+          v-show="show"
+          :initial="{ x: 0, y: 0 }"
+          :animate="{ x: 100, y: 100 }"
+          :exit="{ x: 0, y: 0 }"
+          :transition="{ duration: 10 }"
+          drag
+          :drag-constraints="constraintsRef"
+          class="w-[100px] h-[100px] bg-blue-500 rounded"
+          :data-end="dragEnd"
+          @click="handleClick"
+          @drag-end="handleDragEnd"
+        />
+      </AnimatePresence>
     </div>
   </div>
 </template>

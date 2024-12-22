@@ -120,7 +120,6 @@ function getProps() {
   }
   styleProps = createStyles(styleProps)
   attrsProps.style = styleProps
-  // console.log('styleProps', styleProps)
   return attrsProps
 }
 </script>

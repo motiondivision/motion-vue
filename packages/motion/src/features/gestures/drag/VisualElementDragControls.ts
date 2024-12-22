@@ -22,6 +22,7 @@ import { animateMotionValue } from 'framer-motion/dist/es/animation/interfaces/m
 import { mixNumber } from '@/utils/mix/number'
 import type { LayoutUpdateData } from '@/projection/node/types'
 import { invariant } from 'hey-listen'
+import { isPresent } from '@/state/utils/is-present'
 
 export const elementDragControls = new WeakMap<
   VisualElement,
@@ -78,8 +79,8 @@ export class VisualElementDragControls {
     /**
      * Don't start dragging if this component is exiting
      */
-    const { presenceContext } = this.visualElement
-    if (presenceContext && presenceContext.isPresent === false)
+
+    if (!isPresent(this.visualElement))
       return
 
     const onSessionStart = (event: PointerEvent) => {
@@ -210,7 +211,6 @@ export class VisualElementDragControls {
       )
 
     const { dragSnapToOrigin } = this.getProps()
-    console.log('onMove init')
 
     this.panSession = new PanSession(
       originEvent,
@@ -460,6 +460,11 @@ export class VisualElementDragControls {
   }
 
   private stopAnimation() {
+    /**
+     * 如果元素已经卸载，则不停止动画
+     */
+    if (!isPresent(this.visualElement))
+      return
     eachAxis(axis => this.getAxisMotionValue(axis).stop())
   }
 
@@ -640,7 +645,6 @@ export class VisualElementDragControls {
               motionValue.get() + delta[axis].translate,
             )
           })
-
           this.visualElement.render()
         }
       }) as any,

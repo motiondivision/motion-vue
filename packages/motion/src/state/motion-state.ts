@@ -12,6 +12,7 @@ import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
+import { doneCallbacks } from '@/components/presence'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
 type StateType = typeof STATE_TYPES[number]
@@ -107,7 +108,9 @@ export class MotionState {
       whileHover: this.options.hover,
       whileTap: this.options.press,
       whileInView: this.options.inView,
-    }, this.parent?.context as any)
+    }, {
+      isPresent: !doneCallbacks.has(this.element),
+    } as any)
   }
 
   beforeMount() {
@@ -179,7 +182,7 @@ export class MotionState {
     this.visualElement.variantChildren?.forEach((child) => {
       ((child as any).state as MotionState).setActive(name, isActive)
     })
-    scheduleAnimation(this as any)
+    scheduleAnimation(this)
   }
 
   * animateUpdates() {
@@ -214,7 +217,6 @@ export class MotionState {
       }
       if (!variant)
         continue
-
       const allTarget = { ...prevTarget, ...variant }
       for (const key in allTarget) {
         if (key === 'transition')

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Transition, TransitionGroup, toRefs } from 'vue'
 import { mountedStates } from '@/state'
-import { doneCallbacks, provideAnimatePresence, removeDoneCallback, unPresenceDom } from '@/components/presence'
+import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import { useLayoutGroup } from './use-layout-group'
 import type { AnimatePresenceProps } from './type'
 import { usePopLayout } from './use-pop-layout'
@@ -39,7 +39,6 @@ function enter(el: Element) {
   }
   removeDoneCallback(el)
   state.setActive('exit', false)
-  unPresenceDom.value.delete(el)
 }
 
 const layoutGroup = useLayoutGroup(props as any)
@@ -47,7 +46,6 @@ const layoutGroup = useLayoutGroup(props as any)
 const { addPopStyle, removePopStyle } = usePopLayout(props)
 // 处理元素退出动画
 function exit(el: Element, done: VoidFunction) {
-  unPresenceDom.value.set(el, true)
   const state = mountedStates.get(el)
   if (!state) {
     return done()
@@ -58,7 +56,6 @@ function exit(el: Element, done: VoidFunction) {
     removePopStyle(state)
     if (e?.detail?.isExit) {
       removeDoneCallback(el)
-      unPresenceDom.value.delete(el)
       // trigger projection update
       state.visualElement.projection?.willUpdate()
       layoutGroup.forceRender?.()
