@@ -15,11 +15,9 @@ const config = useConfig()
         class="flex-1 md:flex"
         :class="[config.header.showTitleInMobile ? 'flex' : 'hidden']"
       />
-      <LayoutHeaderNav class="hidden flex-1 lg:flex" />
       <div class="flex flex-1 justify-end gap-2">
-        <LayoutHeaderSearch v-if="!config.search.inAside && config.search.style === 'input'" />
         <div class="flex">
-          <LayoutHeaderSearch v-if="!config.search.inAside && config.search.style === 'button'" />
+          <LayoutHeaderSearch />
           <LayoutHeaderThemeSwitch />
           <NuxtLink
             v-for="(link, i) in config.header.links"
@@ -41,12 +39,6 @@ const config = useConfig()
           </NuxtLink>
         </div>
       </div>
-    </div>
-    <div
-      v-if="config.toc.enable && config.toc.enableInMobile"
-      class="lg:hidden"
-    >
-      <LayoutToc is-small />
     </div>
   </header>
 </template>

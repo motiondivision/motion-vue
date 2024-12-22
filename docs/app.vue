@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useMediaQuery } from '@vueuse/core'
+
 const { page } = useContent()
 const config = useConfig()
 const route = useRoute()
@@ -12,6 +14,7 @@ useServerHead({
   bodyAttrs: {
   },
 })
+const isMobile = useMediaQuery('(max-width: 768px)')
 </script>
 
 <template>
@@ -20,7 +23,7 @@ useServerHead({
   />
   <!-- ClientOnly -->
   <LayoutHeader />
-  <LayoutMobileNav />
+  <LayoutMobileNav v-if="isMobile" />
 
   <div class="min-h-screen pt-14 dark:bg-[radial-gradient(#ffffff22_1px,transparent_1px)] [background-size:16px_16px] bg-[radial-gradient(#00000021_1px,transparent_1px)]">
     <div

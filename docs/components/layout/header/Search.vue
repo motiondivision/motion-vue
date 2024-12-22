@@ -8,8 +8,10 @@ const commandCenterVariants = {
   checked: { pathLength: 0 },
   unchecked: { pathLength: 1 },
 }
-
-const pathLength = useMotionValue(1)
+const route = useRoute()
+watch(() => route.path, (value) => {
+  isOpen.value = false
+})
 </script>
 
 <template>

@@ -14,7 +14,7 @@ import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
 import { doneCallbacks } from '@/components/presence'
 
-const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
+const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
 export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0

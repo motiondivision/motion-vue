@@ -23,6 +23,7 @@ import { mixNumber } from '@/utils/mix/number'
 import type { LayoutUpdateData } from '@/projection/node/types'
 import { invariant } from 'hey-listen'
 import { isPresent } from '@/state/utils/is-present'
+import type { MotionState } from '@/state'
 
 export const elementDragControls = new WeakMap<
   VisualElement,
@@ -153,8 +154,8 @@ export class VisualElementDragControls {
 
       addValueToWillChange(this.visualElement, 'transform')
 
-      const { animationState } = this.visualElement
-      animationState && animationState.setActive('whileDrag', true)
+      const state = (this.visualElement as any).state as MotionState
+      state.setActive('whileDrag', true)
     }
 
     const onMove = (event: PointerEvent, info: PanInfo) => {
@@ -259,7 +260,8 @@ export class VisualElementDragControls {
       this.openGlobalLock = null
     }
 
-    animationState && animationState.setActive('whileDrag', false)
+    const state = (this.visualElement as any).state as MotionState
+    state.setActive('whileDrag', false)
   }
 
   private updateAxis(axis: DragDirection, _point: Point, offset?: Point) {
