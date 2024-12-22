@@ -3,8 +3,8 @@ import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { isDef } from '@vueuse/core'
 import type { AnimationPlaybackControls, DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
-import { animate } from 'framer-motion/dom'
-import { getOptions, hasChanged, noop, resolveVariant } from '@/state/utils'
+import { animate, noop } from 'framer-motion/dom'
+import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
@@ -12,8 +12,9 @@ import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
+import { doneCallbacks } from '@/components/presence'
 
-const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'exit', 'drag'] as const
+const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
 export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0
@@ -21,7 +22,7 @@ export class MotionState {
   public readonly id: string
   public element: HTMLElement | null = null
   private parent?: MotionState
-  private options: Options
+  public options: Options
 
   private isFirstAnimate = true
   public activeStates: Partial<Record<StateType, boolean>> = {
@@ -36,7 +37,7 @@ export class MotionState {
   public target: DOMKeyframesDefinition
   private featureManager: FeatureManager
 
-  public visualElement: VisualElement
+  public visualElement: VisualElement<Element>
 
   constructor(options: Options, parent?: MotionState) {
     this.id = `motion-state-${id++}`
@@ -107,7 +108,13 @@ export class MotionState {
       whileHover: this.options.hover,
       whileTap: this.options.press,
       whileInView: this.options.inView,
-    }, this.parent?.context as any)
+    }, {
+      isPresent: !doneCallbacks.has(this.element),
+    } as any)
+  }
+
+  beforeMount() {
+    this.featureManager.beforeMount()
   }
 
   mount(element: HTMLElement, options: Options) {
@@ -143,12 +150,20 @@ export class MotionState {
     scheduleAnimation(this as any)
   }
 
+  beforeUnmount() {
+    this.featureManager.beforeUnmount()
+  }
+
   unmount() {
     mountedStates.delete(this.element)
     unscheduleAnimation(this as any)
     visualElementStore.get(this.element)?.unmount()
     // 卸载特征
     this.featureManager.unmount()
+  }
+
+  beforeUpdate() {
+    this.featureManager.beforeUpdate()
   }
 
   update(options: Options) {
@@ -164,7 +179,10 @@ export class MotionState {
     if (!this.element || this.activeStates[name] === isActive)
       return
     this.activeStates[name] = isActive
-    scheduleAnimation(this as any)
+    this.visualElement.variantChildren?.forEach((child) => {
+      ((child as any).state as MotionState).setActive(name, isActive)
+    })
+    scheduleAnimation(this)
   }
 
   * animateUpdates() {
@@ -199,7 +217,6 @@ export class MotionState {
       }
       if (!variant)
         continue
-
       const allTarget = { ...prevTarget, ...variant }
       for (const key in allTarget) {
         if (key === 'transition')

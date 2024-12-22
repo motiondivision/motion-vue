@@ -56,7 +56,6 @@ export function isCssVar(name: string) {
   return name?.startsWith('--')
 }
 
-export function noop() {}
 export const noopReturn = <V>(v: V) => v
 
 export function isNumber(value: any): boolean {

@@ -1,5 +1,6 @@
-import { EventFeature, type Feature, HoverGesture, InViewGesture, LayoutFeature, PressGesture, SVGFeature } from '@/features'
+import { DragGesture, type Feature, HoverGesture, InViewGesture, LayoutFeature, PanGesture, PressGesture, SVGFeature } from '@/features'
 import type { MotionState } from '@/state'
+import { ProjectionFeature } from './layout/projection'
 
 export class FeatureManager {
   features: Feature[] = []
@@ -10,8 +11,10 @@ export class FeatureManager {
       new PressGesture(state),
       new InViewGesture(state),
       new SVGFeature(state),
-      new EventFeature(state),
       new LayoutFeature(state),
+      new ProjectionFeature(state),
+      new PanGesture(state),
+      new DragGesture(state),
     ]
   }
 
@@ -19,11 +22,23 @@ export class FeatureManager {
     this.features.forEach(feature => feature.mount())
   }
 
+  beforeMount() {
+    this.features.forEach(feature => feature.beforeMount?.())
+  }
+
   unmount() {
     this.features.forEach(feature => feature.unmount())
   }
 
   update() {
-    this.features.forEach(feature => feature.update())
+    this.features.forEach(feature => feature.update?.())
+  }
+
+  beforeUpdate() {
+    this.features.forEach(feature => feature.beforeUpdate())
+  }
+
+  beforeUnmount() {
+    this.features.forEach(feature => feature.beforeUnmount())
   }
 }

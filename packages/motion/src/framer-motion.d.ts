@@ -50,3 +50,21 @@ declare module 'framer-motion/dist/es/projection/node/state.mjs' {
     hasEverUpdated: boolean
   }
 }
+
+declare module 'framer-motion/dist/es/animation/interfaces/motion-value.mjs' {
+  import type { AnimationPlaybackControls, MotionValue, Transition, VisualElement } from 'framer-motion'
+
+  export type UnresolvedKeyframes<T extends string | number> = Array<T | null>
+
+  export type StartAnimation = (
+    complete: () => void
+  ) => AnimationPlaybackControls | undefined
+  export const animateMotionValue: <V extends string | number>(
+    name: string,
+    value: MotionValue<V>,
+    target: V | UnresolvedKeyframes<V>,
+    transition: Transition & { elapsed?: number },
+    element?: VisualElement<any>,
+    isHandoff?: boolean
+  ) => StartAnimation
+}

@@ -1,8 +1,14 @@
-import type { DOMKeyframesDefinition, DynamicAnimationOptions } from 'framer-motion'
+import type { DOMKeyframesDefinition, DynamicAnimationOptions, Target, TargetAndTransition } from 'framer-motion'
 import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
+import type { DragProps } from '@/features/gestures/drag/types'
+import type { PressProps } from '@/features/gestures/press/types'
+import type { HoverProps } from '@/features/gestures/hover/types'
+import type { InViewProps } from '@/features/gestures/in-view/types'
+import type { LayoutGroupState } from '@/components/context'
+import type { PanProps } from '@/features/gestures/pan/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -18,17 +24,16 @@ export interface Orchestration {
 export interface AnimateOptions extends Omit<Orchestration, 'delay'>, DynamicAnimationOptions {
 
 }
+export type TargetResolver = (
+  custom: any,
+  current: Target,
+  velocity: Target
+) => TargetAndTransition | string
 export interface Variant extends DOMKeyframesDefinition {
   transition?: AnimateOptions
 }
 export type VariantLabels = string | Variant
-type MarginValue = `${number}${'px' | '%'}`
-type MarginType = MarginValue | `${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue}` | `${MarginValue} ${MarginValue} ${MarginValue} ${MarginValue}`
-export interface InViewOptions {
-  root?: Element | Document
-  margin?: MarginType
-  amount?: 'some' | 'all' | number
-}
+
 interface BoundingBox {
   top: number
   right: number
@@ -44,13 +49,12 @@ export type MotionStyle = Partial<{
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
-export interface Options<T = any> extends LayoutOptions {
+export interface Options<T = any> extends
+  LayoutOptions, PressProps,
+  HoverProps, InViewProps, DragProps,
+  PanProps {
   custom?: T
   as?: ElementType
-  inViewOptions?: InViewOptions & { once?: boolean }
-  inView?: string | Variant
-  press?: string | Variant
-  hover?: string | Variant
   initial?: string | Variant | boolean
   animate?: string | Variant
   exit?: string | Variant
@@ -63,14 +67,7 @@ export interface Options<T = any> extends LayoutOptions {
     generatedTransform: string
   ) => string
   transition?: AnimateOptions
-  onMotionStart?: (target: DOMKeyframesDefinition) => void
-  onMotionComplete?: (target: DOMKeyframesDefinition) => void
-  onHoverStart?: (e: PointerEvent) => void
-  onHoverEnd?: (e: PointerEvent) => void
-  onPressStart?: (e: PointerEvent) => void
-  onPressEnd?: (e: PointerEvent) => void
-  onViewEnter?: (target: Element) => void
-  onViewLeave?: (target: Element) => void
+  layoutGroup?: LayoutGroupState
 }
 
 export interface MotionStateContext {

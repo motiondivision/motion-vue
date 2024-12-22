@@ -1,7 +1,8 @@
-import type { AnimationPlaybackControls, AnimationScope } from 'framer-motion'
+import type { AnimationPlaybackControls } from 'framer-motion'
 import type { Ref, UnwrapRef } from 'vue'
 import { onUnmounted, ref } from 'vue'
 import { createScopedAnimate } from 'framer-motion/dom'
+import type { AnimationScope } from 'motion-dom'
 
 type Scope = Ref<UnwrapRef<Element>> & { animations: AnimationPlaybackControls[] }
 export function useAnimate<T extends Element = any>(): [Scope, ReturnType<typeof createScopedAnimate>] {
