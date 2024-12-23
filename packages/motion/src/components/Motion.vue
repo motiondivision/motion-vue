@@ -37,6 +37,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   layoutRoot: false,
   dragListener: true,
   dragElastic: 0.2,
+  dragMomentum: true,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
@@ -112,13 +113,27 @@ function getProps() {
   if (isSVG) {
     const { attributes, style } = convertSvgStyleToAttributes(state.target)
     Object.assign(attrsProps, attributes)
-    Object.assign(styleProps, style, props.style)
+    Object.assign(styleProps, style)
   }
 
   if (!state.isMounted()) {
-    Object.assign(styleProps, state.target, props.style)
+    Object.assign(styleProps, state.target)
   }
-  styleProps = createStyles(styleProps)
+  if (props.drag && props.dragListener !== false) {
+    Object.assign(styleProps, {
+      userSelect: 'none',
+      WebkitUserSelect: 'none',
+      WebkitTouchCallout: 'none',
+      touchAction: props.drag === true
+        ? 'none'
+        : `pan-${props.drag === 'x' ? 'y' : 'x'}`,
+    })
+  }
+
+  styleProps = createStyles({
+    ...styleProps,
+    ...props.style,
+  })
   attrsProps.style = styleProps
   return attrsProps
 }
