@@ -1,4 +1,4 @@
-import { onBeforeUnmount, watch } from 'vue'
+import { watch } from 'vue'
 import { type MotionValue, frame, frameData, motionValue } from 'framer-motion/dom'
 import type { SpringOptions } from 'framer-motion'
 import type { MainThreadAnimation } from 'framer-main-animation'
@@ -18,7 +18,7 @@ export function useSpring(
   let activeSpringAnimation: MainThreadAnimation = null
   const value = motionValue(
     isMotionValue(source) ? toNumber(source.get()) : source,
-  ) as MotionValue<number>
+  )
   let latestValue = value.get()
   let latestSetter = () => {}
 
@@ -51,14 +51,12 @@ export function useSpring(
 
   // 监听配置变化
   watch(() => JSON.stringify(config), () => {
-    const cleanup = (value as any).attach((v, set) => {
+    (value as any).attach((v, set) => {
       latestValue = v
       latestSetter = set
       frame.update(startAnimation)
       return value.get()
     }, stopAnimation)
-
-    onBeforeUnmount(() => cleanup())
   }, { immediate: true })
 
   // 监听源值变化
