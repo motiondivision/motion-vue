@@ -37,6 +37,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   layoutRoot: false,
   dragListener: true,
   dragElastic: 0.2,
+  dragMomentum: true,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
