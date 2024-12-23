@@ -30,7 +30,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
     for (const name in activeState) {
       childState.activeStates[name] = true
       const { definition, transition } = activeState[name]
-      const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition
+      const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition || {}
 
       const maxStaggerDuration
     = (variantChildren.size - 1) * staggerChildren

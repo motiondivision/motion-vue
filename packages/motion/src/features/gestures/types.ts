@@ -29,9 +29,3 @@ export interface DragOptions {
     timeConstant?: number
   }
 }
-
-export interface DragHandlers {
-  onDragStart?: (event: PointerEvent) => void
-  onDrag?: (event: PointerEvent) => void
-  onDragEnd?: (event: PointerEvent) => void
-}

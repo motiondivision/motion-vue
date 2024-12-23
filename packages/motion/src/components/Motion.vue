@@ -15,6 +15,7 @@ import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
   as?: T
   asChild?: boolean
+  whileDrag?: Options['whileDrag']
 }
 type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
 
@@ -38,6 +39,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   dragListener: true,
   dragElastic: 0.2,
   dragMomentum: true,
+  whileDrag: undefined,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)

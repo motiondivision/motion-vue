@@ -1,4 +1,5 @@
 import type { DragControls } from '@/features/gestures/drag/use-drag-controls'
+import type { Variant } from '@/types'
 import type { Axis, BoundingBox, DragElastic, InertiaOptions, PanInfo } from 'framer-motion'
 
 export interface ResolvedConstraints {
@@ -25,7 +26,7 @@ export interface DragHandlers {
    * @public
    */
   onDragStart?: (
-    event: MouseEvent | TouchEvent | PointerEvent,
+    event: PointerEvent,
     info: PanInfo
   ) => void
 
@@ -44,7 +45,7 @@ export interface DragHandlers {
    * @public
    */
   onDragEnd?: (
-    event: MouseEvent | TouchEvent | PointerEvent,
+    event: PointerEvent,
     info: PanInfo
   ) => void
 
@@ -62,7 +63,7 @@ export interface DragHandlers {
    *
    * @public
    */
-  onDrag?: (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => void
+  onDrag?: (event: PointerEvent, info: PanInfo) => void
 
   /**
    * Callback function that fires a drag direction is determined.
@@ -235,4 +236,5 @@ export interface DragProps extends DragHandlers {
    * ```
    */
   dragControls?: DragControls
+  whileDrag?: string | Variant
 }

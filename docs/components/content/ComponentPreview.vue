@@ -15,34 +15,59 @@ const Component = defineAsyncComponent({
 
 const activeTab = ref(0)
 const key = ref(0)
+const tabs = ['Preview', 'Code']
+const viewType = ref(tabs[0])
 </script>
 
 <template>
-  <div class="border rounded-lg mt-4 relative">
-    <Motion
-      :key="key"
-      :as-child="true"
-      :initial="{ rotate: 0 }"
-      :animate="{ rotate: 360 }"
-      :transition="{
-        type: 'spring',
-      }"
-      class="absolute right-3 w-5 h-5 top-2 z-10 p-1.5 "
-      @click="key++"
-    >
-      <SmartIcon
-        name="mdi:refresh"
-        class=" text-muted-foreground hover:text-primary  cursor-pointer  rounded-full "
-      />
-    </Motion>
-    <div
-      :key="key"
-      class="p-4 py-16 overflow-auto border-b flex justify-center items-center relative"
-    >
-      <component :is="Component" />
-    </div>
+  <UiTabs
+    v-model="viewType"
+    class="mt-4"
+  >
+    <UiTabsList>
+      <UiTabsTrigger
+        v-for="tab in tabs"
+        :key="tab"
+        :value="tab"
+      >
+        <UiTabsTitle>
+          {{ tab }}
+        </UiTabsTitle>
+      </UiTabsTrigger>
+    </UiTabsList>
+  </UiTabs>
+  <div
+    class="border rounded-lg mt-4 relative"
+  >
+    <template v-if="viewType === 'Preview'">
+      <Motion
+        :key="key"
+        :as-child="true"
+        :initial="{ rotate: 0 }"
+        :animate="{ rotate: 360 }"
+        :transition="{
+          type: 'spring',
+        }"
+        class="absolute right-3 w-5 h-5 top-2 z-10 p-1.5 "
+        @click="key++"
+      >
+        <SmartIcon
+          name="mdi:refresh"
+          class=" text-muted-foreground hover:text-primary  cursor-pointer  rounded-full "
+        />
+      </Motion>
+      <div
+        :key="key"
+        class="p-4 py-16 overflow-auto border-b flex justify-center items-center relative"
+      >
+        <component :is="Component" />
+      </div>
+    </template>
 
-    <div class="border-t">
+    <div
+      v-else
+      class="border-t"
+    >
       <div class="flex border-b">
         <button
           v-for="(file, index) in props.files"
