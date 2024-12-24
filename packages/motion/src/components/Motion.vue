@@ -83,6 +83,10 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  const dataId = state.element.getAttribute('data-id')
+  if (dataId === 'card-long-description-111') {
+    console.log('onBeforeUnmount', dataId)
+  }
   state.beforeUnmount()
 })
 
@@ -92,6 +96,10 @@ onUnmounted(() => {
 })
 
 onBeforeUpdate(() => {
+  const dataId = state.element.getAttribute('data-id')
+  if (dataId === 'card-long-description-111') {
+    console.log('onBeforeUpdate', dataId)
+  }
   state.beforeUpdate()
 })
 

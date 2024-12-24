@@ -3,6 +3,7 @@ import type { LayoutGroupState } from './context'
 import { injectLayoutGroup, provideLayoutGroup } from './context'
 import { useForceUpdate } from './use-force-update'
 import { nodeGroup } from './group'
+import { useSlotChangeIndex } from '@/components/use-slot-change-index'
 
 /**
  * Props for configuring layout group behavior
@@ -34,10 +35,10 @@ export function useLayoutGroup(props: LayoutGroupProps): LayoutGroupState {
     forceRender,
     key,
   }
-
+  const slotChangeIndex = useSlotChangeIndex()
   // Update group ID when key changes
-  watch(key, () => {
-    context.id = getGroupId(props, parentGroup)
+  watch([slotChangeIndex], () => {
+    key.value++
   })
 
   // Make group context available to children
