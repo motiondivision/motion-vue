@@ -10,7 +10,7 @@ import { useSlotChangeIndex } from './use-slot-change-index'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, computed, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, useSlots, watch } from 'vue'
+import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -42,6 +42,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   dragElastic: 0.2,
   dragMomentum: true,
   whileDrag: undefined,
+  crossfade: undefined,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
@@ -82,26 +83,14 @@ onMounted(() => {
   })
 })
 
-onBeforeUnmount(() => {
-  const dataId = state.element.getAttribute('data-id')
-  if (dataId === 'card-long-description-111') {
-    console.log('onBeforeUnmount', dataId)
-  }
-  state.beforeUnmount()
-})
+onBeforeUnmount(() => state.beforeUnmount())
 
 onUnmounted(() => {
   if (safeUnmount(getMotionElement(instance.$el)))
     state.unmount()
 })
 
-onBeforeUpdate(() => {
-  const dataId = state.element.getAttribute('data-id')
-  if (dataId === 'card-long-description-111') {
-    console.log('onBeforeUpdate', dataId)
-  }
-  state.beforeUpdate()
-})
+onBeforeUpdate(() => state.beforeUpdate())
 
 onUpdated(() => {
   state.update({

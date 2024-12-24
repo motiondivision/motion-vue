@@ -29,11 +29,28 @@ export class ProjectionFeature extends Feature {
       // initialPromotionConfig
       layoutRoot: options.layoutRoot,
       layoutScroll: options.layoutScroll,
+      crossfade: options.crossfade,
     })
   }
 
   beforeMount() {
     this.initProjection()
+  }
+
+  update() {
+    const options = this.state.options
+    this.state.visualElement.projection.setOptions({
+      layout: options.layout,
+      layoutId: options.layoutId,
+      // TODO: drag
+      alwaysMeasureLayout: false,
+      visualElement: this.state.visualElement,
+      animationType: typeof options.layout === 'string' ? options.layout : 'both',
+      // initialPromotionConfig
+      layoutRoot: options.layoutRoot,
+      layoutScroll: options.layoutScroll,
+      crossfade: options.crossfade,
+    })
   }
 
   mount() {

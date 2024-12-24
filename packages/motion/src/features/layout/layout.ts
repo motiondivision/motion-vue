@@ -3,7 +3,6 @@ import type { MotionState } from '@/state/motion-state'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from './config'
 import { globalProjectionState } from 'framer-motion/dist/es/projection/node/state.mjs'
-import { frame } from 'framer-motion/dom'
 
 export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
@@ -16,7 +15,6 @@ export class LayoutFeature extends Feature {
   }
 
   update(): void {
-    this.state.visualElement.projection?.setOptions(this.state.options as any)
     this.state.visualElement.projection?.root.didUpdate()
   }
 
@@ -34,24 +32,21 @@ export class LayoutFeature extends Feature {
       }
 
       globalProjectionState.hasEverUpdated = true
-
       projection?.root.didUpdate()
     }
   }
 
   beforeUnmount(): void {
-    if (this.state.visualElement.projection) {
-      this.state.visualElement.projection.willUpdate()
-    }
   }
 
   unmount() {
-    if (this.state.visualElement.projection) {
-      this.state.visualElement.projection.root.didUpdate()
-      this.state.visualElement.projection.unmount()
+    const projection = this.state.visualElement.projection
+    if (projection) {
+      projection.root.didUpdate()
+      projection.finishAnimation()
       const layoutGroup = this.state.options.layoutGroup
       if (layoutGroup?.group)
-        layoutGroup.group.remove(this.state.visualElement.projection)
+        layoutGroup.group.remove(projection)
     }
   }
 }

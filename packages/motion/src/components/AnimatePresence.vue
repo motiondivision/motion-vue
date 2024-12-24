@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, nextTick, toRefs } from 'vue'
+import { Transition, TransitionGroup, toRefs } from 'vue'
 import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
-import { useLayoutGroup } from './use-layout-group'
 import type { AnimatePresenceProps } from './type'
 import { usePopLayout } from './use-pop-layout'
-import { frame } from 'framer-motion/dom'
 
 // 定义组件Props接口
 
@@ -50,6 +48,7 @@ function exit(el: Element, done: VoidFunction) {
     return done()
   }
   removeDoneCallback(el)
+  // state.visualElement.projection?.willUpdate()
   addPopStyle(state)
   function doneCallback(e?: any) {
     removePopStyle(state)

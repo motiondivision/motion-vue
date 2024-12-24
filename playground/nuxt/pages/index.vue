@@ -14,6 +14,7 @@ const routes = [
   { path: '/drag', name: 'Drag Animation' },
   { path: '/motion-config', name: 'Motion Config' },
   { path: '/app-card', name: 'App Card' },
+  { path: '/share-layout', name: 'Share Layout' },
 ]
 const isShow = ref(true)
 </script>

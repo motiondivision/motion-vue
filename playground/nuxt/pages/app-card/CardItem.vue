@@ -13,7 +13,9 @@ const emit = defineEmits(['select'])
     :layout-id="`card-${card.id}`"
     class="card"
     :while-tap="{ scale: 0.98 }"
+    :initial="{ opacity: 1 }"
     :style="{ borderRadius: '20px' }"
+    :crossfade="false"
     @click="emit('select')"
   >
     <Motion
@@ -50,6 +52,7 @@ const emit = defineEmits(['select'])
     <Motion
       :layout-id="`card-content-${card.id}`"
       class="card-content"
+      data-id="card-long-description-111"
     >
       <div class="card-text">
         <Motion
@@ -105,9 +108,8 @@ const emit = defineEmits(['select'])
 
     <Motion
       :layout-id="`card-long-description-${card.id}`"
-      data-id="card-long-description-111"
       class="long-description"
-      :style="{ position: 'absolute', top: '100%', opacity: 0 }"
+      :style="{ position: 'absolute', top: '100%', opacity: 1 }"
     >
       <div>
         <b>Are you ready?</b> {{ card.longDescription }}

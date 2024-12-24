@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { Motion } from 'motion-v'
-// import { onClickOutside } from '@vueuse/core'
+import { onClickOutside } from '@vueuse/core'
 import type { Card } from './card'
 
 const { card } = defineProps<{ card: Card }>()
@@ -9,9 +9,9 @@ const emit = defineEmits(['close'])
 
 const cardRef = ref(null)
 
-// onClickOutside(cardRef, () => {
-//   emit('close')
-// })
+onClickOutside(cardRef, () => {
+  emit('close')
+})
 </script>
 
 <template>
@@ -55,6 +55,7 @@ const cardRef = ref(null)
       <Motion
         :layout-id="`card-content-${card.id}`"
         class="card-content active-card-content"
+        data-id="card-long-description-111"
       >
         <div class="card-text">
           <Motion
@@ -107,20 +108,18 @@ const cardRef = ref(null)
           </Motion>
         </Motion>
       </Motion>
+      <Motion
+        :layout-id="`card-long-description-${card.id}`"
+        class="long-description"
+      >
+        <div><b>Are you ready?</b> {{ card.longDescription }}</div>
+        <div>
+          <b>The never ending adventure </b>
+          In this game set in a fairy tale world, players embark on a quest
+          through mystical lands filled with enchanting forests and towering
+          mountains. Players can explore the world, build their own viking
+        </div>
+      </Motion>
     </div>
-
-    <Motion
-      :layout-id="`card-long-description-${card.id}`"
-      data-id="card-long-description-111"
-      class="long-description"
-    >
-      <div><b>Are you ready?</b> {{ card.longDescription }}</div>
-      <div>
-        <b>The never ending adventure </b>
-        In this game set in a fairy tale world, players embark on a quest
-        through mystical lands filled with enchanting forests and towering
-        mountains. Players can explore the world, build their own viking
-      </div>
-    </Motion>
   </Motion>
 </template>

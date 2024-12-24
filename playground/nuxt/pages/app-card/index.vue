@@ -1,25 +1,26 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { AnimatePresence, Motion, MotionConfig } from 'motion-v'
+import { AnimatePresence, MotionConfig } from 'motion-v'
 import { CARDS, type Card } from './card'
 import CardItem from './CardItem.vue'
 import ActiveCard from './ActiveCard.vue'
+import { useEventListener } from '@vueuse/core'
 
 const cardId = ref<Card['id'] | null>(null)
 const activeCard = computed(() =>
   CARDS.find(card => card.id === cardId.value),
 )
 
-// useEventListener('keydown', (event: KeyboardEvent) => {
-//   if (event.key === 'Escape') {
-//     cardId.value = null
-//   }
-// })
+useEventListener('keydown', (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    cardId.value = null
+  }
+})
 </script>
 
 <template>
   <div class="h-screen w-screen">
-    <MotionConfig>
+    <MotionConfig :transition="{ }">
       <LayoutGroup>
         <div class="cards-wrapper">
           <CardItem
@@ -29,8 +30,7 @@ const activeCard = computed(() =>
             :data-id="`card-${cardId}`"
             @select="cardId = CARDS[i].id"
           />
-
-          <AnimatePresence>
+          <!-- <AnimatePresence>
             <Motion
               v-if="activeCard"
               :initial="{ opacity: 0 }"
@@ -38,11 +38,11 @@ const activeCard = computed(() =>
               :exit="{ opacity: 0 }"
               class="overlay"
             />
-          </AnimatePresence>
+          </AnimatePresence> -->
           <AnimatePresence>
             <ActiveCard
               v-if="activeCard"
-              :card="activeCard"
+              :card="activeCard || {}"
               @close="cardId = null"
             />
           </AnimatePresence>
@@ -63,6 +63,7 @@ const activeCard = computed(() =>
   outline: none;
   user-select: none;
   cursor: pointer;
+  background-color: #fff;
 }
 
 .card-inner {
