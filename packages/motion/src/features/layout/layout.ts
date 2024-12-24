@@ -47,10 +47,8 @@ export class LayoutFeature extends Feature {
 
   unmount() {
     if (this.state.visualElement.projection) {
+      this.state.visualElement.projection.root.didUpdate()
       this.state.visualElement.projection.unmount()
-      frame.preRender(() => {
-        this.state.visualElement.projection.root.didUpdate()
-      })
       const layoutGroup = this.state.options.layoutGroup
       if (layoutGroup?.group)
         layoutGroup.group.remove(this.state.visualElement.projection)

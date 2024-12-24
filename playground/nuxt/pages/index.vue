@@ -13,6 +13,7 @@ const routes = [
   { path: '/in-view', name: 'In View Animation' },
   { path: '/drag', name: 'Drag Animation' },
   { path: '/motion-config', name: 'Motion Config' },
+  { path: '/app-card', name: 'App Card' },
 ]
 const isShow = ref(true)
 </script>

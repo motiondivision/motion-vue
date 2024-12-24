@@ -45,7 +45,6 @@ export class MotionState {
     this.parent = parent
     this.depth = parent?.depth + 1 || 0
 
-    console.log('options.motionConfig.reduceMotion,', options.motionConfig.reduceMotion)
     /**
      * create visualElement
      */

@@ -55,9 +55,9 @@ function exit(el: Element, done: VoidFunction) {
     removePopStyle(state)
     if (e?.detail?.isExit) {
       removeDoneCallback(el)
+      state.visualElement.projection?.willUpdate()
       done()
       if (!el.isConnected) {
-        console.log('unmount-122')
         state.unmount()
       }
     }
