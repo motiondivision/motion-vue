@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, toRefs } from 'vue'
+import { Transition, TransitionGroup, nextTick, toRefs } from 'vue'
 import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import { useLayoutGroup } from './use-layout-group'
 import type { AnimatePresenceProps } from './type'
 import { usePopLayout } from './use-pop-layout'
+import { frame } from 'framer-motion/dom'
 
 // 定义组件Props接口
 
@@ -41,8 +42,6 @@ function enter(el: Element) {
   state.setActive('exit', false)
 }
 
-const layoutGroup = useLayoutGroup(props as any)
-
 const { addPopStyle, removePopStyle } = usePopLayout(props)
 // 处理元素退出动画
 function exit(el: Element, done: VoidFunction) {
@@ -56,11 +55,9 @@ function exit(el: Element, done: VoidFunction) {
     removePopStyle(state)
     if (e?.detail?.isExit) {
       removeDoneCallback(el)
-      // trigger projection update
-      state.visualElement.projection?.willUpdate()
-      layoutGroup.forceRender?.()
       done()
       if (!el.isConnected) {
+        console.log('unmount-122')
         state.unmount()
       }
     }

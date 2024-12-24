@@ -18,12 +18,3 @@ export interface LayoutGroupState {
 }
 
 export const [injectLayoutGroup, provideLayoutGroup] = createContext<LayoutGroupState>('LayoutGroup')
-
-export type InheritOption = boolean | 'id'
-
-export function shouldInheritGroup(inherit: InheritOption) {
-  return inherit === true
-}
-export function shouldInheritId(inherit: InheritOption) {
-  return shouldInheritGroup(inherit === true) || inherit === 'id'
-}

@@ -23,9 +23,10 @@ function handleClick() {
       as="header"
       class="text-lg font-semibold"
       :layout="true"
-      :data-a="isOpen"
     >
-      {{ isOpen ? 'close' : 'open' }}
+      <span>
+        {{ isOpen ? 'close' : 'open' }}
+      </span>
     </Motion>
     <Motion
       v-if="isOpen"

@@ -9,6 +9,7 @@ import type { HoverProps } from '@/features/gestures/hover/types'
 import type { InViewProps } from '@/features/gestures/in-view/types'
 import type { LayoutGroupState } from '@/components/context'
 import type { PanProps } from '@/features/gestures/pan/types'
+import type { MotionConfigState } from '@/components/motion-config/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -68,6 +69,7 @@ export interface Options<T = any> extends
   ) => string
   transition?: AnimateOptions
   layoutGroup?: LayoutGroupState
+  motionConfig?: MotionConfigState
 }
 
 export interface MotionStateContext {

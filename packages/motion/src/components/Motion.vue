@@ -5,10 +5,12 @@ import { injectAnimatePresence } from './presence'
 import { isMotionValue } from '@/utils'
 import { getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
+import { useMotionConfig } from './motion-config/context'
+import { useSlotChangeIndex } from './use-slot-change-index'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { type IntrinsicElementAttributes, computed, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, useSlots, watch } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -46,11 +48,13 @@ const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
 
+const config = useMotionConfig()
 const state = new MotionState(
   {
     ...attrs,
     ...props,
     layoutGroup,
+    motionConfig: config.value,
   },
   parentState!,
 )
@@ -67,7 +71,9 @@ onMounted(() => {
   state.mount(getMotionElement(instance.$el), {
     ...attrs,
     ...props,
+    transition: props.transition ?? config.value.transition,
     layoutGroup,
+    motionConfig: config.value,
     initial: presenceInitial.value === false
       ? presenceInitial.value
       : (
@@ -93,6 +99,8 @@ onUpdated(() => {
   state.update({
     ...attrs,
     ...props,
+    transition: props.transition ?? config.value.transition,
+    motionConfig: config.value,
     initial: presenceInitial.value === false
       ? presenceInitial.value
       : (
@@ -139,11 +147,14 @@ function getProps() {
   attrsProps.style = styleProps
   return attrsProps
 }
+
+const slotsIndex = useSlotChangeIndex()
 </script>
 
 <template>
   <!-- @vue-ignore -->
   <Primitive
+    :data-layout-slots-index="slotsIndex"
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"

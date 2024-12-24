@@ -45,6 +45,7 @@ export class MotionState {
     this.parent = parent
     this.depth = parent?.depth + 1 || 0
 
+    console.log('options.motionConfig.reduceMotion,', options.motionConfig.reduceMotion)
     /**
      * create visualElement
      */
@@ -67,6 +68,7 @@ export class MotionState {
         },
         latestValues: {},
       },
+      reducedMotionConfig: options.motionConfig.reduceMotion,
     })
     const initialVariantSource = options.initial === false ? 'animate' : 'initial'
     this.featureManager = new FeatureManager(this)
@@ -108,6 +110,7 @@ export class MotionState {
       whileHover: this.options.hover,
       whileTap: this.options.press,
       whileInView: this.options.inView,
+      reducedMotionConfig: this.options.motionConfig.reduceMotion,
     }, {
       isPresent: !doneCallbacks.has(this.element),
     } as any)

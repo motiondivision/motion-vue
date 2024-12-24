@@ -12,6 +12,7 @@ const routes = [
   { path: '/hover', name: 'Hover Animation' },
   { path: '/in-view', name: 'In View Animation' },
   { path: '/drag', name: 'Drag Animation' },
+  { path: '/motion-config', name: 'Motion Config' },
 ]
 const isShow = ref(true)
 </script>

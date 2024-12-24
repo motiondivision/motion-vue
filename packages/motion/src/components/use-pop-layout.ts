@@ -1,8 +1,11 @@
+import { useMotionConfig } from '@/components/motion-config/context'
 import type { AnimatePresenceProps } from '@/components/type'
 import type { MotionState } from '@/state'
 
 export function usePopLayout(props: AnimatePresenceProps) {
   const styles = new WeakMap<MotionState, HTMLStyleElement>()
+  const config = useMotionConfig()
+
   function addPopStyle(state: MotionState) {
     if (props.mode !== 'popLayout')
       return
@@ -14,6 +17,9 @@ export function usePopLayout(props: AnimatePresenceProps) {
     }
     state.element.dataset.motionPopId = state.id
     const style = document.createElement('style')
+    if (config.value.nonce) {
+      style.nonce = config.value.nonce
+    }
     styles.set(state, style)
     document.head.appendChild(style)
     style.textContent = `
