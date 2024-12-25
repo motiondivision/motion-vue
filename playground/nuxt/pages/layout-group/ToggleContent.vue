@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Motion, injectLayoutGroup } from 'motion-v'
+import { Motion, useLayoutGroup } from 'motion-v'
 
 const props = defineProps<{
   content: string
@@ -7,7 +7,7 @@ const props = defineProps<{
   dragConstraints?: any
 }>()
 const isOpen = ref(false)
-const { forceRender } = injectLayoutGroup({})
+const { forceRender } = useLayoutGroup()
 function handleClick() {
   isOpen.value = !isOpen.value
   forceRender?.()
@@ -25,7 +25,6 @@ function handleClick() {
       as="header"
       class="text-lg font-semibold"
       :layout="true"
-      data-is-open="isOpen"
     >
       <span>
         {{ isOpen ? 'close' : 'open' }}

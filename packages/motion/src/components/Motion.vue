@@ -6,7 +6,6 @@ import { isMotionValue } from '@/utils'
 import { getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import { useMotionConfig } from './motion-config/context'
-import { useSlotChangeIndex } from './use-slot-change-index'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
@@ -145,17 +144,15 @@ function getProps() {
   return attrsProps
 }
 
-const slotsIndex = useSlotChangeIndex()
+// const slotsIndex = useSlotChangeIndex()
 </script>
 
 <template>
   <!-- @vue-ignore -->
   <Primitive
-    :data-layout-slots-index="slotsIndex"
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"
-    :data-layout-group-key="layoutGroup?.key?.value"
   >
     <slot />
   </Primitive>

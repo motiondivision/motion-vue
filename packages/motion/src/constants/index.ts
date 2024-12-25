@@ -22,6 +22,7 @@ export const utilities = {
     'useInView',
     'useAnimationFrame',
     'useMotionValueEvent',
+    'useLayoutGroup',
   ],
 }
 

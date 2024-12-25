@@ -1,32 +1,15 @@
 <script setup>
 import { Motion, useMotionValue, useSpring } from 'motion-v'
+import Child from './child.vue'
+import { useSlotChangeIndex } from './use-test'
 
-const scale = useSpring(useMotionValue(1))
+const count = ref(0)
+const slotChangeIndex = useSlotChangeIndex()
 </script>
 
 <template>
-  <div>
-    <Motion
-      class="box"
-      :style="{ scale }"
-    >
-      Motion component
-    </Motion>
-    <button @click="scale.set(Math.random(0.5, 1))">
-      Animate
-    </button>
-  </div>
+  <button @click="count++">
+    {{ count }} -{{ slotChangeIndex }}
+  </button>
+  <Child />
 </template>
-
-<style scoped>
-.box {
-  width: 100px;
-  height: 100px;
-  background: red;
-  margin: 1rem auto;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

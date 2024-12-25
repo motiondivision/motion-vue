@@ -22,7 +22,7 @@ export interface LayoutGroupProps {
  * Hook to create and manage a layout group
  * Handles group inheritance, force updates, and context management
  */
-export function useLayoutGroup(props: LayoutGroupProps): LayoutGroupState {
+export function useLayoutGroupProvider(props: LayoutGroupProps): LayoutGroupState {
   // Get parent group context if it exists
   const parentGroup = injectLayoutGroup(null)
   const [forceRender, key] = useForceUpdate()
@@ -33,15 +33,15 @@ export function useLayoutGroup(props: LayoutGroupProps): LayoutGroupState {
     forceRender,
     key,
   }
-  // const slotChangeIndex = useSlotChangeIndex()
-  // Update group ID when key changes
-  // watch([slotChangeIndex], () => {
-  //   key.value++
-  // })
 
   // Make group context available to children
   provideLayoutGroup(context)
   return context
+}
+
+export function useLayoutGroup() {
+  const { forceRender } = injectLayoutGroup({ forceRender: () => {} })
+  return { forceRender }
 }
 
 /**

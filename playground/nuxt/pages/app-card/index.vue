@@ -22,15 +22,18 @@ useEventListener('keydown', (event: KeyboardEvent) => {
   <div class="h-screen w-screen">
     <MotionConfig :transition="{ }">
       <LayoutGroup>
-        <div class="cards-wrapper">
-          <CardItem
-            v-for="(card, i) in CARDS"
-            :key="card.id"
-            :card="card"
-            :data-id="`card-${cardId}`"
-            @select="cardId = CARDS[i].id"
-          />
-          <!-- <AnimatePresence>
+        <template #default="{ forceRender }">
+          <div class="cards-wrapper">
+            <CardItem
+              v-for="(card, i) in CARDS"
+              :key="card.id"
+              :card="card"
+              @select="() => {
+                cardId = CARDS[i].id
+                forceRender()
+              }"
+            />
+            <!-- <AnimatePresence>
             <Motion
               v-if="activeCard"
               :initial="{ opacity: 0 }"
@@ -39,14 +42,15 @@ useEventListener('keydown', (event: KeyboardEvent) => {
               class="overlay"
             />
           </AnimatePresence> -->
-          <AnimatePresence>
-            <ActiveCard
-              v-if="activeCard"
-              :card="activeCard || {}"
-              @close="cardId = null"
-            />
-          </AnimatePresence>
-        </div>
+            <AnimatePresence>
+              <ActiveCard
+                v-if="activeCard"
+                :card="activeCard || {}"
+                @close="cardId = null"
+              />
+            </AnimatePresence>
+          </div>
+        </template>
       </LayoutGroup>
     </MotionConfig>
   </div>

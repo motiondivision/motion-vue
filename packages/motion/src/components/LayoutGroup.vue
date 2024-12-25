@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { onBeforeUpdate, onUpdated } from 'vue'
-import { type LayoutGroupProps, useLayoutGroup } from './use-layout-group'
-import { frame } from 'framer-motion/dom'
+import { type LayoutGroupProps, useLayoutGroupProvider } from './use-layout-group'
 
 const props = defineProps<LayoutGroupProps>()
-useLayoutGroup(props)
-
-onBeforeUpdate(() => {
-  console.log('onBeforeUpdate')
-})
+const { forceRender, key, group } = useLayoutGroupProvider(props)
 onUpdated(() => {
-  frame.read(() => {})
+})
+onBeforeUpdate(() => {
+  group.dirty()
 })
 </script>
 
 <template>
-  <slot />
+  <slot
+    :render-key="key"
+    :force-render="forceRender"
+  />
 </template>
