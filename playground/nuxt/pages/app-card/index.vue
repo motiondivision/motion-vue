@@ -20,7 +20,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 
 <template>
   <div class="h-screen w-screen">
-    <MotionConfig :transition="{ }">
+    <MotionConfig :transition="{ layout: { duration: 3 } }">
       <LayoutGroup>
         <template #default="{ forceRender }">
           <div class="cards-wrapper">
@@ -33,15 +33,15 @@ useEventListener('keydown', (event: KeyboardEvent) => {
                 forceRender()
               }"
             />
-            <!-- <AnimatePresence>
-            <Motion
-              v-if="activeCard"
-              :initial="{ opacity: 0 }"
-              :animate="{ opacity: 1 }"
-              :exit="{ opacity: 0 }"
-              class="overlay"
-            />
-          </AnimatePresence> -->
+            <AnimatePresence>
+              <Motion
+                v-if="activeCard"
+                :initial="{ opacity: 0 }"
+                :animate="{ opacity: 1 }"
+                :exit="{ opacity: 0 }"
+                class="overlay"
+              />
+            </AnimatePresence>
             <AnimatePresence>
               <ActiveCard
                 v-if="activeCard"

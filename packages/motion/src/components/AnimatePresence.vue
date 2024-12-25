@@ -48,13 +48,12 @@ function exit(el: Element, done: VoidFunction) {
     return done()
   }
   removeDoneCallback(el)
-  // state.visualElement.projection?.willUpdate()
   addPopStyle(state)
   function doneCallback(e?: any) {
     removePopStyle(state)
     if (e?.detail?.isExit) {
       removeDoneCallback(el)
-      state.visualElement.projection?.willUpdate()
+      state.willUpdate('done')
       done()
       if (!el.isConnected) {
         state.unmount()

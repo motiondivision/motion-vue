@@ -328,4 +328,11 @@ export class MotionState {
   getOptions() {
     return this.options
   }
+
+  willUpdate(label: string) {
+    console.log('willUpdate', label)
+    if (!this.visualElement.projection?.isLayoutDirty) {
+      this.visualElement.projection?.willUpdate()
+    }
+  }
 }

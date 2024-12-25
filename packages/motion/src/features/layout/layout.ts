@@ -3,6 +3,8 @@ import type { MotionState } from '@/state/motion-state'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from './config'
 import { globalProjectionState } from 'framer-motion/dist/es/projection/node/state.mjs'
+import { isPresent } from '@/state/utils/is-present'
+import { frame } from 'framer-motion/dom'
 
 export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
@@ -11,7 +13,16 @@ export class LayoutFeature extends Feature {
   }
 
   beforeUpdate() {
-    this.state.visualElement.projection?.willUpdate()
+    this.state.willUpdate('beforeUpdate')
+    const present = isPresent(this.state.visualElement)
+    const projection = this.state.visualElement.projection
+    const prePresent = projection?.isPresent
+    projection.isPresent = present
+    if (prePresent !== present) {
+      if (present) {
+        projection?.promote()
+      }
+    }
   }
 
   update(): void {
@@ -37,13 +48,26 @@ export class LayoutFeature extends Feature {
   }
 
   beforeUnmount(): void {
+    const projection = this.state.visualElement.projection
+    projection.finishAnimation()
+    this.state.willUpdate('beforeUnmount')
+
+    const present = isPresent(this.state.visualElement)
+    const prePresent = projection?.isPresent
+    projection.isPresent = present
+    if (prePresent !== present) {
+      if (present) {
+        projection?.promote()
+      }
+    }
   }
 
   unmount() {
     const projection = this.state.visualElement.projection
     if (projection) {
+      console.log('unmount', projection.root.nodes)
       projection.root.didUpdate()
-      projection.finishAnimation()
+      // projection.finishAnimation()
       const layoutGroup = this.state.options.layoutGroup
       if (layoutGroup?.group)
         layoutGroup.group.remove(projection)

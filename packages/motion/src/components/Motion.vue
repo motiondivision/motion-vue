@@ -153,6 +153,7 @@ function getProps() {
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"
+    :layout-projection-key="layoutGroup.key?.value"
   >
     <slot />
   </Primitive>

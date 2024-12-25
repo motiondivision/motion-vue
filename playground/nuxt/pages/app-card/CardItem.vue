@@ -111,15 +111,15 @@ const emit = defineEmits(['select'])
       class="long-description"
       :style="{ position: 'absolute', top: '100%', opacity: 1 }"
     >
-      <div>
+      <p>
         <b>Are you ready?</b> {{ card.longDescription }}
-      </div>
-      <div>
+      </p>
+      <p>
         <b>The never ending adventure</b>
         In this game set in a fairy tale world, players embark on a quest
         through mystical lands filled with enchanting forests and towering
         mountains.
-      </div>
+      </p>
     </Motion>
   </Motion>
 </template>

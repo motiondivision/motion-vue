@@ -7,7 +7,7 @@ const { forceRender, key, group } = useLayoutGroupProvider(props)
 onUpdated(() => {
 })
 onBeforeUpdate(() => {
-  group.dirty()
+  // group.dirty()
 })
 </script>
 
