@@ -1,5 +1,5 @@
 import { useMotionConfig } from '@/components/motion-config/context'
-import type { AnimatePresenceProps } from '@/components/type'
+import type { AnimatePresenceProps } from './types'
 import type { MotionState } from '@/state'
 
 export function usePopLayout(props: AnimatePresenceProps) {

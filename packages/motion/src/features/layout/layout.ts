@@ -4,7 +4,6 @@ import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale
 import { defaultScaleCorrector } from './config'
 import { globalProjectionState } from 'framer-motion/dist/es/projection/node/state.mjs'
 import { isPresent } from '@/state/utils/is-present'
-import { frame } from 'framer-motion/dom'
 
 export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
@@ -65,9 +64,7 @@ export class LayoutFeature extends Feature {
   unmount() {
     const projection = this.state.visualElement.projection
     if (projection) {
-      console.log('unmount', projection.root.nodes)
       projection.root.didUpdate()
-      // projection.finishAnimation()
       const layoutGroup = this.state.options.layoutGroup
       if (layoutGroup?.group)
         layoutGroup.group.remove(projection)

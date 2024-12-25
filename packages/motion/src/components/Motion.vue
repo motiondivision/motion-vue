@@ -89,9 +89,12 @@ onUnmounted(() => {
     state.unmount()
 })
 
-onBeforeUpdate(() => state.beforeUpdate())
+onBeforeUpdate(() => {
+  state.beforeUpdate()
+})
 
 onUpdated(() => {
+  // console.log('onUpdated', state.element)
   state.update({
     ...attrs,
     ...props,
@@ -153,7 +156,6 @@ function getProps() {
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"
-    :layout-projection-key="layoutGroup.key?.value"
   >
     <slot />
   </Primitive>

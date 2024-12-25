@@ -20,7 +20,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 
 <template>
   <div class="h-screen w-screen">
-    <MotionConfig :transition="{ layout: { duration: 3 } }">
+    <MotionConfig>
       <LayoutGroup>
         <template #default="{ forceRender }">
           <div class="cards-wrapper">
@@ -28,11 +28,19 @@ useEventListener('keydown', (event: KeyboardEvent) => {
               v-for="(card, i) in CARDS"
               :key="card.id"
               :card="card"
+              :data-id="card.id"
               @select="() => {
                 cardId = CARDS[i].id
                 forceRender()
               }"
             />
+            <!-- <AnimatePresence> -->
+            <ActiveCard
+              v-if="activeCard"
+              :card="activeCard || {}"
+              @close="cardId = null"
+            />
+            <!-- </AnimatePresence> -->
             <AnimatePresence>
               <Motion
                 v-if="activeCard"
@@ -40,13 +48,6 @@ useEventListener('keydown', (event: KeyboardEvent) => {
                 :animate="{ opacity: 1 }"
                 :exit="{ opacity: 0 }"
                 class="overlay"
-              />
-            </AnimatePresence>
-            <AnimatePresence>
-              <ActiveCard
-                v-if="activeCard"
-                :card="activeCard || {}"
-                @close="cardId = null"
               />
             </AnimatePresence>
           </div>
@@ -93,7 +94,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 .card-active {
   width: 360px;
   position: absolute;
-  top: 5%;
+  top: 0;
   height: 100%;
   margin: 0;
   background: white;
@@ -231,7 +232,6 @@ useEventListener('keydown', (event: KeyboardEvent) => {
   align-items: center;
   flex-direction: column;
   position: relative;
-  height: 675px;
   width: 100%;
   height: 100%;
   margin: auto 0;

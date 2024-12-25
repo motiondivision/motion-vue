@@ -21,27 +21,35 @@ useEventListener('keydown', (event: KeyboardEvent) => {
       >
         <Motion
           layout-id="test2"
-          layout
-        >
-          Hello
-        </Motion>
-      </Motion>
-
-      <AnimatePresence>
-        <Motion
-          v-if="show"
-          layout-id="test"
-          class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
-          @click="show = !show"
         >
           <Motion
-            layout-id="test2"
+            as="p"
             layout
           >
             Hello
           </Motion>
         </Motion>
-      </AnimatePresence>
+      </Motion>
+
+      <!-- <AnimatePresence> -->
+      <Motion
+        v-if="show"
+        layout-id="test"
+        class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
+        @click="show = !show"
+      >
+        <Motion
+          layout-id="test2"
+        >
+          <Motion
+            as="p"
+            layout
+          >
+            Hello
+          </Motion>
+        </Motion>
+      </Motion>
+      <!-- </AnimatePresence> -->
     </MotionConfig>
   </div>
 </template>

@@ -330,9 +330,15 @@ export class MotionState {
   }
 
   willUpdate(label: string) {
-    console.log('willUpdate', label)
+    // console.log('willUpdate', label)
     if (!this.visualElement.projection?.isLayoutDirty) {
-      this.visualElement.projection?.willUpdate()
+      const layoutGroup = this.options.layoutGroup
+      if (layoutGroup?.group && label === 'beforeUpdate') {
+        layoutGroup.group?.dirty()
+      }
+      else {
+        this.visualElement.projection?.willUpdate()
+      }
     }
   }
 }

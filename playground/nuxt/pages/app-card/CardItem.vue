@@ -9,7 +9,7 @@ const emit = defineEmits(['select'])
 <template>
   <Motion
     v-if="card"
-
+    :data-id="card.id ? '1' : '2'"
     :layout-id="`card-${card.id}`"
     class="card"
     :while-tap="{ scale: 0.98 }"
@@ -109,7 +109,7 @@ const emit = defineEmits(['select'])
     <Motion
       :layout-id="`card-long-description-${card.id}`"
       class="long-description"
-      :style="{ position: 'absolute', top: '100%', opacity: 1 }"
+      :style="{ position: 'absolute', top: '100%', opacity: 0 }"
     >
       <p>
         <b>Are you ready?</b> {{ card.longDescription }}

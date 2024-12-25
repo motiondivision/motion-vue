@@ -2,9 +2,8 @@
 import { Transition, TransitionGroup, toRefs } from 'vue'
 import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
-import type { AnimatePresenceProps } from './type'
+import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-
 // 定义组件Props接口
 
 // 定义组件选项

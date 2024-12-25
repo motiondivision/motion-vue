@@ -10,7 +10,7 @@ const isOpen = ref(false)
 const { forceRender } = useLayoutGroup()
 function handleClick() {
   isOpen.value = !isOpen.value
-  forceRender?.()
+  // forceRender?.()
 }
 </script>
 
@@ -19,6 +19,7 @@ function handleClick() {
     class="bg-gray-100 p-4  cursor-pointer hover:bg-gray-200 transition-colors"
     :layout="true"
     :initial="{ borderRadius: '8px' }"
+    :data-is-open="isOpen"
     @click="handleClick"
   >
     <Motion

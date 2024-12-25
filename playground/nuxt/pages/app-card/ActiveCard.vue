@@ -20,6 +20,7 @@ onClickOutside(cardRef, () => {
     :layout-id="`card-${card.id}`"
     class="card card-active z-50"
     :style="{ borderRadius: '0px' }"
+    :data-id="card.id ? '1' : '2'"
   >
     <div class="card-inner">
       <Motion
@@ -108,18 +109,20 @@ onClickOutside(cardRef, () => {
           </Motion>
         </Motion>
       </Motion>
-      <Motion
-        :layout-id="`card-long-description-${card.id}`"
-        class="long-description"
-      >
-        <p><b>Are you ready?</b> {{ card.longDescription }}</p>
-        <p>
-          <b>The never ending adventure </b>
-          In this game set in a fairy tale world, players embark on a quest
-          through mystical lands filled with enchanting forests and towering
-          mountains. Players can explore the world, build their own viking
-        </p>
-      </Motion>
     </div>
+    <Motion
+      :layout-id="`card-long-description-${card.id}`"
+      class="long-description"
+    >
+      <p>
+        <b>Are you ready?</b> {{ card.longDescription }}
+      </p>
+      <p>
+        <b>The never ending adventure </b>
+        In this game set in a fairy tale world, players embark on a quest
+        through mystical lands filled with enchanting forests and towering
+        mountains. Players can explore the world, build their own viking
+      </p>
+    </Motion>
   </Motion>
 </template>
