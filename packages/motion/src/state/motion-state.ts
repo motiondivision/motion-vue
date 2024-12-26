@@ -23,8 +23,9 @@ export class MotionState {
   public element: HTMLElement | null = null
   private parent?: MotionState
   public options: Options
-
+  public isPresent = false
   private isFirstAnimate = true
+  private children?: Set<MotionState> = new Set()
   public activeStates: Partial<Record<StateType, boolean>> = {
     initial: true,
     animate: true,
@@ -43,6 +44,7 @@ export class MotionState {
     this.id = `motion-state-${id++}`
     this.options = options
     this.parent = parent
+    parent?.children?.add(this)
     this.depth = parent?.depth + 1 || 0
 
     /**
@@ -156,12 +158,18 @@ export class MotionState {
     this.featureManager.beforeUnmount()
   }
 
-  unmount() {
+  unmount(unMountChildren = false) {
     mountedStates.delete(this.element)
     unscheduleAnimation(this as any)
-    visualElementStore.get(this.element)?.unmount()
-    // 卸载特征
     this.featureManager.unmount()
+    this.visualElement?.unmount()
+    if (unMountChildren) {
+      const unmountChild = (child: MotionState) => {
+        child.unmount(true)
+        child.children?.forEach(unmountChild)
+      }
+      this.children?.forEach(unmountChild)
+    }
   }
 
   beforeUpdate() {
@@ -330,15 +338,8 @@ export class MotionState {
   }
 
   willUpdate(label: string) {
-    // console.log('willUpdate', label)
     if (!this.visualElement.projection?.isLayoutDirty) {
-      const layoutGroup = this.options.layoutGroup
-      if (layoutGroup?.group && label === 'beforeUpdate') {
-        layoutGroup.group?.dirty()
-      }
-      else {
-        this.visualElement.projection?.willUpdate()
-      }
+      this.visualElement.projection?.willUpdate()
     }
   }
 }

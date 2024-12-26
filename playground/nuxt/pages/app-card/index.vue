@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { AnimatePresence, MotionConfig } from 'motion-v'
+import { AnimatePresence } from 'motion-v'
 import { CARDS, type Card } from './card'
 import CardItem from './CardItem.vue'
 import ActiveCard from './ActiveCard.vue'
 import { useEventListener } from '@vueuse/core'
 
-const cardId = ref<Card['id'] | null>(null)
+const cardId = ref<Card['id'] | null>()
 const activeCard = computed(() =>
   CARDS.find(card => card.id === cardId.value),
 )
@@ -20,40 +20,36 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 
 <template>
   <div class="h-screen w-screen">
-    <MotionConfig>
-      <LayoutGroup>
-        <template #default="{ forceRender }">
-          <div class="cards-wrapper">
-            <CardItem
-              v-for="(card, i) in CARDS"
-              :key="card.id"
-              :card="card"
-              :data-id="card.id"
-              @select="() => {
-                cardId = CARDS[i].id
-                forceRender()
-              }"
-            />
-            <!-- <AnimatePresence> -->
-            <ActiveCard
-              v-if="activeCard"
-              :card="activeCard || {}"
-              @close="cardId = null"
-            />
-            <!-- </AnimatePresence> -->
-            <AnimatePresence>
-              <Motion
-                v-if="activeCard"
-                :initial="{ opacity: 0 }"
-                :animate="{ opacity: 1 }"
-                :exit="{ opacity: 0 }"
-                class="overlay"
-              />
-            </AnimatePresence>
-          </div>
-        </template>
-      </LayoutGroup>
-    </MotionConfig>
+    <!-- <MotionConfig> -->
+    <div class="cards-wrapper">
+      <CardItem
+        v-for="(card, i) in CARDS"
+        :key="card.id"
+        :card="card"
+        :data-id="cardId"
+        @select="() => {
+          cardId = CARDS[i].id
+        }"
+      />
+      <AnimatePresence>
+        <Motion
+          v-if="activeCard"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          class="overlay"
+        />
+      </AnimatePresence>
+
+      <AnimatePresence>
+        <ActiveCard
+          v-if="activeCard"
+          :card="activeCard || {}"
+          @close="cardId = null"
+        />
+      </AnimatePresence>
+    </div>
+    <!-- </MotionConfig> -->
   </div>
 </template>
 

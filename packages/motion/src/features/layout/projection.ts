@@ -3,6 +3,7 @@ import { HTMLProjectionNode } from 'framer-motion/dist/es/projection/node/HTMLPr
 import { getClosestProjectingNode } from '@/features/layout/utils'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from '@/features/layout/config'
+import { doneCallbacks } from '@/components/presence'
 
 export class ProjectionFeature extends Feature {
   constructor(state) {
@@ -19,6 +20,7 @@ export class ProjectionFeature extends Feature {
         ? undefined
         : getClosestProjectingNode(this.state.visualElement.parent),
     )
+    this.state.visualElement.projection.isPresent = true
     this.state.visualElement.projection.setOptions({
       layout: options.layout,
       layoutId: options.layoutId,
@@ -30,6 +32,18 @@ export class ProjectionFeature extends Feature {
       layoutRoot: options.layoutRoot,
       layoutScroll: options.layoutScroll,
       crossfade: options.crossfade,
+      onExitComplete: () => {
+        if (!this.state.visualElement.projection?.isPresent) {
+          const done = doneCallbacks.get(this.state.element)
+          if (done) {
+            done({
+              detail: {
+                isExit: true,
+              },
+            }, true)
+          }
+        }
+      },
     })
   }
 

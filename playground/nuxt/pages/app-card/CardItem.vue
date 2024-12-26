@@ -15,7 +15,6 @@ const emit = defineEmits(['select'])
     :while-tap="{ scale: 0.98 }"
     :initial="{ opacity: 1 }"
     :style="{ borderRadius: '20px' }"
-    :crossfade="false"
     @click="emit('select')"
   >
     <Motion

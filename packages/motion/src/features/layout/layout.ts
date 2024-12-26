@@ -3,7 +3,6 @@ import type { MotionState } from '@/state/motion-state'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from './config'
 import { globalProjectionState } from 'framer-motion/dist/es/projection/node/state.mjs'
-import { isPresent } from '@/state/utils/is-present'
 
 export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
@@ -13,15 +12,14 @@ export class LayoutFeature extends Feature {
 
   beforeUpdate() {
     this.state.willUpdate('beforeUpdate')
-    const present = isPresent(this.state.visualElement)
-    const projection = this.state.visualElement.projection
-    const prePresent = projection?.isPresent
-    projection.isPresent = present
-    if (prePresent !== present) {
-      if (present) {
-        projection?.promote()
-      }
-    }
+    // const present = isPresent(this.state.visualElement)
+    // const projection = this.state.visualElement.projection
+    // const prePresent = projection?.isPresent
+    // if (prePresent !== present) {
+    //   if (present) {
+    //     projection?.promote()
+    //   }
+    // }
   }
 
   update(): void {
@@ -40,7 +38,6 @@ export class LayoutFeature extends Feature {
       if (projection) {
         layoutGroup?.group?.add(projection)
       }
-
       globalProjectionState.hasEverUpdated = true
       projection?.root.didUpdate()
     }
@@ -48,23 +45,17 @@ export class LayoutFeature extends Feature {
 
   beforeUnmount(): void {
     const projection = this.state.visualElement.projection
-    projection.finishAnimation()
-    this.state.willUpdate('beforeUnmount')
-
-    const present = isPresent(this.state.visualElement)
-    const prePresent = projection?.isPresent
-    projection.isPresent = present
-    if (prePresent !== present) {
-      if (present) {
-        projection?.promote()
-      }
+    if (projection) {
+      this.state.willUpdate('beforeUnmount')
+      projection.isPresent = false
+      // projection.scheduleCheckAfterUnmount()
+      projection.relegate()
     }
   }
 
   unmount() {
     const projection = this.state.visualElement.projection
     if (projection) {
-      projection.root.didUpdate()
       const layoutGroup = this.state.options.layoutGroup
       if (layoutGroup?.group)
         layoutGroup.group.remove(projection)

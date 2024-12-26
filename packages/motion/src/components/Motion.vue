@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   dragElastic: 0.2,
   dragMomentum: true,
   whileDrag: undefined,
-  crossfade: undefined,
+  crossfade: true,
 } as any) as MotionProps<T>
 const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
 const parentState = injectMotion(null)
@@ -85,8 +85,10 @@ onMounted(() => {
 onBeforeUnmount(() => state.beforeUnmount())
 
 onUnmounted(() => {
-  if (safeUnmount(getMotionElement(instance.$el)))
+  const el = getMotionElement(instance.$el)
+  if (!el.isConnected) {
     state.unmount()
+  }
 })
 
 onBeforeUpdate(() => {
@@ -94,7 +96,6 @@ onBeforeUpdate(() => {
 })
 
 onUpdated(() => {
-  // console.log('onUpdated', state.element)
   state.update({
     ...attrs,
     ...props,

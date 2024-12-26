@@ -48,14 +48,18 @@ function exit(el: Element, done: VoidFunction) {
   }
   removeDoneCallback(el)
   addPopStyle(state)
-  function doneCallback(e?: any) {
-    removePopStyle(state)
+  function doneCallback(e?: any, safeUnmount = false) {
     if (e?.detail?.isExit) {
+      state.visualElement.projection?.root.didUpdate()
+      if (state.visualElement.projection?.hasProjected && !safeUnmount) {
+        return
+      }
+      removePopStyle(state)
       removeDoneCallback(el)
-      state.willUpdate('done')
+      // state.willUpdate('done')
       done()
       if (!el.isConnected) {
-        state.unmount()
+        state.unmount(true)
       }
     }
   }
