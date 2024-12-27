@@ -8,6 +8,7 @@ onUpdated(() => {
 <template>
   <div @click="count++">
     this is child {{ count }}
+    props:<slot />
   </div>
 </template>
 

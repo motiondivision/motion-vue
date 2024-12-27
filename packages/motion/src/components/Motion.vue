@@ -43,7 +43,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   whileDrag: undefined,
   crossfade: true,
 } as any) as MotionProps<T>
-const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
+const { initial: presenceInitial, presenceKey } = injectAnimatePresence({ })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
@@ -74,8 +74,8 @@ onMounted(() => {
     transition: props.transition ?? config.value.transition,
     layoutGroup,
     motionConfig: config.value,
-    initial: presenceInitial.value === false
-      ? presenceInitial.value
+    initial: presenceInitial?.value === false
+      ? presenceInitial?.value
       : (
           props.initial === true ? undefined : props.initial
         ),
@@ -101,8 +101,8 @@ onUpdated(() => {
     ...props,
     transition: props.transition ?? config.value.transition,
     motionConfig: config.value,
-    initial: presenceInitial.value === false
-      ? presenceInitial.value
+    initial: presenceInitial?.value === false
+      ? presenceInitial?.value
       : (
           props.initial === true ? undefined : props.initial
         ),
@@ -157,6 +157,7 @@ function getProps() {
     :as="as"
     :as-child="asChild"
     v-bind="getProps()"
+    :animate-presence-key="presenceKey"
   >
     <slot />
   </Primitive>

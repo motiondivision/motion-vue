@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, toRefs } from 'vue'
+import { Transition, TransitionGroup, ref, toRefs } from 'vue'
 import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
@@ -22,12 +22,14 @@ const props = withDefaults(defineProps<AnimatePresenceProps>(), {
 // 解构并保持响应性
 const { initial } = toRefs(props)
 
+const presenceKey = ref(0)
 // 提供动画上下文
 provideAnimatePresence({
   initial,
   safeUnmount(el) {
     return !doneCallbacks.has(el)
   },
+  presenceKey,
 })
 // 处理元素进入动画
 function enter(el: Element) {
@@ -48,15 +50,16 @@ function exit(el: Element, done: VoidFunction) {
   }
   removeDoneCallback(el)
   addPopStyle(state)
-  function doneCallback(e?: any, safeUnmount = false) {
+  // state.willUpdate('done')
+  function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
-      state.visualElement.projection?.root.didUpdate()
-      if (state.visualElement.projection?.hasProjected && !safeUnmount) {
+      const projection = state.visualElement.projection
+      if ((projection?.animationProgress > 0 && projection.currentAnimation)) {
         return
       }
       removePopStyle(state)
       removeDoneCallback(el)
-      // state.willUpdate('done')
+      // presenceKey.value = Math.random()
       done()
       if (!el.isConnected) {
         state.unmount(true)

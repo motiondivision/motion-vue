@@ -338,8 +338,6 @@ export class MotionState {
   }
 
   willUpdate(label: string) {
-    if (!this.visualElement.projection?.isLayoutDirty) {
-      this.visualElement.projection?.willUpdate()
-    }
+    this.visualElement.projection?.willUpdate()
   }
 }

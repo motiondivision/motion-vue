@@ -14,8 +14,9 @@ export function removeDoneCallback(element: Element) {
 }
 
 export interface PresenceContext {
-  initial: Ref<boolean>
-  safeUnmount: (el: Element) => boolean
+  initial?: Ref<boolean>
+  safeUnmount?: (el: Element) => boolean
+  presenceKey?: Ref<number>
 }
 
 export const [injectAnimatePresence, provideAnimatePresence] = createContext<PresenceContext>('AnimatePresenceContext')
