@@ -1,19 +1,26 @@
-<script setup>
-import { Motion, useMotionValue, useSpring } from 'motion-v'
-import Child from './child.vue'
-import { useSlotChangeIndex } from './use-test'
+<script setup lang="ts">
+import { AnimatePresence, Motion } from 'motion-v'
+import { ref } from 'vue'
 
-const count = ref(0)
-const slotChangeIndex = useSlotChangeIndex()
-const isShow = ref(false)
+const show = ref(true)
 </script>
 
 <template>
-  <AnimatePresence :initial="false">
-    <Motion
-      :animate="{ opacity: 1 }"
-      :exit="{ opacity: 0 }"
-      class="w-[100px] h-[100px] bg-red-500"
-    />
-  </AnimatePresence>
+  <div class="flex flex-col items-center gap-4 w-full">
+    <Button @click="show = !show">
+      {{ show ? 'hide' : 'show' }}
+    </Button>
+    <div class="w-1/3">
+      <AnimatePresence>
+        <Motion
+          v-show="show"
+          class="bg-blue-500  aspect-square rounded-2xl"
+          :initial="{ scale: 0 }"
+          :animate="{ rotate: 180, scale: 1, opacity: 1 }"
+          :exit="{ rotate: 0, scale: 0, opacity: 0 }"
+          :transition="{ duration: 5 }"
+        />
+      </AnimatePresence>
+    </div>
+  </div>
 </template>

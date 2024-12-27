@@ -9,12 +9,12 @@ const emit = defineEmits(['select'])
 <template>
   <Motion
     v-if="card"
-    :data-id="card.id ? '1' : '2'"
     :layout-id="`card-${card.id}`"
     class="card"
     :while-tap="{ scale: 0.98 }"
     :initial="{ opacity: 1 }"
     :style="{ borderRadius: '20px' }"
+    :press="{ scale: 0.98 }"
     @click="emit('select')"
   >
     <Motion

@@ -177,12 +177,19 @@ export class MotionState {
   }
 
   update(options: Options) {
+    const prevAnimate = JSON.stringify(this.options.animate)
     this.options = options
+    let hasAnimateChange = false
+    if (prevAnimate !== JSON.stringify(options.animate)) {
+      hasAnimateChange = true
+    }
     this.updateOptions()
     // 更新特征
     this.featureManager.update()
-    // 更新动画
-    scheduleAnimation(this as any)
+
+    if (hasAnimateChange) {
+      scheduleAnimation(this as any)
+    }
   }
 
   setActive(name: StateType, isActive: boolean) {
@@ -201,7 +208,6 @@ export class MotionState {
     const activeState: ActiveVariant = {}
     const animationOptions: { [key: string]: DynamicAnimationOptions } = {}
     let transition: AnimateOptions
-
     for (const name of STATE_TYPES) {
       if (name === 'initial') {
         if (!this.isFirstAnimate) {
@@ -245,7 +251,6 @@ export class MotionState {
       ...Object.keys(this.target),
       ...Object.keys(prevTarget),
     ])
-
     const animationFactories: AnimationFactory[] = []
     allTargetKeys.forEach((key: any) => {
       if (this.target[key] === undefined) {

@@ -7,7 +7,6 @@ const isExpanded = ref(false)
 
 <template>
   <div class="flex flex-col space-y-4 items-center justify-center p-8 h-screen">
-    <!-- Basic Layout Animation -->
     <button @click="isExpanded = !isExpanded">
       {{ isExpanded ? 'Shrink' : 'Expand' }}
     </button>

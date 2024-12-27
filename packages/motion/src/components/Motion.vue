@@ -86,7 +86,7 @@ onBeforeUnmount(() => state.beforeUnmount())
 
 onUnmounted(() => {
   const el = getMotionElement(instance.$el)
-  if (!el.isConnected) {
+  if (!el?.isConnected) {
     state.unmount()
   }
 })
@@ -144,6 +144,7 @@ function getProps() {
     ...styleProps,
     ...props.style,
   })
+  delete styleProps.opacity
   attrsProps.style = styleProps
   return attrsProps
 }

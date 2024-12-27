@@ -4,6 +4,7 @@ import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
+import { frame } from 'framer-motion/dom'
 // 定义组件Props接口
 
 // 定义组件选项
@@ -59,9 +60,8 @@ function exit(el: Element, done: VoidFunction) {
       }
       removePopStyle(state)
       removeDoneCallback(el)
-      // presenceKey.value = Math.random()
       done()
-      if (!el.isConnected) {
+      if (!el?.isConnected) {
         state.unmount(true)
       }
     }
