@@ -3,14 +3,12 @@
 A animation library designed for Vue 3, Powered by [Motion](https://www.framer.com/motion/).
 
 ## Features
-
 - ✨ Declarative animation API for intuitive control
 - 👋 Gesture-driven animations for interactive experiences
 - ⚙ Motion values for dynamic animations
 - 🔲 layout animations and transitions
 - 🚪 Polished enter/exit animations
 - 📜 Smooth scroll-based animations and effects
-- Layout animations and transitions
 
 ## 🏎️ Quick start
 Install `motion-v`:

@@ -13,14 +13,14 @@ function handleClick() {
 
 <template>
   <Motion
-    class="bg-secondary p-4  cursor-pointer hover:bg-primary/20 transition-colors"
+    class="bg-secondary p-4  cursor-pointer  transition-colors"
     :layout="true"
     :initial="{ borderRadius: '8px' }"
     @click="handleClick"
   >
     <Motion
       as="header"
-      class="text-lg font-semibold"
+      class="text-lg  text-primary font-semibold"
       :layout="true"
       :data-a="isOpen"
     >
@@ -29,7 +29,7 @@ function handleClick() {
     <Motion
       v-if="isOpen"
       :layout="true"
-      class="mt-4 text-primary-foreground"
+      class="mt-4 text-secondary-foreground"
       :initial="{ opacity: 0 }"
       :animate="{ opacity: 1 }"
       :transition="{ delay: 0.2 }"
