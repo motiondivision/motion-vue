@@ -3,12 +3,13 @@ import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
 import { injectAnimatePresence } from './presence'
 import { isMotionValue } from '@/utils'
-import { getMotionElement } from './utils'
+import { checkMotionIsHidden, getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
+import { useMotionConfig } from './motion-config/context'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, useAttrs } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -40,18 +41,43 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   dragElastic: 0.2,
   dragMomentum: true,
   whileDrag: undefined,
+  crossfade: true,
 } as any) as MotionProps<T>
-const { initial: presenceInitial, safeUnmount } = injectAnimatePresence({ initial: ref(undefined), safeUnmount: () => true })
+const animatePresenceContext = injectAnimatePresence({ })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
+const config = useMotionConfig()
 
-const state = new MotionState(
-  {
+/**
+ * Get the layout ID for the motion component
+ * If both layoutGroup.id and props.layoutId exist, combine them with a hyphen
+ * Otherwise return props.layoutId or undefined
+ */
+function getLayoutId() {
+  if (layoutGroup.id && props.layoutId)
+    return `${layoutGroup.id}-${props.layoutId}`
+  return props.layoutId || undefined
+}
+
+function getMotionProps() {
+  return {
     ...attrs,
     ...props,
+    layoutId: getLayoutId(),
+    transition: props.transition ?? config.value.transition,
     layoutGroup,
-  },
+    motionConfig: config.value,
+    initial: animatePresenceContext.initial === false
+      ? animatePresenceContext.initial
+      : (
+          props.initial === true ? undefined : props.initial
+        ),
+  }
+}
+
+const state = new MotionState(
+  getMotionProps(),
   parentState!,
 )
 
@@ -64,25 +90,16 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  state.mount(getMotionElement(instance.$el), {
-    ...attrs,
-    ...props,
-    layoutGroup,
-    initial: presenceInitial.value === false
-      ? presenceInitial.value
-      : (
-          props.initial === true ? undefined : props.initial
-        ),
-  })
+  state.mount(getMotionElement(instance.$el), getMotionProps(), checkMotionIsHidden(instance))
 })
 
-onBeforeUnmount(() => {
-  state.beforeUnmount()
-})
+onBeforeUnmount(() => state.beforeUnmount())
 
 onUnmounted(() => {
-  if (safeUnmount(getMotionElement(instance.$el)))
+  const el = getMotionElement(instance.$el)
+  if (!el?.isConnected) {
     state.unmount()
+  }
 })
 
 onBeforeUpdate(() => {
@@ -90,15 +107,7 @@ onBeforeUpdate(() => {
 })
 
 onUpdated(() => {
-  state.update({
-    ...attrs,
-    ...props,
-    initial: presenceInitial.value === false
-      ? presenceInitial.value
-      : (
-          props.initial === true ? undefined : props.initial
-        ),
-  })
+  state.update(getMotionProps())
 })
 
 function getProps() {
@@ -119,7 +128,7 @@ function getProps() {
   }
 
   if (!state.isMounted()) {
-    Object.assign(styleProps, state.target)
+    Object.assign(styleProps, state.baseTarget)
   }
   if (props.drag && props.dragListener !== false) {
     Object.assign(styleProps, {
@@ -136,6 +145,7 @@ function getProps() {
     ...styleProps,
     ...props.style,
   })
+
   attrsProps.style = styleProps
   return attrsProps
 }
@@ -144,10 +154,10 @@ function getProps() {
 <template>
   <!-- @vue-ignore -->
   <Primitive
+    v-bind="getProps()"
     :as="as"
     :as-child="asChild"
-    v-bind="getProps()"
-    :data-layout-group-key="layoutGroup?.key?.value"
+    :data-motion-id="state.id"
   >
     <slot />
   </Primitive>

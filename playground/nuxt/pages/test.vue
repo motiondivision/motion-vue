@@ -1,32 +1,27 @@
-<script setup>
-import { Motion, useMotionValue, useSpring } from 'motion-v'
+<script setup lang="ts">
+import { AnimatePresence, Motion } from 'motion-v'
+import { ref } from 'vue'
 
-const scale = useSpring(useMotionValue(1))
+const show = ref(true)
 </script>
 
 <template>
-  <div>
-    <Motion
-      class="box"
-      :style="{ scale }"
-    >
-      Motion component
-    </Motion>
-    <button @click="scale.set(Math.random(0.5, 1))">
-      Animate
+  <div class="flex flex-col items-center gap-4 w-full">
+    <button @click="show = !show">
+      {{ show ? 'hide' : 'show' }}
     </button>
+    <div class="w-1/3">
+      <AnimatePresence>
+        <Motion
+          v-show="show"
+          class="bg-blue-500  aspect-square rounded-2xl"
+          :initial="{ scale: 0 }"
+          :animate="{ rotate: 180, scale: 1, opacity: 1 }"
+          :exit="{ rotate: 0, scale: 0, opacity: 0 }"
+          :transition="{ duration: 5 }"
+          @motioncomplete="console.log('complete')"
+        />
+      </AnimatePresence>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.box {
-  width: 100px;
-  height: 100px;
-  background: red;
-  margin: 1rem auto;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

@@ -11,11 +11,10 @@ export class LayoutFeature extends Feature {
   }
 
   beforeUpdate() {
-    this.state.visualElement.projection?.willUpdate()
+    this.state.willUpdate('beforeUpdate')
   }
 
   update(): void {
-    this.state.visualElement.projection?.setOptions(this.state.options as any)
     this.state.visualElement.projection?.root.didUpdate()
   }
 
@@ -31,25 +30,32 @@ export class LayoutFeature extends Feature {
       if (projection) {
         layoutGroup?.group?.add(projection)
       }
-
       globalProjectionState.hasEverUpdated = true
-
       projection?.root.didUpdate()
     }
   }
 
   beforeUnmount(): void {
-    if (this.state.visualElement.projection) {
-      this.state.visualElement.projection.willUpdate()
+    const projection = this.state.visualElement.projection
+    if (projection) {
+      this.state.willUpdate('beforeUnmount')
+      if (this.state.options.layoutId) {
+        projection.isPresent = false
+        projection.relegate()
+      }
+      else if (this.state.options.layout) {
+        this.state.isSafeToRemove = true
+      }
     }
   }
 
   unmount() {
-    if (this.state.visualElement.projection) {
-      this.state.visualElement.projection.unmount()
-      const layoutGroup = this.state.options.layoutGroup
-      if (layoutGroup?.group)
-        layoutGroup.group.remove(this.state.visualElement.projection)
+    const layoutGroup = this.state.options.layoutGroup
+    const projection = this.state.visualElement.projection
+    if (layoutGroup?.group && projection)
+      layoutGroup.group.remove(projection)
+    if (this.state.options.layoutId || this.state.options.layout) {
+      this.state.visualElement.projection?.root?.didUpdate()
     }
   }
 }

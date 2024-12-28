@@ -1,4 +1,4 @@
-import type { DOMKeyframesDefinition, DynamicAnimationOptions, Target, TargetAndTransition } from 'framer-motion'
+import type { DOMKeyframesDefinition, DynamicAnimationOptions, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
 import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
@@ -9,6 +9,7 @@ import type { HoverProps } from '@/features/gestures/hover/types'
 import type { InViewProps } from '@/features/gestures/in-view/types'
 import type { LayoutGroupState } from '@/components/context'
 import type { PanProps } from '@/features/gestures/pan/types'
+import type { MotionConfigState } from '@/components/motion-config/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface Orchestration {
@@ -66,8 +67,14 @@ export interface Options<T = any> extends
     transform: TransformProperties,
     generatedTransform: string
   ) => string
-  transition?: AnimateOptions
+  transition?: AnimateOptions & {
+    layout?: DynamicAnimationOptions
+  }
   layoutGroup?: LayoutGroupState
+  motionConfig?: MotionConfigState
+  onAnimationComplete?: (definition: AnimateOptions) => void
+  onUpdate?: (latest: ResolvedValues) => void
+
 }
 
 export interface MotionStateContext {

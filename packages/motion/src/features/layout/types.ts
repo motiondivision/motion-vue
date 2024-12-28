@@ -5,4 +5,5 @@ export interface LayoutOptions {
   'layoutScroll'?: boolean
   'layoutRoot'?: boolean
   'data-framer-portal-id'?: string
+  'crossfade'?: boolean
 }

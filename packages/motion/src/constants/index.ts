@@ -3,6 +3,7 @@ const components = {
     'Motion',
     'AnimatePresence',
     'LayoutGroup',
+    'MotionConfig',
   ],
 }
 
@@ -22,6 +23,7 @@ export const utilities = {
     'useInView',
     'useAnimationFrame',
     'useMotionValueEvent',
+    'useLayoutGroup',
   ],
 }
 

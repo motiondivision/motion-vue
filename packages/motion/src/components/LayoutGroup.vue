@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { type LayoutGroupProps, useLayoutGroup } from './use-layout-group'
+import { onBeforeUpdate } from 'vue'
+import { type LayoutGroupProps, useLayoutGroupProvider } from './use-layout-group'
 
 const props = defineProps<LayoutGroupProps>()
-useLayoutGroup(props)
+const { forceRender, key, group } = useLayoutGroupProvider(props)
+
+onBeforeUpdate(() => {
+  group.dirty()
+})
 </script>
 
 <template>
-  <slot />
+  <slot
+    :render-key="key"
+    :force-render="forceRender"
+  />
 </template>

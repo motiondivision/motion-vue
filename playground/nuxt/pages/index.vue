@@ -12,6 +12,11 @@ const routes = [
   { path: '/hover', name: 'Hover Animation' },
   { path: '/in-view', name: 'In View Animation' },
   { path: '/drag', name: 'Drag Animation' },
+  { path: '/motion-config', name: 'Motion Config' },
+  { path: '/app-card', name: 'App Card' },
+  { path: '/share-layout', name: 'Share Layout' },
+  { path: '/animate-present-initial', name: 'Animate Present Initial' },
+  { path: '/animate-variants', name: 'Animate Variants' },
 ]
 const isShow = ref(true)
 </script>

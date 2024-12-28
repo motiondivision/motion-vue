@@ -12,8 +12,9 @@ export type ActiveVariant = {
     transition: AnimateOptions
   }
 }
-export function animateVariantsChildren(state: MotionState, activeState: ActiveVariant) {
+export function animateVariantsChildren(state: MotionState, activeState: ActiveVariant, isFirstAnimate = false) {
   const variantChildren = state.visualElement.variantChildren
+
   if (!variantChildren?.size) {
     return {
       animations: [],
@@ -22,16 +23,16 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
   }
 
   const animationFactories: AnimationFactory[] = []
-
   Array.from(variantChildren).forEach((child: VisualElement & { state: MotionState }, index) => {
-    const prevTarget = child.state.target
+    const prevTarget = isFirstAnimate ? child.state.baseTarget : child.state.target
     const childState = child.state
     childState.target = {}
     for (const name in activeState) {
-      childState.activeStates[name] = true
+      if (name === 'initial' && !isFirstAnimate) {
+        continue
+      }
       const { definition, transition } = activeState[name]
       const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition || {}
-
       const maxStaggerDuration
     = (variantChildren.size - 1) * staggerChildren
 

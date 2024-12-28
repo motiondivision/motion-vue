@@ -9,6 +9,7 @@ export interface NodeGroup {
   add: (node: IProjectionNode) => void
   remove: (node: IProjectionNode) => void
   dirty: VoidFunction
+  didUpdate: VoidFunction
 }
 export interface LayoutGroupState {
   id?: string
@@ -18,12 +19,3 @@ export interface LayoutGroupState {
 }
 
 export const [injectLayoutGroup, provideLayoutGroup] = createContext<LayoutGroupState>('LayoutGroup')
-
-export type InheritOption = boolean | 'id'
-
-export function shouldInheritGroup(inherit: InheritOption) {
-  return inherit === true
-}
-export function shouldInheritId(inherit: InheritOption) {
-  return shouldInheritGroup(inherit === true) || inherit === 'id'
-}

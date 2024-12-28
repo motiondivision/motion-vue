@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Motion } from 'motion-v'
+import { Motion, useLayoutGroup } from 'motion-v'
 
 const props = defineProps<{
   content: string
@@ -7,8 +7,10 @@ const props = defineProps<{
   dragConstraints?: any
 }>()
 const isOpen = ref(false)
+const { forceRender } = useLayoutGroup()
 function handleClick() {
   isOpen.value = !isOpen.value
+  // forceRender?.()
 }
 </script>
 
@@ -17,15 +19,17 @@ function handleClick() {
     class="bg-gray-100 p-4  cursor-pointer hover:bg-gray-200 transition-colors"
     :layout="true"
     :initial="{ borderRadius: '8px' }"
+    :data-is-open="isOpen"
     @click="handleClick"
   >
     <Motion
       as="header"
       class="text-lg font-semibold"
       :layout="true"
-      :data-a="isOpen"
     >
-      {{ isOpen ? 'close' : 'open' }}
+      <span>
+        {{ isOpen ? 'close' : 'open' }}
+      </span>
     </Motion>
     <Motion
       v-if="isOpen"
