@@ -48,10 +48,23 @@ const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
 const config = useMotionConfig()
+
+/**
+ * Get the layout ID for the motion component
+ * If both layoutGroup.id and props.layoutId exist, combine them with a hyphen
+ * Otherwise return props.layoutId or undefined
+ */
+function getLayoutId() {
+  if (layoutGroup.id && props.layoutId)
+    return `${layoutGroup.id}-${props.layoutId}`
+  return props.layoutId || undefined
+}
+
 function getMotionProps() {
   return {
     ...attrs,
     ...props,
+    layoutId: getLayoutId(),
     transition: props.transition ?? config.value.transition,
     layoutGroup,
     motionConfig: config.value,
@@ -94,7 +107,7 @@ onBeforeUpdate(() => {
 })
 
 onUpdated(() => {
-  state.update(getMotionProps(), checkMotionIsHidden(instance))
+  state.update(getMotionProps())
 })
 
 function getProps() {
