@@ -43,18 +43,29 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   whileDrag: undefined,
   crossfade: true,
 } as any) as MotionProps<T>
-const { initial: presenceInitial } = injectAnimatePresence({ })
+const animatePresenceContext = injectAnimatePresence({ })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
 const config = useMotionConfig()
-const state = new MotionState(
-  {
+
+function getMotionProps() {
+  return {
     ...attrs,
     ...props,
+    transition: props.transition ?? config.value.transition,
     layoutGroup,
     motionConfig: config.value,
-  },
+    initial: animatePresenceContext.initial === false
+      ? animatePresenceContext.initial
+      : (
+          props.initial === true ? undefined : props.initial
+        ),
+  }
+}
+
+const state = new MotionState(
+  getMotionProps(),
   parentState!,
 )
 
@@ -67,18 +78,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  state.mount(getMotionElement(instance.$el), {
-    ...attrs,
-    ...props,
-    transition: props.transition ?? config.value.transition,
-    layoutGroup,
-    motionConfig: config.value,
-    initial: presenceInitial?.value === false
-      ? presenceInitial?.value
-      : (
-          props.initial === true ? undefined : props.initial
-        ),
-  })
+  state.mount(getMotionElement(instance.$el), getMotionProps())
 })
 
 onBeforeUnmount(() => state.beforeUnmount())
@@ -95,17 +95,7 @@ onBeforeUpdate(() => {
 })
 
 onUpdated(() => {
-  state.update({
-    ...attrs,
-    ...props,
-    transition: props.transition ?? config.value.transition,
-    motionConfig: config.value,
-    initial: presenceInitial?.value === false
-      ? presenceInitial?.value
-      : (
-          props.initial === true ? undefined : props.initial
-        ),
-  })
+  state.update(getMotionProps())
 })
 
 function getProps() {

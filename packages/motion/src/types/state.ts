@@ -67,7 +67,9 @@ export interface Options<T = any> extends
     transform: TransformProperties,
     generatedTransform: string
   ) => string
-  transition?: AnimateOptions
+  transition?: AnimateOptions & {
+    layout?: DynamicAnimationOptions
+  }
   layoutGroup?: LayoutGroupState
   motionConfig?: MotionConfigState
 }

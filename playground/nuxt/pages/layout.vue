@@ -15,6 +15,13 @@ const isExpanded = ref(false)
       :initial="{ borderRadius: '12px' }"
       class="bg-purple-500  h-20"
       :style="{ width: isExpanded ? '300px' : '100px' }"
+      :transition="{
+        layout: {
+          type: 'spring',
+          stiffness: 100,
+          damping: 10,
+        },
+      }"
     />
   </div>
 </template>

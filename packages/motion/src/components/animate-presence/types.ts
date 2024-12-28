@@ -8,4 +8,6 @@ export interface AnimatePresenceProps {
   // 是否支持多个元素同时动画
   multiple?: boolean
   as?: string
+  custom?: any
+  onExitComplete?: VoidFunction
 }
