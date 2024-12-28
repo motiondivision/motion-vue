@@ -7,9 +7,9 @@ const show = ref(true)
 
 <template>
   <div class="flex flex-col items-center gap-4 w-full">
-    <Button @click="show = !show">
+    <button @click="show = !show">
       {{ show ? 'hide' : 'show' }}
-    </Button>
+    </button>
     <div class="w-1/3">
       <AnimatePresence>
         <Motion
@@ -19,6 +19,7 @@ const show = ref(true)
           :animate="{ rotate: 180, scale: 1, opacity: 1 }"
           :exit="{ rotate: 0, scale: 0, opacity: 0 }"
           :transition="{ duration: 5 }"
+          @motioncomplete="console.log('complete')"
         />
       </AnimatePresence>
     </div>

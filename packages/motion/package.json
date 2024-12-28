@@ -54,7 +54,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "rm -rf dist && vite build",
-    "test": "vitest",
+    "test": "vitest --dom",
     "coverage": "vitest run --coverage",
     "pub:release": "pnpm publish --access public"
   },
@@ -70,6 +70,7 @@
     "@vitest/coverage-v8": "^1.4.0",
     "@vue/test-utils": "^2.4.5",
     "framer-motion": "^11.15.0",
+    "happy-dom": "^16.0.1",
     "jsdom": "^24.0.0",
     "vite": "^5.4.8",
     "vite-plugin-dts": "^4.2.4",

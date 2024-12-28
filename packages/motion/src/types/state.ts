@@ -1,4 +1,4 @@
-import type { DOMKeyframesDefinition, DynamicAnimationOptions, Target, TargetAndTransition } from 'framer-motion'
+import type { DOMKeyframesDefinition, DynamicAnimationOptions, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
 import type { MotionValue, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { TransformProperties } from '@/types/transform'
@@ -72,6 +72,9 @@ export interface Options<T = any> extends
   }
   layoutGroup?: LayoutGroupState
   motionConfig?: MotionConfigState
+  onAnimationComplete?: (definition: AnimateOptions) => void
+  onUpdate?: (latest: ResolvedValues) => void
+
 }
 
 export interface MotionStateContext {
