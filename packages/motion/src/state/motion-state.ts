@@ -16,15 +16,16 @@ import { doneCallbacks } from '@/components/presence'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
-export const mountedStates = new WeakMap<Element, MotionState>()
+export const mountedStates = new Map<Element | string, MotionState>()
 let id = 0
 export class MotionState {
   public readonly id: string
   public element: HTMLElement | null = null
   private parent?: MotionState
   public options: Options
-  public isPresent = false
+  public isSafeToRemove = false
   private isFirstAnimate = true
+
   private children?: Set<MotionState> = new Set()
   public activeStates: Partial<Record<StateType, boolean>> = {
     initial: true,
@@ -42,11 +43,11 @@ export class MotionState {
 
   constructor(options: Options, parent?: MotionState) {
     this.id = `motion-state-${id++}`
+    mountedStates.set(this.id, this)
     this.options = options
     this.parent = parent
     parent?.children?.add(this)
     this.depth = parent?.depth + 1 || 0
-
     /**
      * create visualElement
      */
@@ -72,11 +73,8 @@ export class MotionState {
       reducedMotionConfig: options.motionConfig.reduceMotion,
     })
     const initialVariantSource = options.initial === false ? 'animate' : 'initial'
-    this.featureManager = new FeatureManager(this)
-    /**
-     * 初始化baseTarget、target
-     */
     this.initTarget(initialVariantSource)
+    this.featureManager = new FeatureManager(this)
   }
 
   private _context: MotionStateContext | null = null
@@ -160,6 +158,7 @@ export class MotionState {
 
   unmount(unMountChildren = false) {
     mountedStates.delete(this.element)
+    mountedStates.delete(this.id)
     unscheduleAnimation(this as any)
     this.featureManager.unmount()
     this.visualElement?.unmount()
@@ -202,7 +201,7 @@ export class MotionState {
     scheduleAnimation(this)
   }
 
-  * animateUpdates() {
+  animateUpdates() {
     const prevTarget = this.target
     this.target = {}
     const activeState: ActiveVariant = {}
@@ -284,7 +283,7 @@ export class MotionState {
     }
 
     // Wait for all animation states to read from the DOM
-    yield
+    // yield
 
     let animations: AnimationPlaybackControls[]
     const getAnimation = () => {

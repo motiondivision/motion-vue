@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, ref, toRefs } from 'vue'
+import { Transition, TransitionGroup, toRefs } from 'vue'
 import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-import { frame } from 'framer-motion/dom'
+import { createStyles } from '@/state/style'
 // 定义组件Props接口
 
 // 定义组件选项
@@ -23,18 +23,22 @@ const props = withDefaults(defineProps<AnimatePresenceProps>(), {
 // 解构并保持响应性
 const { initial } = toRefs(props)
 
-const presenceKey = ref(0)
 // 提供动画上下文
 provideAnimatePresence({
   initial,
   safeUnmount(el) {
     return !doneCallbacks.has(el)
   },
-  presenceKey,
 })
 // 处理元素进入动画
-function enter(el: Element) {
+function enter(el: HTMLElement) {
   const state = mountedStates.get(el)
+  const motionStateId = el.dataset.motionId
+  const motionState = mountedStates.get(motionStateId)
+  if (motionState) {
+    const baseStyle = createStyles(motionState.baseTarget)
+    Object.assign(el.style, baseStyle)
+  }
   if (!state) {
     return
   }
@@ -51,13 +55,15 @@ function exit(el: Element, done: VoidFunction) {
   }
   removeDoneCallback(el)
   addPopStyle(state)
-  // state.willUpdate('done')
   function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
       const projection = state.visualElement.projection
-      if ((projection?.animationProgress > 0 && projection.currentAnimation)) {
+      // @ts-ignore
+      if ((projection?.animationProgress > 0 && !state.isSafeToRemove)) {
         return
       }
+      state.willUpdate('done')
+
       removePopStyle(state)
       removeDoneCallback(el)
       done()

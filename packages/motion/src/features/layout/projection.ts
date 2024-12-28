@@ -35,6 +35,7 @@ export class ProjectionFeature extends Feature {
       onExitComplete: () => {
         if (!this.state.visualElement.projection?.isPresent) {
           const done = doneCallbacks.get(this.state.element)
+          this.state.isSafeToRemove = true
           if (done) {
             done({
               detail: {

@@ -9,7 +9,7 @@ import { useMotionConfig } from './motion-config/context'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, useAttrs } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -43,11 +43,10 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   whileDrag: undefined,
   crossfade: true,
 } as any) as MotionProps<T>
-const { initial: presenceInitial, presenceKey } = injectAnimatePresence({ })
+const { initial: presenceInitial } = injectAnimatePresence({ })
 const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
-
 const config = useMotionConfig()
 const state = new MotionState(
   {
@@ -148,17 +147,15 @@ function getProps() {
   attrsProps.style = styleProps
   return attrsProps
 }
-
-// const slotsIndex = useSlotChangeIndex()
 </script>
 
 <template>
   <!-- @vue-ignore -->
   <Primitive
+    v-bind="getProps()"
     :as="as"
     :as-child="asChild"
-    v-bind="getProps()"
-    :animate-presence-key="presenceKey"
+    :data-motion-id="state.id"
   >
     <slot />
   </Primitive>

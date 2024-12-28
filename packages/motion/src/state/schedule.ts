@@ -1,5 +1,5 @@
 import type { MotionState } from '@/state/motion-state'
-import { addUniqueItem, removeItem } from './utils'
+import { removeItem } from './utils'
 
 let scheduled: MotionState[] | undefined
 const fireNext = (iterator: Iterator<void>) => iterator.next()
@@ -18,13 +18,16 @@ function processScheduledAnimations() {
 }
 
 export function scheduleAnimation(state: MotionState) {
-  if (!scheduled) {
-    scheduled = [state]
-    requestAnimationFrame(processScheduledAnimations)
-  }
-  else {
-    addUniqueItem(scheduled, state)
-  }
+  // frame.postRender(() => {
+  state.animateUpdates()
+  // })
+  // if (!scheduled) {
+  //   scheduled = [state]
+  //   requestAnimationFrame(processScheduledAnimations)
+  // }
+  // else {
+  //   addUniqueItem(scheduled, state)
+  // }
 }
 
 export function unscheduleAnimation(state: MotionState) {

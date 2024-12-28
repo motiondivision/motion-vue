@@ -8,6 +8,7 @@ export interface NodeGroup {
   add: (node: IProjectionNode) => void
   remove: (node: IProjectionNode) => void
   dirty: VoidFunction
+  didUpdate: VoidFunction
 }
 
 export function nodeGroup(): NodeGroup {
@@ -34,5 +35,8 @@ export function nodeGroup(): NodeGroup {
       dirtyAll()
     },
     dirty: dirtyAll,
+    didUpdate: () => {
+      nodes[0]?.didUpdate()
+    },
   }
 }

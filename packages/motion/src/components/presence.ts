@@ -1,9 +1,7 @@
 import { createContext } from '@/utils'
-import { type Ref, ref } from 'vue'
+import type { Ref } from 'vue'
 
 export const doneCallbacks = new WeakMap<Element, (v?: any, safeUnmount?: boolean) => void>()
-
-export const unPresenceDom = ref(new WeakMap<Element, boolean>())
 
 export function removeDoneCallback(element: Element) {
   const prevDoneCallback = doneCallbacks.get(element)
@@ -16,7 +14,6 @@ export function removeDoneCallback(element: Element) {
 export interface PresenceContext {
   initial?: Ref<boolean>
   safeUnmount?: (el: Element) => boolean
-  presenceKey?: Ref<number>
 }
 
 export const [injectAnimatePresence, provideAnimatePresence] = createContext<PresenceContext>('AnimatePresenceContext')
