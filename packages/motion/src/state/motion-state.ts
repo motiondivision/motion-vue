@@ -119,7 +119,7 @@ export class MotionState {
     this.featureManager.beforeMount()
   }
 
-  mount(element: HTMLElement, options: Options) {
+  mount(element: HTMLElement, options: Options, notAnimate = false) {
     invariant(
       Boolean(element),
       'Animation state must be mounted with valid Element',
@@ -149,7 +149,9 @@ export class MotionState {
 
     // 挂载特征
     this.featureManager.mount()
-    scheduleAnimation(this as any)
+    if (!notAnimate) {
+      scheduleAnimation(this as any)
+    }
   }
 
   beforeUnmount() {
@@ -175,7 +177,7 @@ export class MotionState {
     this.featureManager.beforeUpdate()
   }
 
-  update(options: Options) {
+  update(options: Options, notAnimate = false) {
     const prevAnimate = JSON.stringify(this.options.animate)
     this.options = options
     let hasAnimateChange = false
@@ -186,7 +188,7 @@ export class MotionState {
     // 更新特征
     this.featureManager.update()
 
-    if (hasAnimateChange) {
+    if (hasAnimateChange && !notAnimate) {
       scheduleAnimation(this as any)
     }
   }

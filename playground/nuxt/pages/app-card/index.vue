@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { AnimatePresence, LayoutGroup, MotionConfig } from 'motion-v'
+import { AnimatePresence, LayoutGroup } from 'motion-v'
 import { CARDS, type Card } from './card'
 import CardItem from './CardItem.vue'
 import ActiveCard from './ActiveCard.vue'
@@ -20,39 +20,37 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 
 <template>
   <div class="h-screen w-screen">
-    <MotionConfig>
-      <LayoutGroup>
-        <div class="cards-wrapper">
-          <CardItem
-            v-for="(card, i) in CARDS"
-            :key="card.id"
-            :card="card"
-            :data-id="cardId"
-            @select="() => {
-              cardId = CARDS[i].id
-            }"
+    <!-- <MotionConfig> -->
+    <LayoutGroup>
+      <div class="cards-wrapper">
+        <CardItem
+          v-for="(card, i) in CARDS"
+          :key="card.id"
+          :card="card"
+          :data-id="cardId"
+          @select="() => {
+            cardId = CARDS[i].id
+          }"
+        />
+        <AnimatePresence>
+          <Motion
+            v-if="activeCard"
+            :initial="{ opacity: 0 }"
+            :animate="{ opacity: 1 }"
+            :exit="{ opacity: 0 }"
+            class=" overlay pointer-events-none"
           />
-          <AnimatePresence>
-            <Motion
-              v-show="activeCard"
-              :initial="{ opacity: 0 }"
-              :animate="{ opacity: 1 }"
-              :exit="{ opacity: 0 }"
-              :transition="{ duration: 5 }"
-              class=" overlay pointer-events-none"
-            />
-          </AnimatePresence>
+        </AnimatePresence>
 
-          <AnimatePresence>
-            <ActiveCard
-              v-if="activeCard"
-              :card="activeCard || {}"
-              @close="cardId = null"
-            />
-          </AnimatePresence>
-        </div>
-      </LayoutGroup>
-    </MotionConfig>
+        <AnimatePresence>
+          <ActiveCard
+            v-if="activeCard"
+            :card="activeCard || {}"
+            @close="cardId = null"
+          />
+        </AnimatePresence>
+      </div>
+    </LayoutGroup>
   </div>
 </template>
 

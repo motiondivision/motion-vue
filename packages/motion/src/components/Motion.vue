@@ -3,7 +3,7 @@ import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
 import { injectAnimatePresence } from './presence'
 import { isMotionValue } from '@/utils'
-import { getMotionElement } from './utils'
+import { checkMotionIsHidden, getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import { useMotionConfig } from './motion-config/context'
 </script>
@@ -48,7 +48,6 @@ const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
 const config = useMotionConfig()
-
 function getMotionProps() {
   return {
     ...attrs,
@@ -78,7 +77,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  state.mount(getMotionElement(instance.$el), getMotionProps())
+  state.mount(getMotionElement(instance.$el), getMotionProps(), checkMotionIsHidden(instance))
 })
 
 onBeforeUnmount(() => state.beforeUnmount())
@@ -95,7 +94,7 @@ onBeforeUpdate(() => {
 })
 
 onUpdated(() => {
-  state.update(getMotionProps())
+  state.update(getMotionProps(), checkMotionIsHidden(instance))
 })
 
 function getProps() {
