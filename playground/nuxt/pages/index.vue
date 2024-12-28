@@ -16,6 +16,7 @@ const routes = [
   { path: '/app-card', name: 'App Card' },
   { path: '/share-layout', name: 'Share Layout' },
   { path: '/animate-present-initial', name: 'Animate Present Initial' },
+  { path: '/animate-variants', name: 'Animate Variants' },
 ]
 const isShow = ref(true)
 </script>

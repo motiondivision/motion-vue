@@ -70,7 +70,6 @@ function exit(el: Element, done: VoidFunction) {
         return
       }
       state.willUpdate('done')
-
       removePopStyle(state)
       removeDoneCallback(el)
       exitDom.delete(el)

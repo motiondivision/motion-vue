@@ -24,11 +24,11 @@ export class MotionState {
   private parent?: MotionState
   public options: Options
   public isSafeToRemove = false
-  private isFirstAnimate = true
+  public isFirstAnimate = true
 
   private children?: Set<MotionState> = new Set()
   public activeStates: Partial<Record<StateType, boolean>> = {
-    initial: true,
+    // initial: true,
     animate: true,
   }
 
@@ -96,7 +96,7 @@ export class MotionState {
 
   private initTarget(initialVariantSource: string) {
     this.baseTarget = resolveVariant(this.options[initialVariantSource] || this.context[initialVariantSource], this.options.variants) || {}
-    this.target = { ...this.baseTarget }
+    this.target = { }
   }
 
   get initial() {
@@ -150,7 +150,7 @@ export class MotionState {
     // 挂载特征
     this.featureManager.mount()
     if (!notAnimate) {
-      scheduleAnimation(this as any)
+      this.animateUpdates(true)
     }
   }
 
@@ -193,17 +193,19 @@ export class MotionState {
     }
   }
 
-  setActive(name: StateType, isActive: boolean) {
+  setActive(name: StateType, isActive: boolean, isAnimate = true) {
     if (!this.element || this.activeStates[name] === isActive)
       return
     this.activeStates[name] = isActive
     this.visualElement.variantChildren?.forEach((child) => {
-      ((child as any).state as MotionState).setActive(name, isActive)
+      ((child as any).state as MotionState).setActive(name, isActive, false)
     })
-    scheduleAnimation(this)
+    if (isAnimate) {
+      scheduleAnimation(this)
+    }
   }
 
-  animateUpdates() {
+  animateUpdates(isInitial = false) {
     const prevTarget = this.target
     this.target = {}
     const activeState: ActiveVariant = {}
@@ -211,13 +213,13 @@ export class MotionState {
     let transition: AnimateOptions
     for (const name of STATE_TYPES) {
       if (name === 'initial') {
-        if (!this.isFirstAnimate) {
+        if (!isInitial) {
           continue
         }
-        this.isFirstAnimate = false
       }
-      if (!this.activeStates[name])
+      if (!this.activeStates[name] && name !== 'initial') {
         continue
+      }
       const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
 
       const variant = resolveVariant(
@@ -279,7 +281,7 @@ export class MotionState {
 
     // animate variants children
     if (Object.keys(activeState).length) {
-      const { getAnimations, animations } = animateVariantsChildren(this, activeState)
+      const { getAnimations, animations } = animateVariantsChildren(this, activeState, isInitial)
       getChildAnimations = getAnimations
       childAnimations = animations
     }

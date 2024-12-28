@@ -46,13 +46,14 @@ export class LayoutFeature extends Feature {
       else if (this.state.options.layout) {
         this.state.isSafeToRemove = true
       }
-      const layoutGroup = this.state.options.layoutGroup
-      if (layoutGroup?.group)
-        layoutGroup.group.remove(projection)
     }
   }
 
   unmount() {
+    const layoutGroup = this.state.options.layoutGroup
+    const projection = this.state.visualElement.projection
+    if (layoutGroup?.group && projection)
+      layoutGroup.group.remove(projection)
     if (this.state.options.layoutId || this.state.options.layout) {
       this.state.visualElement.projection?.root?.didUpdate()
     }

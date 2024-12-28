@@ -115,7 +115,7 @@ function getProps() {
   }
 
   if (!state.isMounted()) {
-    Object.assign(styleProps, state.target)
+    Object.assign(styleProps, state.baseTarget)
   }
   if (props.drag && props.dragListener !== false) {
     Object.assign(styleProps, {
@@ -132,7 +132,7 @@ function getProps() {
     ...styleProps,
     ...props.style,
   })
-  delete styleProps.opacity
+
   attrsProps.style = styleProps
   return attrsProps
 }

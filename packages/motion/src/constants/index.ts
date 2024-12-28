@@ -3,6 +3,7 @@ const components = {
     'Motion',
     'AnimatePresence',
     'LayoutGroup',
+    'MotionConfig',
   ],
 }
 
