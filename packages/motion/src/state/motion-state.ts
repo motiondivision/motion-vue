@@ -3,7 +3,7 @@ import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { isDef } from '@vueuse/core'
 import type { AnimationPlaybackControls, DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
-import { animate, noop } from 'framer-motion/dom'
+import { animate, frame, noop } from 'framer-motion/dom'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
@@ -163,7 +163,9 @@ export class MotionState {
     mountedStates.delete(this.id)
     unscheduleAnimation(this as any)
     this.featureManager.unmount()
-    this.visualElement?.unmount()
+    frame.render(() => {
+      this.visualElement?.unmount()
+    })
     if (unMountChildren) {
       const unmountChild = (child: MotionState) => {
         child.unmount(true)
