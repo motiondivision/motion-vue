@@ -42,13 +42,14 @@ export function usePopLayout(props: AnimatePresenceProps) {
 
   function removePopStyle(state: MotionState) {
     const style = styles.get(state)
-    if (style) {
-      styles.delete(state)
+    styles.delete(state)
+    requestIdleCallback(() => {
       document.head.removeChild(style)
-    }
+    })
   }
   return {
     addPopStyle,
     removePopStyle,
+    styles,
   }
 }
