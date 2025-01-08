@@ -24,8 +24,7 @@ export class MotionState {
   private parent?: MotionState
   public options: Options
   public isSafeToRemove = false
-  public isFirstAnimate = true
-
+  public isVShow = false
   private children?: Set<MotionState> = new Set()
   public activeStates: Partial<Record<StateType, boolean>> = {
     // initial: true,

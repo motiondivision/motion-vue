@@ -35,6 +35,7 @@ function enter(el: HTMLElement) {
   if (!state) {
     return
   }
+  state.isVShow = true
   removeDoneCallback(el)
   state.setActive('exit', false)
 }
@@ -59,7 +60,7 @@ function exit(el: Element, done: VoidFunction) {
     if (e?.detail?.isExit) {
       const projection = state.visualElement.projection
       // @ts-ignore
-      if ((projection?.animationProgress > 0 && !state.isSafeToRemove)) {
+      if ((projection?.animationProgress > 0 && !state.isSafeToRemove && !state.isVShow)) {
         return
       }
       removeDoneCallback(el)
