@@ -42,6 +42,8 @@ export function usePopLayout(props: AnimatePresenceProps) {
 
   function removePopStyle(state: MotionState) {
     const style = styles.get(state)
+    if (!style)
+      return
     styles.delete(state)
     requestIdleCallback(() => {
       document.head.removeChild(style)
