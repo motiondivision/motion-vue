@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 import { LayoutGroup, Motion, MotionConfig } from 'motion-v'
-import Child from './child.vue'
-import CHild2 from './child2.vue'
 
 const show = ref(false)
 useEventListener('keydown', (event: KeyboardEvent) => {
@@ -21,6 +19,8 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             v-if="!show"
             layout-id="test"
             class="w-[100px] h-[100px] bg-white rounded-md"
+            :transition="{ duration: 3 }"
+            :crossfade="false"
             @click="() => {
               show = !show
               forceRender()
@@ -31,7 +31,9 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             <Motion
               v-if="show"
               layout-id="test"
+              :transition="{ duration: 3 }"
               class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
+              :crossfade="false"
               @click="show = !show"
             />
           </AnimatePresence>

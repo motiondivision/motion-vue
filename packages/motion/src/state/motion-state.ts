@@ -3,12 +3,12 @@ import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { isDef } from '@vueuse/core'
 import type { AnimationPlaybackControls, DOMKeyframesDefinition, DynamicAnimationOptions, VisualElement } from 'framer-motion'
-import { animate, noop } from 'framer-motion/dom'
+import { animate, frame, noop } from 'framer-motion/dom'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
-import { scheduleAnimation, unscheduleAnimation } from '@/state/schedule'
+import { scheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
@@ -16,7 +16,7 @@ import { doneCallbacks } from '@/components/presence'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
-export const mountedStates = new Map<Element | string, MotionState>()
+export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0
 export class MotionState {
   public readonly id: string
@@ -24,8 +24,7 @@ export class MotionState {
   private parent?: MotionState
   public options: Options
   public isSafeToRemove = false
-  public isFirstAnimate = true
-
+  public isVShow = false
   private children?: Set<MotionState> = new Set()
   public activeStates: Partial<Record<StateType, boolean>> = {
     // initial: true,
@@ -43,7 +42,6 @@ export class MotionState {
 
   constructor(options: Options, parent?: MotionState) {
     this.id = `motion-state-${id++}`
-    mountedStates.set(this.id, this)
     this.options = options
     this.parent = parent
     parent?.children?.add(this)
@@ -160,17 +158,23 @@ export class MotionState {
 
   unmount(unMountChildren = false) {
     mountedStates.delete(this.element)
-    mountedStates.delete(this.id)
-    unscheduleAnimation(this as any)
     this.featureManager.unmount()
-    this.visualElement?.unmount()
+    if (unMountChildren) {
+      frame.render(() => {
+        this.visualElement?.unmount()
+      })
+    }
+    else {
+      this.visualElement?.unmount()
+    }
     if (unMountChildren) {
       const unmountChild = (child: MotionState) => {
         child.unmount(true)
         child.children?.forEach(unmountChild)
       }
-      this.children?.forEach(unmountChild)
+      Array.from(this.children).forEach(unmountChild)
     }
+    this.parent?.children?.delete(this)
   }
 
   beforeUpdate() {
