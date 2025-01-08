@@ -21,6 +21,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             v-if="!show"
             layout-id="test"
             class="w-[100px] h-[100px] bg-white rounded-md"
+            :transition="{ duration: 3 }"
             @click="() => {
               show = !show
               forceRender()
@@ -31,6 +32,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             <Motion
               v-if="show"
               layout-id="test"
+              :transition="{ duration: 3 }"
               class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
               @click="show = !show"
             />

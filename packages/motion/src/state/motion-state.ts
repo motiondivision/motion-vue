@@ -16,7 +16,7 @@ import { doneCallbacks } from '@/components/presence'
 
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
-export const mountedStates = new Map<Element | string, MotionState>()
+export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0
 export class MotionState {
   public readonly id: string
@@ -43,7 +43,6 @@ export class MotionState {
 
   constructor(options: Options, parent?: MotionState) {
     this.id = `motion-state-${id++}`
-    mountedStates.set(this.id, this)
     this.options = options
     this.parent = parent
     parent?.children?.add(this)
@@ -160,19 +159,23 @@ export class MotionState {
 
   unmount(unMountChildren = false) {
     mountedStates.delete(this.element)
-    mountedStates.delete(this.id)
-    unscheduleAnimation(this as any)
     this.featureManager.unmount()
-    frame.render(() => {
+    if (unMountChildren) {
+      frame.render(() => {
+        this.visualElement?.unmount()
+      })
+    }
+    else {
       this.visualElement?.unmount()
-    })
+    }
     if (unMountChildren) {
       const unmountChild = (child: MotionState) => {
         child.unmount(true)
         child.children?.forEach(unmountChild)
       }
-      this.children?.forEach(unmountChild)
+      Array.from(this.children).forEach(unmountChild)
     }
+    this.parent?.children?.delete(this)
   }
 
   beforeUpdate() {

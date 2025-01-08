@@ -157,7 +157,6 @@ function getProps() {
     v-bind="getProps()"
     :as="as"
     :as-child="asChild"
-    :data-motion-id="state.id"
   >
     <slot />
   </Primitive>

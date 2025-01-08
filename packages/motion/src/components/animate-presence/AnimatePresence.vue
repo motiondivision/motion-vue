@@ -33,12 +33,6 @@ onMounted(() => {
 // 处理元素进入动画
 function enter(el: HTMLElement) {
   const state = mountedStates.get(el)
-  const motionStateId = el.dataset.motionId
-  const motionState = mountedStates.get(motionStateId)
-  if (motionState) {
-    const baseStyle = createStyles(motionState.baseTarget)
-    Object.assign(el.style, baseStyle)
-  }
   if (!state) {
     return
   }
@@ -69,13 +63,13 @@ function exit(el: Element, done: VoidFunction) {
       if ((projection?.animationProgress > 0 && !state.isSafeToRemove)) {
         return
       }
-      state.willUpdate('done')
       removePopStyle(state)
       removeDoneCallback(el)
       exitDom.delete(el)
       if (exitDom.size === 0) {
         props.onExitComplete?.()
       }
+      state.willUpdate('done')
       done()
       if (!el?.isConnected) {
         state.unmount(true)
