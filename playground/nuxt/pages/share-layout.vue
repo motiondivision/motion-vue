@@ -22,6 +22,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             layout-id="test"
             class="w-[100px] h-[100px] bg-white rounded-md"
             :transition="{ duration: 3 }"
+            :crossfade="false"
             @click="() => {
               show = !show
               forceRender()
@@ -34,6 +35,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
               layout-id="test"
               :transition="{ duration: 3 }"
               class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
+              :crossfade="false"
               @click="show = !show"
             />
           </AnimatePresence>
