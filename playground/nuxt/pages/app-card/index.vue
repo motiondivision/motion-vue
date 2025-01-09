@@ -37,7 +37,6 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             v-show="activeCard"
             :initial="{ opacity: 0 }"
             :animate="{ opacity: 1 }"
-            layout
             :exit="{ opacity: 0 }"
             class=" overlay pointer-events-none"
           />
