@@ -8,7 +8,6 @@ import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
-import { scheduleAnimation } from '@/state/schedule'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
@@ -193,7 +192,7 @@ export class MotionState {
     this.featureManager.update()
 
     if (hasAnimateChange && !notAnimate) {
-      scheduleAnimation(this as any)
+      this.animateUpdates()
     }
   }
 
@@ -205,7 +204,7 @@ export class MotionState {
       ((child as any).state as MotionState).setActive(name, isActive, false)
     })
     if (isAnimate) {
-      scheduleAnimation(this)
+      this.animateUpdates()
     }
   }
 
