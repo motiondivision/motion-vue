@@ -9,7 +9,7 @@ import { useMotionConfig } from './motion-config/context'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, useAttrs } from 'vue'
+import { type ComponentInstance, type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from './context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
@@ -149,15 +149,25 @@ function getProps() {
   attrsProps.style = styleProps
   return attrsProps
 }
+
+const PrimitiveRef = ref<ComponentInstance<any>>()
+
+function onMotionComplete() {
+  if (props.asChild) {
+    instance.$forceUpdate()
+  }
+}
 </script>
 
 <template>
   <!-- @vue-ignore -->
   <Primitive
+    ref="PrimitiveRef"
     v-bind="getProps()"
     :as="as"
     :as-child="asChild"
     :data-motion-group="layoutGroup.key?.value || undefined"
+    @motioncomplete="onMotionComplete"
   >
     <slot />
   </Primitive>
