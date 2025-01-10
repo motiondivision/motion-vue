@@ -3,7 +3,7 @@ import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import type { AnimateOptions, AnimationFactory } from '@/types'
-import type { DynamicAnimationOptions, VisualElement } from 'framer-motion'
+import type { AnimationOptions, VisualElement } from 'framer-motion'
 import { animate } from 'framer-motion/dom'
 
 export type ActiveVariant = {
@@ -46,7 +46,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
         child.props.variants,
         child.props.custom,
       )
-      const animationOptions: { [key: string]: DynamicAnimationOptions } = {}
+      const animationOptions: { [key: string]: AnimationOptions } = {}
 
       const allTarget = { ...prevTarget, ...variant }
       for (const key in allTarget) {

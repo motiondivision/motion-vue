@@ -143,21 +143,21 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0(typescript@5.7.2)
       framer-motion:
-        specifier: 11.15.0
-        version: 11.15.0
+        specifier: 11.16.6
+        version: 11.16.6
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
       motion-dom:
-        specifier: ^11.14.3
-        version: 11.14.3
+        specifier: ^11.16.4
+        version: 11.16.4
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.1.4
-        version: 5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))
+        version: 5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))
       '@vitejs/plugin-vue-jsx':
         specifier: ^4.0.1
-        version: 4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))
+        version: 4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))
       '@vitest/coverage-v8':
         specifier: ^1.4.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.16.12)(happy-dom@16.0.1)(jsdom@24.1.3)(terser@5.34.1))
@@ -179,6 +179,9 @@ importers:
       vitest:
         specifier: ^1.4.0
         version: 1.6.0(@types/node@20.16.12)(happy-dom@16.0.1)(jsdom@24.1.3)(terser@5.34.1)
+      vue:
+        specifier: 3.4.38
+        version: 3.4.38(typescript@5.7.2)
 
   packages/plugins:
     dependencies:
@@ -211,7 +214,7 @@ importers:
         specifier: ^3.13.0
         version: 3.13.2(@parcel/watcher@2.4.1)(@types/node@20.16.12)(encoding@0.1.13)(eslint@9.9.1(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.28.1)(terser@5.34.1)(typescript@5.7.2)(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(webpack-sources@3.2.3)
       vue:
-        specifier: latest
+        specifier: 3.5.13
         version: 3.5.13(typescript@5.7.2)
       vue-router:
         specifier: latest
@@ -4086,8 +4089,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@11.15.0:
-    resolution: {integrity: sha512-MLk8IvZntxOMg7lDBLw2qgTHHv664bYoYmnFTmE0Gm/FW67aOJk0WM3ctMcG+Xhcv+vh5uyyXwxvxhSeJzSe+w==}
+  framer-motion@11.16.6:
+    resolution: {integrity: sha512-iaCa44d9ngnIyj7K3PdTl6Q2lrG8l2Ioh+Em8l1335VqksB6i1VAOo+fdcF5qTcwzSoMgr15tSLgdYFbWQ31sQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -5281,11 +5284,11 @@ packages:
   mlly@1.7.3:
     resolution: {integrity: sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==}
 
-  motion-dom@11.14.3:
-    resolution: {integrity: sha512-lW+D2wBy5vxLJi6aCP0xyxTxlTfiu+b+zcpVbGVFUxotwThqhdpPRSmX8xztAgtZMPMeU0WGVn/k1w4I+TbPqA==}
+  motion-dom@11.16.4:
+    resolution: {integrity: sha512-2wuCie206pCiP2K23uvwJeci4pMFfyQKpWI0Vy6HrCTDzDCer4TsYtT7IVnuGbDeoIV37UuZiUr6SZMHEc1Vww==}
 
-  motion-utils@11.14.3:
-    resolution: {integrity: sha512-Xg+8xnqIJTpr0L/cidfTTBFkvRw26ZtGGuIhA94J9PQ2p4mEa06Xx7QVYZH0BP+EpMSaDlu+q0I0mmvwADPsaQ==}
+  motion-utils@11.16.0:
+    resolution: {integrity: sha512-ngdWPjg31rD4WGXFi0eZ00DQQqKKu04QExyv/ymlC+3k+WIgYVFbt6gS5JsFPbJODTF/r8XiE/X+SsoT9c0ocw==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -10176,13 +10179,13 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vitejs/plugin-vue-jsx@4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))':
+  '@vitejs/plugin-vue-jsx@4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))':
     dependencies:
       '@babel/core': 7.25.8
       '@babel/plugin-transform-typescript': 7.25.7(@babel/core@7.25.8)
       '@vue/babel-plugin-jsx': 1.2.5(@babel/core@7.25.8)
       vite: 5.4.11(@types/node@20.16.12)(terser@5.34.1)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.4.38(typescript@5.7.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -10196,10 +10199,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))':
+  '@vitejs/plugin-vue@5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))':
     dependencies:
       vite: 5.4.11(@types/node@20.16.12)(terser@5.34.1)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.4.38(typescript@5.7.2)
 
   '@vitejs/plugin-vue@5.2.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))':
     dependencies:
@@ -10529,6 +10532,12 @@ snapshots:
       '@vue/compiler-ssr': 3.4.38
       '@vue/shared': 3.4.38
       vue: 3.4.38(typescript@5.5.4)
+
+  '@vue/server-renderer@3.4.38(vue@3.4.38(typescript@5.7.2))':
+    dependencies:
+      '@vue/compiler-ssr': 3.4.38
+      '@vue/shared': 3.4.38
+      vue: 3.4.38(typescript@5.7.2)
 
   '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.2))':
     dependencies:
@@ -12198,10 +12207,10 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@11.15.0:
+  framer-motion@11.16.6:
     dependencies:
-      motion-dom: 11.14.3
-      motion-utils: 11.14.3
+      motion-dom: 11.16.4
+      motion-utils: 11.16.0
       tslib: 2.7.0
 
   fresh@0.5.2: {}
@@ -13683,9 +13692,11 @@ snapshots:
       pkg-types: 1.2.1
       ufo: 1.5.4
 
-  motion-dom@11.14.3: {}
+  motion-dom@11.16.4:
+    dependencies:
+      motion-utils: 11.16.0
 
-  motion-utils@11.14.3: {}
+  motion-utils@11.16.0: {}
 
   mri@1.2.0: {}
 
@@ -16551,6 +16562,16 @@ snapshots:
       '@vue/shared': 3.4.38
     optionalDependencies:
       typescript: 5.5.4
+
+  vue@3.4.38(typescript@5.7.2):
+    dependencies:
+      '@vue/compiler-dom': 3.4.38
+      '@vue/compiler-sfc': 3.4.38
+      '@vue/runtime-dom': 3.4.38
+      '@vue/server-renderer': 3.4.38(vue@3.4.38(typescript@5.7.2))
+      '@vue/shared': 3.4.38
+    optionalDependencies:
+      typescript: 5.7.2
 
   vue@3.5.13(typescript@5.7.2):
     dependencies:

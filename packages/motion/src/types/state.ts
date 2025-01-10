@@ -1,7 +1,6 @@
-import type { DOMKeyframesDefinition, DynamicAnimationOptions, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
-import type { MotionValue, animate } from 'framer-motion/dom'
+import type { AnimationOptions, DOMKeyframesDefinition, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
+import type { MotionValue, TransformProperties, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
-import type { TransformProperties } from '@/types/transform'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
 import type { PressProps } from '@/features/gestures/press/types'
@@ -22,7 +21,7 @@ export interface Orchestration {
 
   staggerDirection?: number
 }
-export interface AnimateOptions extends Omit<Orchestration, 'delay'>, DynamicAnimationOptions {
+export interface AnimateOptions extends Omit<Orchestration, 'delay'>, AnimationOptions {
 
 }
 export type TargetResolver = (
@@ -68,7 +67,7 @@ export interface Options<T = any> extends
     generatedTransform: string
   ) => string
   transition?: AnimateOptions & {
-    layout?: DynamicAnimationOptions
+    layout?: AnimationOptions
   }
   layoutGroup?: LayoutGroupState
   motionConfig?: MotionConfigState

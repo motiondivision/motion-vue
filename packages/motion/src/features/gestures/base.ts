@@ -1,6 +1,4 @@
-import { dispatchPointerEvent } from '@/utils/events'
 import { Feature } from '@/features/feature'
-import type { MotionEventNames } from '@/types'
 
 export abstract class BaseGesture extends Feature {
   abstract isActive(): boolean
@@ -20,16 +18,5 @@ export abstract class BaseGesture extends Feature {
 
   unmount() {
     this.removeGestureSubscriptions?.()
-  }
-}
-
-export function createGestureEvent(
-  element: HTMLElement,
-  name: MotionEventNames,
-  action: VoidFunction,
-) {
-  return (event: PointerEvent) => {
-    action()
-    dispatchPointerEvent(element, name, event)
   }
 }

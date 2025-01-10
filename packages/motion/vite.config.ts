@@ -46,7 +46,6 @@ export default defineConfig({
       external: [
         // ...Object.keys(pkg.dependencies || {}),
         'vue',
-        'motion-dom',
         'hey-listen',
       ],
       output: [
