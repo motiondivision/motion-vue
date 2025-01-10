@@ -154,10 +154,10 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.1.4
-        version: 5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))
+        version: 5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))
       '@vitejs/plugin-vue-jsx':
         specifier: ^4.0.1
-        version: 4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))
+        version: 4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))
       '@vitest/coverage-v8':
         specifier: ^1.4.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.16.12)(happy-dom@16.0.1)(jsdom@24.1.3)(terser@5.34.1))
@@ -179,6 +179,9 @@ importers:
       vitest:
         specifier: ^1.4.0
         version: 1.6.0(@types/node@20.16.12)(happy-dom@16.0.1)(jsdom@24.1.3)(terser@5.34.1)
+      vue:
+        specifier: 3.4.38
+        version: 3.4.38(typescript@5.7.2)
 
   packages/plugins:
     dependencies:
@@ -211,7 +214,7 @@ importers:
         specifier: ^3.13.0
         version: 3.13.2(@parcel/watcher@2.4.1)(@types/node@20.16.12)(encoding@0.1.13)(eslint@9.9.1(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.28.1)(terser@5.34.1)(typescript@5.7.2)(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(webpack-sources@3.2.3)
       vue:
-        specifier: latest
+        specifier: 3.5.13
         version: 3.5.13(typescript@5.7.2)
       vue-router:
         specifier: latest
@@ -10176,13 +10179,13 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vitejs/plugin-vue-jsx@4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))':
+  '@vitejs/plugin-vue-jsx@4.0.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))':
     dependencies:
       '@babel/core': 7.25.8
       '@babel/plugin-transform-typescript': 7.25.7(@babel/core@7.25.8)
       '@vue/babel-plugin-jsx': 1.2.5(@babel/core@7.25.8)
       vite: 5.4.11(@types/node@20.16.12)(terser@5.34.1)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.4.38(typescript@5.7.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -10196,10 +10199,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))':
+  '@vitejs/plugin-vue@5.1.4(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.4.38(typescript@5.7.2))':
     dependencies:
       vite: 5.4.11(@types/node@20.16.12)(terser@5.34.1)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.4.38(typescript@5.7.2)
 
   '@vitejs/plugin-vue@5.2.1(vite@5.4.11(@types/node@20.16.12)(terser@5.34.1))(vue@3.5.13(typescript@5.7.2))':
     dependencies:
@@ -10529,6 +10532,12 @@ snapshots:
       '@vue/compiler-ssr': 3.4.38
       '@vue/shared': 3.4.38
       vue: 3.4.38(typescript@5.5.4)
+
+  '@vue/server-renderer@3.4.38(vue@3.4.38(typescript@5.7.2))':
+    dependencies:
+      '@vue/compiler-ssr': 3.4.38
+      '@vue/shared': 3.4.38
+      vue: 3.4.38(typescript@5.7.2)
 
   '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.2))':
     dependencies:
@@ -16553,6 +16562,16 @@ snapshots:
       '@vue/shared': 3.4.38
     optionalDependencies:
       typescript: 5.5.4
+
+  vue@3.4.38(typescript@5.7.2):
+    dependencies:
+      '@vue/compiler-dom': 3.4.38
+      '@vue/compiler-sfc': 3.4.38
+      '@vue/runtime-dom': 3.4.38
+      '@vue/server-renderer': 3.4.38(vue@3.4.38(typescript@5.7.2))
+      '@vue/shared': 3.4.38
+    optionalDependencies:
+      typescript: 5.7.2
 
   vue@3.5.13(typescript@5.7.2):
     dependencies:
