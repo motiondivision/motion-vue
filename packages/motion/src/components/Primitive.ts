@@ -29,18 +29,28 @@ export const Primitive = defineComponent({
       type: [String, Object] as PropType<AsTag>,
       default: 'div',
     },
+    getProps: {
+      type: Function,
+      default: () => ({}),
+    },
   },
   setup(props, { attrs, slots }) {
     const asTag = props.asChild ? 'template' : props.as
     // For self closing tags, don't provide default slots because of hydration issue
     const SELF_CLOSING_TAGS = ['area', 'img', 'input']
-    if (typeof asTag === 'string' && SELF_CLOSING_TAGS.includes(asTag))
-      return () => h(asTag, attrs)
 
-    if (asTag !== 'template') {
-      return () => h(props.as, attrs, { default: slots.default })
+    return () => {
+      const motionProps = props.getProps()
+      const allAttrs = { ...attrs, ...motionProps }
+
+      if (typeof asTag === 'string' && SELF_CLOSING_TAGS.includes(asTag))
+        return h(asTag, allAttrs)
+
+      if (asTag !== 'template') {
+        return h(props.as, allAttrs, { default: slots.default })
+      }
+
+      return h(Slot, allAttrs, { default: slots.default })
     }
-
-    return () => h(Slot, attrs, { default: slots.default })
   },
 })

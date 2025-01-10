@@ -17,6 +17,7 @@ const routes = [
   { path: '/share-layout', name: 'Share Layout' },
   { path: '/animate-present-initial', name: 'Animate Present Initial' },
   { path: '/animate-variants', name: 'Animate Variants' },
+  { path: '/change-style', name: 'Change Style' },
 ]
 const isShow = ref(true)
 </script>

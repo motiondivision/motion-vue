@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Motion from '../Motion.vue'
 import { motionValue } from 'framer-motion/dom'
+import { computed, h, nextTick, ref } from 'vue'
 
 function createRerender(Component: any) {
   let wrapper: any = null
@@ -145,5 +146,42 @@ describe('animate prop as object', () => {
       requestAnimationFrame(() => resolve(x.get()))
     })
     await expect(promise).resolves.toBe(300)
+  })
+
+  it('when asChild is true, Motion component rerenders when finished animating', async () => {
+    const promise = new Promise((resolve) => {
+      const position = ref({ left: 0 })
+      const style = computed(() => ({
+        left: `${position.value.left}px`,
+      }))
+
+      const wrapper = mount({
+        setup() {
+          return {
+            style,
+          }
+        },
+        template: `
+          <Motion
+            as-child
+            :initial="{ opacity: 0, scale: 0.95 }"
+            :animate="{ opacity: 1, scale: 1.1 }"
+          >
+            <div :style="style"></div>
+          </Motion>
+        `,
+        components: { Motion },
+      })
+      nextTick(async () => {
+        await new Promise(r => setTimeout(r, 300))
+        position.value = { left: 100 }
+        // Move div
+        const div = wrapper.find('div')
+        await nextTick()
+        resolve(div.element.style.opacity)
+      })
+    })
+
+    await expect(promise).resolves.toBe('1')
   })
 })
