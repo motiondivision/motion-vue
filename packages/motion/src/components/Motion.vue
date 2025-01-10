@@ -154,7 +154,7 @@ const PrimitiveRef = ref<ComponentInstance<any>>()
 
 function onMotionComplete() {
   if (props.asChild) {
-    instance.$forceUpdate()
+    PrimitiveRef.value?.$forceUpdate()
   }
 }
 </script>
@@ -163,7 +163,7 @@ function onMotionComplete() {
   <!-- @vue-ignore -->
   <Primitive
     ref="PrimitiveRef"
-    v-bind="getProps()"
+    :get-props="getProps"
     :as="as"
     :as-child="asChild"
     :data-motion-group="layoutGroup.key?.value || undefined"
