@@ -1,8 +1,8 @@
 import type { MotionState } from '@/state/motion-state'
 import { Feature } from '@/features'
+import { frame } from 'framer-motion/dom'
 import { press } from 'motion-dom'
 import type { EventInfo } from 'framer-motion'
-import { frame } from 'framer-motion/dom'
 
 export function extractEventInfo(event: PointerEvent): EventInfo {
   return {

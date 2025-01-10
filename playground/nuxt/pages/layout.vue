@@ -15,6 +15,7 @@ const isExpanded = ref(false)
       :initial="{ borderRadius: '12px' }"
       class="bg-purple-500  h-20"
       :style="{ width: isExpanded ? '300px' : '100px' }"
+      tabindex="-1"
       :transition="{
         layout: {
           type: 'spring',

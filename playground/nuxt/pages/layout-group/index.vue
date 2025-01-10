@@ -23,11 +23,11 @@ const domRef = ref<HTMLDivElement>()
       </h3>
       <div class="space-y-4">
         <ToggleContent
+
           v-for="item in items"
           :key="item.id"
           :layout="true"
           :content="item.content"
-          :drag-constraints="domRef"
         />
       </div>
     </div>
