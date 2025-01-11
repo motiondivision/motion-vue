@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, onMounted, onUnmounted } from 'vue'
+import { Transition, TransitionGroup, computed, onMounted, onUnmounted } from 'vue'
 import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
@@ -83,15 +83,25 @@ function exit(el: Element, done: VoidFunction) {
   el.addEventListener('motioncomplete', doneCallback)
   state.setActive('exit', true)
 }
+
+const transitionProps = computed(() => {
+  if (props.multiple) {
+    return {
+      tag: props.as,
+    }
+  }
+  return {
+    mode: props.mode === 'wait' ? 'out-in' : undefined,
+  }
+})
 </script>
 
 <template>
-  <!-- 根据multiple属性动态选择Transition或TransitionGroup组件 -->
+  <!-- @vue-ignore -->
   <component
     :is="multiple ? TransitionGroup : Transition"
-    :tag="multiple ? as : undefined"
     :css="false"
-    :mode="mode === 'wait' ? 'out-in' : undefined"
+    v-bind="transitionProps"
     @enter="enter"
     @leave="exit"
   >
