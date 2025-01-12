@@ -20,6 +20,6 @@
     // Set to empty to avoid accidental inclusion of unwanted types
     "types": []
   },
-  "include": ["./src/**/*.vue", "./src/**/*.ts"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.tsx"],
+  "exclude": ["node_modules"]
 }
