@@ -201,7 +201,7 @@ export class MotionState {
       return
     this.activeStates[name] = isActive
     this.visualElement.variantChildren?.forEach((child) => {
-      ((child as any).state as MotionState).setActive(name, isActive, false)
+      ((child as any).state as MotionState).setActive(name, isActive, !isActive)
     })
     if (isAnimate) {
       this.animateUpdates()
@@ -288,7 +288,6 @@ export class MotionState {
       getChildAnimations = getAnimations
       childAnimations = animations
     }
-
     // Wait for all animation states to read from the DOM
     // yield
 
