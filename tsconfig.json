@@ -5,5 +5,5 @@
     "baseUrl": "."
   },
   "include": ["./packages/**/*"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": ["node_modules"]
 }

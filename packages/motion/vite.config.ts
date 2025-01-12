@@ -12,7 +12,7 @@ export default defineConfig({
     dts({
       cleanVueFileName: true,
       outDir: 'dist',
-      exclude: ['src/test/**', 'src/**/story/**', 'src/**/*.story.vue'],
+      exclude: ['src/**/__tests__/**', 'src/**/story/**', 'src/**/*.story.vue'],
       afterBuild: async () => {
         // pnpm build:plugins
         execSync('pnpm build:plugins', { stdio: 'inherit', cwd: path.resolve(__dirname, '../plugins') })
