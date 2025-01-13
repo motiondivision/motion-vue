@@ -1,4 +1,4 @@
-import type { MotionProps } from '@/components/Motion.vue'
+import type { MotionProps } from '@/components/motion/Motion.vue'
 import { addDomEvent, addPointerEvent, extractEventInfo } from '@/events'
 import type { Lock } from '@/features/gestures/drag/lock'
 import { getGlobalLock } from '@/features/gestures/drag/lock'

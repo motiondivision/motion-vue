@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Motion } from 'motion-v'
+
 const items = [
   { id: 1, text: 'Fade in when in view' },
   { id: 2, text: 'Scale up when in view' },
@@ -7,12 +9,13 @@ const items = [
 </script>
 
 <template>
-  <div class="space-y-32 py-32 max-w-2xl mx-auto pt-[500px]">
+  <div class="space-y-32  max-w-2xl mx-auto pt-[1000px]">
     <Motion
       v-for="item in items"
       :key="item.id"
       :initial="{ opacity: 0, y: 50 }"
       :in-view="{ opacity: 1, y: 0 }"
+      :in-view-options="{ once: false }"
       :transition="{ duration: 0.8 }"
       class="p-8 bg-white/5 rounded-lg"
       @viewport-enter="console.log('enter')"

@@ -1,16 +1,16 @@
 <script lang="ts">
 import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
-import { injectAnimatePresence } from './presence'
+import { injectAnimatePresence } from '../presence'
 import { isMotionValue } from '@/utils'
 import { checkMotionIsHidden, getMotionElement } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
-import { useMotionConfig } from './motion-config/context'
+import { useMotionConfig } from '../motion-config/context'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
 import { type ComponentInstance, type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
-import { injectLayoutGroup, injectMotion, provideMotion } from './context'
+import { injectLayoutGroup, injectMotion, provideMotion } from '../context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
 export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
