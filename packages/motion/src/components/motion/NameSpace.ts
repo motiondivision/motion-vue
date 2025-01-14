@@ -1,10 +1,17 @@
-import type { DefineComponent, IntrinsicElementAttributes } from 'vue'
+import type { DefineComponent, ExtractPropTypes, ExtractPublicPropTypes, IntrinsicElementAttributes } from 'vue'
 import { defineComponent, h } from 'vue'
 import Motion from './Motion.vue'
 import type { MotionProps } from './Motion.vue'
 
+type ComponentProps<T> = T extends DefineComponent<
+  ExtractPropTypes<infer Props>,
+  any,
+  any
+>
+  ? ExtractPublicPropTypes<Props>
+  : never
 type MotionComponentProps = IntrinsicElementAttributes & {
-  create: <T extends DefineComponent>(T) => DefineComponent<MotionProps<any, unknown>>
+  create: <T extends DefineComponent>(T) => DefineComponent<MotionProps<any, unknown> & ComponentProps<T>>
 }
 type MotionKeys = keyof MotionComponentProps
 
