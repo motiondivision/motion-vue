@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Motion from '../Motion.vue'
+import { Motion } from '@/components'
 import { motionValue } from 'framer-motion/dom'
 import { computed, h, nextTick, ref } from 'vue'
 

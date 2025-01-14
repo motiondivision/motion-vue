@@ -1,7 +1,7 @@
 /** @jsxRuntime classic */
 /** @jsxImportSource vue */
 import { mount } from '@vue/test-utils'
-import Motion from '../Motion.vue'
+import { Motion } from '@/components'
 import { describe, expect, it } from 'vitest'
 import { delay } from '@/shared/test'
 
