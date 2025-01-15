@@ -1,4 +1,4 @@
-import type { AnimationOptions, DOMKeyframesDefinition, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
+import type { DOMKeyframesDefinition, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
 import type { MotionValue, TransformProperties, animate } from 'framer-motion/dom'
 import type { IntrinsicElementAttributes } from 'vue'
 import type { LayoutOptions } from '@/features/layout/types'
@@ -9,28 +9,17 @@ import type { InViewProps } from '@/features/gestures/in-view/types'
 import type { LayoutGroupState } from '@/components/context'
 import type { PanProps } from '@/features/gestures/pan/types'
 import type { MotionConfigState } from '@/components/motion-config/types'
+import type { $Transition } from './framer-motion'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
-export interface Orchestration {
-  delay?: number
 
-  when?: false | 'beforeChildren' | 'afterChildren' | string
-  delayChildren?: number
-
-  staggerChildren?: number
-
-  staggerDirection?: number
-}
-export interface AnimateOptions extends Omit<Orchestration, 'delay'>, AnimationOptions {
-
-}
 export type TargetResolver = (
   custom: any,
   current: Target,
   velocity: Target
 ) => TargetAndTransition | string
 export interface Variant extends DOMKeyframesDefinition {
-  transition?: AnimateOptions
+  transition?: $Transition
 }
 export type VariantLabels = string | Variant
 
@@ -66,12 +55,12 @@ export interface Options<T = any> extends
     transform: TransformProperties,
     generatedTransform: string
   ) => string
-  transition?: AnimateOptions & {
-    layout?: AnimationOptions
+  transition?: $Transition & {
+    layout?: $Transition
   }
   layoutGroup?: LayoutGroupState
   motionConfig?: MotionConfigState
-  onAnimationComplete?: (definition: AnimateOptions) => void
+  onAnimationComplete?: (definition: Options['animate']) => void
   onUpdate?: (latest: ResolvedValues) => void
 
 }

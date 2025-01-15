@@ -1,8 +1,8 @@
-import type { AnimateOptions, AnimationFactory, MotionStateContext, Options } from '@/types'
+import type { $Transition, AnimationFactory, MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { isDef } from '@vueuse/core'
-import type { AnimationOptions, AnimationPlaybackControls, DOMKeyframesDefinition, VisualElement } from 'framer-motion'
+import type { AnimationPlaybackControls, DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { animate, frame, noop } from 'framer-motion/dom'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
@@ -212,8 +212,8 @@ export class MotionState {
     const prevTarget = this.target
     this.target = {}
     const activeState: ActiveVariant = {}
-    const animationOptions: { [key: string]: AnimationOptions } = {}
-    let transition: AnimateOptions
+    const animationOptions: { [key: string]: $Transition } = {}
+    let transition: $Transition
     for (const name of STATE_TYPES) {
       if (name === 'initial') {
         if (!isInitial) {
