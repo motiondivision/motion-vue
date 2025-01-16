@@ -2,14 +2,14 @@ import type { MotionState } from '@/state/motion-state'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
-import type { AnimateOptions, AnimationFactory } from '@/types'
-import type { AnimationOptions, VisualElement } from 'framer-motion'
+import type { $Transition, AnimationFactory } from '@/types'
+import type { VisualElement } from 'framer-motion'
 import { animate } from 'framer-motion/dom'
 
 export type ActiveVariant = {
   [key: string]: {
     definition: string
-    transition: AnimateOptions
+    transition: $Transition
   }
 }
 export function animateVariantsChildren(state: MotionState, activeState: ActiveVariant, isFirstAnimate = false) {
@@ -46,7 +46,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
         child.props.variants,
         child.props.custom,
       )
-      const animationOptions: { [key: string]: AnimationOptions } = {}
+      const animationOptions: { [key: string]: $Transition } = {}
 
       const allTarget = { ...prevTarget, ...variant }
       for (const key in allTarget) {
@@ -74,7 +74,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
                 {
                   ...(animationOptions[key] || {}),
                   delay: ((animationOptions[key]?.delay || 0) as number) + delayChildren + generateStaggerDuration(index),
-                },
+                } as any,
               )
             },
           )

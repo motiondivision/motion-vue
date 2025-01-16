@@ -1,3 +1,5 @@
+import type { Inertia, Keyframes, None, Repeat, Spring, Tween } from 'framer-motion'
+
 export interface FrameData {
   delta: number
   timestamp: number
@@ -34,3 +36,24 @@ export interface ScrollInfoOptions {
   axis?: 'x' | 'y'
   offset?: ScrollOffset
 }
+
+export interface Orchestration {
+  delay?: number
+
+  when?: false | 'beforeChildren' | 'afterChildren' | string
+  delayChildren?: number
+
+  staggerChildren?: number
+
+  staggerDirection?: number
+}
+
+type PermissiveTransitionDefinition = {
+  [key: string]: any
+}
+type TransitionDefinition = Tween | Spring | Keyframes | Inertia | None | PermissiveTransitionDefinition
+type TransitionMap = Orchestration & TransitionDefinition & {
+  [key: string]: TransitionDefinition
+}
+
+export type $Transition = (Orchestration & Repeat & TransitionDefinition) | (Orchestration & Repeat & TransitionMap)

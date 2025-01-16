@@ -1,6 +1,5 @@
 export * from 'framer-motion/dom'
 export { motionValue as useMotionValue } from 'framer-motion/dom'
-export { default as Motion, type MotionProps } from './components/Motion.vue'
 export * from './components'
 export { default as LayoutGroup } from './components/LayoutGroup.vue'
 export { useLayoutGroup } from './components/use-layout-group'

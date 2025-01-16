@@ -1,5 +1,5 @@
-import type { Options } from '@/types'
-import type { AnimationOptions, Variant } from 'framer-motion'
+import type { $Transition, Options } from '@/types'
+import type { Variant } from 'framer-motion'
 import type { IntrinsicElementAttributes } from 'vue'
 
 export function resolveVariant(
@@ -48,7 +48,7 @@ export function removeItem<T>(array: T[], item: T) {
   index !== -1 && array.splice(index, 1)
 }
 
-export function getOptions(options: AnimationOptions, key: string): AnimationOptions {
+export function getOptions(options: $Transition, key: string): $Transition {
   return options[key as any] ? { ...options, ...options[key as any] } : { ...options }
 }
 

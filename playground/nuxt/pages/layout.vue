@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Motion } from 'motion-v'
+import { motion } from 'motion-v'
 import { ref } from 'vue'
 
 const isExpanded = ref(false)
@@ -10,7 +10,7 @@ const isExpanded = ref(false)
     <button @click="isExpanded = !isExpanded">
       {{ isExpanded ? 'Shrink' : 'Expand' }}
     </button>
-    <Motion
+    <motion.button
       :layout="true"
       :initial="{ borderRadius: '12px' }"
       class="bg-purple-500  h-20"
