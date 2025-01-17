@@ -10,15 +10,15 @@ function toggleSwitch() {
 </script>
 
 <template>
-  <div class="app h-full w-full py-8 rounded-lg">
+  <div class="flex items-center justify-center h-full w-full">
     <Motion
       :layout="true"
-      class="switch"
+      class="switch bg-primary"
       :data-on="isOn"
       @click="toggleSwitch"
     >
       <Motion
-        class="handle"
+        class="handle bg-primary-foreground"
         :data-on="isOn"
         :layout="true"
         :transition="{
@@ -31,24 +31,10 @@ function toggleSwitch() {
   </div>
 </template>
 
-<style>
-.app {
-  background: linear-gradient(250deg, #7b2ff7, #f107a3);
-  background-repeat: no-repeat;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.App {
-  font-family: sans-serif;
-  text-align: center;
-}
-
+<style scoped>
 .switch {
   width: 160px;
   height: 100px;
-  background-color: rgba(255, 255, 255, 0.4);
   display: flex;
   justify-content: flex-start;
   border-radius: 50px;
@@ -63,7 +49,6 @@ function toggleSwitch() {
   .handle {
     width: 80px;
     height: 80px;
-    background-color: white;
-  border-radius: 40px;
+    border-radius: 40px;
 }
 </style>
