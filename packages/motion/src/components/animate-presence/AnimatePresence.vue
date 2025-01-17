@@ -4,6 +4,7 @@ import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
+import { requestIdleCallback } from './utils'
 // 定义组件Props接口
 
 // 定义组件选项
@@ -71,8 +72,12 @@ function exit(el: Element, done: VoidFunction) {
       if (!styles.has(state)) {
         state.willUpdate('done')
       }
+      else {
+        requestIdleCallback(() => {
+          removePopStyle(state)
+        })
+      }
       done()
-      removePopStyle(state)
 
       if (!el?.isConnected) {
         state.unmount(true)
