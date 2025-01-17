@@ -25,6 +25,7 @@ export const utilities = {
     'useAnimationFrame',
     'useMotionValueEvent',
     'useLayoutGroup',
+    'useDragControls',
   ],
 }
 
