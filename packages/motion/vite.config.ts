@@ -47,6 +47,7 @@ export default defineConfig({
         // ...Object.keys(pkg.dependencies || {}),
         'vue',
         'hey-listen',
+        '@vueuse/core',
       ],
       output: [
         {

@@ -126,7 +126,6 @@ function getProps() {
     Object.assign(attrsProps, attributes)
     Object.assign(styleProps, style)
   }
-
   if (!state.isMounted()) {
     Object.assign(styleProps, state.baseTarget)
   }

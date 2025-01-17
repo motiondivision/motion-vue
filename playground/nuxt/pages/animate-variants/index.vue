@@ -45,6 +45,7 @@ const Custom = motion.create(Test)
         <Motion
           v-for="i in 4"
           :key="i"
+          :data-is-open="isOpen"
           :variants="item"
           class="aspect-square rounded-lg bg-white/20 backdrop-blur-sm"
         />
