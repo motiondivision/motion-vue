@@ -10,13 +10,19 @@ import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
-import { type ActiveVariant, animateVariantsChildren } from '@/state/animate-variants-children'
 import { doneCallbacks } from '@/components/presence'
 
+// Animation state types that can be active
 const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
+
+// Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0
+
+/**
+ * Core class that manages animation state and orchestrates animations
+ */
 export class MotionState {
   public readonly id: string
   public element: HTMLElement | null = null
@@ -25,18 +31,24 @@ export class MotionState {
   public isSafeToRemove = false
   public isVShow = false
   private children?: Set<MotionState> = new Set()
+
+  // Track which animation states are currently active
   public activeStates: Partial<Record<StateType, boolean>> = {
-    // initial: true,
+    initial: true,
     animate: true,
   }
 
+  // Depth in component tree
   public depth: number
 
+  // Base animation target values
   public baseTarget: DOMKeyframesDefinition
 
+  // Current animation target values
   public target: DOMKeyframesDefinition
   private featureManager: FeatureManager
 
+  // Visual element instance from Framer Motion
   public visualElement: VisualElement<Element>
 
   constructor(options: Options, parent?: MotionState) {
@@ -45,9 +57,8 @@ export class MotionState {
     this.parent = parent
     parent?.children?.add(this)
     this.depth = parent?.depth + 1 || 0
-    /**
-     * create visualElement
-     */
+
+    // Create visual element with initial config
     this.visualElement = createVisualElement(this.options.as!, {
       presenceContext: null,
       parent: parent?.visualElement,
@@ -69,6 +80,8 @@ export class MotionState {
       },
       reducedMotionConfig: options.motionConfig.reduceMotion,
     })
+
+    // Initialize with either initial or animate variant
     const initialVariantSource = options.initial === false ? 'animate' : 'initial'
     this.initTarget(initialVariantSource)
     this.featureManager = new FeatureManager(this)
@@ -76,6 +89,7 @@ export class MotionState {
 
   private _context: MotionStateContext | null = null
 
+  // Get animation context, falling back to parent context
   get context() {
     if (!this._context) {
       const handler = {
@@ -91,15 +105,18 @@ export class MotionState {
     return this._context
   }
 
+  // Initialize animation target values
   private initTarget(initialVariantSource: string) {
     this.baseTarget = resolveVariant(this.options[initialVariantSource] || this.context[initialVariantSource], this.options.variants) || {}
     this.target = { }
   }
 
+  // Get initial animation state
   get initial() {
     return isDef(this.options.initial) ? this.options.initial : this.context.initial
   }
 
+  // Update visual element with new options
   updateOptions() {
     this.visualElement.update({
       ...this.options as any,
@@ -116,6 +133,7 @@ export class MotionState {
     this.featureManager.beforeMount()
   }
 
+  // Mount motion state to DOM element
   mount(element: HTMLElement, options: Options, notAnimate = false) {
     invariant(
       Boolean(element),
@@ -128,11 +146,12 @@ export class MotionState {
       this.visualElement.mount(element)
       visualElementStore.set(element, this.visualElement)
     }
-    // 添加state引用到visualElement
+    // Add state reference to visual element
     (this.visualElement as any).state = this
 
     this.updateOptions()
 
+    // Apply initial values
     if (typeof this.initial === 'object') {
       for (const key in this.initial) {
         this.visualElement.setStaticValue(key, this.initial[key])
@@ -144,10 +163,10 @@ export class MotionState {
       }
     }
 
-    // 挂载特征
+    // Mount features
     this.featureManager.mount()
-    if (!notAnimate) {
-      this.animateUpdates(true)
+    if (!notAnimate && this.options.animate) {
+      this.animateUpdates()
     }
   }
 
@@ -155,6 +174,7 @@ export class MotionState {
     this.featureManager.beforeUnmount()
   }
 
+  // Unmount motion state and optionally unmount children
   unmount(unMountChildren = false) {
     mountedStates.delete(this.element)
     this.featureManager.unmount()
@@ -180,6 +200,7 @@ export class MotionState {
     this.featureManager.beforeUpdate()
   }
 
+  // Update motion state with new options
   update(options: Options, notAnimate = false) {
     const prevAnimate = JSON.stringify(this.options.animate)
     this.options = options
@@ -188,7 +209,7 @@ export class MotionState {
       hasAnimateChange = true
     }
     this.updateOptions()
-    // 更新特征
+    // Update features
     this.featureManager.update()
 
     if (hasAnimateChange && !notAnimate) {
@@ -196,31 +217,33 @@ export class MotionState {
     }
   }
 
+  // Set animation state active status
   setActive(name: StateType, isActive: boolean, isAnimate = true) {
     if (!this.element || this.activeStates[name] === isActive)
       return
     this.activeStates[name] = isActive
     this.visualElement.variantChildren?.forEach((child) => {
-      ((child as any).state as MotionState).setActive(name, isActive, !isActive)
+      ((child as any).state as MotionState).setActive(name, isActive, false)
     })
     if (isAnimate) {
       this.animateUpdates()
     }
   }
 
-  animateUpdates(isInitial = false) {
+  // Core animation update logic
+  animateUpdates(controlActiveState: typeof this.activeStates = undefined, controlDelay: number = 0) {
     const prevTarget = this.target
-    this.target = {}
-    const activeState: ActiveVariant = {}
+    this.target = {
+      ...this.baseTarget,
+    }
     const animationOptions: { [key: string]: $Transition } = {}
     let transition: $Transition
+    if (controlActiveState) {
+      this.activeStates = { ...this.activeStates, ...controlActiveState }
+    }
+    // Process each active animation state
     for (const name of STATE_TYPES) {
-      if (name === 'initial') {
-        if (!isInitial) {
-          continue
-        }
-      }
-      if (!this.activeStates[name] && name !== 'initial') {
+      if (!this.activeStates[name]) {
         continue
       }
       const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
@@ -231,15 +254,9 @@ export class MotionState {
         this.options.custom,
       )
       transition = Object.assign({}, this.options.transition, variant?.transition)
-      if (typeof definition === 'string') {
-        activeState[name] = {
-          definition,
-          transition,
-        }
-      }
       if (!variant)
         continue
-      const allTarget = { ...prevTarget, ...variant }
+      const allTarget = { ...variant }
       for (const key in allTarget) {
         if (key === 'transition')
           continue
@@ -253,18 +270,16 @@ export class MotionState {
       }
     }
 
+    // Create animation factories for changed properties
     const allTargetKeys = new Set([
       ...Object.keys(this.target),
-      ...Object.keys(prevTarget),
     ])
     const animationFactories: AnimationFactory[] = []
     allTargetKeys.forEach((key: any) => {
-      if (this.target[key] === undefined) {
-        this.target[key] = this.baseTarget[key]
-      }
       if (hasChanged(prevTarget[key], this.target[key])) {
         this.baseTarget[key] ??= style.get(this.element, key) as string
         const keyValue = this.target[key] === 'none' ? transformResetValue[key] : this.target[key]
+        const targetTransition = animationOptions[key]
         animationFactories.push(
           () => {
             return animate(
@@ -272,7 +287,10 @@ export class MotionState {
               {
                 [key]: keyValue,
               },
-              (animationOptions[key] || {}) as any,
+              {
+                ...targetTransition,
+                delay: (targetTransition?.delay || 0) + controlDelay,
+              } as any,
             )
           },
         )
@@ -280,17 +298,25 @@ export class MotionState {
     })
 
     let getChildAnimations: () => Promise<any> = () => Promise.resolve()
-    let childAnimations: any[] = []
+    let childAnimations: (() => Promise<any>)[] = []
 
-    // animate variants children
-    if (Object.keys(activeState).length) {
-      const { getAnimations, animations } = animateVariantsChildren(this, activeState, isInitial)
-      getChildAnimations = getAnimations
-      childAnimations = animations
+    // Handle staggered child animations
+    if (this.visualElement.variantChildren?.size && !controlActiveState) {
+      const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition || {}
+      const maxStaggerDuration = (this.visualElement.variantChildren.size - 1) * staggerChildren
+      const generateStaggerDuration = staggerDirection === 1
+        ? (i = 0) => i * staggerChildren
+        : (i = 0) => maxStaggerDuration - i * staggerChildren
+
+      childAnimations = Array.from(this.visualElement.variantChildren).map((child: VisualElement & { state: MotionState }, index) => {
+        const childDelay = delayChildren + generateStaggerDuration(index)
+        return child.state.animateUpdates(this.activeStates, childDelay)
+      }).filter(Boolean)
+
+      getChildAnimations = () => Promise.all(childAnimations.map(animation => animation()))
     }
-    // Wait for all animation states to read from the DOM
-    // yield
 
+    // Create and run animations
     let animations: AnimationPlaybackControls[]
     const getAnimation = () => {
       animations = animationFactories
@@ -299,44 +325,53 @@ export class MotionState {
       return Promise.all(animations)
     }
 
-    /**
-     * If the transition explicitly defines a "when" option, we need to resolve either
-     * this animation or all children animations before playing the other.
-     */
     const { when } = transition
 
     let animationPromise: Promise<any>
-    if (when) {
-      const [first, last]
+    const isExit = this.activeStates.exit
+
+    const animationTarget = { ...this.target }
+
+    const element = this.element
+    // Handle animation completion and events
+    function finishAnimation() {
+      if (!animations?.length && !childAnimations.length) {
+        if (isExit) {
+          element.dispatchEvent(motionEvent('motionstart', animationTarget))
+          element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
+        }
+        return
+      }
+      element.dispatchEvent(motionEvent('motionstart', animationTarget))
+      animationPromise
+        .then(() => {
+          element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
+        })
+        .catch(noop)
+    }
+
+    // Orchestrate parent/child animation order
+    function getAnimationPromise() {
+      if (when) {
+        const [first, last]
           = when === 'beforeChildren'
             ? [getAnimation, getChildAnimations]
             : [getChildAnimations, getAnimation]
 
-      animationPromise = first().then(() => last())
-    }
-    else {
-      animationPromise = Promise.all([getAnimation(), getChildAnimations()])
-    }
-    const isExit = this.activeStates.exit
-
-    if (!animations?.length && !childAnimations.length) {
-      if (isExit) {
-        this.element.dispatchEvent(motionEvent('motionstart', this.target))
-        this.element.dispatchEvent(motionEvent('motioncomplete', {
-          ...this.target,
-        }, isExit))
+        animationPromise = first().then(() => last())
+        finishAnimation()
+        return animationPromise
       }
-      return
+      else {
+        animationPromise = Promise.all([getAnimation(), getChildAnimations()])
+        finishAnimation()
+        return animationPromise
+      }
     }
-    const animationTarget = this.target
-    this.element.dispatchEvent(motionEvent('motionstart', animationTarget))
-    animationPromise
-      .then(() => {
-        this.element.dispatchEvent(motionEvent('motioncomplete', {
-          ...animationTarget,
-        }, isExit))
-      })
-      .catch(noop)
+    if (controlActiveState) {
+      return getAnimationPromise
+    }
+    getAnimationPromise()
   }
 
   isMounted() {
