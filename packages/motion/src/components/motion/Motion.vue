@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   layoutScroll: false,
   layoutRoot: false,
   dragListener: true,
-  dragElastic: 0.2,
+  dragElastic: 0.5,
   dragMomentum: true,
   whileDrag: undefined,
   crossfade: true,
