@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "composite": true,
+    "jsx": "preserve",
     "lib": [
       // Target ES2020 to align with Vite.
       // <https://vitejs.dev/config/build-options.html#build-target>

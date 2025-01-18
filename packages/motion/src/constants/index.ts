@@ -1,6 +1,5 @@
 const components = {
   motion: [
-    'motion',
     'Motion',
     'AnimatePresence',
     'LayoutGroup',

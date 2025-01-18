@@ -10,12 +10,12 @@ type ComponentProps<T> = T extends DefineComponent<
 >
   ? ExtractPublicPropTypes<Props>
   : never
-type MotionComponentProps = IntrinsicElementAttributes & {
+type MotionComponentProps = {
   create: <T extends DefineComponent>(T) => DefineComponent<MotionProps<any, unknown> & ComponentProps<T>>
 }
 type MotionKeys = keyof MotionComponentProps
 
-interface MotionNameSpace extends Record<keyof IntrinsicElementAttributes, DefineComponent<MotionProps<keyof IntrinsicElementAttributes, unknown> & MotionComponentProps[keyof IntrinsicElementAttributes]>> {
+interface MotionNameSpace extends Record<keyof IntrinsicElementAttributes, DefineComponent<MotionProps<keyof IntrinsicElementAttributes, unknown>>> {
   create: MotionComponentProps['create']
 }
 
