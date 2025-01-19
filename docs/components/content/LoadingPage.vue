@@ -62,6 +62,9 @@ const floatingItems = [
         initial="hidden"
         in-view="visible"
         :transition="{
+          type: 'spring',
+          stiffness: 260,
+          damping: 50,
           staggerChildren: 0.2,
         }"
         class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
