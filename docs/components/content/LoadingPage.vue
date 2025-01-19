@@ -141,6 +141,9 @@ const floatingItems = [
             stiffness: 260,
             damping: 50,
           }"
+          :in-view-options="{
+            once: true,
+          }"
           class="p-6 rounded-xl hover:bg-primary/5 transition-colors"
         >
           <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
