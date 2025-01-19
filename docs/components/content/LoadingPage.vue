@@ -141,9 +141,9 @@ const floatingItems = [
             stiffness: 260,
             damping: 50,
           }"
-          class="p-6 rounded-xl hover:bg-gray-50 transition-colors"
+          class="p-6 rounded-xl hover:bg-primary/5 transition-colors"
         >
-          <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-4">
+          <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
             <component
               :is="feature.icon"
               class="w-6 h-6 text-primary"
