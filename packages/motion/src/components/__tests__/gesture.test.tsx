@@ -10,9 +10,7 @@ describe('gesture', () => {
     const wrapper = mount({
       setup() {
         return () => (
-          // @ts-ignore
           <Motion hover="hover" data-testid="motion">
-            {/* @ts-ignore */}
             <Motion data-testid="motion-child" variants={{ hover: { scale: 1.2 } }} />
           </Motion>
         )

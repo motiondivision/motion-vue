@@ -25,7 +25,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
   <LayoutHeader />
   <LayoutMobileNav v-if="isMobile" />
 
-  <div class="min-h-screen pt-14 dark:bg-[radial-gradient(#ffffff22_1px,transparent_1px)] [background-size:16px_16px] bg-[radial-gradient(#00000021_1px,transparent_1px)]">
+  <div class="min-h-screen pt-14">
     <div
       v-if="route.path !== '/'"
       class="h-full border-b"

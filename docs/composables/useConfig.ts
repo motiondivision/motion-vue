@@ -21,7 +21,7 @@ const defaultConfig: DefaultConfig = {
   banner: {
     enable: false,
     showClose: true,
-    content: 'Welcome to **shadcn-docs-nuxt**',
+    content: 'Welcome to **Motion Vue**',
     to: '',
     target: '_blank',
     border: true,
