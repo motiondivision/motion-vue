@@ -13,7 +13,7 @@ import { createVisualElement } from '@/state/create-visual-element'
 import { doneCallbacks } from '@/components/presence'
 
 // Animation state types that can be active
-const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'exit'] as const
+const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'focus', 'exit'] as const
 type StateType = typeof STATE_TYPES[number]
 
 // Map to track mounted motion states by element
@@ -247,7 +247,6 @@ export class MotionState {
         continue
       }
       const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
-
       const variant = resolveVariant(
         definition,
         this.options.variants,

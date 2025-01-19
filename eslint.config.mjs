@@ -27,6 +27,7 @@ export default antfu(
       'unused-imports/no-unused-vars': 'off',
       'regexp/no-super-linear-backtracking': 'off',
       'vue/no-parsing-error': [2, { 'x-invalid-namespace': false }],
+      'no-async-promise-executor': 'off',
     },
   },
   {
