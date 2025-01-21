@@ -62,12 +62,13 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "@vueuse/core": "^12.0.0",
+    "@vueuse/core": "^10.0.0",
     "framer-motion": "11.16.6",
     "hey-listen": "^1.0.8",
     "motion-dom": "^11.16.4"
   },
   "devDependencies": {
+    "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.1.4",
     "@vitejs/plugin-vue-jsx": "^4.0.1",
     "@vitest/coverage-v8": "^1.4.0",

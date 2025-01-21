@@ -10,6 +10,7 @@ import type { LayoutGroupState } from '@/components/context'
 import type { PanProps } from '@/features/gestures/pan/types'
 import type { MotionConfigState } from '@/components/motion-config/types'
 import type { $Transition } from './framer-motion'
+import type { FocusProps } from '@/features/gestures/focus/types'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 
@@ -41,7 +42,7 @@ export type ElementType = keyof IntrinsicElementAttributes
 export interface Options<T = any> extends
   LayoutOptions, PressProps,
   HoverProps, InViewProps, DragProps,
-  PanProps {
+  PanProps, FocusProps {
   custom?: T
   as?: ElementType
   initial?: string | Variant | boolean
