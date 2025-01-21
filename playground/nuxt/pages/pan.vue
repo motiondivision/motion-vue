@@ -1,28 +1,21 @@
 <script setup lang="ts">
-import { Motion, useMotionValue, useTransform } from 'motion-v'
+import { Motion, useAnimationControls } from 'motion-v'
 import type { PanInfo, TransformProperties } from 'motion-v'
 
 function template({ rotateY, rotateX }: TransformProperties) {
-  return `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+  return `perspective(500px) rotateX(${rotateX}) rotateY(${rotateY})`
 }
 
-const transform = useMotionValue({
-  rotateY: 0,
-  rotateX: 0,
-})
-const transformTemplate = useTransform(transform, (value) => {
-  return `perspective(500px) rotateX(${value.rotateX}deg) rotateY(${value.rotateY}deg)`
-})
-
+const controls = useAnimationControls()
 function handlePan(_: PointerEvent, info: PanInfo) {
-  transform.set({
+  controls.set({
     rotateY: info.offset.x / 2,
     rotateX: -info.offset.y / 2,
   })
 }
 
 function handlePanEnd() {
-  transform.set({
+  controls.start({
     rotateY: 0,
     rotateX: 0,
   })
@@ -33,7 +26,8 @@ function handlePanEnd() {
   <div class="flex flex-col items-center justify-center h-screen">
     <Motion
       class="card"
-      :style="{ transform: transformTemplate }"
+      :transform-template="template"
+      :animate="controls"
       @pan="handlePan"
       @pan-end="handlePanEnd"
     />

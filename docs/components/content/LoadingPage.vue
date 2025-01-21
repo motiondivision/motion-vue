@@ -58,13 +58,9 @@ const floatingItems = [
     <div class="relative pt-32 pb-20 sm:pt-40 sm:pb-24">
       <!-- Main Content -->
       <motion.div
-        v-bind="slideUp"
         initial="hidden"
         in-view="visible"
         :transition="{
-          type: 'spring',
-          stiffness: 260,
-          damping: 50,
           staggerChildren: 0.2,
         }"
         class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
