@@ -13,12 +13,12 @@ const show = ref(true)
     <AnimatePresence
       multiple
       as="div"
-      class="flex gap-4 w-40"
+      class="flex gap-4 w-48 h-40"
     >
       <Motion
         v-show="show"
         key="1"
-        class="bg-primary w-1/3  aspect-square rounded-2xl flex-1"
+        class="bg-primary w-20 h-20   rounded-2xl flex-1"
         :initial="{ scale: 0 }"
         :animate="{ rotate: 180, scale: 1 }"
         :exit="{ rotate: 0, scale: 0 }"
@@ -26,7 +26,7 @@ const show = ref(true)
       <Motion
         v-if="show"
         key="2"
-        class="bg-primary  aspect-square rounded-2xl flex-1"
+        class="bg-primary w-20 h-20  rounded-2xl flex-1"
         :initial="{ scale: 0 }"
         :animate="{ rotate: 180, scale: 1 }"
         :exit="{ rotate: 0, scale: 0 }"

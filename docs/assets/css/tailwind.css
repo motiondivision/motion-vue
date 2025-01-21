@@ -19,8 +19,8 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
 
-    --primary: 142.1 76.2% 45.3%;  /* rgb(34, 197, 94) */
-    --primary-foreground: 355.7 100% 97.3%;
+    --primary: 144.8 100% 40.6%;  /* #00ce44 */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -52,8 +52,8 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
 
-    --primary: 142.1 76.2% 45.3%;  /* rgb(34, 197, 94) */
-    --primary-foreground: 355.7 100% 97.3%;
+    --primary: 144.8 100% 40.6%;  /* #00ce44 */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;

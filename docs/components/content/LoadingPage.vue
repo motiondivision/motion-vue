@@ -63,6 +63,7 @@ const floatingItems = [
         :transition="{
           staggerChildren: 0.2,
         }"
+        :in-view-options="{ once: true }"
         class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
         <div class="text-center">
@@ -90,7 +91,7 @@ const floatingItems = [
           >
             <UiButton
               size="lg"
-              class="rounded-full"
+              class="rounded-full text-primary-foreground"
               as="a"
               href="/getting-started"
             >
@@ -119,30 +120,17 @@ const floatingItems = [
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <motion.div
         class="grid md:grid-cols-4 gap-8"
+        initial="hidden"
+        in-view="visible"
+        :transition="{
+          delayChildren: 0.2,
+          staggerChildren: 0.1,
+        }"
       >
         <motion.div
           v-for="feature in features"
           :key="feature.title"
-          initial="hidden"
-          in-view="visible"
-          :variants="{
-            hidden: {
-              opacity: 0,
-              y: 20,
-            },
-            visible: {
-              opacity: 1,
-              y: 0,
-            },
-          }"
-          :transition="{
-            type: 'spring',
-            stiffness: 260,
-            damping: 50,
-          }"
-          :in-view-options="{
-            once: true,
-          }"
+          v-bind="slideUp"
           class="p-6 rounded-xl hover:bg-primary/5 transition-colors"
         >
           <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
@@ -162,46 +150,3 @@ const floatingItems = [
     </div>
   </div>
 </template>
-
-<style scoped>
-@keyframes float {
-  0% {
-    transform: translateY(0) rotate(0);
-  }
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
-  100% {
-    transform: translateY(0) rotate(0);
-  }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
-}
-
-.animate-fade-in-delay {
-  animation: fadeIn 0.8s ease-out 0.2s forwards;
-  opacity: 0;
-}
-
-.animate-fade-in-delay-2 {
-  animation: fadeIn 0.8s ease-out 0.4s forwards;
-  opacity: 0;
-}
-</style>
