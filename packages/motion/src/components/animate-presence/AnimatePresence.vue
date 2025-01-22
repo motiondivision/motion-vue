@@ -4,8 +4,7 @@ import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-import { requestIdleCallback } from './utils'
-// 定义组件Props接口
+import { frame } from 'framer-motion/dom'
 
 // 定义组件选项
 defineOptions({
@@ -73,7 +72,7 @@ function exit(el: Element, done: VoidFunction) {
         state.willUpdate('done')
       }
       else {
-        requestIdleCallback(() => {
+        frame.render(() => {
           removePopStyle(state)
         })
       }
