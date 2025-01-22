@@ -15,11 +15,13 @@
       // No `ScriptHost` because Vue 3 dropped support for IE
     ],
     "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
       "@/*": ["src/*"]
     },
     // Set to empty to avoid accidental inclusion of unwanted types
-    "types": []
+    "types": [],
+    "outDir": "./dist/es"
   },
   "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.tsx"],
   "exclude": ["node_modules"]

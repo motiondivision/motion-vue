@@ -17,7 +17,7 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
+      "types": "./dist/es/index.d.ts",
       "import": "./dist/es/index.mjs",
       "require": "./dist/cjs/index.js"
     },
@@ -34,12 +34,12 @@
   },
   "main": "./dist/cjs/index.js",
   "module": "./dist/es/index.mjs",
-  "types": "./dist/src/index.d.ts",
+  "types": "./dist/es/index.d.ts",
   "typesVersions": {
     "*": {
       "*": [
         "./dist/*/index.d.ts",
-        "./dist/src/index.d.ts"
+        "./dist/es/index.d.ts"
       ],
       "nuxt": [
         "./dist/nuxt/index.d.mts",

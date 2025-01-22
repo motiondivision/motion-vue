@@ -11,7 +11,7 @@ export default defineConfig({
     vueJsx() as any,
     dts({
       cleanVueFileName: true,
-      outDir: 'dist',
+      outDir: 'dist/es',
       exclude: ['src/**/__tests__/**', 'src/**/story/**', 'src/**/*.story.vue'],
       afterBuild: async () => {
         // pnpm build:plugins
