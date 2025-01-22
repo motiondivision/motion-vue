@@ -10,7 +10,7 @@ const show = ref(true)
     <Button @click="show = !show">
       {{ show ? 'hide' : 'show' }}
     </Button>
-    <div class="w-1/3">
+    <div class="h-40 w-40">
       <AnimatePresence>
         <Motion
           v-show="show"

@@ -1,20 +1,15 @@
-import type { $Transition, AnimationFactory, MotionStateContext, Options } from '@/types'
+import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { isDef } from '@vueuse/core'
-import type { AnimationPlaybackControls, DOMKeyframesDefinition, VisualElement } from 'framer-motion'
-import { animate, frame, noop } from 'framer-motion/dom'
-import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
+import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
+import { frame } from 'framer-motion/dom'
+import { resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
-import { style } from '@/state/style'
-import { transformResetValue } from '@/state/transform'
-import { motionEvent } from '@/state/event'
 import { createVisualElement } from '@/state/create-visual-element'
 import { doneCallbacks } from '@/components/presence'
-
-// Animation state types that can be active
-const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'focus', 'exit'] as const
-type StateType = typeof STATE_TYPES[number]
+import type { StateType } from './animate-updates'
+import { animateUpdates } from './animate-updates'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -226,152 +221,14 @@ export class MotionState {
       ((child as any).state as MotionState).setActive(name, isActive, false)
     })
     if (isAnimate) {
-      this.animateUpdates()
+      this.animateUpdates({
+        isFallback: !isActive,
+      })
     }
   }
 
   // Core animation update logic
-  animateUpdates(controlActiveState: typeof this.activeStates = undefined, controlDelay: number = 0) {
-    const prevTarget = this.target
-    this.target = {
-      ...this.baseTarget,
-    }
-    const animationOptions: { [key: string]: $Transition } = {}
-    let transition: $Transition
-    if (controlActiveState) {
-      this.activeStates = { ...this.activeStates, ...controlActiveState }
-    }
-    // Process each active animation state
-    for (const name of STATE_TYPES) {
-      if (!this.activeStates[name]) {
-        continue
-      }
-      const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
-      const variant = resolveVariant(
-        definition,
-        this.options.variants,
-        this.options.custom,
-      )
-      transition = Object.assign({}, this.options.transition, variant?.transition)
-      if (!variant)
-        continue
-      const allTarget = { ...variant }
-      for (const key in allTarget) {
-        if (key === 'transition')
-          continue
-
-        this.target[key] = variant[key]
-
-        animationOptions[key] = getOptions(
-          transition,
-          key,
-        )
-      }
-    }
-
-    // Create animation factories for changed properties
-    const allTargetKeys = new Set([
-      ...Object.keys(this.target),
-    ])
-    const animationFactories: AnimationFactory[] = []
-    allTargetKeys.forEach((key: any) => {
-      if (hasChanged(prevTarget[key], this.target[key])) {
-        this.baseTarget[key] ??= style.get(this.element, key) as string
-        const keyValue = this.target[key] === 'none' ? transformResetValue[key] : this.target[key]
-        const targetTransition = animationOptions[key]
-        animationFactories.push(
-          () => {
-            return animate(
-              this.element,
-              {
-                [key]: keyValue,
-              },
-              {
-                ...targetTransition,
-                delay: (targetTransition?.delay || 0) + controlDelay,
-              } as any,
-            )
-          },
-        )
-      }
-    })
-
-    let getChildAnimations: () => Promise<any> = () => Promise.resolve()
-    let childAnimations: (() => Promise<any>)[] = []
-
-    // Handle staggered child animations
-    if (this.visualElement.variantChildren?.size && !controlActiveState) {
-      const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition || {}
-      const maxStaggerDuration = (this.visualElement.variantChildren.size - 1) * staggerChildren
-      const generateStaggerDuration = staggerDirection === 1
-        ? (i = 0) => i * staggerChildren
-        : (i = 0) => maxStaggerDuration - i * staggerChildren
-
-      childAnimations = Array.from(this.visualElement.variantChildren).map((child: VisualElement & { state: MotionState }, index) => {
-        const childDelay = delayChildren + generateStaggerDuration(index)
-        return child.state.animateUpdates(this.activeStates, childDelay)
-      }).filter(Boolean)
-
-      getChildAnimations = () => Promise.all(childAnimations.map(animation => animation()))
-    }
-
-    // Create and run animations
-    let animations: AnimationPlaybackControls[]
-    const getAnimation = () => {
-      animations = animationFactories
-        .map(factory => factory())
-        .filter(Boolean)
-      return Promise.all(animations)
-    }
-
-    const { when } = transition
-
-    let animationPromise: Promise<any>
-    const isExit = this.activeStates.exit
-
-    const animationTarget = { ...this.target }
-
-    const element = this.element
-    // Handle animation completion and events
-    function finishAnimation() {
-      if (!animations?.length && !childAnimations.length) {
-        if (isExit) {
-          element.dispatchEvent(motionEvent('motionstart', animationTarget))
-          element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
-        }
-        return
-      }
-      element.dispatchEvent(motionEvent('motionstart', animationTarget))
-      animationPromise
-        .then(() => {
-          element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
-        })
-        .catch(noop)
-    }
-
-    // Orchestrate parent/child animation order
-    function getAnimationPromise() {
-      if (when) {
-        const [first, last]
-          = when === 'beforeChildren'
-            ? [getAnimation, getChildAnimations]
-            : [getChildAnimations, getAnimation]
-
-        animationPromise = first().then(() => last())
-        finishAnimation()
-        return animationPromise
-      }
-      else {
-        animationPromise = Promise.all([getAnimation(), getChildAnimations()])
-        finishAnimation()
-        return animationPromise
-      }
-    }
-    if (controlActiveState) {
-      return getAnimationPromise
-    }
-    getAnimationPromise()
-  }
+  animateUpdates = animateUpdates
 
   isMounted() {
     return Boolean(this.element)

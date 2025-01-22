@@ -10,7 +10,4 @@ export const slideUp: Partial<MotionProps<'div'>> = {
     stiffness: 260,
     damping: 50,
   },
-  inViewOptions: {
-    once: true,
-  },
 }

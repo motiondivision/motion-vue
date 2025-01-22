@@ -3,7 +3,7 @@ import type { Variant } from 'framer-motion'
 import type { IntrinsicElementAttributes } from 'vue'
 
 export function resolveVariant(
-  definition?: Options['initial'],
+  definition?: Options['animate'],
   variants?: Options['variants'],
   custom?: Options['custom'],
 ): Variant | undefined {

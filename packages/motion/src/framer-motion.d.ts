@@ -68,3 +68,9 @@ declare module 'framer-motion/dist/es/animation/interfaces/motion-value.mjs' {
     isHandoff?: boolean
   ) => StartAnimation
 }
+
+declare module 'framer-motion/dist/es/render/utils/setters.mjs' {
+  import type { VisualElement } from 'framer-motion'
+
+  export const setTarget: (visualElement: VisualElement, definition: any) => void
+}
