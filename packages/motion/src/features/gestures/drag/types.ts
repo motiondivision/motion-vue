@@ -94,7 +94,7 @@ export interface DragHandlers {
    */
   onDragTransitionEnd?: () => void
   /**
-   * If `dragConstraints` is set to a React ref, this callback will call with the measured drag constraints.
+   * If `dragConstraints` is set to a HTMLElement, this callback will call with the measured drag constraints.
    *
    * @public
    */
