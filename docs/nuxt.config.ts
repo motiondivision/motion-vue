@@ -16,6 +16,7 @@ export default defineNuxtConfig({
   experimental: {
     payloadExtraction: false,
   },
+
   compatibilityDate: '2024-12-16',
   devtools: { enabled: true },
   vite: {

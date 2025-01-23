@@ -7,8 +7,8 @@ function template({ rotateY, rotateX }: TransformProperties) {
 }
 
 const controls = useAnimationControls()
-function handlePan(e: PointerEvent, info: PanInfo) {
-  e.preventDefault()
+function handlePan(_: PointerEvent, info: PanInfo) {
+  _.preventDefault()
   controls.set({
     rotateY: info.offset.x / 2,
     rotateX: -info.offset.y / 2,
