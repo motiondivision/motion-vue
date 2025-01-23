@@ -8,6 +8,7 @@ function template({ rotateY, rotateX }: TransformProperties) {
 
 const controls = useAnimationControls()
 function handlePan(_: PointerEvent, info: PanInfo) {
+  _.preventDefault()
   controls.set({
     rotateY: info.offset.x / 2,
     rotateX: -info.offset.y / 2,
@@ -23,7 +24,7 @@ function handlePanEnd() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center h-screen">
+  <div class="flex flex-col items-center justify-center ">
     <Motion
       class="card"
       :transform-template="template"
