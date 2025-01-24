@@ -4,9 +4,19 @@ import type { Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { setTarget } from 'framer-motion/dist/es/render/utils/setters.mjs'
 import type { VisualElement } from 'framer-motion'
+import { resolveVariant } from '@/state/utils'
 
 function stopAnimation(visualElement: VisualElement) {
   visualElement.values.forEach(value => value.stop())
+}
+
+function setStateTarget(state: MotionState, definition: Options['animate']) {
+  const resolvedVariant = resolveVariant(definition, state.options.variants, state.options.custom)
+  Object.entries(resolvedVariant).forEach(([key, value]) => {
+    if (key === 'transition')
+      return
+    state.target[key] = value
+  })
 }
 
 /**
@@ -85,6 +95,7 @@ export function setValues(
     return setVariants(state, [definition])
   }
   else {
+    setStateTarget(state, definition)
     setTarget(state.visualElement, definition as any)
   }
 }
@@ -95,7 +106,7 @@ function setVariants(state: MotionState, variantLabels: string[]) {
   reversedLabels.forEach((key) => {
     const variant = visualElement.getVariant(key)
     variant && setTarget(visualElement, variant)
-
+    setStateTarget(state, variant)
     if (visualElement.variantChildren) {
       visualElement.variantChildren.forEach((child) => {
         setVariants(mountedStates.get(child.current as HTMLElement), variantLabels)
