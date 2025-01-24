@@ -117,8 +117,8 @@ function createAnimationFactories(
 ): AnimationFactory[] {
   const factories: AnimationFactory[] = []
 
-  new Set(Object.keys(this.target)).forEach((key: any) => {
-    if (!hasChanged(this.visualElement.getValue(key), this.target[key]))
+  Object.keys(this.target).forEach((key: any) => {
+    if (!hasChanged(prevTarget[key], this.target[key]))
       return
 
     this.baseTarget[key] ??= style.get(this.element, key) as string

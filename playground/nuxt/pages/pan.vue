@@ -26,7 +26,7 @@ function handlePanEnd() {
 <template>
   <div class="flex flex-col items-center justify-center ">
     <Motion
-      class="card"
+      class="card touch-none"
       :transform-template="template"
       :animate="controls"
       @pan="handlePan"
