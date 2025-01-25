@@ -4,6 +4,7 @@ import { getClosestProjectingNode } from '@/features/layout/utils'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
+import { doneCallbacks } from '@/components/presence'
 
 export class ProjectionFeature extends Feature {
   constructor(state) {
@@ -40,6 +41,19 @@ export class ProjectionFeature extends Feature {
       layoutRoot: options.layoutRoot,
       layoutScroll: options.layoutScroll,
       crossfade: options.crossfade,
+      onExitComplete: () => {
+        if (!this.state.visualElement.projection?.isPresent) {
+          const done = doneCallbacks.get(this.state.element)
+          this.state.isSafeToRemove = true
+          if (done) {
+            done({
+              detail: {
+                isExit: true,
+              },
+            }, true)
+          }
+        }
+      },
     })
   }
 

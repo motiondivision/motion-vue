@@ -239,6 +239,7 @@ export class MotionState {
   }
 
   willUpdate(label: string) {
-    this.visualElement.projection?.willUpdate()
+    if (this.options.layout || this.options.layoutId)
+      this.visualElement.projection?.willUpdate()
   }
 }
