@@ -18,6 +18,7 @@ const routes = [
   { path: '/animate-present-initial', name: 'Animate Present Initial' },
   { path: '/animate-variants', name: 'Animate Variants' },
   { path: '/change-style', name: 'Change Style' },
+  { path: '/animated-tooltip', name: 'Animated Tooltip' },
 ]
 const isShow = ref(true)
 </script>

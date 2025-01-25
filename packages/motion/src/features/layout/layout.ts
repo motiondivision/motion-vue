@@ -15,7 +15,12 @@ export class LayoutFeature extends Feature {
   }
 
   update(): void {
-    this.state.visualElement.projection?.root.didUpdate()
+    this.didUpdate()
+  }
+
+  didUpdate() {
+    if (this.state.options.layout || this.state.options.layoutId)
+      this.state.visualElement.projection?.root?.didUpdate()
   }
 
   beforeMount() {
@@ -31,7 +36,7 @@ export class LayoutFeature extends Feature {
         layoutGroup?.group?.add(projection)
       }
       globalProjectionState.hasEverUpdated = true
-      projection?.root.didUpdate()
+      this.didUpdate()
     }
   }
 
@@ -54,8 +59,6 @@ export class LayoutFeature extends Feature {
     const projection = this.state.visualElement.projection
     if (layoutGroup?.group && projection)
       layoutGroup.group.remove(projection)
-    if (this.state.options.layoutId || this.state.options.layout) {
-      this.state.visualElement.projection?.root?.didUpdate()
-    }
+    this.didUpdate()
   }
 }
