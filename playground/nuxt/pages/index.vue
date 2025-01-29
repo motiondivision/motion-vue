@@ -41,7 +41,7 @@ const sandboxMode = ref(false)
         class="text-sm px-4 max-sm:ml-0 rounded-md shadow-md py-2 ml-auto bg-white hover:bg-gray-200 transition-all duration-200 text-black"
         @click="sandboxMode = !sandboxMode"
       >
-        Go To Sandbox
+        {{ sandboxMode ? 'open demos' : 'open sandbox' }}
       </button>
     </div>
     <!-- Example Demos List -->
