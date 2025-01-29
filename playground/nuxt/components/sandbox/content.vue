@@ -15,14 +15,11 @@ function nextPhrase() {
     <Motion
       :animate="{
         backgroundColor: '#ffffff33',
-        scale: 1,
-        filter: 'blur(0px)',
       }"
       :press="{
         scale: 0.8,
         filter: 'blur(15px)',
         backgroundColor: '#ffffff66',
-        animationTimingFunction: 0.3,
       }"
       class="w-64 h-64 rounded-xl gradient-pink-violet backdrop-blur-sm flex items-center justify-center cursor-pointer"
       @press="nextPhrase"

@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 @layer components {
-    .btn1 {
+    .primary-button {
         @apply px-4 py-1 ml-auto text-black bg-white font-semibold rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400;
     }
 
-    .btn2 {
+    .secondary-button {
         @apply px-6 py-3 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400;
     }
 

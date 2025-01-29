@@ -8,7 +8,7 @@ const centerContent = ref(true)
   >
     <div class="sandbox-nav rounded-t-md gap-4  w-full pl-5 p-3 flex place-items-center bg-gray-900">
       <span class="font-semibold">SANDBOX</span>
-      <button class="btn1">
+      <button class="primary-button">
         Replay
       </button>
     </div>
