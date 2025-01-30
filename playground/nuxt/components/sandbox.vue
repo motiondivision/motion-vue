@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const centerContent = ref(true)
+
+const sandboxKey = ref(0)
+
+function remountContent() {
+  sandboxKey.value++
+}
 </script>
 
 <template>
@@ -8,7 +14,10 @@ const centerContent = ref(true)
   >
     <div class="sandbox-nav rounded-t-md gap-4  w-full pl-5 p-3 flex place-items-center bg-gray-900">
       <span class="font-semibold">SANDBOX</span>
-      <button class="primary-button">
+      <button
+        class="primary-button"
+        @click="remountContent"
+      >
         Replay
       </button>
     </div>
@@ -16,7 +25,7 @@ const centerContent = ref(true)
       :class="{ 'place-items-center justify-center': centerContent }"
       class="flex flex-grow"
     >
-      <SandboxContent />
+      <SandboxContent :key="sandboxKey" />
     </div>
   </div>
 </template>
