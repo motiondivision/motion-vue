@@ -4,6 +4,8 @@ const components = {
     'AnimatePresence',
     'LayoutGroup',
     'MotionConfig',
+    'ReorderGroup',
+    'ReorderItem',
   ],
 }
 

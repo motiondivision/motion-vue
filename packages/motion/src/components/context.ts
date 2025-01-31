@@ -9,7 +9,6 @@ export interface NodeGroup {
   add: (node: IProjectionNode) => void
   remove: (node: IProjectionNode) => void
   dirty: VoidFunction
-  didUpdate: VoidFunction
 }
 export interface LayoutGroupState {
   id?: string
