@@ -1,7 +1,4 @@
-<p align="center">
-<img src="https://github.com/user-attachments/assets/eb32e353-13c2-4c84-9992-3548a42c92a4"></img>
-</p>
-<h1 align="center">Motion for Vue</h1>
+![Group 1171276039](https://github.com/user-attachments/assets/646e3a57-1fe8-42e1-8508-6a0504d3d4b6)
 
 An animation library designed for Vue 3, powered by [Motion](https://www.framer.com/motion/).
 
