@@ -21,6 +21,7 @@
     "@vueuse/core": "^12.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "execa": "^9.5.2",
     "json5": "^2.2.3",
     "motion-v": "link:../packages/motion",
     "nuxt": "^3.14.1592",
