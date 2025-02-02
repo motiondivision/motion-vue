@@ -34,7 +34,7 @@ export interface GroupItemProps<T extends ElementType, K = unknown, V = unknown>
 }
 
 defineOptions({
-  name: 'Reorder.Item',
+  name: 'ReorderItem',
   inheritAttrs: false,
 })
 
