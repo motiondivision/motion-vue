@@ -2,7 +2,7 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
-import { toRefs, useAttrs } from 'vue'
+import { computed, toRefs, useAttrs } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
 import { invariant } from 'hey-listen'
@@ -11,13 +11,6 @@ import type { ElementType } from '@/types'
 
 <script setup  lang="ts">
 export interface GroupItemProps<T extends ElementType, K = unknown, V = unknown> extends MotionProps<T, K> {
-  /**
-   * The axis to reorder along. By default, items will be draggable on this axis.
-   * To make draggable on both axes, set `<Reorder.Item drag />`
-   *
-   * @public
-   */
-  axis?: 'x' | 'y'
   /**
    * The value in the list that this component represents.
    *
@@ -83,12 +76,19 @@ function bindProps() {
     },
   }
 }
+
+const drag = computed(() => {
+  if (props.drag) {
+    return props.drag
+  }
+  return axis.value
+})
 </script>
 
 <template>
   <Motion
     v-bind="bindProps()"
-    :drag="axis"
+    :drag="drag"
     :drag-snap-to-origin="true"
     @drag="(event, gesturePoint) => {
       const { velocity } = gesturePoint

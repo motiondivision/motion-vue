@@ -18,7 +18,7 @@ defineEmits<{
   <ReorderItem
     :id="item.label"
     :value="item"
-    :initial="{ opacity: 0 }"
+    :initial="{ opacity: 0, y: 30 }"
     :animate="{
       opacity: 1,
       backgroundColor: isSelected ? '#f3f3f3' : '#fff',
@@ -30,7 +30,7 @@ defineEmits<{
     :class="{ selected: isSelected }"
     @pointerdown="$emit('click')"
   >
-    <motion.span layout>
+    <motion.span layout="position">
       {{ item.icon }} {{ item.label }}
     </motion.span>
     <motion.div

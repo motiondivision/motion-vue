@@ -11,17 +11,16 @@ function setItems(newItems: string[]) {
 </script>
 
 <template>
-  <Motion />
   <ReorderGroup
+    v-model:values="items"
     axis="y"
-    :values="items"
     class="relative w-[300px]"
-    @reorder="setItems"
   >
     <ReorderItem
       v-for="item in items"
       :key="item"
       :value="item"
+      drag
       class="rounded-lg select-none list-none mb-2 cursor-grab w-full py-4 px-6 bg-purple-500 justify-between flex flex-shrink-0"
     >
       {{ item }}

@@ -18,14 +18,15 @@ export interface GroupProps<T extends ElementType, K = unknown, V = unknown> ext
    *
    * @public
    */
-  axis?: 'x' | 'y'
+  'axis'?: 'x' | 'y'
   /**
    * A callback to fire with the new value order. For instance, if the values
    * are provided as a state from `useState`, this could be the set state function.
    *
    * @public
    */
-  onReorder: (newOrder: V[]) => void
+  // eslint-disable-next-line vue/prop-name-casing
+  'onUpdate:values'?: (newOrder: V[]) => void
   /**
    * The latest values state.
    *
@@ -43,11 +44,11 @@ export interface GroupProps<T extends ElementType, K = unknown, V = unknown> ext
    *
    * @public
    */
-  values: V[]
+  'values': V[]
 }
 
 defineOptions({
-  name: 'Reorder.Group',
+  name: 'ReorderGroup',
   inheritAttrs: false,
 })
 
@@ -86,7 +87,7 @@ reorderContextProvider({
     const newOrder = checkReorder(order, item, offset, velocity)
     if (order !== newOrder) {
       isReordering = true
-      props.onReorder(
+      props['onUpdate:values'](
         newOrder
           .map(getValue)
           .filter(value => props.values.includes(value)),

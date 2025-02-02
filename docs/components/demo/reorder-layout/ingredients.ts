@@ -19,6 +19,6 @@ export const initialTabs = [tomato, lettuce, cheese]
 export function getNextIngredient(
   ingredients: Ingredient[],
 ): Ingredient | undefined {
-  const existing = new Set(ingredients)
-  return allIngredients.find(ingredient => !existing.has(ingredient))
+  const existing = new Set(ingredients.map(ingredient => ingredient.label))
+  return allIngredients.find(ingredient => !existing.has(ingredient.label))
 }

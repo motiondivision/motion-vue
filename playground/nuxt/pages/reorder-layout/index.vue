@@ -23,7 +23,6 @@ function remove(item: Ingredient) {
 
 function add() {
   const nextItem = getNextIngredient(tabs.value)
-  console.log('nextItem', nextItem, [...tabs.value])
   if (nextItem) {
     tabs.value = [...tabs.value, nextItem]
     selectedTab.value = nextItem
@@ -32,43 +31,51 @@ function add() {
 </script>
 
 <template>
-  <div class="window">
-    <nav>
-      <ReorderGroup
-        :values="tabs"
-        tag="ul"
-        axis="x"
-        class="tabs"
-        @reorder="tabs = $event"
-      >
-        <AnimatePresence multiple>
-          <Tab
-            v-for="item in tabs"
-            :key="item.label"
-            :item="item"
-            :data-size="tabs.length"
-            :is-selected="selectedTab === item"
-            @click="selectedTab = item"
-            @remove="remove(item)"
-          />
-        </AnimatePresence>
-      </ReorderGroup>
-      <motion.button
-        class="add-item flex items-center justify-center"
-        :disabled="tabs.length === allIngredients.length"
-        :initial="{ scale: 1 }"
-        :press="{ scale: 0.9 }"
-        @click="add"
-      >
-        <AddIcon />
-      </motion.button>
-    </nav>
+  <div class="mx-auto w-[480px] h-[360px] rounded-lg bg-white overflow-hidden shadow-[0_1px_1px_hsl(0deg_0%_0%_/_0.075),0_2px_2px_hsl(0deg_0%_0%_/_0.075),0_4px_4px_hsl(0deg_0%_0%_/_0.075),0_8px_8px_hsl(0deg_0%_0%_/_0.075),0_16px_16px_hsl(0deg_0%_0%_/_0.075)] flex flex-col">
+    <LayoutGroup>
+      <nav>
+        <ReorderGroup
+          :values="tabs"
+          tag="ul"
+          axis="x"
+          class="tabs"
+          @reorder="tabs = $event"
+        >
+          <AnimatePresence
+            multiple
+            :initial="false"
+          >
+            <Tab
+              v-for="item in tabs"
+              :key="item.label"
+              :item="item"
+              :data-size="tabs.length"
+              :is-selected="selectedTab === item"
+              @click="selectedTab = item"
+              @remove="remove(item)"
+            />
+          </AnimatePresence>
+        </ReorderGroup>
+        <motion.button
+          class="add-item flex items-center justify-center"
+          :disabled="tabs.length === allIngredients.length"
+          :initial="{ scale: 1 }"
+          :press="{ scale: 0.9 }"
+          @click="add"
+        >
+          <AddIcon />
+        </motion.button>
+      </nav>
+    </LayoutGroup>
     <main>
-      <AnimatePresence mode="wait">
+      <AnimatePresence
+        mode="wait"
+        :initial="false"
+      >
         <motion.div
           :key="selectedTab ? selectedTab.label : 'empty'"
           :initial="{ opacity: 1, y: 20 }"
-          :enter="{ opacity: 1, y: 0 }"
+          :animate="{ opacity: 1, y: 0 }"
           :exit="{ opacity: 0, y: -20 }"
           :transition="{ duration: 0.15 }"
         >
@@ -80,31 +87,6 @@ function add() {
 </template>
 
 <style scoped>
-:global(body) {
-  width: 100vw;
-  height: 100vh;
-  background: #ff0055;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.window {
-  width: 480px;
-  height: 360px;
-  border-radius: 10px;
-  background: white;
-  overflow: hidden;
-  box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075),
-    0 2px 2px hsl(0deg 0% 0% / 0.075), 0 4px 4px hsl(0deg 0% 0% / 0.075),
-    0 8px 8px hsl(0deg 0% 0% / 0.075), 0 16px 16px hsl(0deg 0% 0% / 0.075);
-  display: flex;
-  flex-direction: column;
-}
-
 nav {
   background: #fdfdfd;
   padding: 5px 5px 0;
