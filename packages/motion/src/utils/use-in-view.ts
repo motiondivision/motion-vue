@@ -4,7 +4,7 @@ import type { Options } from '@/types/state'
 import { inView } from 'framer-motion/dom'
 
 export function useInView<T extends Element = any>(
-  domRef: Ref<T>,
+  domRef: Ref<T | null>,
   options?: Options['inViewOptions'] | Ref<Options['inViewOptions']>,
 ) {
   const isInView = ref(false)

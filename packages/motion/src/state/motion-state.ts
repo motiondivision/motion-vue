@@ -103,6 +103,10 @@ export class MotionState {
   // Initialize animation target values
   private initTarget(initialVariantSource: string) {
     this.baseTarget = resolveVariant(this.options[initialVariantSource] || this.context[initialVariantSource], this.options.variants) || {}
+    for (const key in this.baseTarget) {
+      this.visualElement.setStaticValue(key, this.baseTarget[key])
+    }
+
     this.target = { }
   }
 
@@ -145,18 +149,6 @@ export class MotionState {
     (this.visualElement as any).state = this
 
     this.updateOptions()
-
-    // Apply initial values
-    if (typeof this.initial === 'object') {
-      for (const key in this.initial) {
-        this.visualElement.setStaticValue(key, this.initial[key])
-      }
-    }
-    else if (typeof this.initial === 'string' && this.options.variants) {
-      for (const key in this.options.variants[this.initial]) {
-        this.visualElement.setStaticValue(key, this.options.variants[this.initial][key])
-      }
-    }
 
     // Mount features
     this.featureManager.mount()

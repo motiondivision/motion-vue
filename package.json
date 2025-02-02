@@ -17,7 +17,7 @@
   "scripts": {
     "dev:play": "pnpm --filter ./playground/nuxt dev",
     "dev": "pnpm --filter ./packages/motion dev",
-    "build": "pnpm --filter ./packages/** build",
+    "build": "pnpm --filter ./packages/motion build",
     "test": "pnpm --filter ./packages/motion test",
     "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",

@@ -19,6 +19,8 @@ const routes = [
   { path: '/animate-variants', name: 'Animate Variants' },
   { path: '/change-style', name: 'Change Style' },
   { path: '/animated-tooltip', name: 'Animated Tooltip' },
+  { path: '/drag-to-reorder-lists', name: 'drag-to-reorder-lists' },
+  { path: '/reorder-layout', name: 'Reorder Layout' },
 ]
 const isShow = ref(false)
 // toggle for sandbox mode
