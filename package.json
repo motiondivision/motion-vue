@@ -15,10 +15,10 @@
   ],
   "main": "index.js",
   "scripts": {
-    "dev:play": "pnpm --filter ./playground/nuxt dev",
-    "dev": "pnpm --filter ./packages/motion dev",
-    "build": "pnpm --filter ./packages/motion build",
-    "test": "pnpm --filter ./packages/motion test",
+    "dev:play": "pnpm --filter nuxt-app dev",
+    "dev": "pnpm --filter motion-v dev",
+    "build": "pnpm --filter motion-v build",
+    "test": "pnpm --filter motion-v test",
     "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
@@ -27,7 +27,7 @@
     "docs:contributors": "pnpm --filter docs docs:contributors",
     "lint-staged": "lint-staged",
     "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
-    "pub:release": "pnpm --filter './packages/motion' pub:release"
+    "pub:release": "pnpm --filter motion-v pub:release"
   },
   "dependencies": {
     "vite": "^5.4.8",
