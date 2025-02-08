@@ -21,7 +21,7 @@ export class DragGesture extends Feature {
     if (dragControls) {
       this.removeGroupControls = dragControls.subscribe(this.controls)
     }
-    this.removeListeners = this.controls.addListeners() || noop
+    this.removeListeners = this.controls?.addListeners() || noop
   }
 
   unmount() {

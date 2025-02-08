@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { initialTabs as tabs } from './ingredients'
-import { AnimatePresence, Motion } from 'motion-v'
+import { Motion } from 'motion-v'
 
 const selectedTab = ref(tabs[0])
 </script>
 
 <template>
   <div class="flex justify-center items-center h-screen">
-    <div class="window">
+    <Motion
+      :initial="{
+        opacity: 1,
+        x: 1,
+        y: 1,
+      }"
+      class="window"
+    >
       <nav>
         <ul>
           <li
@@ -26,7 +33,7 @@ const selectedTab = ref(tabs[0])
           </li>
         </ul>
       </nav>
-      <main>
+      <!-- <main>
         <AnimatePresence mode="wait">
           <Motion
             :key="selectedTab ? selectedTab.label : 'empty'"
@@ -38,8 +45,8 @@ const selectedTab = ref(tabs[0])
             {{ selectedTab ? selectedTab.icon : '😋' }}
           </Motion>
         </AnimatePresence>
-      </main>
-    </div>
+      </main> -->
+    </Motion>
   </div>
 </template>
 

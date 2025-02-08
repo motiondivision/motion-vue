@@ -146,8 +146,8 @@ importers:
         specifier: ^10.0.0
         version: 10.11.1(vue@3.4.38(typescript@5.7.2))
       framer-motion:
-        specifier: 11.16.6
-        version: 11.16.6
+        specifier: 12.4.0
+        version: 12.4.0
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
@@ -4179,8 +4179,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@11.16.6:
-    resolution: {integrity: sha512-iaCa44d9ngnIyj7K3PdTl6Q2lrG8l2Ioh+Em8l1335VqksB6i1VAOo+fdcF5qTcwzSoMgr15tSLgdYFbWQ31sQ==}
+  framer-motion@12.4.0:
+    resolution: {integrity: sha512-QX92ThRniev3YTkjXOV/7m9fXBRQ5xDDRWDinuU//Xkjh+q9ppg3Nb0b95xgJYd2AE0rgJ7eoihY+Z+jjSv22w==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -5492,8 +5492,14 @@ packages:
   motion-dom@11.16.4:
     resolution: {integrity: sha512-2wuCie206pCiP2K23uvwJeci4pMFfyQKpWI0Vy6HrCTDzDCer4TsYtT7IVnuGbDeoIV37UuZiUr6SZMHEc1Vww==}
 
+  motion-dom@12.0.0:
+    resolution: {integrity: sha512-CvYd15OeIR6kHgMdonCc1ihsaUG4MYh/wrkz8gZ3hBX/uamyZCXN9S9qJoYF03GqfTt7thTV/dxnHYX4+55vDg==}
+
   motion-utils@11.16.0:
     resolution: {integrity: sha512-ngdWPjg31rD4WGXFi0eZ00DQQqKKu04QExyv/ymlC+3k+WIgYVFbt6gS5JsFPbJODTF/r8XiE/X+SsoT9c0ocw==}
+
+  motion-utils@12.0.0:
+    resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -12637,10 +12643,10 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@11.16.6:
+  framer-motion@12.4.0:
     dependencies:
-      motion-dom: 11.16.4
-      motion-utils: 11.16.0
+      motion-dom: 12.0.0
+      motion-utils: 12.0.0
       tslib: 2.7.0
 
   fresh@0.5.2: {}
@@ -14248,7 +14254,13 @@ snapshots:
     dependencies:
       motion-utils: 11.16.0
 
+  motion-dom@12.0.0:
+    dependencies:
+      motion-utils: 12.0.0
+
   motion-utils@11.16.0: {}
+
+  motion-utils@12.0.0: {}
 
   mri@1.2.0: {}
 

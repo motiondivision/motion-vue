@@ -40,7 +40,7 @@ export class InViewGesture extends Feature {
     const { once, ...viewOptions } = this.state.getOptions().inViewOptions || {}
     this.unmount = inView(
       element,
-      (entry) => {
+      (_, entry) => {
         handleHoverEvent(this.state, entry, 'Enter')
         if (!once) {
           return (endEvent) => {

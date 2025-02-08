@@ -36,12 +36,12 @@ export class LayoutFeature extends Feature {
         layoutGroup?.group?.add(projection)
       }
       globalProjectionState.hasEverUpdated = true
-      this.didUpdate()
+      // this.didUpdate()
     }
   }
 
   beforeUnmount(): void {
-    const projection = this.state.visualElement.projection
+    const projection = this.state.visualElement?.projection
     if (projection) {
       this.state.willUpdate('beforeUnmount')
       if (this.state.options.layoutId) {
@@ -56,7 +56,7 @@ export class LayoutFeature extends Feature {
 
   unmount() {
     const layoutGroup = this.state.options.layoutGroup
-    const projection = this.state.visualElement.projection
+    const projection = this.state.visualElement?.projection
     if (layoutGroup?.group && projection)
       layoutGroup.group.remove(projection)
     this.didUpdate()

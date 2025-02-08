@@ -111,7 +111,7 @@ onUpdated(() => {
 })
 
 function getProps() {
-  const isSVG = state.visualElement.type === 'svg'
+  const isSVG = state.visualElement?.type === 'svg'
   const attrsProps = { ...attrs }
   Object.keys(attrs).forEach((key) => {
     if (isMotionValue(attrs[key]))
@@ -119,7 +119,7 @@ function getProps() {
   })
   let styleProps: Record<string, any> = {
     ...props.style,
-    ...(isSVG ? {} : state.visualElement.latestValues),
+    ...(isSVG ? {} : state.visualElement?.latestValues),
   }
   if (isSVG) {
     const { attributes, style } = convertSvgStyleToAttributes(state.target)
