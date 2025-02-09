@@ -1,7 +1,6 @@
 import type { MotionState } from '@/state/motion-state'
 import { Feature } from '@/features'
-import { frame } from 'framer-motion/dom'
-import { press } from 'motion-dom'
+import { frame, press } from 'framer-motion/dom'
 import type { EventInfo } from 'framer-motion'
 
 export function extractEventInfo(event: PointerEvent): EventInfo {
@@ -49,7 +48,7 @@ export class PressGesture extends Feature {
       return
     this.unmount = press(
       element,
-      (startEvent) => {
+      (_, startEvent) => {
         handlePressEvent(this.state, startEvent, 'Start')
 
         return (endEvent, { success }) =>

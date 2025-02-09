@@ -151,9 +151,6 @@ importers:
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
-      motion-dom:
-        specifier: ^11.16.4
-        version: 11.16.4
     devDependencies:
       '@testing-library/vue':
         specifier: ^8.1.0
@@ -5489,14 +5486,8 @@ packages:
   mlly@1.7.3:
     resolution: {integrity: sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==}
 
-  motion-dom@11.16.4:
-    resolution: {integrity: sha512-2wuCie206pCiP2K23uvwJeci4pMFfyQKpWI0Vy6HrCTDzDCer4TsYtT7IVnuGbDeoIV37UuZiUr6SZMHEc1Vww==}
-
   motion-dom@12.0.0:
     resolution: {integrity: sha512-CvYd15OeIR6kHgMdonCc1ihsaUG4MYh/wrkz8gZ3hBX/uamyZCXN9S9qJoYF03GqfTt7thTV/dxnHYX4+55vDg==}
-
-  motion-utils@11.16.0:
-    resolution: {integrity: sha512-ngdWPjg31rD4WGXFi0eZ00DQQqKKu04QExyv/ymlC+3k+WIgYVFbt6gS5JsFPbJODTF/r8XiE/X+SsoT9c0ocw==}
 
   motion-utils@12.0.0:
     resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
@@ -14250,15 +14241,9 @@ snapshots:
       pkg-types: 1.2.1
       ufo: 1.5.4
 
-  motion-dom@11.16.4:
-    dependencies:
-      motion-utils: 11.16.0
-
   motion-dom@12.0.0:
     dependencies:
       motion-utils: 12.0.0
-
-  motion-utils@11.16.0: {}
 
   motion-utils@12.0.0: {}
 
