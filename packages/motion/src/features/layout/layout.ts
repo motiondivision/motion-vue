@@ -36,7 +36,7 @@ export class LayoutFeature extends Feature {
         layoutGroup?.group?.add(projection)
       }
       globalProjectionState.hasEverUpdated = true
-      this.didUpdate()
+      // this.didUpdate()
     }
   }
 
