@@ -31,7 +31,7 @@ export function nodeGroup(): NodeGroup {
         unsubscribe()
         subscriptions.delete(node)
       }
-      // dirtyAll()
+      dirtyAll()
     },
     dirty: dirtyAll,
   }

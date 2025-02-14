@@ -1,20 +1,17 @@
 import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
-import { isDef } from '@vueuse/core'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { frame } from 'framer-motion/dom'
-import { resolveVariant } from '@/state/utils'
+import { isAnimateChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { createVisualElement } from '@/state/create-visual-element'
 import { doneCallbacks } from '@/components/presence'
 import type { StateType } from './animate-updates'
 import { animateUpdates } from './animate-updates'
-
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0
-
 /**
  * Core class that manages animation state and orchestrates animations
  */
@@ -110,11 +107,6 @@ export class MotionState {
     this.target = { }
   }
 
-  // Get initial animation state
-  get initial() {
-    return isDef(this.options.initial) ? this.options.initial : this.context.initial
-  }
-
   // Update visual element with new options
   updateOptions() {
     this.visualElement.update({
@@ -187,19 +179,14 @@ export class MotionState {
     this.featureManager.beforeUpdate()
   }
 
-  // Update motion state with new options
-  update(options: Options, notAnimate = false) {
-    const prevAnimate = JSON.stringify(this.options.animate)
+  update(options: Options) {
+    const hasAnimateChange = isAnimateChanged(this.options, options)
     this.options = options
-    let hasAnimateChange = false
-    if (prevAnimate !== JSON.stringify(options.animate)) {
-      hasAnimateChange = true
-    }
     this.updateOptions()
     // Update features
     this.featureManager.update()
 
-    if (hasAnimateChange && !notAnimate) {
+    if (hasAnimateChange) {
       this.animateUpdates()
     }
   }
@@ -231,7 +218,8 @@ export class MotionState {
   }
 
   willUpdate(label: string) {
-    if (this.options.layout || this.options.layoutId)
+    if (this.options.layout || this.options.layoutId) {
       this.visualElement.projection?.willUpdate()
+    }
   }
 }
