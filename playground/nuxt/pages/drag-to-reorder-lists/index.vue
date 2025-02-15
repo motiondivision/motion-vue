@@ -4,19 +4,14 @@ import { ref } from 'vue'
 
 const initialItems = ['🍅 Tomato', '🥒 Cucumber', '🧀 Cheese', '🥬 Lettuce']
 const items = ref(initialItems)
-
-function setItems(newItems: string[]) {
-  items.value = newItems
-}
 </script>
 
 <template>
   <Motion />
   <ReorderGroup
+    v-model:values="items"
     axis="y"
-    :values="items"
     class="relative w-[300px]"
-    @reorder="setItems"
   >
     <ReorderItem
       v-for="item in items"

@@ -35,11 +35,10 @@ function add() {
     <LayoutGroup>
       <nav>
         <ReorderGroup
-          :values="tabs"
+          v-model:values="tabs"
           tag="ul"
           axis="x"
           class="tabs"
-          @reorder="tabs = $event"
         >
           <AnimatePresence
             multiple
