@@ -138,25 +138,20 @@ export function isAnimateChanged(oldOptions: Options, newOptions: Options): bool
   if (!oldAnimate || !newAnimate)
     return true
 
-  if (typeof oldAnimate !== typeof newAnimate)
-    return true
+  if (typeof oldAnimate === 'object' || typeof newAnimate === 'object') {
+    // Compare object keys and values
+    const oldKeys = Object.keys(oldAnimate)
+    const newKeys = Object.keys(newAnimate)
 
-  if (typeof oldAnimate === 'string' || typeof oldAnimate === 'boolean')
-    return oldAnimate !== newAnimate
+    if (oldKeys.length !== newKeys.length)
+      return true
 
-  // Compare object keys and values
-  const oldKeys = Object.keys(oldAnimate)
-  const newKeys = Object.keys(newAnimate)
+    return oldKeys.some((key) => {
+      const oldVal = oldAnimate[key]
+      const newVal = newAnimate[key]
+      return oldVal !== newVal
+    })
+  }
 
-  if (oldKeys.length !== newKeys.length)
-    return true
-
-  return oldKeys.some((key) => {
-    const oldVal = oldAnimate[key]
-    const newVal = newAnimate[key]
-    return oldVal !== newVal
-      && (typeof oldVal === 'number'
-        ? Math.abs(oldVal - newVal) > Number.EPSILON
-        : true)
-  })
+  return oldAnimate !== newAnimate
 }

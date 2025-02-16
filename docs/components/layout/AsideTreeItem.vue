@@ -74,9 +74,9 @@ const folderStyle = computed(() => link.sidebar?.style ?? defaultFolderStyle)
     <NuxtLink
       v-else
       :to="link._path"
-      class="flex items-center gap-2 rounded-md p-2 text-sm text-foreground/80 hover:bg-muted hover:text-primary"
+      class="flex hover:bg-primary/10 items-center gap-2 rounded-md p-2 text-sm text-foreground/80  hover:text-primary"
       :class="[
-        isActive && 'bg-muted !text-primary',
+        isActive && ' !text-primary bg-primary/10',
         link.navTruncate !== false && 'h-8',
       ]"
     >

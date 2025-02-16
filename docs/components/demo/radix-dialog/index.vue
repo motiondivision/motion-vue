@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle, DialogTrigger } from 'radix-vue'
-import { AnimatePresence, Motion, motion } from 'motion-v'
+import { AnimatePresence, motion } from 'motion-v'
 </script>
 
 <template>
@@ -25,7 +25,7 @@ import { AnimatePresence, Motion, motion } from 'motion-v'
           as-child
           class="w-full max-w-md rounded-xl bg-white p-6 backdrop-blur-2xl     z-[1001] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         >
-          <Motion
+          <motion.div
             :initial="{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }"
             :animate="{ opacity: 1, scale: 1 }"
             :exit="{ opacity: 0, scale: 0.95 }"
@@ -51,7 +51,7 @@ import { AnimatePresence, Motion, motion } from 'motion-v'
                 Got it, thanks!
               </UiButton>
             </DialogTrigger>
-          </Motion>
+          </motion.div>
         </DialogContent>
       </AnimatePresence>
     </DialogPortal>
