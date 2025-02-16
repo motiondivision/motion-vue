@@ -128,3 +128,30 @@ const svgElementSet = new Set(svgElements)
 export function isSVGElement(as: ElementType): as is SVGElements {
   return svgElementSet.has(as as SVGElements)
 }
+
+export function isAnimateChanged(oldOptions: Options, newOptions: Options): boolean {
+  const oldAnimate = oldOptions.animate
+  const newAnimate = newOptions.animate
+
+  if (oldAnimate === newAnimate)
+    return false
+  if (!oldAnimate || !newAnimate)
+    return true
+
+  if (typeof oldAnimate === 'object' || typeof newAnimate === 'object') {
+    // Compare object keys and values
+    const oldKeys = Object.keys(oldAnimate)
+    const newKeys = Object.keys(newAnimate)
+
+    if (oldKeys.length !== newKeys.length)
+      return true
+
+    return oldKeys.some((key) => {
+      const oldVal = oldAnimate[key]
+      const newVal = newAnimate[key]
+      return oldVal !== newVal
+    })
+  }
+
+  return oldAnimate !== newAnimate
+}

@@ -23,20 +23,17 @@ export class LayoutFeature extends Feature {
       this.state.visualElement.projection?.root?.didUpdate()
   }
 
-  beforeMount() {
-  }
-
   mount() {
     const options = this.state.options
     const layoutGroup = this.state.options.layoutGroup
-    if (options.layout || options.layoutId) {
+    if (options.layout || options.layoutId || options.drag) {
       const projection = this.state.visualElement.projection
-
       if (projection) {
+        projection.promote()
         layoutGroup?.group?.add(projection)
       }
-      globalProjectionState.hasEverUpdated = true
       this.didUpdate()
+      globalProjectionState.hasEverUpdated = true
     }
   }
 
@@ -57,8 +54,12 @@ export class LayoutFeature extends Feature {
   unmount() {
     const layoutGroup = this.state.options.layoutGroup
     const projection = this.state.visualElement.projection
-    if (layoutGroup?.group && projection)
+
+    if (layoutGroup?.group && projection) {
       layoutGroup.group.remove(projection)
-    this.didUpdate()
+    }
+    else {
+      this.didUpdate()
+    }
   }
 }

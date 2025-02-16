@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   mode: 'sync',
   initial: true,
   multiple: false,
+  unwrapElement: false,
 })
 
 const presenceContext = {
@@ -49,9 +50,13 @@ onUnmounted(() => {
 })
 // 处理元素退出动画
 function exit(el: Element, done: VoidFunction) {
-  const state = mountedStates.get(el)
+  let state = mountedStates.get(el)
   if (!state) {
-    return done()
+    if (!props.unwrapElement) {
+      return done()
+    }
+    el = el.firstElementChild as Element
+    state = mountedStates.get(el)
   }
   exitDom.set(el, true)
   removeDoneCallback(el)

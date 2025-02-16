@@ -87,7 +87,7 @@ reorderContextProvider({
     const newOrder = checkReorder(order, item, offset, velocity)
     if (order !== newOrder) {
       isReordering = true
-      props['onUpdate:values'](
+      props['onUpdate:values']?.(
         newOrder
           .map(getValue)
           .filter(value => props.values.includes(value)),
