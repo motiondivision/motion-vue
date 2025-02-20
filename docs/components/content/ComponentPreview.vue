@@ -64,10 +64,7 @@ const viewType = ref(tabs[0])
       </div>
     </template>
 
-    <div
-      v-else
-      class="border-t"
-    >
+    <div v-else>
       <div class="flex border-b">
         <button
           v-for="(file, index) in props.files"
@@ -89,7 +86,7 @@ const viewType = ref(tabs[0])
         </button>
       </div>
       <div
-        class="[&>div]:rounded-none [&>div]:border-none [&>div]:shadow-none [&>div]:!mb-0"
+        class="[&>div]:rounded-t-none [&>div]:border-none [&>div]:shadow-none [&>div]:!mb-0"
       >
         <slot
           :name="`slot-${activeTab}`"
