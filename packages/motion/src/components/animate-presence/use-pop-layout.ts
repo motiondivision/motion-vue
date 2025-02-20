@@ -5,16 +5,22 @@ import type { MotionState } from '@/state'
 export function usePopLayout(props: AnimatePresenceProps) {
   const styles = new WeakMap<MotionState, HTMLStyleElement>()
   const config = useMotionConfig()
-
   function addPopStyle(state: MotionState) {
     if (props.mode !== 'popLayout')
       return
+    const parent = state.element.offsetParent
+    const parentWidth
+                = parent instanceof HTMLElement ? parent.offsetWidth || 0 : 0
     const size = {
       height: state.element.offsetHeight || 0,
       width: state.element.offsetWidth || 0,
       top: state.element.offsetTop,
       left: state.element.offsetLeft,
+      right: 0,
     }
+    size.right = parentWidth - size.width - size.left
+    const x = props.anchorX === 'left' ? `left: ${size.left}` : `right: ${size.right}`
+
     state.element.dataset.motionPopId = state.id
     const style = document.createElement('style')
     if (config.value.nonce) {
@@ -34,8 +40,8 @@ export function usePopLayout(props: AnimatePresenceProps) {
       width: ${size.width}px !important;
       height: ${size.height}px !important;
       top: ${size.top}px !important;
-          left: ${size.left}px !important;
-        }
+      ${x}px !important;
+      }
       `)
     }
   }

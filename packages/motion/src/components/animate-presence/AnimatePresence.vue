@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   initial: true,
   multiple: false,
   unwrapElement: false,
+  anchorX: 'left',
 })
 
 const presenceContext = {
