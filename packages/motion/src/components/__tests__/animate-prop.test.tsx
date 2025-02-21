@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { Motion } from '@/components'
 import { motionValue } from 'framer-motion/dom'
-import { computed, h, nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 function createRerender(Component: any) {
   let wrapper: any = null
