@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { type LayoutGroupProps, useLayoutGroupProvider } from './use-layout-group'
 
-const props = defineProps<LayoutGroupProps>()
+const props = withDefaults(defineProps<LayoutGroupProps>(), {
+  inherit: true,
+})
 const { forceRender, key } = useLayoutGroupProvider(props)
 </script>
 

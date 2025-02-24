@@ -1,26 +1,33 @@
 <script setup lang="ts">
-import { motion } from 'motion-v'
+import { ref } from 'vue'
+import { Motion, useMotionValue } from 'motion-v'
+
+const counter = ref(0)
+function updateComponent() {
+  counter.value += 1
+}
+
+const rotate = useMotionValue(0)
+function updateMotionValue() {
+  rotate.set(rotate.get() + 10)
+}
 </script>
 
 <template>
-  <motion.div
-    class="inline-grid grid-cols-2 gap-2"
-    initial="hidden"
-    hover="visible"
-    :transition="{
-      staggerChildren: 0.2,
-    }"
+  <Motion
+    as-child
+
+    :style="{ rotate }"
   >
-    <motion.div
-      v-for="i in 4"
-      :key="i"
-      class="w-20 h-20 bg-red-500"
-      :variants="{
-        hidden: { opacity: 0, y: 30, rotate: 3 },
-        visible: { opacity: 1, y: 0, rotate: 0 },
-      }"
-    >
-      {{ i }}
-    </motion.div>
-  </motion.div>
+    <div class="w-10 h-10 bg-red-500">
+      {{ counter }}
+    </div>
+  </Motion>
+
+  <button @click="updateComponent">
+    Update component
+  </button>
+  <button @click="updateMotionValue">
+    Update motion value
+  </button>
 </template>

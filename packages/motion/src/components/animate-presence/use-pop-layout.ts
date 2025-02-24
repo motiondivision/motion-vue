@@ -1,6 +1,7 @@
 import { useMotionConfig } from '@/components/motion-config/context'
 import type { AnimatePresenceProps } from './types'
 import type { MotionState } from '@/state'
+import { frame } from 'framer-motion/dom'
 
 export function usePopLayout(props: AnimatePresenceProps) {
   const styles = new WeakMap<MotionState, HTMLStyleElement>()
@@ -28,11 +29,6 @@ export function usePopLayout(props: AnimatePresenceProps) {
     }
     styles.set(state, style)
     document.head.appendChild(style)
-    style.textContent = `
-      [data-motion-pop-id="${state.id}"] {
-        animation: pop 0.3s ease-in-out;
-      }
-    `
     if (style.sheet) {
       style.sheet.insertRule(`
     [data-motion-pop-id="${state.id}"] {
@@ -51,7 +47,7 @@ export function usePopLayout(props: AnimatePresenceProps) {
     if (!style)
       return
     styles.delete(state)
-    requestIdleCallback(() => {
+    frame.render(() => {
       document.head.removeChild(style)
     })
   }

@@ -4,7 +4,6 @@ import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-import { frame } from 'framer-motion/dom'
 
 // 定义组件选项
 defineOptions({
@@ -30,6 +29,7 @@ provideAnimatePresence(presenceContext)
 onMounted(() => {
   presenceContext.initial = undefined
 })
+const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
 // 处理元素进入动画
 function enter(el: HTMLElement) {
@@ -37,12 +37,11 @@ function enter(el: HTMLElement) {
   if (!state) {
     return
   }
+  removePopStyle(state)
   state.isVShow = true
   removeDoneCallback(el)
   state.setActive('exit', false)
 }
-
-const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
 const exitDom = new Map<Element, boolean>()
 
@@ -78,9 +77,7 @@ function exit(el: Element, done: VoidFunction) {
         state.willUpdate('done')
       }
       else {
-        frame.render(() => {
-          removePopStyle(state)
-        })
+        removePopStyle(state)
       }
       done()
 
@@ -118,7 +115,3 @@ const transitionProps = computed(() => {
     <slot />
   </component>
 </template>
-
-<style scoped>
-
-</style>
