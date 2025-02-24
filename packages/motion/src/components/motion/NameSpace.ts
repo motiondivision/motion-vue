@@ -15,7 +15,9 @@ type MotionComponentProps = {
 }
 type MotionKeys = keyof MotionComponentProps
 
-interface MotionNameSpace extends Record<keyof IntrinsicElementAttributes, DefineComponent<MotionProps<keyof IntrinsicElementAttributes, unknown>>> {
+type MotionNameSpace = {
+  [K in keyof IntrinsicElementAttributes]: DefineComponent<MotionProps<K, unknown>>
+} & {
   create: MotionComponentProps['create']
 }
 
