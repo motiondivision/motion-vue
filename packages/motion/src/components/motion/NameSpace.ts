@@ -2,6 +2,7 @@ import type { DefineComponent, ExtractPropTypes, ExtractPublicPropTypes, Intrins
 import { defineComponent, h } from 'vue'
 import Motion from './Motion.vue'
 import type { MotionProps } from './Motion.vue'
+import type { MotionHTMLAttributes } from '@/types'
 
 type ComponentProps<T> = T extends DefineComponent<
   ExtractPropTypes<infer Props>,
@@ -16,7 +17,7 @@ type MotionComponentProps = {
 type MotionKeys = keyof MotionComponentProps
 
 type MotionNameSpace = {
-  [K in keyof IntrinsicElementAttributes]: DefineComponent<MotionProps<K, unknown>>
+  [K in keyof IntrinsicElementAttributes]: DefineComponent<MotionProps<K, unknown> & MotionHTMLAttributes<K>>
 } & {
   create: MotionComponentProps['create']
 }
