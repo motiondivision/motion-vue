@@ -233,7 +233,7 @@ export class MotionState {
     })
     if (isAnimate) {
       this.animateUpdates({
-        isFallback: !isActive && this.visualElement.isControllingVariants,
+        isFallback: !isActive && name !== 'exit' && this.visualElement.isControllingVariants,
       })
     }
   }
