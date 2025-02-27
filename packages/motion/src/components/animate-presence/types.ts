@@ -11,4 +11,5 @@ export interface AnimatePresenceProps {
   custom?: any
   onExitComplete?: VoidFunction
   unwrapElement?: boolean
+  anchorX?: 'left' | 'right'
 }

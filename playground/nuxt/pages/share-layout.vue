@@ -14,30 +14,40 @@ useEventListener('keydown', (event: KeyboardEvent) => {
   <div class="h-screen w-screen bg-gradient-to-br flex items-center justify-center from-indigo-500 via-purple-500 to-pink-500">
     <MotionConfig>
       <LayoutGroup>
-        <template #default="{ forceRender }">
+        <AnimatePresence>
           <Motion
-            v-if="!show"
+            v-if="show"
+            layout-id="test"
+            :transition="{ duration: 3 }"
+            class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
+            @click="show = !show"
+          >
+            <Motion
+              layout-id="test-1"
+              class="w-[100px] h-[100px] bg-white rounded-md"
+              :transition="{ duration: 3 }"
+            >
+              wahaha
+            </Motion>
+          </Motion>
+          <Motion
+            v-else
             layout-id="test"
             class="w-[100px] h-[100px] bg-white rounded-md"
             :transition="{ duration: 3 }"
-            :crossfade="false"
             @click="() => {
               show = !show
-              forceRender()
             }"
-          />
-
-          <AnimatePresence>
+          >
             <Motion
-              v-if="show"
-              layout-id="test"
+              layout-id="test-1"
+              class="w-[100px] h-[100px] bg-white rounded-md"
               :transition="{ duration: 3 }"
-              class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
-              :crossfade="false"
-              @click="show = !show"
-            />
-          </AnimatePresence>
-        </template>
+            >
+              wahaha
+            </Motion>
+          </Motion>
+        </AnimatePresence>
       </LayoutGroup>
     </MotionConfig>
   </div>

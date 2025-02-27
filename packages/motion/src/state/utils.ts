@@ -49,7 +49,7 @@ export function removeItem<T>(array: T[], item: T) {
 }
 
 export function getOptions(options: $Transition, key: string): $Transition {
-  return options[key as any] ? { ...options, ...options[key as any] } : { ...options }
+  return options[key as any] ? { ...options, ...options[key as any], [key]: undefined } : { ...options }
 }
 
 export function isCssVar(name: string) {

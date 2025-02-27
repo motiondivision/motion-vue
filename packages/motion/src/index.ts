@@ -1,4 +1,5 @@
 export * from 'framer-motion/dom'
+export { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 export { motionValue as useMotionValue } from 'framer-motion/dom'
 export * from './components'
 export { default as LayoutGroup } from './components/LayoutGroup.vue'

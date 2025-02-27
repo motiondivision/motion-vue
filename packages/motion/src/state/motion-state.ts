@@ -174,38 +174,36 @@ export class MotionState {
   // Unmount motion state and optionally unmount children
   // Handles unmounting in the correct order based on component tree
   unmount(unMountChildren = false) {
+    /**
+     * Unlike React, within the same update cycle, the execution order of unmount and mount depends on the component's order in the component tree.
+     * Here we delay unmount for components with layoutId to ensure unmount executes after mount for layout animations.
+     */
     const shouldDelay = this.options.layoutId && !mountedLayoutIds.has(this.options.layoutId)
     const unmount = () => {
-      mountedStates.delete(this.element)
-      this.featureManager.unmount()
-      if (unMountChildren && !shouldDelay) {
-        frame.render(() => {
-          this.visualElement?.unmount()
-        })
+      if (unMountChildren) {
+        Array.from(this.children).reverse().forEach(this.unmountChild)
       }
-      else {
+
+      const unmountState = () => {
+        this.parent?.children?.delete(this)
+        mountedStates.delete(this.element)
+        this.featureManager.unmount()
         this.visualElement?.unmount()
       }
-      // Recursively unmount children in child-to-parent order
-      if (unMountChildren) {
-        const unmountChild = (child: MotionState) => {
-          child.unmount(true)
-          child.children?.forEach(unmountChild)
-        }
-        Array.from(this.children).forEach(unmountChild)
+      // Delay unmount if needed for layout animations
+      if (shouldDelay) {
+        Promise.resolve().then(unmountState)
       }
-      this.parent?.children?.delete(this)
+      else {
+        unmountState()
+      }
     }
 
-    // Delay unmount if needed for layout animations
-    if (shouldDelay) {
-      Promise.resolve().then(() => {
-        unmount()
-      })
-    }
-    else {
-      unmount()
-    }
+    unmount()
+  }
+
+  private unmountChild(child: MotionState) {
+    child.unmount(true)
   }
 
   // Called before updating, executes in parent-to-child order
@@ -236,7 +234,7 @@ export class MotionState {
     })
     if (isAnimate) {
       this.animateUpdates({
-        isFallback: !isActive,
+        isFallback: !isActive && name !== 'exit' && this.visualElement.isControllingVariants,
       })
     }
   }

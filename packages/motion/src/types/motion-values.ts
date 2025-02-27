@@ -1,6 +1,6 @@
 import type { MotionValue } from 'framer-motion/dom'
-import type { Options } from './state'
-import type { AriaAttributes, Events, SVGAttributes } from 'vue'
+import type { ElementType, Options } from './state'
+import type { AriaAttributes, Events, IntrinsicElementAttributes, SVGAttributes } from 'vue'
 
 type EventHandlers<E> = {
   [K in keyof E]?: E[K] extends (...args: any) => any ? E[K] : (payload: E[K]) => void;
@@ -101,3 +101,6 @@ export interface SVGAttributesWithMotionValues {
 export type SetMotionValueType<T, Keys extends keyof T> = {
   [K in keyof T]: K extends Keys ? SVGAttributesAsMotionValues : T[K]
 }
+
+type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
+export type MotionHTMLAttributes<C extends ElementType> = Omit<IntrinsicElementAttributesAsMotionValues[C], keyof Options | 'style' | 'as' | 'asChild'>

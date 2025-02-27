@@ -4,20 +4,19 @@ import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-import { frame } from 'framer-motion/dom'
+import { delay } from '@/utils/delay'
 
-// 定义组件选项
 defineOptions({
   name: 'AnimatePresence',
   inheritAttrs: true,
 })
 
-// 设置Props默认值
 const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   mode: 'sync',
   initial: true,
   multiple: false,
   unwrapElement: false,
+  anchorX: 'left',
 })
 
 const presenceContext = {
@@ -29,34 +28,37 @@ provideAnimatePresence(presenceContext)
 onMounted(() => {
   presenceContext.initial = undefined
 })
+const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
-// 处理元素进入动画
 function enter(el: HTMLElement) {
   const state = mountedStates.get(el)
   if (!state) {
     return
   }
+  removePopStyle(state)
   state.isVShow = true
   removeDoneCallback(el)
-  state.setActive('exit', false)
+  /**
+   * Delay to ensure animations read the latest state before triggering.
+   * This allows the animation system to capture updated values after component updates.
+   */
+  delay(() => {
+    state.setActive('exit', false)
+  })
 }
-
-const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
 const exitDom = new Map<Element, boolean>()
 
 onUnmounted(() => {
   exitDom.clear()
 })
-// 处理元素退出动画
 function exit(el: Element, done: VoidFunction) {
-  let state = mountedStates.get(el)
-  if (!state) {
-    if (!props.unwrapElement) {
-      return done()
-    }
+  if (props.unwrapElement) {
     el = el.firstElementChild as Element
-    state = mountedStates.get(el)
+  }
+  const state = mountedStates.get(el)
+  if (!state) {
+    return done()
   }
   exitDom.set(el, true)
   removeDoneCallback(el)
@@ -77,20 +79,23 @@ function exit(el: Element, done: VoidFunction) {
         state.willUpdate('done')
       }
       else {
-        frame.render(() => {
-          removePopStyle(state)
-        })
+        removePopStyle(state)
       }
       done()
-
-      if (!el?.isConnected) {
+      if (!el.isConnected) {
         state.unmount(true)
       }
     }
   }
   doneCallbacks.set(el, doneCallback)
   el.addEventListener('motioncomplete', doneCallback)
-  state.setActive('exit', true)
+  /**
+   * Delay to ensure animations read the latest state before triggering.
+   * This allows the animation system to capture updated values after component updates.
+   */
+  delay(() => {
+    state.setActive('exit', true)
+  })
 }
 
 const transitionProps = computed(() => {
@@ -117,7 +122,3 @@ const transitionProps = computed(() => {
     <slot />
   </component>
 </template>
-
-<style scoped>
-
-</style>
