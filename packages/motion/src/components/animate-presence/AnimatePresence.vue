@@ -5,13 +5,11 @@ import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/com
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
 
-// 定义组件选项
 defineOptions({
   name: 'AnimatePresence',
   inheritAttrs: true,
 })
 
-// 设置Props默认值
 const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   mode: 'sync',
   initial: true,
@@ -31,7 +29,6 @@ onMounted(() => {
 })
 const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
-// 处理元素进入动画
 function enter(el: HTMLElement) {
   const state = mountedStates.get(el)
   if (!state) {
@@ -48,15 +45,13 @@ const exitDom = new Map<Element, boolean>()
 onUnmounted(() => {
   exitDom.clear()
 })
-// 处理元素退出动画
 function exit(el: Element, done: VoidFunction) {
-  let state = mountedStates.get(el)
-  if (!state) {
-    if (!props.unwrapElement) {
-      return done()
-    }
+  if (props.unwrapElement) {
     el = el.firstElementChild as Element
-    state = mountedStates.get(el)
+  }
+  const state = mountedStates.get(el)
+  if (!state) {
+    return done()
   }
   exitDom.set(el, true)
   removeDoneCallback(el)
@@ -79,11 +74,10 @@ function exit(el: Element, done: VoidFunction) {
       else {
         removePopStyle(state)
       }
-      done()
-
-      if (!el?.isConnected) {
+      if (!state.isVShow) {
         state.unmount(true)
       }
+      done()
     }
   }
   doneCallbacks.set(el, doneCallback)

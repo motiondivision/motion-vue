@@ -14,6 +14,7 @@
     "motion-number-vue": "latest",
     "motion-v": "workspace:*",
     "nuxt": "^3.13.0",
+    "reka-ui": "^2.0.0",
     "vue": "latest",
     "vue-router": "latest"
   },

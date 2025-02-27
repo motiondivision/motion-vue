@@ -33,20 +33,19 @@ useEventListener('keydown', (event: KeyboardEvent) => {
           }"
         />
         <AnimatePresence>
+          <ActiveCard
+            v-if="activeCard"
+            :card="activeCard || {}"
+            @close="cardId = null"
+          />
+        </AnimatePresence>
+        <AnimatePresence>
           <Motion
             v-if="activeCard"
             :initial="{ opacity: 0 }"
             :animate="{ opacity: 1 }"
             :exit="{ opacity: 0 }"
             class=" overlay pointer-events-none"
-          />
-        </AnimatePresence>
-
-        <AnimatePresence>
-          <ActiveCard
-            v-if="activeCard"
-            :card="activeCard || {}"
-            @close="cardId = null"
           />
         </AnimatePresence>
       </div>

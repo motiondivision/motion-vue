@@ -180,36 +180,29 @@ export class MotionState {
      */
     const shouldDelay = this.options.layoutId && !mountedLayoutIds.has(this.options.layoutId)
     const unmount = () => {
-      mountedStates.delete(this.element)
-      this.featureManager.unmount()
-      if (unMountChildren && !shouldDelay) {
-        frame.render(() => {
-          this.visualElement?.unmount()
-        })
-      }
-      else {
-        this.visualElement?.unmount()
-      }
-      // Recursively unmount children in child-to-parent order
       if (unMountChildren) {
         const unmountChild = (child: MotionState) => {
           child.unmount(true)
-          child.children?.forEach(unmountChild)
         }
-        Array.from(this.children).forEach(unmountChild)
+        Array.from(this.children).reverse().forEach(unmountChild)
       }
-      this.parent?.children?.delete(this)
+
+      const unmountState = () => {
+        this.parent?.children?.delete(this)
+        mountedStates.delete(this.element)
+        this.featureManager.unmount()
+        this.visualElement?.unmount()
+      }
+      // Delay unmount if needed for layout animations
+      if (shouldDelay) {
+        Promise.resolve().then(unmountState)
+      }
+      else {
+        unmountState()
+      }
     }
 
-    // Delay unmount if needed for layout animations
-    if (shouldDelay) {
-      Promise.resolve().then(() => {
-        unmount()
-      })
-    }
-    else {
-      unmount()
-    }
+    unmount()
   }
 
   // Called before updating, executes in parent-to-child order
