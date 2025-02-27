@@ -19,22 +19,22 @@ export class LayoutFeature extends Feature {
   }
 
   didUpdate() {
-    if (this.state.options.layout || this.state.options.layoutId)
+    if (this.state.options.layout || this.state.options.layoutId || this.state.options.drag)
       this.state.visualElement.projection?.root?.didUpdate()
   }
 
   mount() {
     const options = this.state.options
     const layoutGroup = this.state.options.layoutGroup
-    if (options.layout || options.layoutId || options.drag) {
+    if (options.layout || options.layoutId) {
       const projection = this.state.visualElement.projection
       if (projection) {
         projection.promote()
         layoutGroup?.group?.add(projection)
       }
-      this.didUpdate()
       globalProjectionState.hasEverUpdated = true
     }
+    this.didUpdate()
   }
 
   beforeUnmount(): void {
@@ -55,10 +55,15 @@ export class LayoutFeature extends Feature {
     const layoutGroup = this.state.options.layoutGroup
     const projection = this.state.visualElement.projection
 
-    if (layoutGroup?.group && projection) {
-      layoutGroup.group.remove(projection)
-    }
-    else {
+    if (projection) {
+      if (layoutGroup?.group) {
+        layoutGroup.group.remove(projection)
+      }
+
+      // Check lead's animation progress, if it exists, skip update to prevent lead from jumping
+      if (projection.getStack()?.lead?.animationProgress) {
+        return
+      }
       this.didUpdate()
     }
   }
