@@ -181,10 +181,7 @@ export class MotionState {
     const shouldDelay = this.options.layoutId && !mountedLayoutIds.has(this.options.layoutId)
     const unmount = () => {
       if (unMountChildren) {
-        const unmountChild = (child: MotionState) => {
-          child.unmount(true)
-        }
-        Array.from(this.children).reverse().forEach(unmountChild)
+        Array.from(this.children).reverse().forEach(this.unmountChild)
       }
 
       const unmountState = () => {
@@ -203,6 +200,10 @@ export class MotionState {
     }
 
     unmount()
+  }
+
+  private unmountChild(child: MotionState) {
+    child.unmount(true)
   }
 
   // Called before updating, executes in parent-to-child order
