@@ -81,10 +81,10 @@ function exit(el: Element, done: VoidFunction) {
       else {
         removePopStyle(state)
       }
-      if (!state.isVShow) {
+      done()
+      if (!el.isConnected) {
         state.unmount(true)
       }
-      done()
     }
   }
   doneCallbacks.set(el, doneCallback)
