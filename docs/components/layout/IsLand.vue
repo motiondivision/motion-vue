@@ -19,7 +19,7 @@ const open = ref(false)
 const scrollPercentage = ref(0)
 const { scrollYProgress } = useScroll()
 
-useMotionValue(scrollYProgress, 'change', (value) => {
+useMotionValueEvent(scrollYProgress, 'change', (value) => {
   scrollPercentage.value = value
 })
 
