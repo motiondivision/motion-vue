@@ -40,13 +40,11 @@ export function animateUpdates(
   this.target = { ...this.baseTarget }
   const animationOptions: Record<string, $Transition> = {}
   const transition = { ...this.options.transition }
-
   // 处理直接动画或状态动画
   if (directAnimate)
     resolveDirectAnimation.call(this, directAnimate, directTransition, animationOptions)
   else
     resolveStateAnimation.call(this, controlActiveState, animationOptions)
-
   const factories = createAnimationFactories.call(this, prevTarget, animationOptions, controlDelay)
   const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, transition, controlActiveState, isFallback)
 
@@ -120,7 +118,6 @@ function createAnimationFactories(
   Object.keys(this.target).forEach((key: any) => {
     if (!hasChanged(prevTarget[key], this.target[key]))
       return
-
     this.baseTarget[key] ??= style.get(this.element, key) as string
     const keyValue = this.target[key] === 'none' ? transformResetValue[key] : this.target[key]
     const targetTransition = animationOptions[key]

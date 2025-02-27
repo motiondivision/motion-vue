@@ -4,6 +4,7 @@ import { mountedStates } from '@/state'
 import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
+import { delay } from '@/utils/delay'
 
 defineOptions({
   name: 'AnimatePresence',
@@ -37,7 +38,13 @@ function enter(el: HTMLElement) {
   removePopStyle(state)
   state.isVShow = true
   removeDoneCallback(el)
-  state.setActive('exit', false)
+  /**
+   * Delay to ensure animations read the latest state before triggering.
+   * This allows the animation system to capture updated values after component updates.
+   */
+  delay(() => {
+    state.setActive('exit', false)
+  })
 }
 
 const exitDom = new Map<Element, boolean>()
@@ -82,7 +89,13 @@ function exit(el: Element, done: VoidFunction) {
   }
   doneCallbacks.set(el, doneCallback)
   el.addEventListener('motioncomplete', doneCallback)
-  state.setActive('exit', true)
+  /**
+   * Delay to ensure animations read the latest state before triggering.
+   * This allows the animation system to capture updated values after component updates.
+   */
+  delay(() => {
+    state.setActive('exit', true)
+  })
 }
 
 const transitionProps = computed(() => {
