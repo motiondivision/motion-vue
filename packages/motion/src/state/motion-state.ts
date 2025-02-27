@@ -174,6 +174,10 @@ export class MotionState {
   // Unmount motion state and optionally unmount children
   // Handles unmounting in the correct order based on component tree
   unmount(unMountChildren = false) {
+    /**
+     * Unlike React, within the same update cycle, the execution order of unmount and mount depends on the component's order in the component tree.
+     * Here we delay unmount for components with layoutId to ensure unmount executes after mount for layout animations.
+     */
     const shouldDelay = this.options.layoutId && !mountedLayoutIds.has(this.options.layoutId)
     const unmount = () => {
       mountedStates.delete(this.element)

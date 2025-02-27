@@ -11,7 +11,7 @@
   "dependencies": {
     "@number-flow/vue": "^0.3.2",
     "@vueuse/core": "^12.0.0",
-    "motion-number-vue": "link:/Users/huangpeng/Documents/workspace/web/mygithub/motion-number-vue",
+    "motion-number-vue": "latest",
     "motion-v": "workspace:*",
     "nuxt": "^3.13.0",
     "vue": "latest",
