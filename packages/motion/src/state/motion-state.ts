@@ -60,6 +60,9 @@ export class MotionState {
     // Calculate depth in component tree
     this.depth = parent?.depth + 1 || 0
 
+    // Initialize with either initial or animate variant
+    const initialVariantSource = options.initial === false ? 'animate' : 'initial'
+    this.initTarget(initialVariantSource)
     // Create visual element with initial config
     this.visualElement = createVisualElement(this.options.as!, {
       presenceContext: null,
@@ -78,14 +81,13 @@ export class MotionState {
           vars: {},
           attrs: {},
         },
-        latestValues: {},
+        latestValues: {
+          ...this.baseTarget,
+        },
       },
       reducedMotionConfig: options.motionConfig.reduceMotion,
     })
 
-    // Initialize with either initial or animate variant
-    const initialVariantSource = options.initial === false ? 'animate' : 'initial'
-    this.initTarget(initialVariantSource)
     this.featureManager = new FeatureManager(this)
   }
 
@@ -110,10 +112,6 @@ export class MotionState {
   // Initialize animation target values
   private initTarget(initialVariantSource: string) {
     this.baseTarget = resolveVariant(this.options[initialVariantSource] || this.context[initialVariantSource], this.options.variants) || {}
-    for (const key in this.baseTarget) {
-      this.visualElement.setStaticValue(key, this.baseTarget[key])
-    }
-
     this.target = { }
   }
 
