@@ -15,6 +15,7 @@
     "motion-v": "workspace:*"
   },
   "devDependencies": {
-    "unbuild": "^2.0.0"
+    "unbuild": "^2.0.0",
+    "unplugin-vue-components": "^0.28.0"
   }
 }
