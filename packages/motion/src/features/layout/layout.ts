@@ -61,6 +61,7 @@ export class LayoutFeature extends Feature {
       }
 
       // Check lead's animation progress, if it exists, skip update to prevent lead from jumping
+      // @ts-ignore
       if (projection.getStack()?.lead?.animationProgress) {
         return
       }

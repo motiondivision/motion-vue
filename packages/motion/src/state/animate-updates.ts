@@ -158,14 +158,16 @@ function setupChildAnimations(
     .map((child: VisualElement & { state: MotionState }, index) => {
       const childDelay = delayChildren + generateStaggerDuration(index)
       return child.state.animateUpdates({
-        controlActiveState: this.activeStates,
+        controlActiveState,
         controlDelay: isFallback ? 0 : childDelay,
       })
     })
     .filter(Boolean) as (() => Promise<any>)[]
 
   return {
-    getChildAnimations: () => Promise.all(childAnimations.map(animation => animation())),
+    getChildAnimations: () => Promise.all(childAnimations.map((animation) => {
+      return typeof animation === 'function' ? animation() : animation
+    })),
     childAnimations,
   }
 }
