@@ -3,9 +3,10 @@ import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
 import { injectAnimatePresence } from '../presence'
 import { isMotionValue } from '@/utils'
-import { checkMotionIsHidden, getMotionElement } from './utils'
+import { checkMotionIsHidden } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import { useMotionConfig } from '../motion-config/context'
+import { getMotionElement } from '../hooks/use-motion-elm'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">

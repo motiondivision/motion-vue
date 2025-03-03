@@ -40,8 +40,10 @@ export interface DragOptions {
   constraints?: false | Partial<BoundingBox>
   dragSnapToOrigin?: boolean
 }
+
+type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transition'>
 export type MotionStyle = Partial<{
-  [K in keyof (Variant & TransformProperties)]: (Variant & TransformProperties)[K] | MotionValue
+  [K in keyof (Variant & TransformPropertiesWithoutTransition)]: string | number | undefined | MotionValue
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
