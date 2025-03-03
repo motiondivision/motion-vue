@@ -9,6 +9,7 @@ import { createVisualElement } from '@/state/create-visual-element'
 import { doneCallbacks } from '@/components/presence'
 import type { StateType } from './animate-updates'
 import { animateUpdates } from './animate-updates'
+import { isVariantLabels } from '@/state/utils/is-variant-labels'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -98,7 +99,7 @@ export class MotionState {
     if (!this._context) {
       const handler = {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
-          return typeof this.options[prop] === 'string'
+          return isVariantLabels(this.options[prop])
             ? this.options[prop]
             : this.parent?.context[prop]
         },

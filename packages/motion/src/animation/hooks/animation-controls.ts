@@ -94,6 +94,9 @@ export function setValues(
   if (typeof definition === 'string') {
     return setVariants(state, [definition])
   }
+  else if (Array.isArray(definition)) {
+    return setVariants(state, definition)
+  }
   else {
     setStateTarget(state, definition)
     setTarget(state.visualElement, definition as any)

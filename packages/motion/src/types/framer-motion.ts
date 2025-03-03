@@ -1,5 +1,6 @@
 import type { Inertia, Keyframes, None, Repeat, Spring, Tween } from 'framer-motion'
 
+export type { Point } from 'framer-motion'
 export interface FrameData {
   delta: number
   timestamp: number

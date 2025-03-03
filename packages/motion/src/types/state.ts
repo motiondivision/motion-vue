@@ -23,7 +23,12 @@ export type TargetResolver = (
 export interface Variant extends DOMKeyframesDefinition {
   transition?: $Transition
 }
-export type VariantLabels = string | Variant
+
+/**
+ * Either a string, or array of strings, that reference variants defined via the `variants` prop.
+ * @public
+ */
+export type VariantLabels = string | string[]
 
 interface BoundingBox {
   top: number
@@ -36,7 +41,7 @@ export interface DragOptions {
   dragSnapToOrigin?: boolean
 }
 export type MotionStyle = Partial<{
-  [K in keyof Variant]: Variant[K] | MotionValue
+  [K in keyof (Variant & TransformProperties)]: (Variant & TransformProperties)[K] | MotionValue
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 
@@ -46,9 +51,9 @@ export interface Options<T = any> extends
   PanProps, FocusProps {
   custom?: T
   as?: ElementType
-  initial?: string | Variant | boolean
-  animate?: string | Variant | AnimationControls
-  exit?: string | Variant
+  initial?: VariantLabels | Variant | boolean
+  animate?: VariantLabels | Variant | AnimationControls
+  exit?: VariantLabels | Variant
   variants?: {
     [k: string]: Variant | ((custom: T) => Variant)
   }
@@ -68,12 +73,12 @@ export interface Options<T = any> extends
 }
 
 export interface MotionStateContext {
-  initial?: string
-  animate?: string
-  inView?: string
-  hover?: string
-  press?: string
-  exit?: string
+  initial?: VariantLabels
+  animate?: VariantLabels
+  inView?: VariantLabels
+  hover?: VariantLabels
+  press?: VariantLabels
+  exit?: VariantLabels
 }
 
 export type AnimationFactory = () => AnimationPlaybackControls | undefined

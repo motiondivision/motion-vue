@@ -1,5 +1,5 @@
 import type { DragControls } from '@/features/gestures/drag/use-drag-controls'
-import type { Variant } from '@/types'
+import type { Variant, VariantLabels } from '@/types'
 import type { Axis, BoundingBox, DragElastic, InertiaOptions, PanInfo } from 'framer-motion'
 
 export interface ResolvedConstraints {
@@ -236,5 +236,5 @@ export interface DragProps extends DragHandlers {
    * ```
    */
   dragControls?: DragControls
-  whileDrag?: string | Variant
+  whileDrag?: VariantLabels | Variant
 }
