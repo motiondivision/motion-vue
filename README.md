@@ -62,11 +62,11 @@ Then import the `motion` component:
 
 ```vue
 <script setup>
-import { Motion } from "motion-v";
+import { motion } from "motion-v";
 </script>
 
 <template>
-  <Motion :animate="{ x: 100 }" />
+  <motion.div :animate="{ x: 100 }" />
 </template>
 ```
 
