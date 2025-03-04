@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { Motion } from '@/components'
 import { motionValue } from 'framer-motion/dom'
 import { computed, nextTick, ref } from 'vue'
+import { delay } from '@/shared/test'
 
 function createRerender(Component: any) {
   let wrapper: any = null
@@ -183,5 +184,28 @@ describe('animate prop as object', () => {
     })
 
     await expect(promise).resolves.toBe('1')
+  })
+
+  it('animates through variant array', async () => {
+    const promise = new Promise((resolve) => {
+      const x = motionValue(0)
+      const y = motionValue(0)
+      const { wrapper } = createRerender(Motion)
+      wrapper.setProps({
+        animate: ['default', 'open'],
+        variants: {
+          default: { x: 10 },
+          open: { y: 20 },
+        },
+        style: { x, y },
+      })
+      delay(300).then(() => {
+        resolve({ x: x.get(), y: y.get() })
+      })
+    })
+
+    const result: { x: number, y: number } = await promise as any
+    expect(result.x).toBe(10)
+    expect(result.y).toBe(20)
   })
 })
