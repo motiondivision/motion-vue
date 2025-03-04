@@ -4,10 +4,10 @@
   "description": "",
   "author": "",
   "license": "MIT",
-  "homepage": "https://github.com/unovue/motion-vue",
+  "homepage": "https://github.com/motiondivision/motion-vue",
   "repository": {
     "type": "git",
-    "url": "https://github.com/unovue/motion-vue.git"
+    "url": "https://github.com/motiondivision/motion-vue.git"
   },
   "keywords": [
     "vue",

@@ -62,15 +62,17 @@ Then import the `motion` component:
 
 ```vue
 <script setup>
-import { Motion } from "motion-v";
+import { motion } from 'motion-v'
 </script>
 
 <template>
-  <Motion :animate="{ x: 100 }" />
+  <motion.div :animate="{ x: 100 }" />
 </template>
 ```
 
-Read the [full documentation](https://motion.seacoly.me/).
+### 💎 Contribute
+
+- Want to contribute to Motion? Our [contributing guide](https://github.com/motiondivision/motion-vue/blob/master/CONTRIBUTING.md) has you covered.
 
 ### 👩🏻‍⚖️ License
 
@@ -101,69 +103,3 @@ Motion powers Framer animations, the web builder for creative pros. Design and s
 ### Silver
 
 <a href="https://www.frontend.fyi/?utm_source=motion"><img alt="Frontend.fyi" src="https://github.com/user-attachments/assets/07d23aa5-69db-44a0-849d-90177e6fc817" width="150px" height="100px"></a> <a href="https://statamic.com"><img alt="Statamic" src="https://github.com/user-attachments/assets/5d28f090-bdd9-4b31-b134-fb2b94ca636f" width="150px" height="100px"></a> <a href="https://firecrawl.dev"><img alt="Firecrawl" src="https://github.com/user-attachments/assets/cba90e54-1329-4353-8fba-85beef4d2ee9" width="150px" height="100px"></a> <a href="https://puzzmo.com"><img alt="Puzzmo" src="https://github.com/user-attachments/assets/aa2d5586-e5e2-43b9-8446-db456e4b0758" width="150px" height="100px"></a> <a href="https://buildui.com"><img alt="Build UI" src="https://github.com/user-attachments/assets/024bfcd5-50e8-4b3d-a115-d5c6d6030d1c" width="150px" height="100px"></a> <a href="https://hover.dev"><img alt="Hover" src="https://github.com/user-attachments/assets/4715b555-d2ac-4cb7-9f35-d36d708827b3" width="150px" height="100px"></a>
-
-![Group 1171276039](https://github.com/user-attachments/assets/646e3a57-1fe8-42e1-8508-6a0504d3d4b6)
-
-An animation library designed for Vue 3, powered by [Motion](https://www.framer.com/motion/).
-
-## Features
-
-- ✨ Declarative animation API for intuitive control
-- 👋 Gesture-driven animations for interactive experiences
-- ⚙ Motion values for dynamic animations
-- 🔲 Layout animations and transitions
-- 🚪 Polished enter/exit animations
-- 📜 Smooth scroll-based animations and effects
-
-## 🏎️ Quick Start
-
-To install `motion-v`, run the following command:
-
-```bash
-npm install motion-v
-```
-
-## Basic Usage
-
-Here is a basic example of how to use `motion-v` in your Vue 3 project:
-
-```vue
-<script setup>
-import { Motion } from "motion-v";
-</script>
-
-<template>
-  <Motion :animate="{ x: 100 }" />
-</template>
-```
-
-### Advanced Usage
-
-For more advanced usage, you can combine multiple animations and gestures:
-
-```vue
-<script setup>
-import { Motion } from "motion-v";
-import { ref } from "vue";
-
-const isVisible = ref(true);
-</script>
-
-<template>
-  <Motion
-    v-if="isVisible"
-    :initial="{ opacity: 0 }"
-    :animate="{ opacity: 1, x: 100 }"
-    :exit="{ opacity: 0, x: -100 }"
-    @click="isVisible = !isVisible"
-  />
-</template>
-```
-
-In this example, the `Motion` component will fade in and move to the right when it appears, and fade out and move to the left when it disappears. Clicking the component will toggle its visibility.
-
-For detailed documentation, please refer to the [full documentation](https://motion.seacoly.me/).
-
-## Contributing
-
-We welcome contributions from the community. Please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) file for guidelines on how to contribute to this project. Your contributions are invaluable in helping us improve and grow.
