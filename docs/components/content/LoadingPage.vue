@@ -102,7 +102,7 @@ const floatingItems = [
               class="rounded-full"
               size="lg"
               as="a"
-              href="https://github.com/unovue/motion-vue"
+              href="https://github.com/motiondivision/motion-vue"
               target="_blank"
             >
               <Icon

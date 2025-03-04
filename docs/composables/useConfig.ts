@@ -41,7 +41,7 @@ const defaultConfig: DefaultConfig = {
     links: [
       {
         icon: 'uil:github',
-        to: 'https://github.com/unovue/motion-vue',
+        to: 'https://github.com/motiondivision/motion-vue',
         target: '_blank',
       },
     ],
