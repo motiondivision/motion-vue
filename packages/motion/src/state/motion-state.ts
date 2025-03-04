@@ -9,6 +9,7 @@ import { createVisualElement } from '@/state/create-visual-element'
 import { doneCallbacks } from '@/components/presence'
 import type { StateType } from './animate-updates'
 import { animateUpdates } from './animate-updates'
+import { isVariantLabels } from '@/state/utils/is-variant-labels'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -60,6 +61,9 @@ export class MotionState {
     // Calculate depth in component tree
     this.depth = parent?.depth + 1 || 0
 
+    // Initialize with either initial or animate variant
+    const initialVariantSource = this.context.initial === false ? 'animate' : 'initial'
+    this.initTarget(initialVariantSource)
     // Create visual element with initial config
     this.visualElement = createVisualElement(this.options.as!, {
       presenceContext: null,
@@ -78,14 +82,13 @@ export class MotionState {
           vars: {},
           attrs: {},
         },
-        latestValues: {},
+        latestValues: {
+          ...this.baseTarget,
+        },
       },
       reducedMotionConfig: options.motionConfig.reduceMotion,
     })
 
-    // Initialize with either initial or animate variant
-    const initialVariantSource = options.initial === false ? 'animate' : 'initial'
-    this.initTarget(initialVariantSource)
     this.featureManager = new FeatureManager(this)
   }
 
@@ -96,7 +99,7 @@ export class MotionState {
     if (!this._context) {
       const handler = {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
-          return typeof this.options[prop] === 'string'
+          return isVariantLabels(this.options[prop])
             ? this.options[prop]
             : this.parent?.context[prop]
         },
@@ -110,10 +113,6 @@ export class MotionState {
   // Initialize animation target values
   private initTarget(initialVariantSource: string) {
     this.baseTarget = resolveVariant(this.options[initialVariantSource] || this.context[initialVariantSource], this.options.variants) || {}
-    for (const key in this.baseTarget) {
-      this.visualElement.setStaticValue(key, this.baseTarget[key])
-    }
-
     this.target = { }
   }
 

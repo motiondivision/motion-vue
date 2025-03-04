@@ -7,7 +7,13 @@ export function resolveVariant(
   variants?: Options['variants'],
   custom?: Options['custom'],
 ): Variant | undefined {
-  if (typeof definition === 'object') {
+  if (Array.isArray(definition)) {
+    return definition.reduce((acc, item) => {
+      const resolvedVariant = resolveVariant(item, variants, custom)
+      return resolvedVariant ? { ...acc, ...resolvedVariant } : acc
+    }, {})
+  }
+  else if (typeof definition === 'object') {
     return definition
   }
   else if (definition && variants) {

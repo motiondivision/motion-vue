@@ -1,4 +1,4 @@
-import type { Variant } from '@/types'
+import type { Variant, VariantLabels } from '@/types'
 
 type MarginValue = `${number}${'px' | '%'}`
 
@@ -14,7 +14,7 @@ type ViewportEventHandler = (entry: IntersectionObserverEntry | null) => void
 
 export interface InViewProps {
   inViewOptions?: InViewOptions & { once?: boolean }
-  inView?: string | Variant
+  inView?: VariantLabels | Variant
 
   onViewportEnter?: ViewportEventHandler
   onViewportLeave?: ViewportEventHandler

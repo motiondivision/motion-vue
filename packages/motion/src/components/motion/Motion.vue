@@ -3,9 +3,10 @@ import { Primitive } from './Primitive'
 import { MotionState } from '@/state/motion-state'
 import { injectAnimatePresence } from '../presence'
 import { isMotionValue } from '@/utils'
-import { checkMotionIsHidden, getMotionElement } from './utils'
+import { checkMotionIsHidden } from './utils'
 import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import { useMotionConfig } from '../motion-config/context'
+import { getMotionElement } from '../hooks/use-motion-elm'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
@@ -122,12 +123,9 @@ function getProps() {
     ...(isSVG ? {} : state.visualElement.latestValues),
   }
   if (isSVG) {
-    const { attributes, style } = convertSvgStyleToAttributes(state.target)
+    const { attributes, style } = convertSvgStyleToAttributes(state.isMounted() ? state.target : state.baseTarget)
     Object.assign(attrsProps, attributes)
     Object.assign(styleProps, style)
-  }
-  if (!state.isMounted()) {
-    Object.assign(styleProps, state.baseTarget)
   }
   if (props.drag && props.dragListener !== false) {
     Object.assign(styleProps, {
