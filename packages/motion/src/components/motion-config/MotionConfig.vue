@@ -17,6 +17,7 @@ const config = computed(() => ({
   transition: props.transition ?? parentConfig.value.transition,
   reduceMotion: props.reduceMotion ?? parentConfig.value.reduceMotion,
   nonce: props.nonce ?? parentConfig.value.nonce,
+  inViewOptions: props.inViewOptions ?? parentConfig.value.inViewOptions,
 }))
 
 provideMotionConfig(config)

@@ -69,6 +69,7 @@ function getMotionProps() {
     transition: props.transition ?? config.value.transition,
     layoutGroup,
     motionConfig: config.value,
+    inViewOptions: props.inViewOptions ?? config.value.inViewOptions,
     initial: animatePresenceContext.initial === false
       ? animatePresenceContext.initial
       : (
