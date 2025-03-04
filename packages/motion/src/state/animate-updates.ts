@@ -38,15 +38,15 @@ export function animateUpdates(
 ) {
   const prevTarget = this.target
   this.target = { ...this.baseTarget }
-  const animationOptions: Record<string, $Transition> = {}
+  let animationOptions: Record<string, $Transition> = {}
   const transition = { ...this.options.transition }
   // 处理直接动画或状态动画
   if (directAnimate)
-    resolveDirectAnimation.call(this, directAnimate, directTransition, animationOptions)
+    animationOptions = resolveDirectAnimation.call(this, directAnimate, directTransition, animationOptions)
   else
-    resolveStateAnimation.call(this, controlActiveState, animationOptions)
+    animationOptions = resolveStateAnimation.call(this, controlActiveState, transition)
   const factories = createAnimationFactories.call(this, prevTarget, animationOptions, controlDelay)
-  const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, transition, controlActiveState, isFallback)
+  const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, transition, this.activeStates, isFallback)
 
   return executeAnimations.call(this, factories, getChildAnimations, childAnimations, transition, controlActiveState)
 }
@@ -58,20 +58,20 @@ function resolveDirectAnimation(
   this: MotionState,
   directAnimate: Options['animate'],
   directTransition: $Transition | undefined,
-  animationOptions: Record<string, $Transition>,
 ) {
   const variant = resolveVariant(directAnimate, this.options.variants, this.options.custom)
   if (!variant)
-    return
+    return {}
 
   const transition = { ...this.options.transition, ...(directTransition || variant.transition) }
-
+  const animationOptions = {}
   Object.entries(variant).forEach(([key, value]) => {
     if (key === 'transition')
       return
     this.target[key] = value
     animationOptions[key] = getOptions(transition, key)
   })
+  return animationOptions
 }
 
 /**
@@ -80,11 +80,12 @@ function resolveDirectAnimation(
 function resolveStateAnimation(
   this: MotionState,
   controlActiveState: Partial<Record<string, boolean>> | undefined,
-  animationOptions: Record<string, $Transition>,
+  transition: $Transition,
 ) {
   if (controlActiveState)
     this.activeStates = { ...this.activeStates, ...controlActiveState }
 
+  const transitionOptions = {}
   STATE_TYPES.forEach((name) => {
     if (!this.activeStates[name] || isAnimationControls(this.options[name]))
       return
@@ -94,14 +95,15 @@ function resolveStateAnimation(
     if (!variant)
       return
 
-    const transition = { ...this.options.transition, ...variant.transition }
+    Object.assign(transition, variant.transition)
     Object.entries(variant).forEach(([key, value]) => {
       if (key === 'transition')
         return
       this.target[key] = value
-      animationOptions[key] = getOptions(transition, key)
+      transitionOptions[key] = getOptions(transition, key)
     })
   })
+  return transitionOptions
 }
 
 /**
@@ -145,7 +147,7 @@ function setupChildAnimations(
   controlActiveState: Partial<Record<string, boolean>> | undefined,
   isFallback: boolean,
 ) {
-  if (!this.visualElement.variantChildren?.size || controlActiveState)
+  if (!this.visualElement.variantChildren?.size || !controlActiveState)
     return { getChildAnimations: () => Promise.resolve(), childAnimations: [] }
 
   const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition || {}

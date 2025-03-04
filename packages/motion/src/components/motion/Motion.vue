@@ -123,7 +123,7 @@ function getProps() {
     ...(isSVG ? {} : state.visualElement.latestValues),
   }
   if (isSVG) {
-    const { attributes, style } = convertSvgStyleToAttributes(state.target)
+    const { attributes, style } = convertSvgStyleToAttributes(state.isMounted() ? state.target : state.baseTarget)
     Object.assign(attrsProps, attributes)
     Object.assign(styleProps, style)
   }

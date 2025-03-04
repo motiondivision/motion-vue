@@ -62,7 +62,7 @@ export class MotionState {
     this.depth = parent?.depth + 1 || 0
 
     // Initialize with either initial or animate variant
-    const initialVariantSource = options.initial === false ? 'animate' : 'initial'
+    const initialVariantSource = this.context.initial === false ? 'animate' : 'initial'
     this.initTarget(initialVariantSource)
     // Create visual element with initial config
     this.visualElement = createVisualElement(this.options.as!, {

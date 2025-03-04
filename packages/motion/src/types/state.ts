@@ -75,7 +75,7 @@ export interface Options<T = any> extends
 }
 
 export interface MotionStateContext {
-  initial?: VariantLabels
+  initial?: VariantLabels | boolean
   animate?: VariantLabels
   inView?: VariantLabels
   hover?: VariantLabels
