@@ -198,9 +198,9 @@ describe('animate prop as object', () => {
           open: { y: 20 },
         },
         style: { x, y },
-      })
-      delay(300).then(() => {
-        resolve({ x: x.get(), y: y.get() })
+        onMotioncomplete: () => {
+          resolve({ x: x.get(), y: y.get() })
+        },
       })
     })
 

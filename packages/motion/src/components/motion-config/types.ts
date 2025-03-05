@@ -10,6 +10,8 @@ export interface MotionConfigState {
   reduceMotion?: 'user' | 'never' | 'always'
   /** Custom nonce for CSP compliance with inline styles */
   nonce?: string
+  /** Options for the inView prop */
+  inViewOptions?: Options['inViewOptions']
 }
 
 /** Props interface matching the config state */
