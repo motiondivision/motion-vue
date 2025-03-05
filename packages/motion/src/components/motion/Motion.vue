@@ -10,14 +10,22 @@ import { getMotionElement } from '../hooks/use-motion-elm'
 </script>
 
 <script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
-import { type ComponentInstance, type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { type ComponentInstance, type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, warn } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from '../context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
 export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
   as?: T
   asChild?: boolean
+  hover?: Options['hover']
+  press?: Options['press']
+  inView?: Options['inView']
+  focus?: Options['focus']
   whileDrag?: Options['whileDrag']
+  whileHover?: Options['whileHover']
+  whilePress?: Options['whilePress']
+  whileInView?: Options['whileInView']
+  whileFocus?: Options['whileFocus']
 }
 type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
 
@@ -43,6 +51,30 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   dragMomentum: true,
   whileDrag: undefined,
   crossfade: true,
+  whileHover: ({ hover }) => {
+    if (process.env.NODE_ENV === 'development' && hover) {
+      warn('hover is deprecated. Use whileHover instead.')
+    }
+    return hover
+  },
+  whilePress: ({ press }) => {
+    if (process.env.NODE_ENV === 'development' && press) {
+      warn('press is deprecated. Use whilePress instead.')
+    }
+    return press
+  },
+  whileInView: ({ inView }) => {
+    if (process.env.NODE_ENV === 'development' && inView) {
+      warn('inView is deprecated. Use whileInView instead.')
+    }
+    return inView
+  },
+  whileFocus: ({ focus }) => {
+    if (process.env.NODE_ENV === 'development' && focus) {
+      warn('focus is deprecated. Use whileFocus instead.')
+    }
+    return focus
+  },
 } as any) as MotionProps<T>
 const animatePresenceContext = injectAnimatePresence({ })
 const parentState = injectMotion(null)

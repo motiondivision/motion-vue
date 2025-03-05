@@ -21,14 +21,14 @@ export class FocusGesture extends Feature {
     }
     if (!isFocusVisible)
       return
-    this.state.setActive('focus', true)
+    this.state.setActive('whileFocus', true)
     this.isActive = true
   }
 
   onBlur() {
     if (!this.isActive)
       return
-    this.state.setActive('focus', false)
+    this.state.setActive('whileFocus', false)
     this.isActive = false
   }
 

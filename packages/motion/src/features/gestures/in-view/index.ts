@@ -9,8 +9,8 @@ function handleHoverEvent(
   lifecycle: 'Enter' | 'Leave',
 ) {
   const props = state.options
-  if (props.inView) {
-    state.setActive('inView', lifecycle === 'Enter')
+  if (props.whileInView) {
+    state.setActive('whileInView', lifecycle === 'Enter')
   }
 
   const eventName = (`onViewport${lifecycle}`) as

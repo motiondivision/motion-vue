@@ -19,8 +19,8 @@ function handlePressEvent(
   lifecycle: 'Start' | 'End' | 'Cancel',
 ) {
   const props = state.options
-  if (props.press) {
-    state.setActive('press', lifecycle === 'Start')
+  if (props.whilePress) {
+    state.setActive('whilePress', lifecycle === 'Start')
   }
 
   const eventName = (`onPress${lifecycle === 'End' ? '' : lifecycle}`) as
