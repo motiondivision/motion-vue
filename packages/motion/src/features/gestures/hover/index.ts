@@ -9,8 +9,8 @@ function handleHoverEvent(
   lifecycle: 'Start' | 'End',
 ) {
   const props = state.options
-  if (props.hover) {
-    state.setActive('hover', lifecycle === 'Start')
+  if (props.whileHover) {
+    state.setActive('whileHover', lifecycle === 'Start')
   }
 
   const eventName = (`onHover${lifecycle}`) as

@@ -10,7 +10,7 @@ import { isDef } from '@vueuse/core'
 import { isAnimationControls } from '@/animation/utils'
 
 // 定义所有可用的动画状态类型
-const STATE_TYPES = ['initial', 'animate', 'inView', 'hover', 'press', 'whileDrag', 'focus', 'exit'] as const
+const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
 
 /**

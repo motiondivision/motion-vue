@@ -70,9 +70,9 @@ export class MotionState {
       parent: parent?.visualElement,
       props: {
         ...this.options,
-        whileHover: this.options.hover,
-        whileTap: this.options.press,
-        whileInView: this.options.inView,
+        whileHover: this.options.whileHover,
+        whileTap: this.options.whilePress,
+        whileInView: this.options.whileInView,
       },
       visualState: {
         renderState: {
