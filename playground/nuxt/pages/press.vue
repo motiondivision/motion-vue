@@ -9,7 +9,7 @@ import { Motion } from 'motion-v'
         backgroundColor: '#ffffff33',
         scale: 1,
       }"
-      :press="{
+      :while-press="{
         scale: 0.9,
         backgroundColor: '#ffffff66',
       }"

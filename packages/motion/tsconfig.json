@@ -20,7 +20,7 @@
       "@/*": ["src/*"]
     },
     // Set to empty to avoid accidental inclusion of unwanted types
-    "types": [],
+    "types": ["node"],
     "outDir": "./dist/es"
   },
   "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.tsx"],
