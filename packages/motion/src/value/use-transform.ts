@@ -2,6 +2,7 @@ import type { TransformOptions } from '@/types'
 import { type MotionValue, transform } from 'framer-motion/dom'
 import { useComputed } from './use-computed'
 import { useCombineMotionValues } from '@/value/use-combine-values'
+import { type MaybeRef, computed, isRef } from 'vue'
 
 type InputRange = number[]
 type SingleTransformer<I, O> = (input: I) => O
@@ -84,7 +85,7 @@ export function useTransform<I, O>(
   | MotionValue<number>[]
   | MotionValue<string | number>[]
   | (() => O),
-  inputRangeOrTransformer?: InputRange | Transformer<I, O>,
+  inputRangeOrTransformer?: MaybeRef<InputRange> | Transformer<I, O>,
   outputRange?: O[],
   options?: TransformOptions<O>,
 ): MotionValue<O> {
@@ -92,22 +93,28 @@ export function useTransform<I, O>(
     return useComputed(input)
   }
 
-  const transformer
-        = typeof inputRangeOrTransformer === 'function'
-          ? inputRangeOrTransformer
-          : transform(inputRangeOrTransformer!, outputRange!, options)
+  const transformer = computed(() => {
+    return typeof inputRangeOrTransformer === 'function'
+      ? inputRangeOrTransformer
+      : transform(isRef(inputRangeOrTransformer) ? inputRangeOrTransformer.value : inputRangeOrTransformer, outputRange!, options)
+  })
+
   return Array.isArray(input)
     ? useListTransform(
       input,
-      transformer as MultiTransformer<string | number, O>,
+      transformer as MaybeRef<MultiTransformer<string | number, O>>,
     )
-    : useListTransform([input], ([latest]) =>
-      (transformer as SingleTransformer<I, O>)(latest))
+    : useListTransform([input], ([latest]) => {
+      if (isRef(transformer)) {
+        return (transformer.value as SingleTransformer<I, O>)(latest)
+      }
+      return (transformer as SingleTransformer<I, O>)(latest)
+    })
 }
 
 function useListTransform<I, O>(
   values: MotionValue<I>[],
-  transformer: MultiTransformer<I, O>,
+  transformer: MaybeRef<MultiTransformer<I, O>>,
 ): MotionValue<O> {
   const latest: I[] = []
 
@@ -118,7 +125,7 @@ function useListTransform<I, O>(
       latest[i] = values[i].get()
     }
 
-    return transformer(latest)
+    return isRef(transformer) ? transformer.value(latest) : transformer(latest)
   })
 
   subscribe(values)

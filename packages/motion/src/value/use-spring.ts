@@ -1,4 +1,5 @@
-import { watch } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
+import { isRef, watch } from 'vue'
 import { type MotionValue, frame, frameData, motionValue } from 'framer-motion/dom'
 import type { SpringOptions } from 'framer-motion'
 import type { MainThreadAnimation } from 'framer-main-animation'
@@ -13,7 +14,7 @@ function toNumber(v: string | number) {
 
 export function useSpring(
   source: MotionValue<string> | MotionValue<number> | number,
-  config: SpringOptions = {},
+  config: SpringOptions | ComputedRef<SpringOptions> | Ref<SpringOptions> = {},
 ) {
   let activeSpringAnimation: MainThreadAnimation = null
   const value = motionValue(
@@ -37,20 +38,24 @@ export function useSpring(
     }
 
     stopAnimation()
-
+    const springConfig = isRef(config) ? (config as Ref<SpringOptions>).value : config
     activeSpringAnimation = animateValue({
       keyframes: [value.get(), latestValue],
       velocity: value.getVelocity(),
       type: 'spring',
       restDelta: 0.001,
       restSpeed: 0.01,
-      ...config,
+      ...springConfig,
       onUpdate: latestSetter,
     })
   }
 
-  // 监听配置变化
-  watch(() => JSON.stringify(config), () => {
+  watch(() => {
+    if (isRef(config)) {
+      return (config as Ref<SpringOptions>).value
+    }
+    return config
+  }, () => {
     (value as any).attach((v, set) => {
       latestValue = v
       latestSetter = set
@@ -59,7 +64,6 @@ export function useSpring(
     }, stopAnimation)
   }, { immediate: true })
 
-  // 监听源值变化
   if (isMotionValue(source)) {
     source.on('change', (v) => {
       value.set(toNumber(v))
