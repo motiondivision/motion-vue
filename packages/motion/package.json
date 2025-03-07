@@ -73,9 +73,8 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
-    "framer-motion": "11.16.6",
-    "hey-listen": "^1.0.8",
-    "motion-dom": "^11.16.4"
+    "framer-motion": "12.4.10",
+    "hey-listen": "^1.0.8"
   },
   "devDependencies": {
     "@testing-library/vue": "^8.1.0",

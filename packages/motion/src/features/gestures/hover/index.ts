@@ -1,7 +1,6 @@
 import type { MotionState } from '@/state/motion-state'
 import { Feature, extractEventInfo } from '@/features'
-import { frame } from 'framer-motion/dom'
-import { hover } from 'motion-dom'
+import { frame, hover } from 'framer-motion/dom'
 
 function handleHoverEvent(
   state: MotionState,
@@ -25,7 +24,7 @@ function handleHoverEvent(
 
 export class HoverGesture extends Feature {
   isActive() {
-    return Boolean(this.state.getOptions().hover)
+    return Boolean(this.state.getOptions().whileHover)
   }
 
   constructor(state: MotionState) {
@@ -38,7 +37,7 @@ export class HoverGesture extends Feature {
       return
     this.unmount = hover(
       element,
-      (startEvent) => {
+      (el, startEvent) => {
         handleHoverEvent(this.state, startEvent, 'Start')
         return (endEvent) => {
           handleHoverEvent(this.state, endEvent, 'End')

@@ -90,11 +90,15 @@ function resolveStateAnimation(
     if (!this.activeStates[name] || isAnimationControls(this.options[name]))
       return
 
-    const definition = isDef(this.options[name]) ? this.options[name] : this.context[name]
-    const variant = resolveVariant(definition, this.options.variants, this.options.custom)
+    const definition = this.options[name]
+    let variant = isDef(definition) ? resolveVariant(definition as any, this.options.variants, this.options.custom) : undefined
+    // If current node is a variant node, merge the control node's variant
+    if (this.visualElement.isVariantNode) {
+      const controlVariant = resolveVariant(this.context[name], this.options.variants, this.options.custom)
+      variant = controlVariant ? Object.assign(controlVariant || {}, variant) : variant
+    }
     if (!variant)
       return
-
     Object.assign(transition, variant.transition)
     Object.entries(variant).forEach(([key, value]) => {
       if (key === 'transition')

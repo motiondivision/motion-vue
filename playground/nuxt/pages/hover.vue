@@ -6,7 +6,7 @@ import { Motion } from 'motion-v'
   <div class="flex flex-col space-y-8 items-center justify-center p-8 h-screen">
     <!-- Basic Hover Animation -->
     <Motion
-      :hover="{
+      :while-hover="{
         scale: 1.2,
         rotate: 5,
         transition: { type: 'spring' },
@@ -18,7 +18,7 @@ import { Motion } from 'motion-v'
 
     <!-- Hover with Color Change -->
     <Motion
-      :hover="{
+      :while-hover="{
         backgroundColor: '#22c55e',
         y: -20,
         transition: { duration: 0.3 },
@@ -29,7 +29,7 @@ import { Motion } from 'motion-v'
     <!-- Complex Hover Animation -->
     <Motion
       :initial="{ borderRadius: '16px' }"
-      :hover="{
+      :while-hover="{
         scale: 1.1,
         borderRadius: '50%',
         boxShadow: '0 10px 20px rgba(0,0,0,0.2)',

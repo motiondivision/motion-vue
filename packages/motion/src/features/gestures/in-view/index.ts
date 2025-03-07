@@ -25,7 +25,7 @@ function handleHoverEvent(
 
 export class InViewGesture extends Feature {
   isActive() {
-    return Boolean(this.state.getOptions().inView)
+    return Boolean(this.state.getOptions().whileInView)
   }
 
   constructor(state: MotionState) {
@@ -40,7 +40,7 @@ export class InViewGesture extends Feature {
     const { once, ...viewOptions } = this.state.getOptions().inViewOptions || {}
     this.unmount = inView(
       element,
-      (entry) => {
+      (_, entry) => {
         handleHoverEvent(this.state, entry, 'Enter')
         if (!once) {
           return (endEvent) => {

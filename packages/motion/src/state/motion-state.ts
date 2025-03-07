@@ -2,7 +2,7 @@ import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
-import { frame } from 'framer-motion/dom'
+import { cancelFrame, frame } from 'framer-motion/dom'
 import { isAnimateChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { createVisualElement } from '@/state/create-visual-element'
@@ -38,6 +38,14 @@ export class MotionState {
     initial: true,
     animate: true,
   }
+
+  /**
+   * Current animation process reference
+   * Tracks the ongoing animation process for mount/update animations
+   * Enables delayed animation loading and parent-child animation orchestration
+   * Allows parent variant elements to control child element animations
+   */
+  public currentProcess: ReturnType<typeof frame.render> | null = null
 
   // Depth in component tree for lifecycle ordering
   public depth: number
@@ -155,7 +163,7 @@ export class MotionState {
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
-      this.animateUpdates()
+      this.startAnimation()
     }
     if (this.options.layoutId) {
       mountedLayoutIds.add(this.options.layoutId)
@@ -163,6 +171,23 @@ export class MotionState {
         mountedLayoutIds.clear()
       })
     }
+  }
+
+  clearAnimation() {
+    this.currentProcess && cancelFrame(this.currentProcess)
+    this.currentProcess = null
+    this.visualElement.variantChildren?.forEach((child) => {
+      (child as any).state.clearAnimation()
+    })
+  }
+
+  // update trigger animation
+  startAnimation() {
+    this.clearAnimation()
+    this.currentProcess = frame.render(() => {
+      this.currentProcess = null
+      this.animateUpdates()
+    })
   }
 
   // Called before unmounting, executes in child-to-parent order
@@ -219,7 +244,7 @@ export class MotionState {
     this.featureManager.update()
 
     if (hasAnimateChange) {
-      this.animateUpdates()
+      this.startAnimation()
     }
   }
 

@@ -96,7 +96,9 @@ describe('animate prop as object', () => {
         style: { x },
         animate: { x: 30, transition: { type: false } },
       })
-      requestAnimationFrame(() => resolve(x.get()))
+      delay(500).then(() => {
+        resolve(x.get())
+      })
     })
     await expect(promise).resolves.toBe(30)
   })
@@ -144,7 +146,9 @@ describe('animate prop as object', () => {
           transitionEnd: { x: 300 },
         },
       })
-      requestAnimationFrame(() => resolve(x.get()))
+      delay(500).then(() => {
+        resolve(x.get())
+      })
     })
     await expect(promise).resolves.toBe(300)
   })
@@ -174,7 +178,7 @@ describe('animate prop as object', () => {
         components: { Motion },
       })
       nextTick(async () => {
-        await new Promise(r => setTimeout(r, 300))
+        await new Promise(r => setTimeout(r, 500))
         position.value = { left: 100 }
         // Move div
         const div = wrapper.find('div')
