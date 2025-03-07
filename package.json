@@ -37,6 +37,7 @@
     "@antfu/eslint-config": "^2.27.3",
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@types/node": "^22.13.9",
     "@vue/tsconfig": "^0.5.1",
     "bumpp": "^9.8.1",
     "eslint": "^9.9.1",
