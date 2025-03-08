@@ -134,7 +134,7 @@ describe('focus Gesture', () => {
   it('focus is unapplied when blur', () => {
     const promise = new Promise(async (resolve) => {
       const variant = {
-        hidden: { opacity: 0.5, transitionEnd: { opacity: 0.75 } },
+        hidden: { opacity: 0.5 },
       }
       const opacity = motionValue(1)
 
@@ -151,9 +151,8 @@ describe('focus Gesture', () => {
               ref={aRef}
               data-testid="myAnchorElement"
               href="#"
-              focus="hidden"
+              whileFocus="hidden"
               variants={variant}
-              transition={{ type: false }}
               style={{ opacity }}
               onMotioncomplete={onComplete}
             >

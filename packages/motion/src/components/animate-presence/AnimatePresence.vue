@@ -87,14 +87,15 @@ function exit(el: Element, done: VoidFunction) {
       }
     }
   }
-  doneCallbacks.set(el, doneCallback)
-  el.addEventListener('motioncomplete', doneCallback)
+
   /**
    * Delay to ensure animations read the latest state before triggering.
    * This allows the animation system to capture updated values after component updates.
    */
   delay(() => {
     state.setActive('exit', true)
+    doneCallbacks.set(el, doneCallback)
+    el.addEventListener('motioncomplete', doneCallback)
   })
 }
 

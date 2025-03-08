@@ -138,11 +138,11 @@ export function isSVGElement(as: ElementType): as is SVGElements {
 export function isAnimateChanged(oldOptions: Options, newOptions: Options): boolean {
   const oldAnimate = oldOptions.animate
   const newAnimate = newOptions.animate
-
   if (oldAnimate === newAnimate)
     return false
-  if (!oldAnimate || !newAnimate)
+  if (!oldAnimate || !newAnimate) {
     return true
+  }
 
   if (typeof oldAnimate === 'object' || typeof newAnimate === 'object') {
     // Compare object keys and values
@@ -151,13 +151,14 @@ export function isAnimateChanged(oldOptions: Options, newOptions: Options): bool
 
     if (oldKeys.length !== newKeys.length)
       return true
-
     return oldKeys.some((key) => {
+      if (key === 'transition')
+        return false
       const oldVal = oldAnimate[key]
       const newVal = newAnimate[key]
       return oldVal !== newVal
     })
   }
-
+  console.log(2344)
   return oldAnimate !== newAnimate
 }
