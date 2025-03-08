@@ -106,7 +106,7 @@ function resolveStateAnimation(
     // If current node is a variant node, merge the control node's variant
     if (this.visualElement.isVariantNode) {
       const controlVariant = resolveVariant(this.context[name], this.options.variants, this.options.custom)
-      resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, variant) : variant
+      resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, resolvedVariant) : variant
     }
     if (!resolvedVariant)
       return
@@ -186,7 +186,7 @@ function setupChildAnimations(
 
   return {
     getChildAnimations: () => Promise.all(childAnimations.map((animation) => {
-      return typeof animation === 'function' ? animation() : animation
+      return animation?.()
     })),
     childAnimations,
   }
@@ -228,7 +228,6 @@ function executeAnimations(
       })
       .catch(noop)
   }
-
   // 获取动画Promise
   const getAnimationPromise = () => {
     const animationPromise = transition?.when
