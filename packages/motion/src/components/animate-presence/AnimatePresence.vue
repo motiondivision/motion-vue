@@ -87,6 +87,7 @@ function exit(el: Element, done: VoidFunction) {
       }
     }
   }
+
   /**
    * Delay to ensure animations read the latest state before triggering.
    * This allows the animation system to capture updated values after component updates.

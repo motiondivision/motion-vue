@@ -264,7 +264,7 @@ export class MotionState {
     if (isAnimate) {
       this.animateUpdates({
         isFallback: !isActive && name !== 'exit' && this.visualElement.isControllingVariants,
-        isExit: name === 'exit',
+        isExit: this.activeStates.exit,
       })
     }
   }

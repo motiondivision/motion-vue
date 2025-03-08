@@ -1,4 +1,4 @@
-import type { AnimationPlaybackControls, DOMKeyframesDefinition, VisualElement } from 'framer-motion'
+import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
 import type { $Transition, AnimationFactory, Options, Variant } from '@/types'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
@@ -214,7 +214,6 @@ function executeAnimations(
     isExit: boolean
   },
 ) {
-  let animations: AnimationPlaybackControls[]
   const getAnimation = () => Promise.all(factories.map(factory => factory()).filter(Boolean))
 
   const animationTarget = { ...this.target }
@@ -222,14 +221,6 @@ function executeAnimations(
 
   // 完成动画并分发事件
   const finishAnimation = (animationPromise: Promise<any>) => {
-    if (!animations?.length && !childAnimations.length) {
-      if (isExit) {
-        element.dispatchEvent(motionEvent('motionstart', animationTarget))
-        element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
-      }
-      return
-    }
-
     element.dispatchEvent(motionEvent('motionstart', animationTarget))
     animationPromise
       .then(() => {

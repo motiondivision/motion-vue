@@ -41,7 +41,7 @@ export const Primitive = defineComponent({
 
     return () => {
       const motionProps = props.getProps()
-      const allAttrs = { ...attrs, ...motionProps }
+      const allAttrs = { ...motionProps, ...attrs }
 
       if (typeof asTag === 'string' && SELF_CLOSING_TAGS.includes(asTag))
         return h(asTag, allAttrs)

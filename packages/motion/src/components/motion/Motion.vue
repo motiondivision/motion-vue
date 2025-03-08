@@ -182,10 +182,11 @@ function getProps() {
 
 const PrimitiveRef = ref<ComponentInstance<any>>()
 
-function onMotionComplete() {
+function onMotionComplete(e: CustomEvent) {
   if (props.asChild) {
     PrimitiveRef.value?.$forceUpdate()
   }
+  (attrs as any).onMotioncomplete?.(e)
 }
 </script>
 
