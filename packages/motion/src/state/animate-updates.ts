@@ -1,6 +1,6 @@
 import type { AnimationPlaybackControls, DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
-import type { $Transition, AnimationFactory, Options } from '@/types'
+import type { $Transition, AnimationFactory, Options, Variant } from '@/types'
 import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
@@ -28,12 +28,14 @@ export function animateUpdates(
     directAnimate,
     directTransition,
     isFallback = false,
+    isExit = false,
   }: {
     controlActiveState?: Partial<Record<string, boolean>>
     controlDelay?: number
     directAnimate?: Options['animate']
     directTransition?: $Transition
     isFallback?: boolean
+    isExit?: boolean
   } = {},
 ) {
   const prevTarget = this.target
@@ -48,7 +50,14 @@ export function animateUpdates(
   const factories = createAnimationFactories.call(this, prevTarget, animationOptions, controlDelay)
   const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, transition, this.activeStates, isFallback)
 
-  return executeAnimations.call(this, factories, getChildAnimations, childAnimations, transition, controlActiveState)
+  return executeAnimations.call(this, {
+    factories,
+    getChildAnimations,
+    childAnimations,
+    transition,
+    controlActiveState,
+    isExit,
+  })
 }
 
 /**
@@ -86,26 +95,31 @@ function resolveStateAnimation(
     this.activeStates = { ...this.activeStates, ...controlActiveState }
 
   const transitionOptions = {}
+  let variantTransition = {}
+  let variant: Variant = {}
   STATE_TYPES.forEach((name) => {
     if (!this.activeStates[name] || isAnimationControls(this.options[name]))
       return
 
     const definition = this.options[name]
-    let variant = isDef(definition) ? resolveVariant(definition as any, this.options.variants, this.options.custom) : undefined
+    let resolvedVariant = isDef(definition) ? resolveVariant(definition as any, this.options.variants, this.options.custom) : undefined
     // If current node is a variant node, merge the control node's variant
     if (this.visualElement.isVariantNode) {
       const controlVariant = resolveVariant(this.context[name], this.options.variants, this.options.custom)
-      variant = controlVariant ? Object.assign(controlVariant || {}, variant) : variant
+      resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, variant) : variant
     }
-    if (!variant)
+    if (!resolvedVariant)
       return
-    Object.assign(transition, variant.transition)
-    Object.entries(variant).forEach(([key, value]) => {
-      if (key === 'transition')
-        return
-      this.target[key] = value
-      transitionOptions[key] = getOptions(transition, key)
-    })
+    if (name !== 'initial')
+      variantTransition = resolvedVariant.transition || this.options.transition
+    variant = Object.assign(variant, resolvedVariant)
+  })
+  Object.assign(transition, variantTransition)
+  Object.entries(variant).forEach(([key, value]) => {
+    if (key === 'transition')
+      return
+    this.target[key] = value
+    transitionOptions[key] = getOptions(transition, key)
   })
   return transitionOptions
 }
@@ -184,19 +198,25 @@ function setupChildAnimations(
  */
 function executeAnimations(
   this: MotionState,
-  factories: AnimationFactory[],
-  getChildAnimations: () => Promise<any>,
-  childAnimations: (() => Promise<any>)[],
-  transition: $Transition | undefined,
-  controlActiveState: Partial<Record<string, boolean>> | undefined,
+  {
+    factories,
+    getChildAnimations,
+    childAnimations,
+    transition,
+    controlActiveState,
+    isExit = false,
+  }: {
+    factories: AnimationFactory[]
+    getChildAnimations: () => Promise<any>
+    childAnimations: (() => Promise<any>)[]
+    transition: $Transition | undefined
+    controlActiveState: Partial<Record<string, boolean>> | undefined
+    isExit: boolean
+  },
 ) {
   let animations: AnimationPlaybackControls[]
-  const getAnimation = () => {
-    animations = factories.map(factory => factory()).filter(Boolean)
-    return Promise.all(animations)
-  }
+  const getAnimation = () => Promise.all(factories.map(factory => factory()).filter(Boolean))
 
-  const isExit = this.activeStates.exit
   const animationTarget = { ...this.target }
   const element = this.element
 
@@ -212,7 +232,9 @@ function executeAnimations(
 
     element.dispatchEvent(motionEvent('motionstart', animationTarget))
     animationPromise
-      .then(() => element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit)))
+      .then(() => {
+        element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
+      })
       .catch(noop)
   }
 

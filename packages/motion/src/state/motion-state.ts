@@ -70,7 +70,7 @@ export class MotionState {
     this.depth = parent?.depth + 1 || 0
 
     // Initialize with either initial or animate variant
-    const initialVariantSource = this.context.initial === false ? 'animate' : 'initial'
+    const initialVariantSource = this.context.initial === false ? ['initial', 'animate'] : ['initial']
     this.initTarget(initialVariantSource)
     // Create visual element with initial config
     this.visualElement = createVisualElement(this.options.as!, {
@@ -119,8 +119,13 @@ export class MotionState {
   }
 
   // Initialize animation target values
-  private initTarget(initialVariantSource: string) {
-    this.baseTarget = resolveVariant(this.options[initialVariantSource] || this.context[initialVariantSource], this.options.variants) || {}
+  private initTarget(initialVariantSource: string[]) {
+    this.baseTarget = initialVariantSource.reduce((acc, variant) => {
+      return {
+        ...acc,
+        ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants),
+      }
+    }, {})
     this.target = { }
   }
 
@@ -259,6 +264,7 @@ export class MotionState {
     if (isAnimate) {
       this.animateUpdates({
         isFallback: !isActive && name !== 'exit' && this.visualElement.isControllingVariants,
+        isExit: name === 'exit',
       })
     }
   }
