@@ -22,8 +22,10 @@ export type TargetResolver = (
 ) => TargetAndTransition | string
 export interface Variant extends DOMKeyframesDefinition {
   transition?: $Transition
+  attrX?: DOMKeyframesDefinition['x']
+  attrY?: DOMKeyframesDefinition['y']
+  attrScale?: DOMKeyframesDefinition['scale']
 }
-
 /**
  * Either a string, or array of strings, that reference variants defined via the `variants` prop.
  * @public
@@ -43,7 +45,7 @@ export interface DragOptions {
 
 type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transition'>
 export type MotionStyle = Partial<{
-  [K in keyof (Variant & TransformPropertiesWithoutTransition)]: string | number | undefined | MotionValue
+  [K in keyof Omit<Variant & TransformPropertiesWithoutTransition, 'attrX' | 'attrY' | 'attrScale'>]: string | number | undefined | MotionValue
 }>
 export type ElementType = keyof IntrinsicElementAttributes
 

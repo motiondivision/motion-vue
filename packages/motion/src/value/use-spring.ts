@@ -1,4 +1,4 @@
-import type { ComputedRef, Ref } from 'vue'
+import type { Ref } from 'vue'
 import { isRef, watch } from 'vue'
 import { type MotionValue, frame, frameData, motionValue } from 'framer-motion/dom'
 import type { SpringOptions } from 'framer-motion'
@@ -14,7 +14,7 @@ function toNumber(v: string | number) {
 
 export function useSpring(
   source: MotionValue<string> | MotionValue<number> | number,
-  config: SpringOptions | ComputedRef<SpringOptions> | Ref<SpringOptions> = {},
+  config: SpringOptions | Ref<SpringOptions> = {},
 ) {
   let activeSpringAnimation: MainThreadAnimation = null
   const value = motionValue(
