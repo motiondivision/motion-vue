@@ -5,8 +5,6 @@ export interface AnimatePresenceProps {
   | 'sync'
   // 是否显示初始动画
   initial?: boolean
-  // 是否支持多个元素同时动画
-  multiple?: boolean
   as?: string
   custom?: any
   onExitComplete?: VoidFunction
