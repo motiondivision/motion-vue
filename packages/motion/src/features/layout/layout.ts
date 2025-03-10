@@ -60,11 +60,6 @@ export class LayoutFeature extends Feature {
         layoutGroup.group.remove(projection)
       }
 
-      // Check lead's animation progress, if it exists, skip update to prevent lead from jumping
-      // @ts-ignore
-      if (projection.getStack()?.lead?.animationProgress) {
-        return
-      }
       this.didUpdate()
     }
   }
