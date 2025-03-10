@@ -168,7 +168,10 @@ export class MotionState {
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
-      this.startAnimation()
+      /**
+       * Immediately animate updates on mount to avoid transform-origin issues with SVG elements
+       */
+      this.animateUpdates()
     }
     if (this.options.layoutId) {
       mountedLayoutIds.add(this.options.layoutId)
