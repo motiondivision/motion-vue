@@ -1,4 +1,4 @@
-import { AnimationFeature, DragGesture, type Feature, HoverGesture, InViewGesture, LayoutFeature, PanGesture, PressGesture, SVGFeature } from '@/features'
+import { AnimationFeature, DragGesture, type Feature, HoverGesture, InViewGesture, LayoutFeature, PanGesture, PressGesture } from '@/features'
 import type { MotionState } from '@/state'
 import { ProjectionFeature } from './layout/projection'
 import { FocusGesture } from '@/features/gestures/focus'
@@ -11,7 +11,6 @@ export class FeatureManager {
       new HoverGesture(state),
       new PressGesture(state),
       new InViewGesture(state),
-      new SVGFeature(state),
       new LayoutFeature(state),
       new ProjectionFeature(state),
       new PanGesture(state),
