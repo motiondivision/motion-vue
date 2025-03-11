@@ -139,9 +139,8 @@ function createAnimationFactories(
     if (!hasChanged(prevTarget[key], this.target[key]))
       return
     this.baseTarget[key] ??= style.get(this.element, key) as string
-    const keyValue = this.target[key] === 'none' ? transformResetValue[key] : this.target[key]
+    const keyValue = (this.target[key] === 'none' && isDef(transformResetValue[key])) ? transformResetValue[key] : this.target[key]
     const targetTransition = animationOptions[key]
-
     factories.push(() => animate(
       this.element,
       { [key]: keyValue },
