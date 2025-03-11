@@ -1,7 +1,7 @@
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
 import type { $Transition, AnimationFactory, Options, Variant } from '@/types'
-import { getOptions, hasChanged, resolveVariant } from '@/state/utils'
+import { hasChanged, resolveVariant } from '@/state/utils'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { motionEvent } from '@/state/event'
@@ -46,7 +46,7 @@ export function animateUpdates(
   if (directAnimate)
     animationOptions = resolveDirectAnimation.call(this, directAnimate, directTransition, animationOptions)
   else
-    animationOptions = resolveStateAnimation.call(this, controlActiveState, transition)
+    animationOptions = resolveStateAnimation.call(this, controlActiveState)
   const factories = createAnimationFactories.call(this, prevTarget, animationOptions, controlDelay)
   const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, transition, this.activeStates, isFallback)
 
@@ -72,15 +72,13 @@ function resolveDirectAnimation(
   if (!variant)
     return {}
 
-  const transition = { ...this.options.transition, ...(directTransition || variant.transition) }
-  const animationOptions = {}
+  const transition = variant.transition || directTransition || this.options.transition || {}
   Object.entries(variant).forEach(([key, value]) => {
     if (key === 'transition')
       return
     this.target[key] = value
-    animationOptions[key] = getOptions(transition, key)
   })
-  return animationOptions
+  return transition
 }
 
 /**
@@ -89,13 +87,11 @@ function resolveDirectAnimation(
 function resolveStateAnimation(
   this: MotionState,
   controlActiveState: Partial<Record<string, boolean>> | undefined,
-  transition: $Transition,
 ) {
   if (controlActiveState)
     this.activeStates = { ...this.activeStates, ...controlActiveState }
 
-  const transitionOptions = {}
-  let variantTransition = {}
+  let variantTransition = this.options.transition
   let variant: Variant = {}
   STATE_TYPES.forEach((name) => {
     if (!this.activeStates[name] || isAnimationControls(this.options[name]))
@@ -111,17 +107,15 @@ function resolveStateAnimation(
     if (!resolvedVariant)
       return
     if (name !== 'initial')
-      variantTransition = resolvedVariant.transition || this.options.transition
+      variantTransition = resolvedVariant.transition || this.options.transition || {}
     variant = Object.assign(variant, resolvedVariant)
   })
-  Object.assign(transition, variantTransition)
   Object.entries(variant).forEach(([key, value]) => {
     if (key === 'transition')
       return
     this.target[key] = value
-    transitionOptions[key] = getOptions(transition, key)
   })
-  return transitionOptions
+  return variantTransition
 }
 
 /**
@@ -130,7 +124,7 @@ function resolveStateAnimation(
 function createAnimationFactories(
   this: MotionState,
   prevTarget: DOMKeyframesDefinition,
-  animationOptions: Record<string, $Transition>,
+  animationOptions: $Transition,
   controlDelay: number,
 ): AnimationFactory[] {
   const factories: AnimationFactory[] = []
@@ -140,13 +134,12 @@ function createAnimationFactories(
       return
     this.baseTarget[key] ??= style.get(this.element, key) as string
     const keyValue = (this.target[key] === 'none' && isDef(transformResetValue[key])) ? transformResetValue[key] : this.target[key]
-    const targetTransition = animationOptions[key]
     factories.push(() => animate(
       this.element,
       { [key]: keyValue },
       {
-        ...targetTransition,
-        delay: (targetTransition?.delay || 0) + controlDelay,
+        ...animationOptions,
+        delay: (animationOptions[key]?.delay || animationOptions?.delay || 0) + controlDelay,
       } as any,
     ))
   })

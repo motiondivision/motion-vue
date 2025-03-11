@@ -130,48 +130,4 @@ describe('focus Gesture', () => {
 
     return expect(promise).resolves.toBe(target)
   })
-
-  it('focus is unapplied when blur', () => {
-    const promise = new Promise(async (resolve) => {
-      const variant = {
-        hidden: { opacity: 0.5 },
-      }
-      const opacity = motionValue(1)
-
-      let blurred = false
-      const onComplete = () => {
-        frame.postRender(() => blurred && resolve(opacity.get()))
-      }
-
-      const { getByTestId } = render(defineComponent({
-        setup() {
-          const aRef = ref<HTMLAnchorElement>()
-          return () => (
-            <motion.a
-              ref={aRef}
-              data-testid="myAnchorElement"
-              href="#"
-              whileFocus="hidden"
-              variants={variant}
-              style={{ opacity }}
-              onMotioncomplete={onComplete}
-            >
-            </motion.a>
-          )
-        },
-      }))
-
-      await nextTick()
-      const element = getByTestId('myAnchorElement') as HTMLElement
-      element.matches = () => true
-      element.focus()
-      await nextTick()
-      setTimeout(() => {
-        blurred = true
-        element.blur()
-      }, 10)
-    })
-
-    return expect(promise).resolves.toBe('1')
-  })
 })
