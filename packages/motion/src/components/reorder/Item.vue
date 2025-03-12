@@ -2,15 +2,15 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
-import { computed, toRefs, useAttrs } from 'vue'
+import { computed, ref, toRefs, useAttrs } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
 import { invariant } from 'hey-listen'
 import type { ElementType } from '@/types'
 </script>
 
-<script setup  lang="ts">
-export interface GroupItemProps<T extends ElementType, K = unknown, V = unknown> extends MotionProps<T, K> {
+<script setup  generic="T extends ElementType = 'li', K = unknown, V = unknown" lang="ts">
+export interface GroupItemProps<T extends ElementType = 'li', K = unknown, V = unknown> extends MotionProps<T, K> {
   /**
    * The value in the list that this component represents.
    *
@@ -83,6 +83,7 @@ const drag = computed(() => {
   }
   return axis.value
 })
+const isDragging = ref(false)
 </script>
 
 <template>
@@ -94,12 +95,13 @@ const drag = computed(() => {
       const { velocity } = gesturePoint
       velocity[axis]
         && updateOrder(value, point[axis].get(), velocity[axis])
-
+      !isDragging && (isDragging = true)
       onDrag && onDrag(event, gesturePoint)
     }"
+    @drag-end="() => isDragging = false"
     @layout-measure="(measured) => registerItem(value, measured)"
   >
-    <slot />
+    <slot :is-dragging="isDragging" />
     {{ warning() }}
   </Motion>
 </template>
