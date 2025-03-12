@@ -1,4 +1,5 @@
 import type { Options } from '@/types'
+import type { InertiaOptions } from 'framer-motion'
 
 export interface StateHandlers {
   enable: VoidFunction
@@ -24,8 +25,5 @@ export interface DragOptions {
   dragSnapToOrigin?: boolean
   dragElastic?: number
   dragMomentum?: boolean
-  dragTransition?: {
-    power?: number
-    timeConstant?: number
-  }
+  dragTransition?: InertiaOptions
 }
