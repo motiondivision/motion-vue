@@ -1,6 +1,5 @@
 export * from './feature'
 export * from './gestures'
-export * from './svg'
 export * from './layout/layout'
 export * from './gestures/pan'
 export * from './feature-manager'
