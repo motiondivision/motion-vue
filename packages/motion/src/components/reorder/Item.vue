@@ -98,7 +98,10 @@ const isDragging = ref(false)
       !isDragging && (isDragging = true)
       onDrag && onDrag(event, gesturePoint)
     }"
-    @drag-end="() => isDragging = false"
+    @drag-end="(event, gesturePoint) => {
+      isDragging = false
+      onDragEnd && onDragEnd(event, gesturePoint)
+    }"
     @layout-measure="(measured) => registerItem(value, measured)"
   >
     <slot :is-dragging="isDragging" />
