@@ -59,7 +59,7 @@ type Transformer<I, O> = SingleTransformer<I, O> | MultiTransformer<string | num
  */
 export function useTransform<I, O>(
   value: MotionValue<number>,
-  inputRange: InputRange,
+  inputRange: InputRange | MaybeRef<InputRange>,
   outputRange: O[],
   options?: TransformOptions<O>
 ): MotionValue<O>
