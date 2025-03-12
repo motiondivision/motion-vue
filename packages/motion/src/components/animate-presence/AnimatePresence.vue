@@ -14,7 +14,6 @@ defineOptions({
 const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   mode: 'sync',
   initial: true,
-  multiple: false,
   unwrapElement: false,
   anchorX: 'left',
 })
@@ -100,7 +99,7 @@ function exit(el: Element, done: VoidFunction) {
 }
 
 const transitionProps = computed(() => {
-  if (props.multiple) {
+  if (props.mode !== 'wait') {
     return {
       tag: props.as,
     }
@@ -113,10 +112,12 @@ const transitionProps = computed(() => {
 
 <template>
   <!-- @vue-ignore -->
+  <!-- eslint-disable-next-line vue/require-component-is -->
   <component
-    :is="multiple ? TransitionGroup : Transition"
+    :is="mode === 'wait' ? Transition : TransitionGroup"
     :css="false"
     v-bind="transitionProps"
+    appear
     @enter="enter"
     @leave="exit"
   >

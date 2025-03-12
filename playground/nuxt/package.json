@@ -12,7 +12,7 @@
     "@number-flow/vue": "^0.3.2",
     "@vueuse/core": "^12.0.0",
     "motion-number-vue": "latest",
-    "motion-plus-vue": "link:/Users/huangpeng/Documents/workspace/web/mygithub/plus-vue/packages/motion-plus-vue",
+    "motion-plus-vue": "0.1.0",
     "motion-v": "workspace:*",
     "nuxt": "^3.13.0",
     "reka-ui": "^2.0.0",
