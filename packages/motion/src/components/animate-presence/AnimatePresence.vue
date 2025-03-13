@@ -53,7 +53,12 @@ onUnmounted(() => {
 })
 function exit(el: Element, done: VoidFunction) {
   if (props.unwrapElement) {
-    el = el.firstElementChild as Element
+    if (typeof props.unwrapElement === 'function') {
+      el = props.unwrapElement(el as HTMLElement) || el
+    }
+    else {
+      el = el.firstElementChild || el as Element
+    }
   }
   const state = mountedStates.get(el)
   if (!state) {
