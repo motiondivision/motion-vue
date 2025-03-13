@@ -36,7 +36,6 @@ function handlePressEvent(
 
 export class PressGesture extends Feature {
   isActive() {
-    console.log('isActive', this.state.options.whilePress)
     return Boolean(this.state.options.whilePress)
   }
 
