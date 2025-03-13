@@ -8,6 +8,6 @@ export interface AnimatePresenceProps {
   as?: string
   custom?: any
   onExitComplete?: VoidFunction
-  unwrapElement?: boolean
+  unwrapElement?: boolean | ((el: HTMLElement) => HTMLElement)
   anchorX?: 'left' | 'right'
 }
