@@ -6,7 +6,7 @@ import path from 'node:path'
 export default defineConfig({
   plugins: [vue(), vueJsx()],
   test: {
-    environment: 'happy-dom',
+    environment: 'jsdom',
     globals: true,
     coverage: {
       provider: 'v8',
