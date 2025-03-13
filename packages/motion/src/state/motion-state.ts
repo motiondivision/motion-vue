@@ -168,10 +168,10 @@ export class MotionState {
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
-      /**
-       * Immediately animate updates on mount to avoid transform-origin issues with SVG elements
-       */
-      this.animateUpdates()
+      if (this.visualElement.type === 'svg') {
+        (this.visualElement as any).updateDimensions()
+      }
+      this.startAnimation()
     }
     if (this.options.layoutId) {
       mountedLayoutIds.add(this.options.layoutId)
@@ -267,7 +267,7 @@ export class MotionState {
     if (isAnimate) {
       this.animateUpdates({
         isFallback: !isActive && name !== 'exit' && this.visualElement.isControllingVariants,
-        isExit: this.activeStates.exit,
+        isExit: name === 'exit' && this.activeStates.exit,
       })
     }
   }

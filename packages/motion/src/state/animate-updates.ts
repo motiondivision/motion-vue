@@ -48,7 +48,7 @@ export function animateUpdates(
   else
     animationOptions = resolveStateAnimation.call(this, controlActiveState)
   const factories = createAnimationFactories.call(this, prevTarget, animationOptions, controlDelay)
-  const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, transition, this.activeStates, isFallback)
+  const { getChildAnimations, childAnimations } = setupChildAnimations.call(this, animationOptions, this.activeStates, isFallback)
 
   return executeAnimations.call(this, {
     factories,
@@ -134,12 +134,13 @@ function createAnimationFactories(
       return
     this.baseTarget[key] ??= style.get(this.element, key) as string
     const keyValue = (this.target[key] === 'none' && isDef(transformResetValue[key])) ? transformResetValue[key] : this.target[key]
+    // console.log(key, keyValue, (animationOptions?.[key]?.delay || animationOptions?.delay || 0) + controlDelay, controlDelay)
     factories.push(() => animate(
       this.element,
       { [key]: keyValue },
       {
         ...animationOptions,
-        delay: (animationOptions[key]?.delay || animationOptions?.delay || 0) + controlDelay,
+        delay: (animationOptions?.[key]?.delay || animationOptions?.delay || 0) + controlDelay,
       } as any,
     ))
   })
