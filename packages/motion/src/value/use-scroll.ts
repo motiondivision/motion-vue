@@ -58,6 +58,10 @@ export function useScroll({
         cleanup()
       })
     },
+    {
+      immediate: true,
+      flush: 'post',
+    },
   )
 
   return values
