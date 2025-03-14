@@ -159,6 +159,5 @@ export function isAnimateChanged(oldOptions: Options, newOptions: Options): bool
       return oldVal !== newVal
     })
   }
-  console.log(2344)
   return oldAnimate !== newAnimate
 }
