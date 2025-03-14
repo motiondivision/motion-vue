@@ -1,19 +1,6 @@
 import type { Inertia, Keyframes, None, Repeat, Spring, Tween } from 'framer-motion'
 
 export type { Point } from 'framer-motion'
-export interface FrameData {
-  delta: number
-  timestamp: number
-  isProcessing: boolean
-}
-
-export interface MotionValueEventCallbacks<V> {
-  animationStart: () => void
-  animationComplete: () => void
-  animationCancel: () => void
-  change: (latestValue: V) => void
-  renderRequest: () => void
-}
 
 export type SupportedEdgeUnit = 'px' | 'vw' | 'vh' | '%'
 
