@@ -9,7 +9,7 @@ export function useInView<T extends Element = any>(
 ) {
   const isInView = ref(false)
 
-  watch([domRef, () => isRef(options) ? options.value : options], (_v1, _v2) => {
+  watch([domRef, () => isRef(options) ? options.value : options], (_v1, _v2, onCleanup) => {
     const realOptions = unref(options) || {}
     const { once } = realOptions
     if (!domRef.value || (once && isInView.value)) {
@@ -23,7 +23,10 @@ export function useInView<T extends Element = any>(
             isInView.value = false
           }
     }
-    return inView(domRef.value, onEnter, realOptions)
+    const cleanup = inView(domRef.value, onEnter, realOptions)
+    onCleanup(() => {
+      cleanup()
+    })
   }, {
     immediate: true,
   })
