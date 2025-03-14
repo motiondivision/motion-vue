@@ -1,9 +1,37 @@
 import { addComponent, addImports, defineNuxtModule } from '@nuxt/kit'
 
-import { components as allComponents, utilities as allUtilities } from 'motion-v'
+const components = [
+  'Motion',
+  'AnimatePresence',
+  'LayoutGroup',
+  'MotionConfig',
+  'ReorderGroup',
+  'ReorderItem',
+]
+const utilities = [
+  'useTransform',
+  'useTime',
+  'useMotionTemplate',
+  'useSpring',
+  'useScroll',
+  'useMotionValue',
+  'useVelocity',
+  'useAnimate',
+  'useInView',
+  'useAnimationFrame',
+  'useMotionValueEvent',
+  'useLayoutGroup',
+  'useDragControls',
+  'useReducedMotion',
+]
+
+export type Components = keyof typeof components
+
+export type Utilities = keyof typeof utilities
 
 export interface ModuleOptions {
-  components: Partial<Record<keyof typeof allComponents, boolean>> | boolean
+  components: boolean
+  utilities: boolean
   prefix: string
 }
 
@@ -18,46 +46,25 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: {
     prefix: '',
     components: true,
+    utilities: true,
   },
   setup(options, _nuxtApp) {
-    function getComponents() {
-      if (typeof options.components === 'object') {
-        return Object.entries(allComponents)
-          .filter(([name]) => (options.components as Record<string, boolean>)[name])
-          .flatMap(([_, components]) => components)
-      }
-
-      if (options.components)
-        return Object.values(allComponents).flat()
-
-      return []
-    }
-
-    for (const component of getComponents()) {
-      addComponent({
-        name: `${options.prefix}${component}`,
-        export: component,
-        filePath: 'motion-v',
+    if (options.components) {
+      components.forEach((component) => {
+        addComponent({
+          name: `${options.prefix}${component}`,
+          export: component,
+          filePath: 'motion-v',
+        })
       })
     }
 
-    function getUtilities() {
-      if (typeof options.components === 'object') {
-        return Object.entries(allUtilities)
-          .filter(([name]) => (options.components as Record<string, boolean>)[name])
-          .flatMap(([_, utilities]) => utilities)
-      }
-
-      if (options.components)
-        return Object.values(allUtilities).flat()
-
-      return []
-    }
-
-    for (const utility of getUtilities()) {
-      addImports({
-        from: 'motion-v',
-        name: utility,
+    if (options.utilities) {
+      utilities.forEach((utility) => {
+        addImports({
+          from: 'motion-v',
+          name: utility,
+        })
       })
     }
   },
