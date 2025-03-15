@@ -61,6 +61,7 @@ export interface Options<T = any> extends
   variants?: {
     [k: string]: Variant | ((custom: T) => Variant)
   }
+  inherit?: boolean
   style?: MotionStyle
   transformTemplate?: (
     transform: TransformProperties,
