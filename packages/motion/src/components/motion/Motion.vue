@@ -4,17 +4,17 @@ import { MotionState } from '@/state/motion-state'
 import { injectAnimatePresence } from '../presence'
 import { isMotionValue } from '@/utils'
 import { checkMotionIsHidden } from './utils'
-import type { ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
+import type { AsTag, ComponentProps, ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import { useMotionConfig } from '../motion-config/context'
 import { getMotionElement } from '../hooks/use-motion-elm'
 </script>
 
-<script setup lang="ts" generic="T extends ElementType = 'div', K = unknown">
+<script setup lang="ts" generic="T extends AsTag = 'div', K = unknown">
 import { type ComponentInstance, type IntrinsicElementAttributes, getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, warn } from 'vue'
 import { injectLayoutGroup, injectMotion, provideMotion } from '../context'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 
-export interface MotionProps<T extends ElementType = 'div', K = unknown> extends Options<K> {
+export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Options<K> {
   as?: T
   asChild?: boolean
   hover?: Options['hover']
@@ -26,10 +26,11 @@ export interface MotionProps<T extends ElementType = 'div', K = unknown> extends
   whilePress?: Options['whilePress']
   whileInView?: Options['whileInView']
   whileFocus?: Options['whileFocus']
+  forwardMotionProps?: boolean
 }
 type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
 
-type ComBindProps = /* @vue-ignore */ Omit<IntrinsicElementAttributesAsMotionValues[T], keyof Options | 'style' | 'as' | 'asChild'>
+type ComBindProps = /* @vue-ignore */ Omit<T extends ElementType ? IntrinsicElementAttributesAsMotionValues[T] : ComponentProps<T>, keyof Options | 'style' | 'as' | 'asChild'>
 defineOptions({
   name: 'Motion',
   inheritAttrs: false,
@@ -93,9 +94,8 @@ function getLayoutId() {
   return props.layoutId || undefined
 }
 
-function getMotionProps() {
+function getProps() {
   return {
-    ...attrs,
     ...props,
     layoutId: getLayoutId(),
     transition: props.transition ?? config.value.transition,
@@ -107,6 +107,12 @@ function getMotionProps() {
       : (
           props.initial === true ? undefined : props.initial
         ),
+  }
+}
+function getMotionProps() {
+  return {
+    ...attrs,
+    ...getProps(),
   }
 }
 
@@ -144,7 +150,7 @@ onUpdated(() => {
   state.update(getMotionProps())
 })
 
-function getProps() {
+function getAttrs() {
   const isSVG = state.visualElement.type === 'svg'
   const attrsProps = { ...attrs }
   Object.keys(attrs).forEach((key) => {
@@ -195,6 +201,7 @@ function onMotionComplete(e: CustomEvent) {
   <Primitive
     ref="PrimitiveRef"
     :get-props="getProps"
+    :get-attrs="getAttrs"
     :as="as"
     :as-child="asChild"
     :data-motion-group="layoutGroup.key?.value || undefined"

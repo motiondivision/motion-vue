@@ -1,7 +1,6 @@
-import { type Component, type IntrinsicElementAttributes, type PropType, defineComponent, h } from 'vue'
+import { type Component, type PropType, defineComponent, h } from 'vue'
 import { Slot } from './Slot'
-
-export type AsTag = keyof IntrinsicElementAttributes| ({} & string) // any other string
+import type { AsTag } from '@/types'
 
 export interface PrimitiveProps {
   /**
@@ -33,6 +32,10 @@ export const Primitive = defineComponent({
       type: Function,
       default: () => ({}),
     },
+    getAttrs: {
+      type: Function,
+      default: () => ({}),
+    },
   },
   setup(props, { attrs, slots }) {
     const asTag = props.asChild ? 'template' : props.as
@@ -41,12 +44,16 @@ export const Primitive = defineComponent({
 
     return () => {
       const motionProps = props.getProps()
-      const allAttrs = { ...motionProps, ...attrs }
+      const motionAttrs = props.getAttrs()
+      let allAttrs = { ...motionAttrs, ...attrs }
 
       if (typeof asTag === 'string' && SELF_CLOSING_TAGS.includes(asTag))
         return h(asTag, allAttrs)
 
       if (asTag !== 'template') {
+        if (motionProps.forwardMotionProps) {
+          allAttrs = { ...motionProps, ...allAttrs }
+        }
         return h(props.as, allAttrs, { default: slots.default })
       }
 
