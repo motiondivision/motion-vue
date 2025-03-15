@@ -14,7 +14,6 @@ defineOptions({
 const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   mode: 'sync',
   initial: true,
-  unwrapElement: false,
   anchorX: 'left',
 })
 
@@ -28,6 +27,21 @@ onMounted(() => {
   presenceContext.initial = undefined
 })
 const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
+
+function findMotionElement(el: Element): Element | null {
+  // If current element is a Motion component
+  if (mountedStates.get(el)) {
+    return el
+  }
+
+  // Check first child only
+  const firstChild = el.firstElementChild
+  if (firstChild) {
+    return findMotionElement(firstChild)
+  }
+
+  return null
+}
 
 function enter(el: HTMLElement) {
   const state = mountedStates.get(el)
@@ -52,30 +66,31 @@ onUnmounted(() => {
   exitDom.clear()
 })
 function exit(el: Element, done: VoidFunction) {
-  if (props.unwrapElement) {
-    if (typeof props.unwrapElement === 'function') {
-      el = props.unwrapElement(el as HTMLElement) || el
+  // Find Motion element
+  const motionEl = findMotionElement(el)
+  const state = mountedStates.get(motionEl)
+  // Handle cases where Motion element or state is not found
+  if (!motionEl || !state) {
+    done()
+    if (exitDom.size === 0) {
+      props.onExitComplete?.()
     }
-    else {
-      el = el.firstElementChild || el as Element
-    }
+    return
   }
-  const state = mountedStates.get(el)
-  if (!state) {
-    return done()
-  }
-  exitDom.set(el, true)
-  removeDoneCallback(el)
+
+  exitDom.set(motionEl, true)
+  removeDoneCallback(motionEl)
   addPopStyle(state)
+
   function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
       const projection = state.visualElement.projection
-      // @ts-ignore
+      // @ts-expect-error - animationProgress exists at runtime
       if ((projection?.animationProgress > 0 && !state.isSafeToRemove && !state.isVShow)) {
         return
       }
-      removeDoneCallback(el)
-      exitDom.delete(el)
+      removeDoneCallback(motionEl)
+      exitDom.delete(motionEl)
       if (exitDom.size === 0) {
         props.onExitComplete?.()
       }
@@ -86,20 +101,16 @@ function exit(el: Element, done: VoidFunction) {
         removePopStyle(state)
       }
       done()
-      if (!el.isConnected) {
+      if (!motionEl.isConnected) {
         state.unmount(true)
       }
     }
   }
 
-  /**
-   * Delay to ensure animations read the latest state before triggering.
-   * This allows the animation system to capture updated values after component updates.
-   */
   delay(() => {
     state.setActive('exit', true)
-    doneCallbacks.set(el, doneCallback)
-    el.addEventListener('motioncomplete', doneCallback)
+    doneCallbacks.set(motionEl, doneCallback)
+    motionEl.addEventListener('motioncomplete', doneCallback)
   })
 }
 
