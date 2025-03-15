@@ -102,6 +102,7 @@ function getProps() {
     layoutGroup,
     motionConfig: config.value,
     inViewOptions: props.inViewOptions ?? config.value.inViewOptions,
+    animatePresenceContext,
     initial: animatePresenceContext.initial === false
       ? animatePresenceContext.initial
       : (

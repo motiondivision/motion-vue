@@ -6,6 +6,7 @@ import { cancelFrame, frame } from 'framer-motion/dom'
 import { isAnimateChanged, resolveVariant } from '@/state/utils'
 import { FeatureManager } from '@/features'
 import { createVisualElement } from '@/state/create-visual-element'
+import type { PresenceContext } from '@/components/presence'
 import { doneCallbacks } from '@/components/presence'
 import type { StateType } from './animate-updates'
 import { animateUpdates } from './animate-updates'
@@ -27,7 +28,10 @@ export class MotionState {
   public element: HTMLElement | null = null
   // Parent reference for handling component tree relationships
   private parent?: MotionState
-  public options: Options
+  public options: Options & {
+    animatePresenceContext?: PresenceContext
+  }
+
   public isSafeToRemove = false
   public isVShow = false
   // Track child components for proper lifecycle ordering

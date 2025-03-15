@@ -29,17 +29,14 @@ onMounted(() => {
 const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
 function findMotionElement(el: Element): Element | null {
-  // If current element is a Motion component
-  if (mountedStates.get(el)) {
-    return el
-  }
+  let current = el
 
-  // Check first child only
-  const firstChild = el.firstElementChild
-  if (firstChild) {
-    return findMotionElement(firstChild)
+  while (current) {
+    if (mountedStates.get(current)) {
+      return current
+    }
+    current = current.firstElementChild
   }
-
   return null
 }
 
