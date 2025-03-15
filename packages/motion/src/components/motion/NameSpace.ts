@@ -1,16 +1,9 @@
-import type { DefineComponent, ExtractPropTypes, ExtractPublicPropTypes, IntrinsicElementAttributes } from 'vue'
+import type { DefineComponent, IntrinsicElementAttributes } from 'vue'
 import { defineComponent, h } from 'vue'
 import Motion from './Motion.vue'
 import type { MotionProps } from './Motion.vue'
-import type { MotionHTMLAttributes } from '@/types'
+import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
-type ComponentProps<T> = T extends DefineComponent<
-  ExtractPropTypes<infer Props>,
-  any,
-  any
->
-  ? ExtractPublicPropTypes<Props>
-  : never
 type MotionComponentProps = {
   create: <T extends DefineComponent>(T, options?: { forwardMotionProps?: boolean }) => DefineComponent<MotionProps<any, unknown> & ComponentProps<T>>
 }

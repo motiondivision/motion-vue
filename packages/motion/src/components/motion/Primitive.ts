@@ -1,7 +1,6 @@
-import { type Component, type IntrinsicElementAttributes, type PropType, defineComponent, h } from 'vue'
+import { type Component, type PropType, defineComponent, h } from 'vue'
 import { Slot } from './Slot'
-
-export type AsTag = keyof IntrinsicElementAttributes| ({} & string) // any other string
+import type { AsTag } from '@/types'
 
 export interface PrimitiveProps {
   /**

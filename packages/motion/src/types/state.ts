@@ -1,6 +1,5 @@
 import type { DOMKeyframesDefinition, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
 import type { MotionValue, TransformProperties, animate } from 'framer-motion/dom'
-import type { IntrinsicElementAttributes } from 'vue'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
 import type { PressProps } from '@/features/gestures/press/types'
@@ -12,6 +11,7 @@ import type { MotionConfigState } from '@/components/motion-config/types'
 import type { $Transition } from './framer-motion'
 import type { FocusProps } from '@/features/gestures/focus/types'
 import type { AnimationControls } from '@/animation/types'
+import type { AsTag } from '@/types/common'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 
@@ -47,14 +47,13 @@ type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transitio
 export type MotionStyle = Partial<{
   [K in keyof Omit<Variant & TransformPropertiesWithoutTransition, 'attrX' | 'attrY' | 'attrScale'>]: string | number | undefined | MotionValue
 }>
-export type ElementType = keyof IntrinsicElementAttributes
 
 export interface Options<T = any> extends
   LayoutOptions, PressProps,
   HoverProps, InViewProps, DragProps,
   PanProps, FocusProps {
   custom?: T
-  as?: ElementType
+  as?: AsTag
   initial?: VariantLabels | Variant | boolean
   animate?: VariantLabels | Variant | AnimationControls
   exit?: VariantLabels | Variant
