@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import { motionValue, scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { warning } from 'hey-listen'
@@ -33,36 +33,35 @@ export function useScroll({
 }: UseScrollOptions = {}) {
   const values = createScrollMotionValues()
 
-  let cleanup: VoidFunction | undefined
-
-  const setupScroll = () => {
-    cleanup?.()
-    cleanup = scroll(
-      (_progress, { x, y }) => {
-        values.scrollX.set(x.current)
-        values.scrollXProgress.set(x.progress)
-        values.scrollY.set(y.current)
-        values.scrollYProgress.set(y.progress)
-      },
-      {
-        ...options,
-        container: container?.value ?? undefined,
-        target: target?.value ?? undefined,
-      },
-    )
-  }
-
   onMounted(() => {
     refWarning('target', target)
     refWarning('container', container)
-    setupScroll()
   })
 
-  onUnmounted(() => cleanup?.())
-
   watch(
-    () => [container?.value, target?.value, options.offset],
-    setupScroll,
+    [container, target, () => options.offset],
+    (n, o, onCleanup) => {
+      const cleanup = scroll(
+        (_progress, { x, y }) => {
+          values.scrollX.set(x.current)
+          values.scrollXProgress.set(x.progress)
+          values.scrollY.set(y.current)
+          values.scrollYProgress.set(y.progress)
+        },
+        {
+          ...options,
+          container: container?.value ?? undefined,
+          target: target?.value ?? undefined,
+        },
+      )
+      onCleanup(() => {
+        cleanup()
+      })
+    },
+    {
+      immediate: true,
+      flush: 'post',
+    },
   )
 
   return values

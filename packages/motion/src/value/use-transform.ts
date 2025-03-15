@@ -93,11 +93,12 @@ export function useTransform<I, O>(
     return useComputed(input)
   }
 
-  const transformer = computed(() => {
-    return typeof inputRangeOrTransformer === 'function'
-      ? inputRangeOrTransformer
-      : transform(isRef(inputRangeOrTransformer) ? inputRangeOrTransformer.value : inputRangeOrTransformer, outputRange!, options)
-  })
+  const transformer
+     = typeof inputRangeOrTransformer === 'function'
+       ? inputRangeOrTransformer
+       : isRef(inputRangeOrTransformer)
+         ? computed(() => transform(inputRangeOrTransformer.value, outputRange!, options))
+         : transform(inputRangeOrTransformer, outputRange!, options)
 
   return Array.isArray(input)
     ? useListTransform(

@@ -139,7 +139,7 @@ function createAnimationFactories(
       this.element,
       { [key]: keyValue },
       {
-        ...animationOptions,
+        ...(animationOptions?.[key] || animationOptions),
         delay: (animationOptions?.[key]?.delay || animationOptions?.delay || 0) + controlDelay,
       } as any,
     ))
