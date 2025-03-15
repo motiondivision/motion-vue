@@ -26,6 +26,7 @@ export interface MotionProps<T extends ElementType = 'div', K = unknown> extends
   whilePress?: Options['whilePress']
   whileInView?: Options['whileInView']
   whileFocus?: Options['whileFocus']
+  forwardMotionProps?: boolean
 }
 type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
 
@@ -93,9 +94,8 @@ function getLayoutId() {
   return props.layoutId || undefined
 }
 
-function getMotionProps() {
+function getProps() {
   return {
-    ...attrs,
     ...props,
     layoutId: getLayoutId(),
     transition: props.transition ?? config.value.transition,
@@ -107,6 +107,12 @@ function getMotionProps() {
       : (
           props.initial === true ? undefined : props.initial
         ),
+  }
+}
+function getMotionProps() {
+  return {
+    ...attrs,
+    ...getProps(),
   }
 }
 
@@ -144,7 +150,7 @@ onUpdated(() => {
   state.update(getMotionProps())
 })
 
-function getProps() {
+function getAttrs() {
   const isSVG = state.visualElement.type === 'svg'
   const attrsProps = { ...attrs }
   Object.keys(attrs).forEach((key) => {
@@ -195,6 +201,7 @@ function onMotionComplete(e: CustomEvent) {
   <Primitive
     ref="PrimitiveRef"
     :get-props="getProps"
+    :get-attrs="getAttrs"
     :as="as"
     :as-child="asChild"
     :data-motion-group="layoutGroup.key?.value || undefined"

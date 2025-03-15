@@ -24,4 +24,8 @@ export interface LayoutOptions extends LayoutLifecycles {
   'layoutRoot'?: boolean
   'data-framer-portal-id'?: string
   'crossfade'?: boolean
+  /**
+   * @public
+   */
+  'layoutDependency'?: any
 }

@@ -12,7 +12,7 @@ type ComponentProps<T> = T extends DefineComponent<
   ? ExtractPublicPropTypes<Props>
   : never
 type MotionComponentProps = {
-  create: <T extends DefineComponent>(T) => DefineComponent<MotionProps<any, unknown> & ComponentProps<T>>
+  create: <T extends DefineComponent>(T, options?: { forwardMotionProps?: boolean }) => DefineComponent<MotionProps<any, unknown> & ComponentProps<T>>
 }
 type MotionKeys = keyof MotionComponentProps
 
@@ -30,7 +30,7 @@ export const motion = new Proxy(Motion, {
       return target[prop]
     let motionComponent = componentCache.get(prop)
     if (prop === 'create') {
-      return (component: any) => {
+      return (component: any, { forwardMotionProps = false }: { forwardMotionProps?: boolean } = {}) => {
         return defineComponent({
           inheritAttrs: false,
           name: `motion.${component.$name}`,
@@ -38,6 +38,7 @@ export const motion = new Proxy(Motion, {
             return () => {
               return h(Motion, {
                 ...attrs,
+                forwardMotionProps,
                 as: component,
                 asChild: false,
               }, slots)
