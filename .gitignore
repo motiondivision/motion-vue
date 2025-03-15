@@ -55,3 +55,8 @@ prompts
 
 new-docs
 .cursorrules
+
+
+# Playwright
+playwright-report
+test-results

@@ -28,6 +28,7 @@ export default antfu(
       'regexp/no-super-linear-backtracking': 'off',
       'vue/no-parsing-error': [2, { 'x-invalid-namespace': false }],
       'no-async-promise-executor': 'off',
+      'node/prefer-global/process': 'off',
     },
   },
   {

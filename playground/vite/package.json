@@ -1,0 +1,16 @@
+{
+  "name": "@motion-vue/playground-vite",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "motion-v": "workspace:*",
+    "vue": "^3.4.0",
+    "vue-router": "^4.5.0"
+  }
+}
