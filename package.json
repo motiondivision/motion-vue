@@ -15,10 +15,9 @@
   ],
   "main": "index.js",
   "scripts": {
-    "dev:play": "pnpm --filter nuxt-app dev",
-    "dev": "pnpm --filter motion-v dev",
+    "dev": "pnpm run -r dev",
     "build": "pnpm --filter motion-v build",
-    "test": "pnpm --filter motion-v test",
+    "test": "pnpm --filter motion-v test & pnpm run test:e2e",
     "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
@@ -27,7 +26,11 @@
     "docs:contributors": "pnpm --filter docs docs:contributors",
     "lint-staged": "lint-staged",
     "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
-    "pub:release": "pnpm --filter motion-v pub:release"
+    "pub:release": "pnpm --filter motion-v pub:release",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "vite": "^5.4.8",
@@ -37,6 +40,7 @@
     "@antfu/eslint-config": "^2.27.3",
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@playwright/test": "^1.51.0",
     "@testing-library/vue": "^8.1.0",
     "@types/node": "^22.13.9",
     "@vitejs/plugin-vue": "^5.1.4",

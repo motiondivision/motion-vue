@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev --port 3001 --host",
+    "play": "nuxt dev --port 3001 --host",
     "generate": "nuxt generate",
     "preview": "nuxt preview"
   },
