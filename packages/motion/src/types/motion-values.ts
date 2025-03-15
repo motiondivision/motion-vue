@@ -1,6 +1,7 @@
 import type { MotionValue } from 'framer-motion/dom'
-import type { ElementType, Options } from './state'
+import type { Options } from './state'
 import type { AriaAttributes, Events, IntrinsicElementAttributes, SVGAttributes } from 'vue'
+import type { ElementType } from '@/types/common'
 
 type EventHandlers<E> = {
   [K in keyof E]?: E[K] extends (...args: any) => any ? E[K] : (payload: E[K]) => void;
