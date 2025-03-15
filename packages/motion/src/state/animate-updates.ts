@@ -68,7 +68,7 @@ function resolveDirectAnimation(
   directAnimate: Options['animate'],
   directTransition: $Transition | undefined,
 ) {
-  const variant = resolveVariant(directAnimate, this.options.variants, this.options.custom)
+  const variant = resolveVariant(directAnimate, this.options.variants, this.options.custom || this.options.animatePresenceContext?.custom)
   if (!variant)
     return {}
 

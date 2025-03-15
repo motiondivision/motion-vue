@@ -15,7 +15,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm run -r dev",
+    "dev": "pnpm --filter motion-v dev",
     "build": "pnpm --filter motion-v build",
     "test": "pnpm --filter motion-v test & pnpm run test:e2e",
     "prepare": "pnpm simple-git-hooks",
