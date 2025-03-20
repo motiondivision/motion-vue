@@ -7,6 +7,7 @@ import { checkMotionIsHidden } from './utils'
 import type { AsTag, ComponentProps, ElementType, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import { useMotionConfig } from '../motion-config/context'
 import { getMotionElement } from '../hooks/use-motion-elm'
+import type { DOMKeyframesDefinition } from 'motion-dom'
 </script>
 
 <script setup lang="ts" generic="T extends AsTag = 'div', K = unknown">
@@ -77,7 +78,7 @@ const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
     return focus
   },
 } as any) as MotionProps<T>
-const animatePresenceContext = injectAnimatePresence({ })
+const animatePresenceContext = injectAnimatePresence({})
 const parentState = injectMotion(null)
 const attrs = useAttrs()
 const layoutGroup = injectLayoutGroup({} as any)
@@ -163,9 +164,12 @@ function getAttrs() {
     ...(isSVG ? {} : state.visualElement.latestValues),
   }
   if (isSVG) {
-    const { attributes, style } = convertSvgStyleToAttributes(state.isMounted() ? state.target : state.baseTarget)
+    const { attributes, style } = convertSvgStyleToAttributes({
+      ...(state.isMounted() ? state.target : state.baseTarget),
+      ...styleProps,
+    } as DOMKeyframesDefinition)
     Object.assign(attrsProps, attributes)
-    Object.assign(styleProps, style)
+    styleProps = style
   }
   if (props.drag && props.dragListener !== false) {
     Object.assign(styleProps, {
@@ -178,10 +182,7 @@ function getAttrs() {
     })
   }
 
-  styleProps = createStyles({
-    ...styleProps,
-    ...props.style,
-  })
+  styleProps = createStyles(styleProps)
 
   attrsProps.style = styleProps
   return attrsProps
