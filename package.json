@@ -1,6 +1,6 @@
 {
   "name": "vue-motion",
-  "version": "0.13.1-alpha.0",
+  "version": "0.13.1-alpha.1",
   "private": true,
   "packageManager": "pnpm@9.15.0+sha1.8bfdb6d72b4d5fdf87d21d27f2bfbe2b21dd2629",
   "description": "",
