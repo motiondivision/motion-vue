@@ -132,12 +132,8 @@ function buildSVGPath(
 export function convertSvgStyleToAttributes(keyframes?: MotionStyle | DOMKeyframesDefinition) {
   const attributes: Record<string, any> = {}
   const styleProps: Record<string, any> = {}
-  let shouldBuildPath = false
   for (const key in keyframes as any) {
     if (key in SVG_STYLE_TO_ATTRIBUTES) {
-      if (key === 'pathLength') {
-        shouldBuildPath = true
-      }
       const value = keyframes[key]
       attributes[key] = isMotionValue(value) ? value.get() : value
     }
@@ -145,7 +141,7 @@ export function convertSvgStyleToAttributes(keyframes?: MotionStyle | DOMKeyfram
       styleProps[key] = keyframes[key]
     }
   }
-  if (shouldBuildPath) {
+  if (attributes.pathLength) {
     buildSVGPath(attributes, attributes.pathLength, attributes.pathSpacing, attributes.pathOffset)
   }
   return {

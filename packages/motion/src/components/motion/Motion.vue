@@ -182,9 +182,7 @@ function getAttrs() {
     })
   }
 
-  styleProps = createStyles(styleProps)
-
-  attrsProps.style = styleProps
+  attrsProps.style = createStyles(styleProps)
   return attrsProps
 }
 
