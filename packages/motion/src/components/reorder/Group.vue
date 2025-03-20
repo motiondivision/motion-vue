@@ -2,15 +2,16 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import type { ItemData } from './types'
-import type { ElementType } from '@/types'
+import type { AsTag } from '@/types'
 import { invariant } from 'hey-listen'
 import { onUpdated, toRefs, useAttrs } from 'vue'
 import { reorderContextProvider } from './context'
 import { checkReorder, compareMin, getValue } from './utils'
 </script>
 
-<script setup  lang="ts">
-export interface GroupProps<T extends ElementType, K = unknown, V = unknown> extends
+<!-- @ts-ignore -->
+<script setup generic="T, K, V" lang="ts">
+export interface GroupProps<T extends AsTag, K, V> extends
   MotionProps<T, K> {
   /**
    * The axis to reorder along. By default, items will be draggable on this axis.
@@ -52,7 +53,7 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const props = withDefaults(defineProps<GroupProps<ElementType>>(), {
+const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
   as: 'ul',
   axis: 'y',
 })
@@ -98,9 +99,10 @@ reorderContextProvider({
 
 const attrs = useAttrs()
 function bindProps() {
+  const { axis, values, 'onUpdate:values': onUpdateValues, ...rest } = props
   return {
     ...attrs,
-    ...props,
+    ...rest,
   }
 }
 </script>

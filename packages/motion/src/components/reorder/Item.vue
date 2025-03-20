@@ -65,9 +65,10 @@ const { axis, registerItem, updateOrder } = context || {}
 
 const attrs = useAttrs()
 function bindProps() {
+  const { value, ...rest } = props
   return {
     ...attrs,
-    ...props,
+    ...rest,
     style: {
       ...style.value,
       x: point.x,
