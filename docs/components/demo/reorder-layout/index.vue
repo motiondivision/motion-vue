@@ -41,7 +41,6 @@ function add() {
           class="tabs"
         >
           <AnimatePresence
-            multiple
             :initial="false"
           >
             <Tab

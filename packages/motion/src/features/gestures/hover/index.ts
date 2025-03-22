@@ -24,7 +24,7 @@ function handleHoverEvent(
 
 export class HoverGesture extends Feature {
   isActive() {
-    return Boolean(this.state.getOptions().whileHover)
+    return Boolean(this.state.options.whileHover)
   }
 
   constructor(state: MotionState) {

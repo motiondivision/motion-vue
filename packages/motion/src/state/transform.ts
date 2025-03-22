@@ -1,6 +1,5 @@
-import { isDef } from '@vueuse/core'
 import type { CssPropertyDefinition, CssPropertyDefinitionMap } from '@/types'
-import { noopReturn } from './utils'
+import { noopReturn } from '@/state/utils'
 
 const rotation: CssPropertyDefinition = {
   syntax: '<angle>',
@@ -75,16 +74,6 @@ export function buildTransformTemplate(transforms: [string, any][]): string {
     .sort(compareTransformOrder)
     .reduce(transformListToString, '')
     .trim()
-}
-
-export function getFirstAnimateTransform(initialFrame: any, animateFrame: any) {
-  const first = Array.isArray(initialFrame) ? initialFrame[0] : initialFrame
-  if (Array.isArray(animateFrame)) {
-    return isDef(first) ? [first, ...animateFrame] : animateFrame
-  }
-  else {
-    return isDef(first) ? [first, animateFrame] : animateFrame
-  }
 }
 
 export const transformResetValue = {
