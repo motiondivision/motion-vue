@@ -36,7 +36,6 @@ defineOptions({
   name: 'Motion',
   inheritAttrs: false,
 })
-
 const props = withDefaults(defineProps<ComBindProps & MotionProps<T, K>>(), {
   as: 'div' as T,
   asChild: false,
@@ -126,7 +125,6 @@ const state = new MotionState(
 provideMotion(state)
 
 const instance = getCurrentInstance().proxy
-
 onBeforeMount(() => {
   state.beforeMount()
 })

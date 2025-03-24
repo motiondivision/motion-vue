@@ -1,23 +1,13 @@
-import { AnimationFeature, DragGesture, type Feature, HoverGesture, InViewGesture, LayoutFeature, PanGesture, PressGesture } from '@/features'
+import type { Feature } from '@/features'
 import type { MotionState } from '@/state'
-import { ProjectionFeature } from './layout/projection'
-import { FocusGesture } from '@/features/gestures/focus'
 
+export const features: Feature[] = []
 export class FeatureManager {
   features: Feature[] = []
 
   constructor(state: MotionState) {
-    this.features = [
-      new HoverGesture(state),
-      new PressGesture(state),
-      new InViewGesture(state),
-      new LayoutFeature(state),
-      new ProjectionFeature(state),
-      new PanGesture(state),
-      new DragGesture(state),
-      new FocusGesture(state),
-      new AnimationFeature(state),
-    ]
+    this.features = features
+    console.log('this.features', this.features)
   }
 
   mount() {

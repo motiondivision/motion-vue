@@ -7,27 +7,15 @@ export abstract class Feature {
     this.state = state
   }
 
-  beforeMount(): void {
-    // noop
-  }
+  beforeMount(): void {}
 
-  mount(): void {
-    // noop
-  }
+  mount(): void {}
 
-  unmount(): void {
-    // noop
-  }
+  unmount(): void {}
 
-  update?(): void {
-    // noop
-  }
+  update?(): void {}
 
-  beforeUpdate?(): void {
-    // noop
-  }
+  beforeUpdate?(): void {}
 
-  beforeUnmount?(): void {
-    // noop
-  }
+  beforeUnmount?(): void {}
 }
