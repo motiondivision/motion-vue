@@ -1,62 +1,26 @@
 import type { DefineComponent, IntrinsicElementAttributes } from 'vue'
-import { defineComponent, h } from 'vue'
 import Motion from './Motion.vue'
 import type { MotionProps } from './Motion.vue'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
+import { createMotionComponent } from './utils'
 
 type MotionComponentProps = {
   create: <T extends DefineComponent>(T, options?: { forwardMotionProps?: boolean }) => DefineComponent<MotionProps<any, unknown> & ComponentProps<T>>
 }
-type MotionKeys = keyof MotionComponentProps
 
 type MotionNameSpace = {
   [K in keyof IntrinsicElementAttributes]: DefineComponent<MotionProps<K, unknown> & MotionHTMLAttributes<K>>
-} & {
-  create: MotionComponentProps['create']
-}
+} & MotionComponentProps
 
-const componentCache = new Map<MotionKeys, DefineComponent>()
-
-export const motion = new Proxy(Motion, {
-  get(target, prop: MotionKeys) {
+export const motion = new Proxy(Motion as unknown as MotionNameSpace, {
+  get(target, prop) {
     if (typeof prop === 'symbol')
       return target[prop]
-    let motionComponent = componentCache.get(prop)
     if (prop === 'create') {
-      return (component: any, { forwardMotionProps = false }: { forwardMotionProps?: boolean } = {}) => {
-        return defineComponent({
-          inheritAttrs: false,
-          name: `motion.${component.$name}`,
-          setup(_, { attrs, slots }) {
-            return () => {
-              return h(Motion, {
-                ...attrs,
-                forwardMotionProps,
-                as: component,
-                asChild: false,
-              }, slots)
-            }
-          },
-        })
-      }
+      return (component: any, options?: { forwardMotionProps?: boolean }) =>
+        createMotionComponent(component, options)
     }
 
-    if (!motionComponent) {
-      motionComponent = defineComponent({
-        inheritAttrs: false,
-        name: `motion.${prop}`,
-        setup(_, { attrs, slots }) {
-          return () => {
-            return h(Motion, {
-              ...attrs,
-              as: prop as any,
-              asChild: false,
-            }, slots)
-          }
-        },
-      }) as any
-      componentCache.set(prop, motionComponent)
-    }
-    return motionComponent
+    return createMotionComponent(prop as string)
   },
-}) as (unknown) as MotionNameSpace
+})
