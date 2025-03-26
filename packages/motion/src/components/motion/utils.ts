@@ -35,8 +35,8 @@ export function createMotionComponent(
         return h(Motion, {
           ...attrs,
           forwardMotionProps: isString ? false : options.forwardMotionProps,
-          as: component as AsTag,
-          asChild: false,
+          as: (attrs.as || component) as AsTag,
+          asChild: (attrs.asChild ?? false) as boolean,
         }, slots)
       }
     },

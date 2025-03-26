@@ -4,10 +4,8 @@ import type { MotionState } from '@/state'
 export const features: Feature[] = []
 export class FeatureManager {
   features: Feature[] = []
-
   constructor(state: MotionState) {
-    this.features = features
-    console.log('this.features', this.features)
+    this.features = features.map((Feature: any) => new Feature(state))
   }
 
   mount() {

@@ -183,26 +183,25 @@ export class AnimationFeature extends Feature {
     let variant: Variant = {}
     const { variants, custom, transition, animatePresenceContext } = this.state.options
     const customValue = isDef(custom) ? custom : animatePresenceContext?.custom
-    if (controlActiveState) {
-      this.state.activeStates = { ...this.state.activeStates, ...controlActiveState }
-      STATE_TYPES.forEach((name) => {
-        if (!this.state.activeStates[name] || isAnimationControls(this.state.options[name]))
-          return
 
-        const definition = this.state.options[name]
-        let resolvedVariant = isDef(definition) ? resolveVariant(definition as any, variants, customValue) : undefined
-        // If current node is a variant node, merge the control node's variant
-        if (this.state.visualElement.isVariantNode) {
-          const controlVariant = resolveVariant(this.state.context[name], variants, customValue)
-          resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, resolvedVariant) : variant
-        }
-        if (!resolvedVariant)
-          return
-        if (name !== 'initial')
-          variantTransition = resolvedVariant.transition || this.state.options.transition || {}
-        variant = Object.assign(variant, resolvedVariant)
-      })
-    }
+    this.state.activeStates = { ...this.state.activeStates, ...controlActiveState }
+    STATE_TYPES.forEach((name) => {
+      if (!this.state.activeStates[name] || isAnimationControls(this.state.options[name]))
+        return
+
+      const definition = this.state.options[name]
+      let resolvedVariant = isDef(definition) ? resolveVariant(definition as any, variants, customValue) : undefined
+      // If current node is a variant node, merge the control node's variant
+      if (this.state.visualElement.isVariantNode) {
+        const controlVariant = resolveVariant(this.state.context[name], variants, customValue)
+        resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, resolvedVariant) : variant
+      }
+      if (!resolvedVariant)
+        return
+      if (name !== 'initial')
+        variantTransition = resolvedVariant.transition || this.state.options.transition || {}
+      variant = Object.assign(variant, resolvedVariant)
+    })
 
     if (directAnimate) {
       variant = resolveVariant(directAnimate, variants, customValue)
