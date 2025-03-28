@@ -1,5 +1,6 @@
 import { injectLayoutGroup, injectMotion, provideMotion } from '@/components/context'
 import { getMotionElement } from '@/components/hooks/use-motion-elm'
+import { useLazyMotionContext } from '@/components/lazy-motion/context'
 import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
 import { checkMotionIsHidden } from '@/components/motion/utils'
@@ -8,13 +9,22 @@ import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 import { isMotionValue } from '@/utils'
 import type { DOMKeyframesDefinition } from 'motion-dom'
-import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, useAttrs } from 'vue'
+import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 
 export function useMotionState(props: MotionProps) {
+  // motion context
   const parentState = injectMotion(null)
+  // layout group context
   const layoutGroup = injectLayoutGroup({})
+  // motion config context
   const config = useMotionConfig()
+  // animate presence context
   const animatePresenceContext = injectAnimatePresence({})
+  // lazy motion context
+  const lazyMotionContext = useLazyMotionContext({
+    features: ref([]),
+    strict: false,
+  })
   const attrs = useAttrs()
 
   /**
@@ -31,6 +41,7 @@ export function useMotionState(props: MotionProps) {
   function getProps() {
     return {
       ...props,
+      lazyMotionContext,
       layoutId: getLayoutId(),
       transition: props.transition ?? config.value.transition,
       layoutGroup,

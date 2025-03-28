@@ -1,3 +1,4 @@
+import type { Feature } from '@/features'
 import type { AsTag, ComponentProps, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
@@ -14,6 +15,7 @@ export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Optio
   whileInView?: Options['whileInView']
   whileFocus?: Options['whileFocus']
   forwardMotionProps?: boolean
+  features?: Feature[]
 }
 type __VLS_PrettifyLocal<T> = {
   [K in keyof T]: T[K];

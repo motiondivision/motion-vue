@@ -1,10 +1,10 @@
 import { getMotionElement } from '@/components/hooks/use-motion-elm'
-import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes } from 'vue'
+import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes, PropType } from 'vue'
 import { Comment, cloneVNode, defineComponent, h, mergeProps } from 'vue'
 import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
 import type { MotionProps } from '@/components/motion/types'
-import { type Feature, features } from '@/features'
+import type { Feature } from '@/features'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
 type MotionCompProps = {
@@ -12,6 +12,7 @@ type MotionCompProps = {
 }
 export interface MotionCreateOptions {
   forwardMotionProps?: boolean
+  features?: Feature[]
 }
 export function checkMotionIsHidden(instance: ComponentPublicInstance) {
   const isHidden = getMotionElement(instance.$el)?.style.display === 'none'
@@ -101,6 +102,10 @@ export function createMotionComponent(
     inheritAttrs: false,
     props: {
       ...MotionComponentProps,
+      features: {
+        type: Object as PropType<Feature[] | Promise<Feature[]>>,
+        default: () => (options.features || []),
+      },
       as: { type: [String, Object], default: component || 'div' },
     },
     name: name ? `motion.${name}` : 'Motion',
@@ -159,19 +164,21 @@ type MotionNameSpace = {
 } & MotionCompProps
 
 export function createMotionComponentWithFeatures(
-  feats: Feature[] = [],
+  features: Feature[] = [],
 ) {
   return new Proxy({} as unknown as MotionNameSpace, {
     get(target, prop) {
-      if (!features.length) {
-        features.push(...feats)
-      }
       if (prop === 'create') {
         return (component: any, options?: MotionCreateOptions) =>
-          createMotionComponent(component, options)
+          createMotionComponent(component, {
+            ...options,
+            features,
+          })
       }
 
-      return createMotionComponent(prop as string)
+      return createMotionComponent(prop as string, {
+        features,
+      })
     },
   })
 }

@@ -16,7 +16,7 @@ export const domMax = [
   InViewGesture,
   FocusGesture,
   ProjectionFeature,
+  PanGesture,
   DragGesture,
   LayoutFeature,
-  PanGesture,
 ] as unknown as Feature[]
