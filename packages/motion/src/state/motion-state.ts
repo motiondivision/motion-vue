@@ -4,14 +4,13 @@ import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { cancelFrame, frame, noop } from 'framer-motion/dom'
 import { isAnimateChanged, resolveVariant } from '@/state/utils'
-import type { Feature } from '@/features'
+import type { Feature, StateType } from '@/features'
 import { FeatureManager } from '@/features'
 import { createVisualElement } from '@/state/create-visual-element'
 import type { PresenceContext } from '@/components/presence'
 import { doneCallbacks } from '@/components/presence'
-import type { StateType } from './animate-updates'
-import { isVariantLabels } from '@/state/utils/is-variant-labels'
 import type { AnimateUpdates } from '@/features/animation/types'
+import { isVariantLabels } from '@/state/utils/is-variant-labels'
 import type { LazyMotionContext } from '@/components/lazy-motion/context'
 
 // Map to track mounted motion states by element
@@ -102,7 +101,6 @@ export class MotionState {
       },
       reducedMotionConfig: options.motionConfig.reduceMotion,
     })
-
     this.featureManager = new FeatureManager(this)
   }
 

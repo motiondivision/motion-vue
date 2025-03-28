@@ -20,7 +20,8 @@ export function checkMotionIsHidden(instance: ComponentPublicInstance) {
   return hasTransition && isHidden
 }
 
-const componentCache = new Map<any, Component>()
+const componentMaxCache = new Map<any, Component>()
+const componentMiniCache = new Map<any, Component>()
 
 function renderSlotFragments(fragments: any[]) {
   if (!Array.isArray(fragments))
@@ -93,7 +94,7 @@ export function createMotionComponent(
 ) {
   const isString = typeof component === 'string'
   const name = isString ? component : component.name || ''
-
+  const componentCache = options.features?.length > 0 ? componentMaxCache : componentMiniCache
   if (isString && componentCache?.has(component)) {
     return componentCache.get(component)
   }
@@ -132,10 +133,6 @@ export function createMotionComponent(
         const allAttrs = {
           ...(options.forwardMotionProps || props.forwardMotionProps ? motionProps : {}),
           ...motionAttrs,
-          /**
-           * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
-           * To prevent this, reapply the current motion state styles in vnode updated lifecycle
-           */
           onVnodeUpdated,
         }
 

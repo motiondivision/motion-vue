@@ -49,7 +49,6 @@ export class AnimationFeature extends Feature {
 
     const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
     const { getChildAnimations, childAnimations } = this.setupChildAnimations(animationOptions, controlActiveState, isFallback)
-
     return this.executeAnimations({
       factories,
       getChildAnimations,
@@ -86,9 +85,11 @@ export class AnimationFeature extends Feature {
      */
     const finishAnimation = (animationPromise: Promise<any>) => {
       element.dispatchEvent(motionEvent('motionstart', animationTarget))
+      this.state.options.onAnimationStart?.(animationTarget)
       animationPromise
         .then(() => {
           element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
+          this.state.options.onAnimationComplete?.(animationTarget)
         })
         .catch(noop)
     }

@@ -8,6 +8,7 @@ import { injectAnimatePresence } from '@/components/presence'
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 import { isMotionValue } from '@/utils'
+import { invariant, warning } from 'hey-listen'
 import type { DOMKeyframesDefinition } from 'motion-dom'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 
@@ -25,6 +26,22 @@ export function useMotionState(props: MotionProps) {
     features: ref([]),
     strict: false,
   })
+
+  /**
+   * If we're in development mode, check to make sure we're not rendering a motion component
+   * as a child of LazyMotion, as this will break the file-size benefits of using it.
+   */
+  if (
+    process.env.NODE_ENV !== 'production'
+    && props.features?.length
+    && lazyMotionContext.strict
+  ) {
+    const strictMessage
+        = 'You have rendered a `motion` component within a `LazyMotion` component. This will break tree shaking. Import and render a `m` component instead.'
+    props.ignoreStrict
+      ? warning(false, strictMessage)
+      : invariant(false, strictMessage)
+  }
   const attrs = useAttrs()
 
   /**

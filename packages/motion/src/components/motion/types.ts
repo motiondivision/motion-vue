@@ -16,6 +16,7 @@ export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Optio
   whileFocus?: Options['whileFocus']
   forwardMotionProps?: boolean
   features?: Feature[]
+  ignoreStrict?: boolean
 }
 type __VLS_PrettifyLocal<T> = {
   [K in keyof T]: T[K];

@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { LazyMotion, m } from 'motion-v'
+import { LazyMotion, m, motion } from 'motion-v'
 import { ref } from 'vue'
 
 const allFeatures = import('./test').then(res => res.default)
 const isExpanded = ref(false)
+
+function handleAnimationComplete() {
+  console.log('animation complete')
+}
+
+function handleAnimationStart() {
+  console.log('animation start')
+}
 </script>
 
 <template>
@@ -28,7 +36,7 @@ const isExpanded = ref(false)
       />
     </LazyMotion>
 
-    <!-- <motion.button
+    <motion.button
       :layout="true"
       :initial="{ borderRadius: '12px' }"
       class="bg-purple-500  h-20"
@@ -41,6 +49,8 @@ const isExpanded = ref(false)
           damping: 10,
         },
       }"
-    /> -->
+      @animation-start="handleAnimationStart"
+      @animation-complete="handleAnimationComplete"
+    />
   </div>
 </template>

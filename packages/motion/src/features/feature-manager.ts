@@ -31,6 +31,8 @@ export class FeatureManager {
           }
         }
       })
+    }, {
+      flush: 'pre',
     })
   }
 

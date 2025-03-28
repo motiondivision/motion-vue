@@ -5,9 +5,10 @@ import { defineComponent, ref } from 'vue'
 
 export const LazyMotion = defineComponent({
   name: 'LazyMotion',
+  inheritAttrs: false,
   props: {
     features: {
-      type: Object as PropType<Feature[] | Promise<Feature[]>>,
+      type: Object as PropType<Feature[] | Promise<Feature[]> | (() => Promise<Feature[]>)>,
       default: () => ([]),
     },
     strict: {
@@ -18,7 +19,8 @@ export const LazyMotion = defineComponent({
   setup(props, { slots }) {
     const features = ref<any[]>(Array.isArray(props.features) ? props.features : [])
     if (!Array.isArray(props.features)) {
-      props.features.then((feats) => {
+      const featuresPromise = typeof props.features === 'function' ? props.features() : props.features
+      featuresPromise.then((feats) => {
         features.value = feats
       })
     }
