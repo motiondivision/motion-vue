@@ -1,7 +1,20 @@
-import type { MotionProps } from '@/components/motion/Motion.vue'
 import type { AsTag, ComponentProps, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
+export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Options<K> {
+  as?: T
+  asChild?: boolean
+  hover?: Options['hover']
+  press?: Options['press']
+  inView?: Options['inView']
+  focus?: Options['focus']
+  whileDrag?: Options['whileDrag']
+  whileHover?: Options['whileHover']
+  whilePress?: Options['whilePress']
+  whileInView?: Options['whileInView']
+  whileFocus?: Options['whileFocus']
+  forwardMotionProps?: boolean
+}
 type __VLS_PrettifyLocal<T> = {
   [K in keyof T]: T[K];
 } & {}

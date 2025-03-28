@@ -1,7 +1,7 @@
 import { injectLayoutGroup, injectMotion, provideMotion } from '@/components/context'
 import { getMotionElement } from '@/components/hooks/use-motion-elm'
 import { useMotionConfig } from '@/components/motion-config'
-import type { MotionProps } from '@/components/motion/Motion.vue'
+import type { MotionProps } from '@/components/motion/types'
 import { checkMotionIsHidden } from '@/components/motion/utils'
 import { injectAnimatePresence } from '@/components/presence'
 import { MotionState } from '@/state'
@@ -122,5 +122,6 @@ export function useMotionState(props: MotionProps) {
     getProps,
     getAttrs,
     layoutGroup,
+    state,
   }
 }

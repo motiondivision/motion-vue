@@ -1,17 +1,25 @@
 import { getMotionElement } from '@/components/hooks/use-motion-elm'
-import type { ComponentPublicInstance, DefineComponent } from 'vue'
+import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes } from 'vue'
 import { Comment, cloneVNode, defineComponent, h, mergeProps } from 'vue'
-import type { MotionProps } from './Motion.vue'
 import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
+import type { MotionProps } from '@/components/motion/types'
+import { type Feature, features } from '@/features'
+import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
+type MotionCompProps = {
+  create: <T extends DefineComponent>(T, options?: MotionCreateOptions) => DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
+}
+export interface MotionCreateOptions {
+  forwardMotionProps?: boolean
+}
 export function checkMotionIsHidden(instance: ComponentPublicInstance) {
   const isHidden = getMotionElement(instance.$el)?.style.display === 'none'
   const hasTransition = instance.$.vnode.transition
   return hasTransition && isHidden
 }
 
-const componentCache = new Map<any, any>()
+const componentCache = new Map<any, Component>()
 
 function renderSlotFragments(fragments: any[]) {
   if (!Array.isArray(fragments))
@@ -80,7 +88,7 @@ function handlePrimitiveAndSlot(asTag: string | any, allAttrs: any, slots: any) 
  */
 export function createMotionComponent(
   component: string | DefineComponent,
-  options: { forwardMotionProps?: boolean } = {},
+  options: MotionCreateOptions = {},
 ) {
   const isString = typeof component === 'string'
   const name = isString ? component : component.name || ''
@@ -93,17 +101,38 @@ export function createMotionComponent(
     inheritAttrs: false,
     props: {
       ...MotionComponentProps,
+      as: { type: [String, Object], default: component || 'div' },
     },
     name: name ? `motion.${name}` : 'Motion',
-    setup(props, { attrs, slots }) {
-      const { getProps, getAttrs } = useMotionState(props as MotionProps)
-
+    setup(props, { slots }) {
+      const { getProps, getAttrs, state } = useMotionState(props as MotionProps)
+      /**
+       * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
+       * To prevent this, reapply the current motion state styles in vnode updated lifecycle
+       */
+      function onVnodeUpdated() {
+        const el = state.element
+        const isComponent = typeof props.as === 'object'
+        if ((!isComponent || props.asChild) && el) {
+          const { style } = getAttrs()
+          for (const [key, val] of Object.entries(style)) {
+            (el).style[key] = val
+          }
+        }
+      }
       return () => {
-        console.log(props)
         const motionProps = getProps()
         const motionAttrs = getAttrs()
-        const asTag = props.asChild ? 'template' : (attrs.as || component)
-        const allAttrs = { ...(options.forwardMotionProps ? motionProps : {}), ...motionAttrs }
+        const asTag = props.asChild ? 'template' : props.as
+        const allAttrs = {
+          ...(options.forwardMotionProps || props.forwardMotionProps ? motionProps : {}),
+          ...motionAttrs,
+          /**
+           * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
+           * To prevent this, reapply the current motion state styles in vnode updated lifecycle
+           */
+          onVnodeUpdated,
+        }
 
         // Try to handle as Primitive or Slot first
         const primitiveOrSlotResult = handlePrimitiveAndSlot(asTag, allAttrs, slots)
@@ -116,11 +145,33 @@ export function createMotionComponent(
         }, slots)
       }
     },
-  }) as any
+  })
 
   if (isString) {
     componentCache?.set(component, motionComponent)
   }
 
   return motionComponent
+}
+
+type MotionNameSpace = {
+  [K in keyof IntrinsicElementAttributes]: DefineComponent<Omit<MotionProps<K, unknown>, 'as' | 'asChild'> & MotionHTMLAttributes<K>, 'create'>
+} & MotionCompProps
+
+export function createMotionComponentWithFeatures(
+  feats: Feature[] = [],
+) {
+  return new Proxy({} as unknown as MotionNameSpace, {
+    get(target, prop) {
+      if (!features.length) {
+        features.push(...feats)
+      }
+      if (prop === 'create') {
+        return (component: any, options?: MotionCreateOptions) =>
+          createMotionComponent(component, options)
+      }
+
+      return createMotionComponent(prop as string)
+    },
+  })
 }

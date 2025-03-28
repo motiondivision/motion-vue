@@ -10,6 +10,12 @@ const isExpanded = ref(false)
     <button @click="isExpanded = !isExpanded">
       {{ isExpanded ? 'Shrink' : 'Expand' }}
     </button>
+    <Motion
+      as="a"
+      href="https://www.google.com"
+    >
+      123
+    </Motion>
     <motion.button
       :layout="true"
       :initial="{ borderRadius: '12px' }"

@@ -1,7 +1,7 @@
 import { warning } from 'hey-listen'
 
 export const MotionComponentProps = {
-  'as': { type: [String, Object], default: 'div' },
+  'forwardMotionProps': { type: Boolean, default: false },
   'asChild': { type: Boolean, default: false },
   'hover': { type: [String, Array, Object] },
   'press': { type: [String, Array, Object] },
