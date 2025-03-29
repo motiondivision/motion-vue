@@ -8,7 +8,7 @@ export const LazyMotion = defineComponent({
   inheritAttrs: false,
   props: {
     features: {
-      type: Object as PropType<Feature[] | Promise<Feature[]> | (() => Promise<Feature[]>)>,
+      type: [Object, Function] as PropType<Feature[] | Promise<Feature[]> | (() => Promise<Feature[]>)>,
       default: () => ([]),
     },
     strict: {
