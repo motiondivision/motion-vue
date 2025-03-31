@@ -1,12 +1,10 @@
 import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
-import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { cancelFrame, frame, noop } from 'framer-motion/dom'
-import { isAnimateChanged, resolveVariant } from '@/state/utils'
+import { isAnimateChanged, isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, StateType } from '@/features'
 import { FeatureManager } from '@/features'
-import { createVisualElement } from '@/state/create-visual-element'
 import type { PresenceContext } from '@/components/presence'
 import { doneCallbacks } from '@/components/presence'
 import type { AnimateUpdates } from '@/features/animation/types'
@@ -26,9 +24,10 @@ const mountedLayoutIds = new Set<string>()
  */
 export class MotionState {
   public readonly id: string
+  public type: 'html' | 'svg'
   public element: HTMLElement | null = null
   // Parent reference for handling component tree relationships
-  private parent?: MotionState
+  public parent?: MotionState
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Feature[]
@@ -79,28 +78,6 @@ export class MotionState {
     // Initialize with either initial or animate variant
     const initialVariantSource = this.context.initial === false ? ['initial', 'animate'] : ['initial']
     this.initTarget(initialVariantSource)
-    // Create visual element with initial config
-    this.visualElement = createVisualElement(this.options.as!, {
-      presenceContext: null,
-      parent: parent?.visualElement,
-      props: {
-        ...this.options,
-        whileTap: this.options.whilePress,
-      },
-      visualState: {
-        renderState: {
-          transform: {},
-          transformOrigin: {},
-          style: {},
-          vars: {},
-          attrs: {},
-        },
-        latestValues: {
-          ...this.baseTarget,
-        },
-      },
-      reducedMotionConfig: options.motionConfig.reduceMotion,
-    })
     this.featureManager = new FeatureManager(this)
   }
 
@@ -135,13 +112,14 @@ export class MotionState {
 
   // Update visual element with new options
   updateOptions() {
-    this.visualElement.update({
+    this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
       reducedMotionConfig: this.options.motionConfig.reduceMotion,
     }, {
       isPresent: !doneCallbacks.has(this.element),
     } as any)
+    this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
   // Called before mounting, executes in parent-to-child order
@@ -157,20 +135,13 @@ export class MotionState {
     )
     this.element = element
     this.options = options
-    mountedStates.set(element, this)
-    if (!visualElementStore.get(element)) {
-      this.visualElement.mount(element)
-      visualElementStore.set(element, this.visualElement)
-    }
-    // Add state reference to visual element
-    (this.visualElement as any).state = this
 
     this.updateOptions()
 
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
-      if (this.visualElement.type === 'svg') {
+      if (this.type === 'svg') {
         (this.visualElement as any).updateDimensions()
       }
       this.startAnimation?.()
@@ -186,7 +157,7 @@ export class MotionState {
   clearAnimation() {
     this.currentProcess && cancelFrame(this.currentProcess)
     this.currentProcess = null
-    this.visualElement.variantChildren?.forEach((child) => {
+    this.visualElement?.variantChildren?.forEach((child) => {
       (child as any).state.clearAnimation()
     })
   }

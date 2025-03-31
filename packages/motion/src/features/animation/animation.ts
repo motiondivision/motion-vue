@@ -1,7 +1,8 @@
 import { isAnimationControls } from '@/animation/utils'
 import type { AnimateUpdates } from '@/features/animation/types'
 import { Feature } from '@/features/feature'
-import type { MotionState } from '@/state'
+import { type MotionState, mountedStates } from '@/state'
+import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import { motionEvent } from '@/state/event'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
@@ -10,6 +11,7 @@ import type { $Transition, AnimationFactory, Options, Variant } from '@/types'
 import { isDef } from '@vueuse/core'
 import type { VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
+import { createVisualElement } from '@/state/create-visual-element'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
@@ -18,7 +20,31 @@ export class AnimationFeature extends Feature {
   unmountControls?: () => void
   constructor(state: MotionState) {
     super(state)
+    // Create visual element with initial config
+    this.state.visualElement = createVisualElement(this.state.options.as!, {
+      presenceContext: null,
+      parent: this.state.parent?.visualElement,
+      props: {
+        ...this.state.options,
+        whileTap: this.state.options.whilePress,
+      },
+      visualState: {
+        renderState: {
+          transform: {},
+          transformOrigin: {},
+          style: {},
+          vars: {},
+          attrs: {},
+        },
+        latestValues: {
+          ...this.state.baseTarget,
+        },
+      },
+      reducedMotionConfig: this.state.options.motionConfig.reduceMotion,
+    })
     this.state.animateUpdates = this.animateUpdates
+    if (this.state.isMounted())
+      this.state.startAnimation()
   }
 
   updateAnimationControlsSubscription() {
@@ -221,6 +247,14 @@ export class AnimationFeature extends Feature {
    * Subscribe any provided AnimationControls to the component's VisualElement
    */
   mount() {
+    const { element } = this.state
+    mountedStates.set(element, this.state)
+    if (!visualElementStore.get(element)) {
+      this.state.visualElement.mount(element)
+      visualElementStore.set(element, this.state.visualElement)
+    }
+    // Add state reference to visual element
+    (this.state.visualElement as any).state = this.state
     this.updateAnimationControlsSubscription()
   }
 
