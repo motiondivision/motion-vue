@@ -7,6 +7,8 @@ const components = new Set([
   'MotionConfig',
   'ReorderGroup',
   'ReorderItem',
+  'LazyMotion',
+  'M',
 ])
 
 export default function (): ComponentResolver {
