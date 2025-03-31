@@ -79,6 +79,7 @@ export class MotionState {
     const initialVariantSource = this.context.initial === false ? ['initial', 'animate'] : ['initial']
     this.initTarget(initialVariantSource)
     this.featureManager = new FeatureManager(this)
+    this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
   private _context: MotionStateContext | null = null
@@ -119,7 +120,6 @@ export class MotionState {
     }, {
       isPresent: !doneCallbacks.has(this.element),
     } as any)
-    this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
   // Called before mounting, executes in parent-to-child order
