@@ -7,6 +7,8 @@ const components = [
   'MotionConfig',
   'ReorderGroup',
   'ReorderItem',
+  'LazyMotion',
+  'M',
 ]
 const utilities = [
   'useTransform',
