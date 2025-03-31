@@ -2,15 +2,16 @@ import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import { visualElementStore } from 'framer-motion/dist/es/render/store.mjs'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
-import { cancelFrame, frame } from 'framer-motion/dom'
+import { cancelFrame, frame, noop } from 'framer-motion/dom'
 import { isAnimateChanged, resolveVariant } from '@/state/utils'
+import type { Feature, StateType } from '@/features'
 import { FeatureManager } from '@/features'
 import { createVisualElement } from '@/state/create-visual-element'
 import type { PresenceContext } from '@/components/presence'
 import { doneCallbacks } from '@/components/presence'
-import type { StateType } from './animate-updates'
-import { animateUpdates } from './animate-updates'
+import type { AnimateUpdates } from '@/features/animation/types'
 import { isVariantLabels } from '@/state/utils/is-variant-labels'
+import type { LazyMotionContext } from '@/components/lazy-motion/context'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -30,6 +31,8 @@ export class MotionState {
   private parent?: MotionState
   public options: Options & {
     animatePresenceContext?: PresenceContext
+    features?: Feature[]
+    lazyMotionContext?: LazyMotionContext
   }
 
   public isSafeToRemove = false
@@ -82,9 +85,7 @@ export class MotionState {
       parent: parent?.visualElement,
       props: {
         ...this.options,
-        whileHover: this.options.whileHover,
         whileTap: this.options.whilePress,
-        whileInView: this.options.whileInView,
       },
       visualState: {
         renderState: {
@@ -100,7 +101,6 @@ export class MotionState {
       },
       reducedMotionConfig: options.motionConfig.reduceMotion,
     })
-
     this.featureManager = new FeatureManager(this)
   }
 
@@ -137,9 +137,7 @@ export class MotionState {
   updateOptions() {
     this.visualElement.update({
       ...this.options as any,
-      whileHover: this.options.hover,
-      whileTap: this.options.press,
-      whileInView: this.options.inView,
+      whileTap: this.options.whilePress,
       reducedMotionConfig: this.options.motionConfig.reduceMotion,
     }, {
       isPresent: !doneCallbacks.has(this.element),
@@ -175,7 +173,7 @@ export class MotionState {
       if (this.visualElement.type === 'svg') {
         (this.visualElement as any).updateDimensions()
       }
-      this.startAnimation()
+      this.startAnimation?.()
     }
     if (this.options.layoutId) {
       mountedLayoutIds.add(this.options.layoutId)
@@ -277,14 +275,10 @@ export class MotionState {
   }
 
   // Core animation update logic
-  animateUpdates = animateUpdates
+  animateUpdates: AnimateUpdates = noop as any
 
   isMounted() {
     return Boolean(this.element)
-  }
-
-  getOptions() {
-    return this.options
   }
 
   // Called before layout updates to prepare for changes

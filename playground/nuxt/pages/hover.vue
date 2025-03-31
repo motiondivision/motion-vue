@@ -12,6 +12,7 @@ import { Motion } from 'motion-v'
         transition: { type: 'spring' },
       }"
       class="bg-blue-500 w-32 h-32 rounded-lg cursor-pointer"
+      @animation-start="console.log('animation start')"
       @hover-start="console.log('hover start')"
       @hover-end="console.log('hover end')"
     />

@@ -1,23 +1,39 @@
-import { AnimationFeature, DragGesture, type Feature, HoverGesture, InViewGesture, LayoutFeature, PanGesture, PressGesture } from '@/features'
+import type { Feature } from '@/features'
 import type { MotionState } from '@/state'
-import { ProjectionFeature } from './layout/projection'
-import { FocusGesture } from '@/features/gestures/focus'
+import { watch } from 'vue'
 
 export class FeatureManager {
   features: Feature[] = []
-
   constructor(state: MotionState) {
-    this.features = [
-      new HoverGesture(state),
-      new PressGesture(state),
-      new InViewGesture(state),
-      new LayoutFeature(state),
-      new ProjectionFeature(state),
-      new PanGesture(state),
-      new DragGesture(state),
-      new FocusGesture(state),
-      new AnimationFeature(state),
-    ]
+    const { features = [], lazyMotionContext } = state.options
+    const allFeatures = features.concat(lazyMotionContext.features.value)
+    this.features = allFeatures.map((Feature: any) => new Feature(state))
+    // watch for lazy motion features
+    // @eslint-disable-next-line
+    const featureInstances = this.features
+    /**
+     * Watch for lazy motion features
+     * If the feature is not already in the allFeatures array, we need to add it
+     * and create a new instance of the feature
+     */
+    watch(lazyMotionContext.features, (features) => {
+      features.forEach((feature) => {
+        if (!allFeatures.includes(feature)) {
+          allFeatures.push(feature)
+          const featureInstance = new (feature as any)(state) as Feature
+          featureInstances.push(featureInstance)
+          /**
+           * If the Component is already mounted, we need to call the beforeMount and mount methods
+           */
+          if (state.isMounted()) {
+            featureInstance.beforeMount()
+            featureInstance.mount()
+          }
+        }
+      })
+    }, {
+      flush: 'pre',
+    })
   }
 
   mount() {

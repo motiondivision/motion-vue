@@ -2,7 +2,6 @@ import type { MotionState } from '@/state/motion-state'
 import { Feature } from '@/features'
 import { frame, press } from 'framer-motion/dom'
 import type { EventInfo } from 'framer-motion'
-import type { Options } from '@/types'
 
 export function extractEventInfo(event: PointerEvent): EventInfo {
   return {
@@ -49,34 +48,32 @@ export class PressGesture extends Feature {
   }
 
   update() {
-    const preProps = this.state.visualElement.prevProps as unknown as Options
+    const { whilePress, onPress, onPressCancel, onPressStart } = this.state.options
     // Re-register if whilePress changes
-    if (preProps.whilePress !== this.state.options.whilePress) {
+    if (!(whilePress || onPress || onPressCancel || onPressStart)) {
       this.register()
     }
   }
 
   register() {
+    const element = this.state.element
+    if (!element || !this.isActive())
+      return
     // Unmount previous press handler
     this.unmount()
-    if (this.isActive()) {
-      const element = this.state.element
-      if (!element)
-        return
-      this.unmount = press(
-        element,
-        (el, startEvent) => {
-          handlePressEvent(this.state, startEvent, 'Start')
+    this.unmount = press(
+      element,
+      (el, startEvent) => {
+        handlePressEvent(this.state, startEvent, 'Start')
 
-          return (endEvent, { success }) =>
-            handlePressEvent(
-              this.state,
-              endEvent,
-              success ? 'End' : 'Cancel',
-            )
-        },
-        { useGlobalTarget: this.state.options.globalPressTarget },
-      )
-    }
+        return (endEvent, { success }) =>
+          handlePressEvent(
+            this.state,
+            endEvent,
+            success ? 'End' : 'Cancel',
+          )
+      },
+      { useGlobalTarget: this.state.options.globalPressTarget },
+    )
   }
 }

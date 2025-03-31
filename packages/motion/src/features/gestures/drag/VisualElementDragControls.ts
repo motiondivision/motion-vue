@@ -1,4 +1,3 @@
-import type { MotionProps } from '@/components/motion/Motion.vue'
 import { addDomEvent, addPointerEvent, extractEventInfo } from '@/events'
 import type { Lock } from '@/features/gestures/drag/lock'
 import { getGlobalLock } from '@/features/gestures/drag/lock'
@@ -24,6 +23,7 @@ import type { LayoutUpdateData } from '@/projection/node/types'
 import { invariant } from 'hey-listen'
 import { isPresent } from '@/state/utils/is-present'
 import type { MotionState } from '@/state'
+import type { MotionProps } from '@/components'
 
 export const elementDragControls = new WeakMap<
   VisualElement,

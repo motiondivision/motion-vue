@@ -73,7 +73,7 @@ export interface Options<T = any> extends
   motionConfig?: MotionConfigState
   onAnimationComplete?: (definition: Options['animate']) => void
   onUpdate?: (latest: ResolvedValues) => void
-
+  onAnimationStart?: (definition: Options['animate']) => void
 }
 
 export interface MotionStateContext {

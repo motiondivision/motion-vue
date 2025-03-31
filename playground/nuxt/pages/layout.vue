@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { motion } from 'motion-v'
+import { LazyMotion, m, motion } from 'motion-v'
 import { ref } from 'vue'
 
+const allFeatures = import('./test').then(res => res.default)
 const isExpanded = ref(false)
+
+function handleAnimationComplete() {
+  console.log('animation complete')
+}
+
+function handleAnimationStart() {
+  console.log('animation start')
+}
 </script>
 
 <template>
@@ -10,6 +19,23 @@ const isExpanded = ref(false)
     <button @click="isExpanded = !isExpanded">
       {{ isExpanded ? 'Shrink' : 'Expand' }}
     </button>
+    <LazyMotion :features="allFeatures">
+      <m.button
+        :layout="true"
+        :initial="{ borderRadius: '12px' }"
+        class="bg-purple-500  h-20"
+        :style="{ width: isExpanded ? '300px' : '100px' }"
+        tabindex="-1"
+        :transition="{
+          layout: {
+            type: 'spring',
+            stiffness: 100,
+            damping: 10,
+          },
+        }"
+      />
+    </LazyMotion>
+
     <motion.button
       :layout="true"
       :initial="{ borderRadius: '12px' }"
@@ -23,6 +49,8 @@ const isExpanded = ref(false)
           damping: 10,
         },
       }"
+      @animation-start="handleAnimationStart"
+      @animation-complete="handleAnimationComplete"
     />
   </div>
 </template>
