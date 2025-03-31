@@ -34,7 +34,7 @@ export class InViewGesture extends Feature {
 
   startObserver() {
     const element = this.state.element
-    if (!element)
+    if (!element || !this.isActive())
       return
     this.unmount()
     const { once, ...viewOptions } = this.state.options.inViewOptions || {}

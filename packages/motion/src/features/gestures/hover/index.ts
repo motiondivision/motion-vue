@@ -24,7 +24,8 @@ function handleHoverEvent(
 
 export class HoverGesture extends Feature {
   isActive() {
-    return Boolean(this.state.options.whileHover)
+    const { whileHover, onHoverStart, onHoverEnd } = this.state.options
+    return Boolean(whileHover || onHoverStart || onHoverEnd)
   }
 
   constructor(state: MotionState) {
@@ -32,9 +33,22 @@ export class HoverGesture extends Feature {
   }
 
   mount() {
+    this.register()
+  }
+
+  update() {
+    const { whileHover, onHoverStart, onHoverEnd } = this.state.visualElement.prevProps
+    if (!(whileHover || onHoverStart || onHoverEnd)) {
+      this.register()
+    }
+  }
+
+  register() {
     const element = this.state.element
-    if (!element)
+    if (!element || !this.isActive())
       return
+    // Unmount previous hover handler
+    this.unmount()
     this.unmount = hover(
       element,
       (el, startEvent) => {
