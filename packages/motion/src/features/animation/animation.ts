@@ -74,7 +74,7 @@ export class AnimationFeature extends Feature {
     })
 
     const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
-    const { getChildAnimations, childAnimations } = this.setupChildAnimations(animationOptions, controlActiveState, isFallback)
+    const { getChildAnimations, childAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates, isFallback)
     return this.executeAnimations({
       factories,
       getChildAnimations,
