@@ -72,7 +72,6 @@ export function createStyles(keyframes?: MotionStyle | DOMKeyframesDefinition): 
 const SVG_STYLE_TO_ATTRIBUTES = {
   'fill': true,
   'stroke': true,
-  'stroke-width': true,
   'opacity': true,
   'fill-opacity': true,
   'stroke-opacity': true,
@@ -124,7 +123,7 @@ function buildSVGPath(
   spacing = 1,
   offset = 0,
 ) {
-  attrs.pathLength = 1
+  attrs['path-length'] = 1
   // Build the dash offset
   attrs['stroke-dashoffset'] = px.transform(-offset)
 
@@ -147,7 +146,7 @@ export function convertSvgStyleToAttributes(keyframes?: MotionStyle | DOMKeyfram
       styleProps[key] = keyframes[key]
     }
   }
-  if (attributes['path-length']) {
+  if (attributes['path-length'] !== undefined) {
     buildSVGPath(attributes, attributes['path-length'], attributes['path-spacing'], attributes['path-offset'])
   }
   return {
