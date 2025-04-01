@@ -70,49 +70,53 @@ export function createStyles(keyframes?: MotionStyle | DOMKeyframesDefinition): 
 }
 
 const SVG_STYLE_TO_ATTRIBUTES = {
-  fill: true,
-  stroke: true,
-  strokeWidth: true,
-  opacity: true,
-  fillOpacity: true,
-  strokeOpacity: true,
-  strokeLinecap: true,
-  strokeLinejoin: true,
-  strokeDasharray: true,
-  strokeDashoffset: true,
-  cx: true,
-  cy: true,
-  r: true,
-  d: true,
-  x1: true,
-  y1: true,
-  x2: true,
-  y2: true,
-  points: true,
-  pathLength: true,
-  viewBox: true,
-  width: true,
-  height: true,
-  preserveAspectRatio: true,
-  clipPath: true,
-  filter: true,
-  mask: true,
-  stopColor: true,
-  stopOpacity: true,
-  gradientTransform: true,
-  gradientUnits: true,
-  spreadMethod: true,
-  markerEnd: true,
-  markerMid: true,
-  markerStart: true,
-  textAnchor: true,
-  dominantBaseline: true,
-  fontFamily: true,
-  fontSize: true,
-  fontWeight: true,
-  letterSpacing: true,
-  vectorEffect: true,
+  'fill': true,
+  'stroke': true,
+  'stroke-width': true,
+  'opacity': true,
+  'fill-opacity': true,
+  'stroke-opacity': true,
+  'stroke-linecap': true,
+  'stroke-linejoin': true,
+  'stroke-dasharray': true,
+  'stroke-dashoffset': true,
+  'cx': true,
+  'cy': true,
+  'r': true,
+  'd': true,
+  'x1': true,
+  'y1': true,
+  'x2': true,
+  'y2': true,
+  'points': true,
+  'path-length': true,
+  'viewBox': true,
+  'width': true,
+  'height': true,
+  'preserve-aspect-ratio': true,
+  'clip-path': true,
+  'filter': true,
+  'mask': true,
+  'stop-color': true,
+  'stop-opacity': true,
+  'gradient-transform': true,
+  'gradient-units': true,
+  'spread-method': true,
+  'marker-end': true,
+  'marker-mid': true,
+  'marker-start': true,
+  'text-anchor': true,
+  'dominant-baseline': true,
+  'font-family': true,
+  'font-size': true,
+  'font-weight': true,
+  'letter-spacing': true,
+  'vector-effect': true,
 } as const
+
+function camelToKebab(str: string): string {
+  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+}
 
 function buildSVGPath(
   attrs: ResolvedValues,
@@ -129,20 +133,22 @@ function buildSVGPath(
   const pathSpacing = px.transform!(spacing)
   attrs['stroke-dasharray'] = `${pathLength} ${pathSpacing}`
 }
+
 export function convertSvgStyleToAttributes(keyframes?: MotionStyle | DOMKeyframesDefinition) {
   const attributes: Record<string, any> = {}
   const styleProps: Record<string, any> = {}
   for (const key in keyframes as any) {
-    if (key in SVG_STYLE_TO_ATTRIBUTES) {
+    const kebabKey = camelToKebab(key)
+    if (kebabKey in SVG_STYLE_TO_ATTRIBUTES) {
       const value = keyframes[key]
-      attributes[key] = isMotionValue(value) ? value.get() : value
+      attributes[kebabKey] = isMotionValue(value) ? value.get() : value
     }
     else {
       styleProps[key] = keyframes[key]
     }
   }
-  if (attributes.pathLength) {
-    buildSVGPath(attributes, attributes.pathLength, attributes.pathSpacing, attributes.pathOffset)
+  if (attributes['path-length']) {
+    buildSVGPath(attributes, attributes['path-length'], attributes['path-spacing'], attributes['path-offset'])
   }
   return {
     attributes,
