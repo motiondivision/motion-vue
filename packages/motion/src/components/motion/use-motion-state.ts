@@ -92,10 +92,9 @@ export function useMotionState(props: MotionProps) {
       if (isMotionValue(attrs[key]))
         attrsProps[key] = attrs[key].get()
     })
-    const latestValues = state.isMounted() ? state.visualElement?.latestValues : state.baseTarget
     let styleProps: Record<string, any> = {
       ...props.style,
-      ...(isSVG ? {} : latestValues),
+      ...(isSVG ? {} : state.visualElement?.latestValues || state.baseTarget),
     }
     if (isSVG) {
       const { attributes, style } = convertSvgStyleToAttributes({
