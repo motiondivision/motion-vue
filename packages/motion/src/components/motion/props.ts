@@ -86,6 +86,4 @@ export const MotionComponentProps = {
   'onPanStart': { type: Function },
   'onPan': { type: Function },
   'onPanEnd': { type: Function },
-  'onFocus': { type: Function },
-  'onBlur': { type: Function },
 }

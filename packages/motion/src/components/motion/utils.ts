@@ -121,8 +121,10 @@ export function createMotionComponent(
         const isComponent = typeof props.as === 'object'
         if ((!isComponent || props.asChild) && el) {
           const { style } = getAttrs()
-          for (const [key, val] of Object.entries(style)) {
-            (el).style[key] = val
+          if (style) {
+            for (const [key, val] of Object.entries(style)) {
+              (el).style[key] = val
+            }
           }
         }
       }

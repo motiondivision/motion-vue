@@ -115,7 +115,9 @@ export function useMotionState(props: MotionProps) {
       })
     }
 
-    attrsProps.style = createStyles(styleProps)
+    const style = createStyles(styleProps)
+    if (style)
+      attrsProps.style = style
     return attrsProps
   }
 

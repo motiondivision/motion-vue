@@ -66,6 +66,9 @@ export function createStyles(keyframes?: MotionStyle | DOMKeyframesDefinition): 
   if (transforms.length) {
     initialKeyframes.transform = buildTransformTemplate(transforms)
   }
+  if (Object.keys(initialKeyframes).length === 0) {
+    return null
+  }
   return initialKeyframes
 }
 
