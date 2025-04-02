@@ -48,7 +48,6 @@ export default defineConfig({
         'vue',
         'hey-listen',
         '@vueuse/core',
-        'motion-dom',
       ],
       output: [
         {
