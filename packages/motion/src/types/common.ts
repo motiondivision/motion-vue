@@ -9,4 +9,4 @@ export type ComponentProps<T> = T extends DefineComponent<
   : never
 
 export type ElementType = keyof IntrinsicElementAttributes
-export type AsTag = keyof IntrinsicElementAttributes| (Component & string) // any other string
+export type AsTag = keyof IntrinsicElementAttributes | ({} & string) | Component // any other string
