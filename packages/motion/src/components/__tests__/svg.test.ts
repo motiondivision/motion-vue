@@ -35,4 +35,26 @@ describe('row-value', () => {
     expect(path.getAttribute('stroke')).toBe('blue')
     expect(path.getAttribute('opacity')).toBe('1')
   })
+  it('should update stroke-width through attributes instead of style', async () => {
+    const strokeWidth = motionValue(2)
+    const wrapper = render(Motion, {
+      props: {
+        as: 'path',
+        style: {
+          strokeWidth,
+        },
+      },
+      attrs: {
+        'data-testid': 'path',
+      },
+    })
+    await nextTick()
+    const path = wrapper.getByTestId('path')
+    expect(path.style.strokeWidth).toBeFalsy()
+    expect(path.getAttribute('stroke-width')).toBe('2')
+    strokeWidth.set(4)
+    await delay(100)
+    expect(path.style.strokeWidth).toBeFalsy()
+    expect(path.getAttribute('stroke-width')).toBe('4')
+  })
 })
