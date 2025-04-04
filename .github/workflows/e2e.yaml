@@ -1,4 +1,4 @@
-name: Test
+name: playwright
 
 on:
   pull_request:
@@ -47,27 +47,9 @@ jobs:
       
       - name: Build Motion
         run: pnpm build
+
+      - name: Install playwright browsers
+        run: npx playwright install --with-deps
         
       - name: Run tests
-        run: pnpm test
-
-
-      # - name: Build Docs
-      #   run: pnpm docs:build
-
-      #   # Run a action to publish docs
-      # - name: Publish to Cloudflare Pages
-      #   uses: cloudflare/pages-action@v1.5.0
-      #   with:
-      #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      #     projectName: motion-vue
-      #     directory: dist
-      #     # Optional: Enable this if you want to have GitHub Deployments triggered
-      #     gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-      #     # Optional: Switch what branch you are publishing to.
-      #     # By default this will be the branch which triggered this workflow
-      #     # branch: main
-      #     # Optional: Change the working directory
-      #     workingDirectory: docs
-      #     wranglerVersion: '3'
+        run: pnpm test:e2e

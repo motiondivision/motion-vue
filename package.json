@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "pnpm --filter motion-v dev",
     "build": "pnpm --filter motion-v build",
-    "test": "pnpm --filter motion-v test & pnpm run test:e2e",
+    "test": "pnpm --filter motion-v test",
     "prepare": "pnpm simple-git-hooks",
     "docs:install": "pnpm --filter docs install",
     "docs:dev": "pnpm --filter docs dev",
