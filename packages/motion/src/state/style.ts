@@ -76,6 +76,7 @@ const SVG_STYLE_TO_ATTRIBUTES = {
   'fill': true,
   'stroke': true,
   'opacity': true,
+  'stroke-width': true,
   'fill-opacity': true,
   'stroke-opacity': true,
   'stroke-linecap': true,

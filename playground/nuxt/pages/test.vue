@@ -1,88 +1,73 @@
-<script setup lang="tsx">
-/** @jsxImportSource vue */
-import { AnimateNumber } from 'motion-number-vue'
-import { motion } from 'motion-v'
-import { ref } from 'vue'
+<script setup lang="ts">
+import { animate, motion, useMotionValue, useTransform } from 'motion-v'
 
-const isCompact = ref(true)
-const isCurrency = ref(false)
+const progress = useMotionValue(0)
 
-function Switch({ isOn, toggle }: { isOn: boolean, toggle: () => void }) {
-  return (
-    <motion.button
-      class="switch-container"
-      style={{
-        justifyContent: `flex-${isOn ? 'end' : 'start'}`,
-      }}
-      initial={false}
-      animate={{
-        backgroundColor: isOn
-          ? 'var(--hue-6-transparent)'
-          : '#586d8c33',
-      }}
-      onClick={toggle}
-      focus={{
-        outline: '2px solid #4ff0b7',
-      }}
-    >
-      <motion.div
-        class="switch-handle"
-        layout
-        data-is-on={isOn}
-        transition={{
-          type: 'spring',
-          visualDuration: 0.2,
-          bounce: 0.2,
-        }}
-      />
-    </motion.button>
-  )
+const circleStrokeWidth = useTransform(progress, [0, 1], [0, 20])
+const circleRotation = useTransform(progress, [0, 1], ['-90deg', '-90deg'])
+const circleColor = useTransform(progress, [0, 1], ['#ffffff', '#8df0cc'])
+
+const buttonScale = useTransform(progress, [0, 1], [1, 0.85])
+const buttonProgressX = useTransform(progress, [0, 1], ['-200%', '0%'])
+
+function handlePointerDown() {
+  progress.set(0)
+  animate(progress, 1, {
+    duration: 2,
+    ease: 'easeOut',
+  })
 }
-const value = ref(5385)
-function changeCurrency() {
-  // value.value = 58
-  value.value = Math.random() * 1000 * (Math.random() > 0.5 ? 1 : -1) * 10 ** Math.floor(Math.random() * 3)
+
+function handlePointerUp() {
+  animate(progress, 0, { duration: 0.3 })
 }
 </script>
 
 <template>
-  <div
-    class="container"
-    @click="changeCurrency"
-  >
-    <AnimateNumber
-      :format="{
-        notation: isCompact ? 'compact' : undefined,
-        compactDisplay: isCompact ? 'short' : undefined,
-        roundingMode: isCompact ? 'trunc' : undefined,
-        style: isCurrency ? 'currency' : undefined,
-        currency: isCurrency ? 'USD' : undefined,
-      }"
-      locales="en-US"
-      class="number"
-      :transition="{
-        visualDuration: 0.6,
-        type: 'spring',
-        bounce: 0.25,
-        opacity: { duration: 0.3, ease: 'linear' },
-      }"
-      :value="value"
-    />
-    <div class="controls">
-      <div>
-        Currency:
-        <Switch
-          :is-on="isCurrency"
-          :toggle="() => isCurrency = !isCurrency"
+  <div class="container">
+    <div class="button-wrapper">
+      <motion.button
+        class="button"
+        :style="{
+          scale: buttonScale,
+        }"
+        @pointerdown="handlePointerDown"
+        @pointerup="handlePointerUp"
+        @pointerleave="handlePointerUp"
+      >
+        <motion.div
+          class="button-background"
+          :style="{
+            x: buttonProgressX,
+          }"
         />
-      </div>
-      <div>
-        Compact:
-        <Switch
-          :is-on="isCompact"
-          :toggle="() => isCompact = !isCompact"
+        Hold to confirm
+      </motion.button>
+
+      <motion.svg
+        class="progress-ring"
+        width="320"
+        height="320"
+        viewBox="0 0 320 320"
+      >
+        <motion.circle
+          cx="160"
+          cy="160"
+          r="120"
+          fill="none"
+          stroke="var(--white-feint)"
+          stroke-width="24"
+          stroke-linecap="round"
+          :style="{
+            rotate: circleRotation,
+            transformOrigin: 'center',
+            opacity: progress,
+            stroke: circleColor,
+            strokeWidth: circleStrokeWidth,
+            pathLength: progress,
+          }"
         />
-      </div>
+      </motion.svg>
     </div>
   </div>
 </template>
@@ -91,40 +76,52 @@ function changeCurrency() {
 .container {
     display: flex;
     flex-direction: column;
+    gap: 16px;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
+    padding: 16px;
+    height: 80px;
 }
 
-.number {
-    font-size: 78px;
-}
-
-.controls {
-    display: flex;
-    gap: 20px;
-    border-radius: 50px;
-}
-
-.controls > div {
+.button-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 18px;
+    justify-content: center;
 }
 
-.switch-container {
-    width: 40px;
-    height: 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    display: flex;
-    padding: 5px;
+.progress-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
-.switch-handle {
-    width: 20px;
-    height: 20px;
-    background-color: #4ff0b7;
-    border-radius: 50%;
+.button {
+    color: var(--black);
+    background-color: var(--white);
+    border-radius: 999px;
+    padding: 12px 20px;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    will-change: transform;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.button-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--green);
+    border-radius: 999px;
+    z-index: -1;
+    filter: blur(20px);
+    scale: 2;
 }
 </style>
