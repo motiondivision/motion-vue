@@ -7,7 +7,6 @@ const components = new Set([
   'MotionConfig',
   'ReorderGroup',
   'ReorderItem',
-  'LazyMotion',
   'M',
 ])
 
