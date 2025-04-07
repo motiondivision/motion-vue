@@ -1,4 +1,4 @@
-import type { $Transition, Options } from '@/types'
+import type { $Transition, AsTag, Options } from '@/types'
 import type { Variant } from 'framer-motion'
 import type { IntrinsicElementAttributes } from 'vue'
 
@@ -131,7 +131,7 @@ type UnionStringArray<T extends Readonly<string[]>> = T[number]
 export type SVGElements = UnionStringArray<typeof svgElements>
 
 const svgElementSet = new Set(svgElements)
-export function isSVGElement(as: ElementType): as is SVGElements {
+export function isSVGElement(as: AsTag): as is SVGElements {
   return svgElementSet.has(as as SVGElements)
 }
 
