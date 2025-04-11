@@ -4,7 +4,7 @@ import { Motion } from '@/components/motion'
 import type { ItemData } from './types'
 import type { AsTag } from '@/types'
 import { invariant } from 'hey-listen'
-import { onUpdated, toRefs, useAttrs } from 'vue'
+import { onBeforeUpdate, onUpdated, toRefs, useAttrs } from 'vue'
 import { reorderContextProvider } from './context'
 import { checkReorder, compareMin, getValue } from './utils'
 </script>
@@ -59,13 +59,16 @@ const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
 })
 const { axis } = toRefs(props)
 
-const order: ItemData<any>[] = []
+let order: ItemData<any>[] = []
 let isReordering = false
 function warning() {
   invariant(Boolean(props.values), 'Reorder.Group must be provided a values prop')
 }
 onUpdated(() => {
   isReordering = false
+})
+onBeforeUpdate(() => {
+  order = []
 })
 
 reorderContextProvider({
