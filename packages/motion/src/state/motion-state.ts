@@ -76,7 +76,8 @@ export class MotionState {
     this.depth = parent?.depth + 1 || 0
 
     // Initialize with either initial or animate variant
-    const initialVariantSource = this.options.initial === false ? ['initial', 'animate'] : ['initial']
+    const initial = options.initial === undefined ? this.context.initial : options.initial
+    const initialVariantSource = initial === false ? ['initial', 'animate'] : ['initial']
     this.initTarget(initialVariantSource)
     this.featureManager = new FeatureManager(this)
     this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
