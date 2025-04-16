@@ -212,4 +212,60 @@ describe('animate prop as object', () => {
     expect(result.x).toBe(10)
     expect(result.y).toBe(20)
   })
+
+  it('child Motion initial prop should not be affected by parent Motion initial=false', async () => {
+    const childX = motionValue(0)
+    const TestComponent = {
+      template: `
+      <Motion
+        :initial="false"
+        :animate="{ x: 100 }"
+      >
+        <Motion
+          :animate="{ x: 50 }"
+          :style="{ x: childX }"
+        />
+      </Motion>
+    `,
+      setup() {
+        return {
+          childX,
+        }
+      },
+      components: { Motion },
+    }
+
+    await mount(TestComponent)
+
+    expect(childX.get()).toBeLessThan(50)
+  })
+
+  it('parent variants control should effect child animate state', async () => {
+    const childX = motionValue(0)
+    const TestComponent = {
+      template: `
+      <Motion
+        :initial="false"
+        animate="animate"
+      >
+        <Motion
+          :variants="{
+            animate: { x: 100 },
+          }"
+          :style="{ x: childX }"
+        />
+      </Motion>
+    `,
+      setup() {
+        return {
+          childX,
+        }
+      },
+      components: { Motion },
+    }
+
+    await mount(TestComponent)
+
+    expect(childX.get()).toBe(100)
+  })
 })

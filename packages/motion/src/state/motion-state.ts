@@ -76,7 +76,7 @@ export class MotionState {
     this.depth = parent?.depth + 1 || 0
 
     // Initialize with either initial or animate variant
-    const initial = options.initial === undefined ? this.context.initial : options.initial
+    const initial = (options.initial === undefined && options.variants) ? this.context.initial : options.initial
     const initialVariantSource = initial === false ? ['initial', 'animate'] : ['initial']
     this.initTarget(initialVariantSource)
     this.featureManager = new FeatureManager(this)
