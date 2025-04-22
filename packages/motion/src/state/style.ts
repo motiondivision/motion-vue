@@ -127,7 +127,8 @@ function buildSVGPath(
   spacing = 1,
   offset = 0,
 ) {
-  attrs['path-length'] = 1
+  attrs.pathLength = 1
+  delete attrs['path-length']
   // Build the dash offset
   attrs['stroke-dashoffset'] = px.transform(-offset)
 
