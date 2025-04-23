@@ -1,5 +1,4 @@
-import type { TransformOptions } from '@/types'
-import { type MotionValue, transform } from 'framer-motion/dom'
+import { type MotionValue, type TransformOptions, transform } from 'framer-motion/dom'
 import { useComputed } from './use-computed'
 import { useCombineMotionValues } from '@/value/use-combine-values'
 import { type MaybeRef, computed, isRef } from 'vue'

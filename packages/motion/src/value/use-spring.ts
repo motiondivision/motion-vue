@@ -1,10 +1,10 @@
 import type { Ref } from 'vue'
 import { isRef, watch } from 'vue'
-import { type MotionValue, frame, frameData, motionValue } from 'framer-motion/dom'
+import { type MotionValue, animateValue, frame, frameData, motionValue } from 'framer-motion/dom'
 import type { SpringOptions } from 'framer-motion'
-import type { MainThreadAnimation } from 'framer-main-animation'
-import { animateValue } from 'framer-main-animation'
 import { isMotionValue } from '@/utils'
+
+type MainThreadAnimation = ReturnType<typeof animateValue>
 
 function toNumber(v: string | number) {
   if (typeof v === 'number')

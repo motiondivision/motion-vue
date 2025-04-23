@@ -109,7 +109,7 @@ function setVariants(state: MotionState, variantLabels: string[]) {
   reversedLabels.forEach((key) => {
     const variant = visualElement.getVariant(key)
     variant && setTarget(visualElement, variant)
-    setStateTarget(state, variant)
+    setStateTarget(state, variant as any)
     if (visualElement.variantChildren) {
       visualElement.variantChildren.forEach((child) => {
         setVariants(mountedStates.get(child.current as HTMLElement), variantLabels)
