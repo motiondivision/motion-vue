@@ -3,6 +3,7 @@ import { onMounted, watch } from 'vue'
 import { motionValue, scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { warning } from 'hey-listen'
+import { isSSR } from '@/utils/is'
 
 export interface UseScrollOptions
   extends Omit<ScrollInfoOptions, 'container' | 'target'> {
@@ -39,8 +40,11 @@ export function useScroll({
   })
 
   watch(
-    [container, target, () => options.offset],
+    [() => container?.value, () => target?.value, () => options.offset],
     (n, o, onCleanup) => {
+      if (isSSR) {
+        return
+      }
       const cleanup = scroll(
         (_progress, { x, y }) => {
           values.scrollX.set(x.current)
