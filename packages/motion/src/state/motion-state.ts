@@ -141,9 +141,6 @@ export class MotionState {
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
-      if (this.type === 'svg') {
-        (this.visualElement as any).updateDimensions()
-      }
       this.startAnimation?.()
     }
     if (this.options.layoutId) {

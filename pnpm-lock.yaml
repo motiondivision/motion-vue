@@ -182,14 +182,14 @@ importers:
         specifier: ^10.0.0
         version: 10.11.1(vue@3.4.38(typescript@5.7.2))
       framer-motion:
-        specifier: 12.8.0
-        version: 12.8.0
+        specifier: 12.9.0
+        version: 12.9.0
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
       motion-dom:
-        specifier: ^12.8.0
-        version: 12.8.0
+        specifier: 12.9.0
+        version: 12.9.0
     devDependencies:
       vue:
         specifier: 3.4.38
@@ -4152,8 +4152,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.8.0:
-    resolution: {integrity: sha512-EarL75miCDcKLEAQLJ+6Zfwdj+KQsVlbHGGlygZ/TigKBj7NLPkyDKk4WLFUScjAs2xNpfMRLBM6VsCJq9Roxg==}
+  framer-motion@12.9.0:
+    resolution: {integrity: sha512-N8seoPlZomM/8vpXk2X2kyd/CZ5/1WWKn7mdzzaP7rOCQQAh+WoAGIJg4zNU+TMNmspA79bf4mkVfoZxCJPSJQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -5470,8 +5470,8 @@ packages:
   mlly@1.7.3:
     resolution: {integrity: sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==}
 
-  motion-dom@12.8.0:
-    resolution: {integrity: sha512-YsfUE1F8Ycv9th1V0YJ6LOx9U2EMe/8P3RXK1o6NZhRbdFiWvzBLvxqp2X6Fn3rbJbwWkSEfnpe14ZU9Oz1d1Q==}
+  motion-dom@12.9.0:
+    resolution: {integrity: sha512-LDRyb86zk9Fz5Wee7zTiB/tilmAAv71Ex85UIrqMmQ51H08qSz18iXJCvOkimS3PntuD5CraKX35Fcu8lTPF+g==}
 
   motion-number-vue@1.0.5:
     resolution: {integrity: sha512-Cc4jX6ZNhwXDVVbqOu6MIDXOLnP7PmqkQHkRK/OL+kcHfASXfssorbiiZ46lff+NaJO5LVlNVkIldLNTWAEPFw==}
@@ -5484,8 +5484,8 @@ packages:
       motion-v: '>=0.11.0-beta.5'
       vue: '>=3.0.0'
 
-  motion-utils@12.7.5:
-    resolution: {integrity: sha512-JIgrmEq7Vw1x0AUrjvkRp7oMMQkGqSUMT50O/Ag6RRCQWG3gRRTkOI+BirBAJT6m+GIPoiyxkJ1u98GgF/a6TQ==}
+  motion-utils@12.8.3:
+    resolution: {integrity: sha512-GYVauZEbca8/zOhEiYOY9/uJeedYQld6co/GJFKOy//0c/4lDqk0zB549sBYqqV2iMuX+uHrY1E5zd8A2L+1Lw==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -12675,10 +12675,10 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.8.0:
+  framer-motion@12.9.0:
     dependencies:
-      motion-dom: 12.8.0
-      motion-utils: 12.7.5
+      motion-dom: 12.9.0
+      motion-utils: 12.8.3
       tslib: 2.7.0
 
   fresh@0.5.2: {}
@@ -14290,9 +14290,9 @@ snapshots:
       pkg-types: 1.2.1
       ufo: 1.5.4
 
-  motion-dom@12.8.0:
+  motion-dom@12.9.0:
     dependencies:
-      motion-utils: 12.7.5
+      motion-utils: 12.8.3
 
   motion-number-vue@1.0.5(vue@3.5.13(typescript@5.7.2)):
     dependencies:
@@ -14303,7 +14303,7 @@ snapshots:
       motion-v: link:packages/motion
       vue: 3.5.13(typescript@5.7.2)
 
-  motion-utils@12.7.5: {}
+  motion-utils@12.8.3: {}
 
   mri@1.2.0: {}
 
