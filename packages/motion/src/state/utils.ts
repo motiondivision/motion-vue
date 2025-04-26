@@ -1,12 +1,12 @@
 import type { $Transition, AsTag, Options } from '@/types'
-import type { TargetAndTransition } from 'framer-motion'
+import type { Variant } from 'framer-motion'
 import type { IntrinsicElementAttributes } from 'vue'
 
 export function resolveVariant(
   definition?: Options['animate'],
   variants?: Options['variants'],
   custom?: Options['custom'],
-): TargetAndTransition | undefined {
+): Variant | undefined {
   if (Array.isArray(definition)) {
     return definition.reduce((acc, item) => {
       const resolvedVariant = resolveVariant(item, variants, custom)

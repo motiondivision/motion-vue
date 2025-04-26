@@ -18,6 +18,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
       'framer-motion/dist/es/render/dom/create-visual-element.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/dom/create-visual-element.mjs'),
       'framer-motion/dist/es/render/store.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/store.mjs'),
+      'framer-main-animation': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/animators/MainThreadAnimation.mjs'),
       'framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs'),
       'framer-motion/dist/es/projection/styles/scale-border-radius.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/projection/styles/scale-border-radius.mjs'),
       'framer-motion/dist/es/projection/styles/scale-box-shadow.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/projection/styles/scale-box-shadow.mjs'),
