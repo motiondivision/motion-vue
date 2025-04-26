@@ -1,8 +1,9 @@
 import type { Ref } from 'vue'
-import { isRef, unref, watch } from 'vue'
-import type { MotionValue } from 'framer-motion/dom'
-import { JSAnimation, frame, frameData, motionValue } from 'framer-motion/dom'
+import { isRef, watch } from 'vue'
+import { type MotionValue, frame, frameData, motionValue } from 'framer-motion/dom'
 import type { SpringOptions } from 'framer-motion'
+import type { MainThreadAnimation } from 'framer-main-animation'
+import { animateValue } from 'framer-main-animation'
 import { isMotionValue } from '@/utils'
 
 function toNumber(v: string | number) {
@@ -15,7 +16,7 @@ export function useSpring(
   source: MotionValue<string> | MotionValue<number> | number,
   config: SpringOptions | Ref<SpringOptions> = {},
 ) {
-  let activeSpringAnimation: JSAnimation<number> | null = null
+  let activeSpringAnimation: MainThreadAnimation = null
   const value = motionValue(
     isMotionValue(source) ? toNumber(source.get()) : source,
   )
@@ -37,9 +38,8 @@ export function useSpring(
     }
 
     stopAnimation()
-
-    const springConfig = unref(config)
-    activeSpringAnimation = new JSAnimation({
+    const springConfig = isRef(config) ? (config as Ref<SpringOptions>).value : config
+    activeSpringAnimation = animateValue({
       keyframes: [value.get(), latestValue],
       velocity: value.getVelocity(),
       type: 'spring',

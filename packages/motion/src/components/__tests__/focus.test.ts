@@ -18,7 +18,7 @@ describe('focus behavior', () => {
     await wrapper.getByTestId('motion').focus()
     await delay(50)
     expect(wrapper.getByTestId('motion').style.transform).toBe('scale(1.2)')
-    expect(wrapper.getByTestId('motion').style.boxShadow).toBe('0 0 0 2px #ff0088')
+    expect(wrapper.getByTestId('motion').style.boxShadow).toBe('0 0 0 2px rgba(255, 0, 136, 1)')
     await wrapper.getByTestId('motion').blur()
     await delay(50)
     expect(wrapper.getByTestId('motion').style.transform).toBe('none')
