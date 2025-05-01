@@ -113,7 +113,8 @@ export class MotionState {
   }
 
   // Update visual element with new options
-  updateOptions() {
+  updateOptions(options: Options) {
+    this.options = options
     this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
@@ -135,9 +136,7 @@ export class MotionState {
       'Animation state must be mounted with valid Element',
     )
     this.element = element
-    this.options = options
-
-    this.updateOptions()
+    this.updateOptions(options)
 
     // Mount features in parent-to-child order
     this.featureManager.mount()
@@ -195,14 +194,11 @@ export class MotionState {
         mountedStates.delete(this.element)
         this.featureManager.unmount()
         this.visualElement?.unmount()
+        // clear animation
+        this.clearAnimation()
       }
       // Delay unmount if needed for layout animations
-      if (shouldDelay) {
-        Promise.resolve().then(unmountState)
-      }
-      else {
-        unmountState()
-      }
+      shouldDelay ? Promise.resolve().then(unmountState) : unmountState()
     }
 
     unmount()
@@ -220,8 +216,7 @@ export class MotionState {
   // Update motion state with new options
   update(options: Options) {
     const hasAnimateChange = isAnimateChanged(this.options, options)
-    this.options = options
-    this.updateOptions()
+    this.updateOptions(options)
     // Update features in parent-to-child order
     this.featureManager.update()
 
