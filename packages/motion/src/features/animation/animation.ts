@@ -65,7 +65,6 @@ export class AnimationFeature extends Feature {
     const prevTarget = this.state.target
     this.state.target = { ...this.state.baseTarget }
     let animationOptions: $Transition = {}
-    const transition = { ...this.state.options.transition }
 
     animationOptions = this.resolveStateAnimation({
       controlActiveState,
@@ -79,7 +78,7 @@ export class AnimationFeature extends Feature {
       factories,
       getChildAnimations,
       childAnimations,
-      transition,
+      transition: animationOptions,
       controlActiveState,
       isExit,
     })
