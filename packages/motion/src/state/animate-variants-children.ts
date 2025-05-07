@@ -43,7 +43,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
 
       const variant = resolveVariant(
         definition,
-        child.props.variants,
+        child.props.variants as any,
         child.props.custom,
       )
       const animationOptions: { [key: string]: $Transition } = {}
@@ -60,7 +60,7 @@ export function animateVariantsChildren(state: MotionState, activeState: ActiveV
         if (hasChanged(prevTarget[key], childState.target[key])) {
           childState.baseTarget[key] ??= style.get(child.current as Element, key)
           animationOptions[key] = getOptions(
-            Object.assign({}, transition, allTarget.transition, child.props.transition),
+            Object.assign({}, transition, (allTarget as any).transition, child.props.transition),
             key,
           )
           const keyValue = childState.target[key] === 'none' ? transformResetValue[key] : childState.target[key]

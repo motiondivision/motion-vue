@@ -8,8 +8,8 @@ import { injectAnimatePresence } from '@/components/presence'
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 import { isMotionValue } from '@/utils'
+import type { DOMKeyframesDefinition } from 'framer-motion'
 import { invariant, warning } from 'hey-listen'
-import type { DOMKeyframesDefinition } from 'motion-dom'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 
 export function useMotionState(props: MotionProps) {

@@ -1,6 +1,5 @@
 import { useCombineMotionValues } from '@/value/use-combine-values'
-import type { MotionValue } from 'framer-motion/dom'
-import { collectMotionValues } from 'motion-dom'
+import { type MotionValue, collectMotionValues } from 'framer-motion/dom'
 import { onBeforeUpdate } from 'vue'
 
 export function useComputed<T>(computed: () => T): MotionValue<T> {
