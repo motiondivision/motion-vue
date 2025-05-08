@@ -101,6 +101,10 @@ export function useMotionState(props: MotionProps) {
         ...(state.isMounted() ? state.target : state.baseTarget),
         ...styleProps,
       } as DOMKeyframesDefinition)
+      // If the transformBox is not set, set it to fill-box
+      if (!style.transformBox) {
+        style.transformBox = 'fill-box'
+      }
       Object.assign(attrsProps, attributes)
       styleProps = style
     }
