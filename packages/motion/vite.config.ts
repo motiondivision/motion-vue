@@ -22,7 +22,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      'framer-motion/dist/es/render/dom/create-visual-element.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/dom/create-visual-element.mjs'),
       'framer-motion/dist/es/render/store.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/store.mjs'),
       'framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs'),
       'framer-motion/dist/es/projection/styles/scale-border-radius.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/projection/styles/scale-border-radius.mjs'),

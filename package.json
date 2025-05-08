@@ -24,6 +24,7 @@
     "docs:build": "pnpm --filter docs build",
     "docs:gen": "pnpm --filter docs docs:gen",
     "docs:contributors": "pnpm --filter docs docs:contributors",
+    "play": "pnpm --filter motion-playground play",
     "lint-staged": "lint-staged",
     "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
     "pub:release": "pnpm --filter motion-v pub:release",
