@@ -97,15 +97,20 @@ export function useMotionState(props: MotionProps) {
       ...(isSVG ? {} : state.visualElement?.latestValues || state.baseTarget),
     }
     if (isSVG) {
-      const { attributes, style } = convertSvgStyleToAttributes({
+      const { attrs, style } = convertSvgStyleToAttributes({
         ...(state.isMounted() ? state.target : state.baseTarget),
         ...styleProps,
       } as DOMKeyframesDefinition)
-      // If the transformBox is not set, set it to fill-box
-      if (!style.transformBox) {
-        style.transformBox = 'fill-box'
+      if (style.transform || attrs.transformOrigin) {
+        style.transformOrigin = attrs.transformOrigin ?? '50% 50%'
+        delete attrs.transformOrigin
       }
-      Object.assign(attrsProps, attributes)
+      // If the transformBox is not set, set it to fill-box
+      if (style.transform) {
+        style.transformBox = style.transformBox ?? 'fill-box'
+        delete attrs.transformBox
+      }
+      Object.assign(attrsProps, attrs)
       styleProps = style
     }
     if (props.drag && props.dragListener !== false) {
