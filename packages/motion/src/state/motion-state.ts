@@ -182,11 +182,10 @@ export class MotionState {
      */
     const shouldDelay = this.options.layoutId && !mountedLayoutIds.has(this.options.layoutId)
     const unmount = () => {
-      if (unMountChildren) {
-        Array.from(this.children).reverse().forEach(this.unmountChild)
-      }
-
       const unmountState = () => {
+        if (unMountChildren) {
+          Array.from(this.children).reverse().forEach(this.unmountChild)
+        }
         this.parent?.children?.delete(this)
         mountedStates.delete(this.element)
         this.featureManager.unmount()
