@@ -8,8 +8,8 @@ import { injectAnimatePresence } from '@/components/presence'
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 import { isMotionValue } from '@/utils'
+import type { DOMKeyframesDefinition } from 'framer-motion'
 import { invariant, warning } from 'hey-listen'
-import type { DOMKeyframesDefinition } from 'motion-dom'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
 
 export function useMotionState(props: MotionProps) {
@@ -97,11 +97,20 @@ export function useMotionState(props: MotionProps) {
       ...(isSVG ? {} : state.visualElement?.latestValues || state.baseTarget),
     }
     if (isSVG) {
-      const { attributes, style } = convertSvgStyleToAttributes({
+      const { attrs, style } = convertSvgStyleToAttributes({
         ...(state.isMounted() ? state.target : state.baseTarget),
         ...styleProps,
       } as DOMKeyframesDefinition)
-      Object.assign(attrsProps, attributes)
+      if (style.transform || attrs.transformOrigin) {
+        style.transformOrigin = attrs.transformOrigin ?? '50% 50%'
+        delete attrs.transformOrigin
+      }
+      // If the transformBox is not set, set it to fill-box
+      if (style.transform) {
+        style.transformBox = style.transformBox ?? 'fill-box'
+        delete attrs.transformBox
+      }
+      Object.assign(attrsProps, attrs)
       styleProps = style
     }
     if (props.drag && props.dragListener !== false) {

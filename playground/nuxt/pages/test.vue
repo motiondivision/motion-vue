@@ -1,127 +1,238 @@
-<script setup lang="ts">
-import { animate, motion, useMotionValue, useTransform } from 'motion-v'
+<script setup lang="tsx">
+/** @jsxImportSource vue */
+import { AnimatePresence, LayoutGroup, motion } from 'motion-v'
+import { Tabs } from 'reka-ui/namespaced'
+import { ref } from 'vue'
 
-const progress = useMotionValue(0)
+const tab = ref('account')
 
-const circleStrokeWidth = useTransform(progress, [0, 1], [0, 20])
-const circleRotation = useTransform(progress, [0, 1], ['-90deg', '-90deg'])
-const circleColor = useTransform(progress, [0, 1], ['#ffffff', '#8df0cc'])
-
-const buttonScale = useTransform(progress, [0, 1], [1, 0.85])
-const buttonProgressX = useTransform(progress, [0, 1], ['-200%', '0%'])
-
-function handlePointerDown() {
-  progress.set(0)
-  animate(progress, 1, {
-    duration: 2,
-    ease: 'easeOut',
-  })
-}
-
-function handlePointerUp() {
-  animate(progress, 0, { duration: 0.3 })
-}
+const tabs = [
+  {
+    value: 'account',
+    label: 'Account',
+    title: 'Account settings',
+    content: () => (
+      <div class="form-fields">
+        <input
+          type="text"
+          placeholder="Username"
+          class="input-field"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          class="input-field"
+        />
+      </div>
+    ),
+    buttonText: 'Save changes',
+  },
+  {
+    value: 'password',
+    label: 'Password',
+    title: 'Password',
+    content: () => 'Change your password here. After saving, you\'ll be logged out.',
+    buttonText: 'Change password',
+  },
+  {
+    value: 'settings',
+    label: 'Settings',
+    title: 'Settings',
+    content: () => 'Manage your notification and privacy settings.',
+    buttonText: 'Update settings',
+  },
+]
 </script>
 
 <template>
-  <div class="container">
-    <div class="button-wrapper">
-      <motion.button
-        class="button"
-        :style="{
-          scale: buttonScale,
-        }"
-        @pointerdown="handlePointerDown"
-        @pointerup="handlePointerUp"
-        @pointerleave="handlePointerUp"
+  <div class="flex items-center justify-center min-h-screen">
+    <LayoutGroup>
+      <Tabs.Root
+        v-model="tab"
+        as-child
       >
         <motion.div
-          class="button-background"
-          :style="{
-            x: buttonProgressX,
-          }"
-        />
-        Hold to confirm
-      </motion.button>
+          class="tabs-root"
+          layout
+          :data-layout-id="tab"
+        >
+          <Tabs.List as-child>
+            <motion.div
+              class="tabs-list"
+              layout
+            >
+              <Tabs.Trigger
+                v-for="item in tabs"
+                :key="item.value"
+                :value="item.value"
+                class="tabs-trigger"
+              >
+                {{ item.label }}
+                <motion.div
+                  v-if="tab === item.value"
+                  class="tabs-indicator"
+                  layout-id="tabs-indicator"
+                />
+              </Tabs.Trigger>
+            </motion.div>
+          </Tabs.List>
 
-      <motion.svg
-        class="progress-ring"
-        width="320"
-        height="320"
-        viewBox="0 0 320 320"
-      >
-        <motion.circle
-          cx="160"
-          cy="160"
-          r="120"
-          fill="none"
-          stroke="var(--white-feint)"
-          stroke-width="24"
-          stroke-linecap="round"
-          :style="{
-            rotate: circleRotation,
-            transformOrigin: 'center',
-            opacity: progress,
-            stroke: circleColor,
-            strokeWidth: circleStrokeWidth,
-            pathLength: progress,
-          }"
-        />
-      </motion.svg>
-    </div>
+          <AnimatePresence
+            :initial="false"
+            mode="wait"
+          >
+            <template
+              v-for="item in tabs"
+              :key="item.value"
+            >
+              <Tabs.Content
+                v-if="tab === item.value"
+                :value="item.value"
+                as-child
+              >
+                <motion.div
+                  layout
+                  class="tabs-content"
+                  :initial="{ opacity: 0, filter: 'blur(5px)' }"
+                  :animate="{ opacity: 1, filter: 'blur(0px)' }"
+                  :exit="{
+                    opacity: 0,
+                    filter: 'blur(5px)',
+                    transition: { duration: 0.15 },
+                  }"
+                >
+                  <h3>{{ item.title }}</h3>
+                  <div class="content-wrapper">
+                    <component :is="item.content" />
+                  </div>
+                  <motion.button
+                    as="button"
+                    class="button large"
+                    :while-press="{ scale: 0.95 }"
+                  >
+                    {{ item.buttonText }}
+                  </motion.button>
+                </motion.div>
+              </Tabs.Content>
+            </template>
+          </AnimatePresence>
+        </motion.div>
+      </Tabs.Root>
+    </LayoutGroup>
   </div>
 </template>
 
 <style>
-.container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    height: 80px;
+.tabs-root {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  max-width: 100%;
+  background-color: #0b1011;
+  border: 1px solid #1d2628;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
-.button-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.tabs-list {
+  display: flex;
+  border-bottom: 1px solid #1d2628;
 }
 
-.progress-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
+.tabs-trigger {
+  font-family: inherit;
+  padding: 0 20px;
+  height: 45px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--feint-text);
+  user-select: none;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tabs-trigger .tabs-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ff0088;
+}
+
+.tabs-trigger:hover {
+  color: var(--text);
+}
+
+.tabs-trigger[data-state='active'] {
+  color: var(--text);
+}
+
+.tabs-content {
+  padding: 20px;
+  will-change: opacity, filter;
+}
+
+.tabs-content h3 {
+  margin: 0 0 10px 0;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.content-wrapper {
+  margin: 0 0 20px 0;
+  color: var(--feint-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-field {
+  padding: 8px 12px;
+  border: 1px solid #1d2628;
+  border-radius: 4px;
+  background: #0b1011;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #ff0088;
+  transition: border-color 0.2s ease;
 }
 
 .button {
-    color: var(--black);
-    background-color: var(--white);
-    border-radius: 999px;
-    padding: 12px 20px;
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    will-change: transform;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-weight: 500;
+  user-select: none;
+  border: none;
+  background: #ff0088;
+  color: white;
+  cursor: pointer;
 }
 
-.button-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--green);
-    border-radius: 999px;
-    z-index: -1;
-    filter: blur(20px);
-    scale: 2;
+.button.large {
+  font-size: 16px;
+  padding: 0 20px;
+  line-height: 35px;
+  height: 35px;
 }
 </style>

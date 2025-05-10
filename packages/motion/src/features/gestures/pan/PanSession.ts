@@ -1,8 +1,7 @@
 import type { EventInfo, Point, TransformPoint } from 'framer-motion'
 import { addPointerEvent, isPrimaryPointer } from '@/events'
 import { extractEventInfo } from '@/events/event-info'
-import { cancelFrame, distance2D, frame, frameData, pipe } from 'framer-motion/dom'
-import { millisecondsToSeconds, secondsToMilliseconds } from '@/utils'
+import { cancelFrame, distance2D, frame, frameData, millisecondsToSeconds, pipe, secondsToMilliseconds } from 'framer-motion/dom'
 
 /**
  * Passed in to pan event handlers like `onPan` the `PanInfo` object contains

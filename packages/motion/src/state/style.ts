@@ -139,23 +139,23 @@ function buildSVGPath(
 }
 
 export function convertSvgStyleToAttributes(keyframes?: MotionStyle | DOMKeyframesDefinition) {
-  const attributes: Record<string, any> = {}
+  const attrs: Record<string, any> = {}
   const styleProps: Record<string, any> = {}
   for (const key in keyframes as any) {
     const kebabKey = camelToKebab(key)
     if (kebabKey in SVG_STYLE_TO_ATTRIBUTES) {
       const value = keyframes[key]
-      attributes[kebabKey] = isMotionValue(value) ? value.get() : value
+      attrs[kebabKey] = isMotionValue(value) ? value.get() : value
     }
     else {
       styleProps[key] = keyframes[key]
     }
   }
-  if (attributes['path-length'] !== undefined) {
-    buildSVGPath(attributes, attributes['path-length'], attributes['path-spacing'], attributes['path-offset'])
+  if (attrs['path-length'] !== undefined) {
+    buildSVGPath(attrs, attrs['path-length'], attrs['path-spacing'], attrs['path-offset'])
   }
   return {
-    attributes,
+    attrs,
     style: styleProps,
   }
 }

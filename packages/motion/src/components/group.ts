@@ -14,14 +14,18 @@ export function nodeGroup(): NodeGroup {
   const nodes = new Set<IProjectionNode>()
   const subscriptions = new WeakMap<IProjectionNode, () => void>()
 
-  const dirtyAll = () => nodes.forEach(notify)
+  const dirtyAll = (node?: IProjectionNode) => {
+    nodes.forEach(notify)
+    if (!node?.options.layoutId)
+      node?.root?.didUpdate()
+  }
 
   return {
     add: (node) => {
       nodes.add(node)
       subscriptions.set(
         node,
-        node.addEventListener('willUpdate', dirtyAll),
+        node.addEventListener('willUpdate', () => dirtyAll(node)),
       )
     },
     remove: (node) => {
@@ -31,7 +35,7 @@ export function nodeGroup(): NodeGroup {
         unsubscribe()
         subscriptions.delete(node)
       }
-      dirtyAll()
+      dirtyAll(node)
     },
     dirty: dirtyAll,
   }
