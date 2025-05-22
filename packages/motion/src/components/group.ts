@@ -16,8 +16,6 @@ export function nodeGroup(): NodeGroup {
 
   const dirtyAll = (node?: IProjectionNode) => {
     nodes.forEach(notify)
-    if (!node?.options.layoutId)
-      node?.root?.didUpdate()
   }
 
   return {

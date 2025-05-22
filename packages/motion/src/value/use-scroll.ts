@@ -37,35 +37,36 @@ export function useScroll({
   onMounted(() => {
     refWarning('target', target)
     refWarning('container', container)
-    watch(
-      [() => container?.value, () => target?.value, () => options.offset],
-      (n, o, onCleanup) => {
-        if (isSSR) {
-          return
-        }
-        const cleanup = scroll(
-          (_progress, { x, y }) => {
-            values.scrollX.set(x.current)
-            values.scrollXProgress.set(x.progress)
-            values.scrollY.set(y.current)
-            values.scrollYProgress.set(y.progress)
-          },
-          {
-            ...options,
-            container: container?.value ?? undefined,
-            target: target?.value ?? undefined,
-          },
-        )
-        onCleanup(() => {
-          cleanup()
-        })
-      },
-      {
-        immediate: true,
-        flush: 'post',
-      },
-    )
   })
+
+  watch(
+    [() => container?.value, () => target?.value, () => options.offset],
+    (n, o, onCleanup) => {
+      if (isSSR) {
+        return
+      }
+      const cleanup = scroll(
+        (_progress, { x, y }) => {
+          values.scrollX.set(x.current)
+          values.scrollXProgress.set(x.progress)
+          values.scrollY.set(y.current)
+          values.scrollYProgress.set(y.progress)
+        },
+        {
+          ...options,
+          container: container?.value ?? undefined,
+          target: target?.value ?? undefined,
+        },
+      )
+      onCleanup(() => {
+        cleanup()
+      })
+    },
+    {
+      immediate: true,
+      flush: 'post',
+    },
+  )
 
   return values
 }
