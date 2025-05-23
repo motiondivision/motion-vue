@@ -1,5 +1,4 @@
-import type { $Transition, AsTag, Options } from '@/types'
-import type { Variant } from 'framer-motion'
+import type { $Transition, AsTag, Options, Variant } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
 export function resolveVariant(
@@ -14,7 +13,7 @@ export function resolveVariant(
     }, {})
   }
   else if (typeof definition === 'object') {
-    return definition
+    return definition as Variant
   }
   else if (definition && variants) {
     const variant = variants[definition as string]

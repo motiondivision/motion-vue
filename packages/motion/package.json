@@ -1,6 +1,6 @@
 {
   "name": "motion-v",
-  "version": "1.0.2",
+  "version": "1.1.0-alpha.1",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -74,9 +74,8 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
-    "framer-motion": "12.5.0",
-    "hey-listen": "^1.0.8",
-    "motion-dom": "^12.5.0"
+    "framer-motion": "12.12.1",
+    "hey-listen": "^1.0.8"
   },
   "devDependencies": {
     "vue": "3.4.38"

@@ -1,6 +1,6 @@
 {
   "name": "vue-motion",
-  "version": "1.0.2",
+  "version": "1.1.0-alpha.1",
   "private": true,
   "packageManager": "pnpm@9.15.0+sha1.8bfdb6d72b4d5fdf87d21d27f2bfbe2b21dd2629",
   "description": "",
@@ -24,6 +24,7 @@
     "docs:build": "pnpm --filter docs build",
     "docs:gen": "pnpm --filter docs docs:gen",
     "docs:contributors": "pnpm --filter docs docs:contributors",
+    "play": "pnpm --filter motion-playground play",
     "lint-staged": "lint-staged",
     "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
     "pub:release": "pnpm --filter motion-v pub:release",

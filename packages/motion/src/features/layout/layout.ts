@@ -19,8 +19,9 @@ export class LayoutFeature extends Feature {
   }
 
   didUpdate() {
-    if (this.state.options.layout || this.state.options.layoutId || this.state.options.drag)
+    if (this.state.options.layout || this.state.options.layoutId || this.state.options.drag) {
       this.state.visualElement.projection?.root?.didUpdate()
+    }
   }
 
   mount() {
@@ -56,10 +57,9 @@ export class LayoutFeature extends Feature {
     const projection = this.state.visualElement.projection
 
     if (projection) {
-      if (layoutGroup?.group) {
+      if (layoutGroup?.group && (this.state.options.layout || this.state.options.layoutId)) {
         layoutGroup.group.remove(projection)
       }
-
       this.didUpdate()
     }
   }
