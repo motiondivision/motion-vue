@@ -74,7 +74,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
-    "framer-motion": "12.11.4",
+    "framer-motion": "12.12.1",
     "hey-listen": "^1.0.8"
   },
   "devDependencies": {

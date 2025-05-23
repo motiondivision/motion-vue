@@ -30,21 +30,19 @@ export function createContext<ContextValue>(
     fallback?: T,
   ): T extends null ? ContextValue | null : ContextValue => {
     const context = inject(injectionKey, fallback)
-    if (context)
-      return context
 
-    if (context === null)
-      return context as any
-
-    throw new Error(
-      `Injection \`${injectionKey.toString()}\` not found. Component must be used within ${
-        Array.isArray(providerComponentName)
-          ? `one of the following components: ${providerComponentName.join(
-            ', ',
-          )}`
-          : `\`${providerComponentName}\``
-      }`,
-    )
+    if (context === undefined) {
+      throw new Error(
+        `Injection \`${injectionKey.toString()}\` not found. Component must be used within ${
+          Array.isArray(providerComponentName)
+            ? `one of the following components: ${providerComponentName.join(
+              ', ',
+            )}`
+            : `\`${providerComponentName}\``
+        }`,
+      )
+    }
+    return context as any
   }
 
   const provideContext = (contextValue: ContextValue) => {
