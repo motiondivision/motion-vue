@@ -1,8 +1,6 @@
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
 import { calcLength } from '@/projection/geometry/delta-calc'
-import { clamp } from '@/utils/clamp'
-import { mixNumber } from '@/utils/mix/number'
-import { progress as calcProgress } from '@/utils/progress'
+import { progress as calcProgress, clamp, mixNumber } from 'framer-motion/dom'
 import type { Axis, BoundingBox, Box, DragElastic } from 'framer-motion'
 
 /**

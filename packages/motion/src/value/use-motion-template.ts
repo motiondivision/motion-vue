@@ -1,6 +1,6 @@
 import type { MotionValue } from 'framer-motion/dom'
+import { isMotionValue } from 'framer-motion/dom'
 import { useCombineMotionValues } from './use-combine-values'
-import { isMotionValue } from '../utils/motion-value'
 
 /**
  * 将多个motion值组合成一个新的motion值,使用模板字符串语法
