@@ -1,7 +1,5 @@
 import type { ItemData } from '@/components/reorder/types'
-import { isMotionValue } from '@/utils'
-import { mixNumber } from '@/utils/mix/number'
-import { motionValue } from 'framer-motion/dom'
+import { isMotionValue, mixNumber, motionValue } from 'framer-motion/dom'
 
 export function compareMin<V>(a: ItemData<V>, b: ItemData<V>) {
   return a.layout.min - b.layout.min

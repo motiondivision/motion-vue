@@ -1,7 +1,7 @@
 import type { DOMKeyframesDefinition, ResolvedValues } from 'framer-motion'
 import { isCssVar, isNumber } from './utils'
 import { buildTransformTemplate, isTransform, transformAlias, transformDefinitions } from './transform'
-import { isMotionValue } from '@/utils'
+import { isMotionValue } from 'framer-motion/dom'
 import type { MotionStyle } from '@/types'
 import { px } from '@/value/types/numbers/units'
 
