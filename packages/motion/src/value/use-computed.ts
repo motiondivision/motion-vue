@@ -9,7 +9,7 @@ export function useComputed<T>(computed: () => T): MotionValue<T> {
    */
   collectMotionValues.current = []
 
-  const { value, subscribe, unsubscribe } = useCombineMotionValues<T>(computed)
+  const { value, subscribe, unsubscribe, updateValue } = useCombineMotionValues<T>(computed)
 
   subscribe(collectMotionValues.current)
 
@@ -18,7 +18,7 @@ export function useComputed<T>(computed: () => T): MotionValue<T> {
   onBeforeUpdate(() => {
     unsubscribe()
     collectMotionValues.current = []
-    computed()
+    updateValue()
     subscribe(collectMotionValues.current)
     collectMotionValues.current = undefined
   })

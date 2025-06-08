@@ -39,5 +39,6 @@ export function useCombineMotionValues<T>(
     subscribe,
     unsubscribe,
     value,
+    updateValue,
   }
 }
