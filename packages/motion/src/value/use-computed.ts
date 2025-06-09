@@ -1,6 +1,6 @@
 import { useCombineMotionValues } from '@/value/use-combine-values'
 import { type MotionValue, collectMotionValues } from 'framer-motion/dom'
-import { onBeforeUpdate } from 'vue'
+import { watchEffect } from 'vue'
 
 export function useComputed<T>(computed: () => T): MotionValue<T> {
   /**
@@ -9,16 +9,16 @@ export function useComputed<T>(computed: () => T): MotionValue<T> {
    */
   collectMotionValues.current = []
 
-  const { value, subscribe, unsubscribe } = useCombineMotionValues<T>(computed)
+  const { value, subscribe, unsubscribe, updateValue } = useCombineMotionValues<T>(computed)
 
   subscribe(collectMotionValues.current)
 
   collectMotionValues.current = undefined
 
-  onBeforeUpdate(() => {
+  watchEffect(() => {
     unsubscribe()
     collectMotionValues.current = []
-    computed()
+    updateValue()
     subscribe(collectMotionValues.current)
     collectMotionValues.current = undefined
   })
