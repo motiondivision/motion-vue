@@ -25,7 +25,8 @@ function handleHoverEvent(
 
 export class InViewGesture extends Feature {
   isActive() {
-    return Boolean(this.state.options.whileInView)
+    const { whileInView, onViewportEnter, onViewportLeave } = this.state.options
+    return Boolean(whileInView || onViewportEnter || onViewportLeave)
   }
 
   constructor(state: MotionState) {
