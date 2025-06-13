@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Transition, TransitionGroup, computed, onMounted, onUnmounted } from 'vue'
+import { Transition, TransitionGroup, computed, onUnmounted } from 'vue'
 import { mountedStates } from '@/state'
-import { doneCallbacks, provideAnimatePresence, removeDoneCallback } from '@/components/presence'
+import { doneCallbacks, removeDoneCallback } from '@/components/animate-presence/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
 import { delay } from '@/utils/delay'
+import { useAnimatePresence } from './presence'
 
 defineOptions({
   name: 'AnimatePresence',
@@ -17,15 +18,11 @@ const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   anchorX: 'left',
 })
 
-const presenceContext = {
-  initial: props.initial,
-  custom: props.custom,
-}
-provideAnimatePresence(presenceContext)
+/**
+ * Provide the presence context to the children
+ */
+useAnimatePresence(props)
 
-onMounted(() => {
-  presenceContext.initial = undefined
-})
 const { addPopStyle, removePopStyle, styles } = usePopLayout(props)
 
 function findMotionElement(el: Element): Element | null {

@@ -208,7 +208,7 @@ export class AnimationFeature extends Feature {
     let variantTransition = this.state.options.transition
     let variant: Variant = {}
     const { variants, custom, transition, animatePresenceContext } = this.state.options
-    const customValue = isDef(custom) ? custom : animatePresenceContext?.custom
+    const customValue = custom ?? animatePresenceContext?.custom
 
     this.state.activeStates = { ...this.state.activeStates, ...controlActiveState }
     STATE_TYPES.forEach((name) => {

@@ -5,8 +5,8 @@ import { cancelFrame, frame, noop } from 'framer-motion/dom'
 import { isAnimateChanged, isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, StateType } from '@/features'
 import { FeatureManager } from '@/features'
-import type { PresenceContext } from '@/components/presence'
-import { doneCallbacks } from '@/components/presence'
+import type { PresenceContext } from '@/components/animate-presence/presence'
+import { doneCallbacks } from '@/components/animate-presence/presence'
 import type { AnimateUpdates } from '@/features/animation/types'
 import { isVariantLabels } from '@/state/utils/is-variant-labels'
 import type { LazyMotionContext } from '@/components/lazy-motion/context'
@@ -103,10 +103,11 @@ export class MotionState {
 
   // Initialize animation target values
   private initTarget(initialVariantSource: string[]) {
+    const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
     this.baseTarget = initialVariantSource.reduce((acc, variant) => {
       return {
         ...acc,
-        ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants),
+        ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom),
       }
     }, {})
     this.target = { }
