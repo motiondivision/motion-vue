@@ -1,5 +1,6 @@
-import type { Variant, VariantLabels } from '@/types'
+import type { VariantType } from '@/types'
 import type { EventInfo } from 'framer-motion'
+import type { VariantLabels } from 'motion-dom'
 
 export type PressEvent = (
   event: PointerEvent,
@@ -14,11 +15,11 @@ export interface PressProps {
   /**
    * @deprecated Use `whilePress` instead.
    */
-  press?: VariantLabels | Variant
+  press?: VariantLabels | VariantType
   /**
    * Variant to apply when the element is pressed.
    */
-  whilePress?: VariantLabels | Variant
+  whilePress?: VariantLabels | VariantType
   onPressStart?: PressEvent
   onPress?: PressEvent
   onPressCancel?: PressEvent

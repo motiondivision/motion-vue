@@ -1,5 +1,5 @@
 import type { MotionState } from '@/state'
-import type { $Transition, Options } from '@/types'
+import type { Options } from '@/types'
 /**
  * @public
  */
@@ -35,7 +35,7 @@ export interface AnimationControls {
    */
   start: (
     definition: Options['animate'],
-    transitionOverride?: $Transition
+    transitionOverride?: Options['transition']
   ) => Promise<any>
 
   /**

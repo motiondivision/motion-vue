@@ -1,14 +1,15 @@
-import type { Variant, VariantLabels } from '@/types'
+import type { VariantType } from '@/types'
+import type { VariantLabels } from 'motion-dom'
 
 export type FocusProps = {
   /**
    * @deprecated Use `whileFocus` instead.
    */
-  focus?: VariantLabels | Variant
+  focus?: VariantLabels | VariantType
   /**
    * Variant to apply when the element is focused.
    */
-  whileFocus?: VariantLabels | Variant
+  whileFocus?: VariantLabels | VariantType
   onFocus?: (e: FocusEvent) => void
   onBlur?: (e: FocusEvent) => void
 }

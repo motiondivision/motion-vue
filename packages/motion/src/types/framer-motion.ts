@@ -1,4 +1,4 @@
-import type { Inertia, Keyframes, None, Repeat, Spring, Tween } from 'framer-motion'
+import type { MotionNodeOptions } from 'motion-dom'
 
 export type { Point } from 'framer-motion'
 
@@ -36,12 +36,4 @@ export interface Orchestration {
   staggerDirection?: number
 }
 
-type PermissiveTransitionDefinition = {
-  [key: string]: any
-}
-type TransitionDefinition = Tween | Spring | Keyframes | Inertia | None | PermissiveTransitionDefinition
-type TransitionMap = Orchestration & TransitionDefinition & {
-  [key: string]: TransitionDefinition
-}
-
-export type $Transition = (Orchestration & Repeat & TransitionDefinition) | (Orchestration & Repeat & TransitionMap)
+export type $Transition = MotionNodeOptions['transition']

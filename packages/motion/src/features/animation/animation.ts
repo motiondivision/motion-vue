@@ -7,7 +7,7 @@ import { motionEvent } from '@/state/event'
 import { style } from '@/state/style'
 import { transformResetValue } from '@/state/transform'
 import { hasChanged, resolveVariant } from '@/state/utils'
-import type { $Transition, AnimationFactory, Options, Variant } from '@/types'
+import type { $Transition, AnimationFactory, Options, VariantType } from '@/types'
 import { isDef } from '@vueuse/core'
 import type { VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
@@ -202,11 +202,11 @@ export class AnimationFeature extends Feature {
     }: {
       controlActiveState: Partial<Record<string, boolean>> | undefined
       directAnimate: Options['animate']
-      directTransition: $Transition | undefined
+      directTransition: Options['transition'] | undefined
     },
   ) {
     let variantTransition = this.state.options.transition
-    let variant: Variant = {}
+    let variant: VariantType = {}
     const { variants, custom, transition, animatePresenceContext } = this.state.options
     const customValue = custom ?? animatePresenceContext?.custom
 

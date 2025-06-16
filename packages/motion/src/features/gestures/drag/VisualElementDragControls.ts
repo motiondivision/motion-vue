@@ -12,7 +12,7 @@ import { eachAxis } from '@/projection/utils/each-axis'
 import type { Options } from '@/types'
 import { getContextWindow } from '@/utils'
 import { addValueToWillChange } from '@/value/use-will-change/add-will-change'
-import type { Axis, BoundingBox, Point, Transition, VisualElement } from 'framer-motion'
+import type { AnimationGeneratorType, Axis, BoundingBox, Point, Transition, VisualElement } from 'framer-motion'
 import { frame, mixNumber, percent } from 'framer-motion/dom'
 import { measurePageBox } from '@/projection/utils/measure'
 import { convertBoundingBoxToBox, convertBoxToBoundingBox } from '@/projection/conversion'
@@ -419,7 +419,7 @@ export class VisualElementDragControls {
       const bounceDamping = dragElastic ? 40 : 10000000
 
       const inertia = {
-        type: 'inertia',
+        type: 'inertia' as AnimationGeneratorType,
         velocity: dragMomentum ? velocity[axis] : 0,
         bounceStiffness,
         bounceDamping,

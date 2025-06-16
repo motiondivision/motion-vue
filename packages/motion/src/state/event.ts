@@ -1,9 +1,9 @@
-import type { Variant } from '@/types'
+import type { VariantType } from '@/types'
 
 export type MotionEventNames =
   | 'motionstart'
   | 'motioncomplete'
 
-export function motionEvent(name: MotionEventNames, target: Variant, isExit?: boolean) {
+export function motionEvent(name: MotionEventNames, target: VariantType, isExit?: boolean) {
   return new CustomEvent(name, { detail: { target, isExit } })
 }
