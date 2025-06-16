@@ -4,7 +4,7 @@ import { getClosestProjectingNode } from '@/features/layout/utils'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
-import { doneCallbacks } from '@/components/presence'
+import { doneCallbacks } from '@/components/animate-presence/presence'
 
 export class ProjectionFeature extends Feature {
   constructor(state) {

@@ -124,7 +124,7 @@ describe('focus Gesture', () => {
       const element = getByTestId('myAnchorElement') as HTMLElement
       element.matches = () => true
       element.focus()
-      await delay(0)
+      await delay(15)
       resolve(opacity.get())
     })
 
