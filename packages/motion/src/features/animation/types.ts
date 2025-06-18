@@ -1,4 +1,4 @@
-import type { $Transition, Options } from '@/types'
+import type { Options } from '@/types'
 
 /**
  * Core animation update function that handles all animation state changes and execution
@@ -11,7 +11,7 @@ export interface AnimateUpdatesOptions {
   controlActiveState?: Partial<Record<string, boolean>>
   controlDelay?: number
   directAnimate?: Options['animate']
-  directTransition?: $Transition
+  directTransition?: Options['transition']
   isFallback?: boolean
   isExit?: boolean
 }

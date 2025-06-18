@@ -182,11 +182,14 @@ importers:
         specifier: ^10.0.0
         version: 10.11.1(vue@3.4.38(typescript@5.7.2))
       framer-motion:
-        specifier: 12.16.0
-        version: 12.16.0
+        specifier: 12.18.1
+        version: 12.18.1
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
+      motion-dom:
+        specifier: 12.18.1
+        version: 12.18.1
     devDependencies:
       vue:
         specifier: 3.4.38
@@ -4199,8 +4202,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.16.0:
-    resolution: {integrity: sha512-xryrmD4jSBQrS2IkMdcTmiS4aSKckbS7kLDCuhUn9110SQKG1w3zlq1RTqCblewg+ZYe+m3sdtzQA6cRwo5g8Q==}
+  framer-motion@12.18.1:
+    resolution: {integrity: sha512-6o4EDuRPLk4LSZ1kRnnEOurbQ86MklVk+Y1rFBUKiF+d2pCdvMjWVu0ZkyMVCTwl5UyTH2n/zJEJx+jvTYuxow==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -5517,8 +5520,8 @@ packages:
   mlly@1.7.3:
     resolution: {integrity: sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==}
 
-  motion-dom@12.16.0:
-    resolution: {integrity: sha512-Z2nGwWrrdH4egLEtgYMCEN4V2qQt1qxlKy/uV7w691ztyA41Q5Rbn0KNGbsNVDZr9E8PD2IOQ3hSccRnB6xWzw==}
+  motion-dom@12.18.1:
+    resolution: {integrity: sha512-dR/4EYT23Snd+eUSLrde63Ws3oXQtJNw/krgautvTfwrN/2cHfCZMdu6CeTxVfRRWREW3Fy1f5vobRDiBb/q+w==}
 
   motion-number-vue@1.0.5:
     resolution: {integrity: sha512-Cc4jX6ZNhwXDVVbqOu6MIDXOLnP7PmqkQHkRK/OL+kcHfASXfssorbiiZ46lff+NaJO5LVlNVkIldLNTWAEPFw==}
@@ -5531,8 +5534,8 @@ packages:
       motion-v: '>=0.11.0-beta.5'
       vue: '>=3.0.0'
 
-  motion-utils@12.12.1:
-    resolution: {integrity: sha512-f9qiqUHm7hWSLlNW8gS9pisnsN7CRFRD58vNjptKdsqFLpkVnX00TNeD6Q0d27V9KzT7ySFyK1TZ/DShfVOv6w==}
+  motion-utils@12.18.1:
+    resolution: {integrity: sha512-az26YDU4WoDP0ueAkUtABLk2BIxe28d8NH1qWT8jPGhPyf44XTdDUh8pDk9OPphaSrR9McgpcJlgwSOIw/sfkA==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -8382,7 +8385,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.7.2)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@22.13.9)(typescript@5.5.4))(typescript@5.7.2)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.7.2))(typescript@5.7.2)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -10910,8 +10913,8 @@ snapshots:
     dependencies:
       '@volar/language-core': 1.11.1
       '@volar/source-map': 1.11.1
-      '@vue/compiler-dom': 3.5.13
-      '@vue/shared': 3.5.13
+      '@vue/compiler-dom': 3.5.16
+      '@vue/shared': 3.5.16
       computeds: 0.0.1
       minimatch: 9.0.5
       muggle-string: 0.3.1
@@ -11788,7 +11791,7 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@22.13.9)(typescript@5.5.4))(typescript@5.7.2):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.7.2))(typescript@5.7.2):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.7.2)
@@ -12811,10 +12814,10 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.16.0:
+  framer-motion@12.18.1:
     dependencies:
-      motion-dom: 12.16.0
-      motion-utils: 12.12.1
+      motion-dom: 12.18.1
+      motion-utils: 12.18.1
       tslib: 2.7.0
 
   fresh@0.5.2: {}
@@ -14426,9 +14429,9 @@ snapshots:
       pkg-types: 1.2.1
       ufo: 1.5.4
 
-  motion-dom@12.16.0:
+  motion-dom@12.18.1:
     dependencies:
-      motion-utils: 12.12.1
+      motion-utils: 12.18.1
 
   motion-number-vue@1.0.5(vue@3.5.16(typescript@5.7.2)):
     dependencies:
@@ -14444,7 +14447,7 @@ snapshots:
       motion-v: link:packages/motion
       vue: 3.5.16(typescript@5.7.2)
 
-  motion-utils@12.12.1: {}
+  motion-utils@12.18.1: {}
 
   mri@1.2.0: {}
 

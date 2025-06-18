@@ -1,4 +1,5 @@
-import type { Variant, VariantLabels } from '@/types'
+import type { VariantType } from '@/types'
+import type { VariantLabels } from 'motion-dom'
 
 type MarginValue = `${number}${'px' | '%'}`
 
@@ -17,11 +18,11 @@ export interface InViewProps {
   /**
    * @deprecated Use `whileInView` instead.
    */
-  inView?: VariantLabels | Variant
+  inView?: VariantLabels | VariantType
   /**
    * Variant to apply when the element is in view.
    */
-  whileInView?: VariantLabels | Variant
+  whileInView?: VariantLabels | VariantType
   onViewportEnter?: ViewportEventHandler
   onViewportLeave?: ViewportEventHandler
 }

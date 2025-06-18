@@ -1,4 +1,4 @@
-import type { DOMKeyframesDefinition, ResolvedValues, Target, TargetAndTransition } from 'framer-motion'
+import type { DOMKeyframesDefinition, ResolvedValues, VariantLabels } from 'framer-motion'
 import type { MotionValue, TransformProperties, animate } from 'framer-motion/dom'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
@@ -14,23 +14,12 @@ import type { AnimationControls } from '@/animation/types'
 import type { AsTag } from '@/types/common'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
-
-export type TargetResolver = (
-  custom: any,
-  current: Target,
-  velocity: Target
-) => TargetAndTransition | string
-export interface Variant extends DOMKeyframesDefinition {
-  transition?: $Transition
+export interface VariantType extends DOMKeyframesDefinition {
+  transition?: Options['transition']
   attrX?: DOMKeyframesDefinition['x']
   attrY?: DOMKeyframesDefinition['y']
   attrScale?: DOMKeyframesDefinition['scale']
 }
-/**
- * Either a string, or array of strings, that reference variants defined via the `variants` prop.
- * @public
- */
-export type VariantLabels = string | string[]
 
 interface BoundingBox {
   top: number
@@ -45,7 +34,7 @@ export interface DragOptions {
 
 type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transition'>
 export type MotionStyle = Partial<{
-  [K in keyof Omit<Variant & TransformPropertiesWithoutTransition, 'attrX' | 'attrY' | 'attrScale'>]: string | number | undefined | MotionValue
+  [K in keyof Omit<VariantType & TransformPropertiesWithoutTransition, 'attrX' | 'attrY' | 'attrScale'>]: string | number | undefined | MotionValue
 }>
 
 export interface Options<T = any> extends
@@ -54,11 +43,11 @@ export interface Options<T = any> extends
   PanProps, FocusProps {
   custom?: T
   as?: AsTag
-  initial?: VariantLabels | Variant | boolean
-  animate?: VariantLabels | Variant | AnimationControls
-  exit?: VariantLabels | Variant
+  initial?: VariantLabels | VariantType | boolean
+  animate?: VariantLabels | VariantType | AnimationControls
+  exit?: VariantLabels | VariantType
   variants?: {
-    [k: string]: Variant | ((custom: T) => Variant)
+    [k: string]: VariantType | ((custom: T) => VariantType)
   }
   inherit?: boolean
   style?: MotionStyle

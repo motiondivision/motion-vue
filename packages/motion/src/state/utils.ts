@@ -1,11 +1,11 @@
-import type { $Transition, AsTag, Options, Variant } from '@/types'
+import type { $Transition, AsTag, Options, VariantType } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
 export function resolveVariant(
   definition?: Options['animate'],
   variants?: Options['variants'],
   custom?: Options['custom'],
-): Variant | undefined {
+): VariantType | undefined {
   if (Array.isArray(definition)) {
     return definition.reduce((acc, item) => {
       const resolvedVariant = resolveVariant(item, variants, custom)
@@ -13,7 +13,7 @@ export function resolveVariant(
     }, {})
   }
   else if (typeof definition === 'object') {
-    return definition as Variant
+    return definition as VariantType
   }
   else if (definition && variants) {
     const variant = variants[definition as string]
