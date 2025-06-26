@@ -119,7 +119,6 @@ export class MotionState {
     this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
-      reducedMotionConfig: this.options.motionConfig.reduceMotion,
     }, {
       isPresent: !doneCallbacks.has(this.element),
     } as any)

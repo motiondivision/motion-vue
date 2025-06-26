@@ -40,7 +40,7 @@ export class AnimationFeature extends Feature {
           ...this.state.baseTarget,
         },
       },
-      reducedMotionConfig: this.state.options.motionConfig.reduceMotion,
+      reducedMotionConfig: this.state.options.motionConfig.reducedMotion,
     })
     this.state.animateUpdates = this.animateUpdates
     if (this.state.isMounted())

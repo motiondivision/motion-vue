@@ -1,8 +1,7 @@
-import type { Feature } from '@/features'
 import type { AsTag, ComponentProps, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
-export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Options<K> {
+export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Omit<Options<K>, 'motionConfig' | 'layoutGroup'> {
   as?: T
   asChild?: boolean
   hover?: Options['hover']
@@ -15,7 +14,7 @@ export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Optio
   whileInView?: Options['whileInView']
   whileFocus?: Options['whileFocus']
   forwardMotionProps?: boolean
-  features?: Feature[]
+  // features?: Feature[]
   ignoreStrict?: boolean
 }
 type __VLS_PrettifyLocal<T> = {
