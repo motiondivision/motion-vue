@@ -67,3 +67,8 @@ declare module 'framer-motion/dist/es/render/utils/setters.mjs' {
 
   export const setTarget: (visualElement: VisualElement, definition: any) => void
 }
+
+declare module 'framer-motion/dist/es/utils/reduced-motion/state.mjs' {
+  export const prefersReducedMotion: { current: boolean }
+  export const hasReducedMotionListener: { current: boolean }
+}

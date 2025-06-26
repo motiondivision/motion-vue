@@ -25,6 +25,7 @@ export default defineConfig({
       'framer-motion/dist/es/render/html/HTMLVisualElement.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/html/HTMLVisualElement.mjs'),
       'framer-motion/dist/es/render/svg/SVGVisualElement.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/render/svg/SVGVisualElement.mjs'),
       'framer-motion/dist/es/animation/interfaces/motion-value.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/animation/interfaces/motion-value.mjs'),
+      'framer-motion/dist/es/utils/reduced-motion/state.mjs': path.resolve(__dirname, 'node_modules/framer-motion/dist/es/utils/reduced-motion/state.mjs'),
     },
   },
 })

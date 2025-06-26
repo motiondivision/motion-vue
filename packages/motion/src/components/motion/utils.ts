@@ -111,7 +111,7 @@ export function createMotionComponent(
     },
     name: name ? `motion.${name}` : 'Motion',
     setup(props, { slots }) {
-      const { getProps, getAttrs, state } = useMotionState(props as MotionProps)
+      const { getProps, getAttrs, state } = useMotionState(props as any)
       /**
        * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
        * To prevent this, reapply the current motion state styles in vnode updated lifecycle
@@ -159,7 +159,7 @@ export function createMotionComponent(
 }
 
 type MotionNameSpace = {
-  [K in keyof IntrinsicElementAttributes]: DefineComponent<Omit<MotionProps<K, unknown>, 'as' | 'asChild'> & MotionHTMLAttributes<K>, 'create'>
+  [K in keyof IntrinsicElementAttributes]: DefineComponent<Omit<MotionProps<K, unknown>, 'as' | 'asChild' | 'motionConfig' | 'layoutGroup'> & MotionHTMLAttributes<K>, 'create'>
 } & MotionCompProps
 
 export function createMotionComponentWithFeatures(

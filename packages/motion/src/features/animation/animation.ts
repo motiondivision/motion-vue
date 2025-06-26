@@ -12,6 +12,7 @@ import { isDef } from '@vueuse/core'
 import type { VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
 import { createVisualElement } from '@/state/create-visual-element'
+import { prefersReducedMotion } from 'framer-motion/dist/es/utils/reduced-motion/state.mjs'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
@@ -40,8 +41,9 @@ export class AnimationFeature extends Feature {
           ...this.state.baseTarget,
         },
       },
-      reducedMotionConfig: this.state.options.motionConfig.reduceMotion,
+      reducedMotionConfig: this.state.options.motionConfig.reducedMotion,
     })
+
     this.state.animateUpdates = this.animateUpdates
     if (this.state.isMounted())
       this.state.startAnimation()
@@ -62,6 +64,10 @@ export class AnimationFeature extends Feature {
     isFallback,
     isExit,
   } = {}) => {
+    // check if the user has reduced motion
+    const { reducedMotion } = this.state.options.motionConfig
+    this.state.visualElement.shouldReduceMotion = reducedMotion === 'always' || (reducedMotion === 'user' && !!prefersReducedMotion.current)
+
     const prevTarget = this.state.target
     this.state.target = { ...this.state.baseTarget }
     let animationOptions: $Transition = {}

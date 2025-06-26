@@ -33,6 +33,7 @@ export function useMotionState(props: MotionProps) {
    */
   if (
     process.env.NODE_ENV !== 'production'
+    // @ts-expect-error
     && props.features?.length
     && lazyMotionContext.strict
   ) {
