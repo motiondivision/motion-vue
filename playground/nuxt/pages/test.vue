@@ -1,82 +1,22 @@
 <script setup lang="tsx">
 /** @jsxImportSource vue */
-import { AnimateNumber } from 'motion-plus-vue'
-import { motion } from 'motion-v'
 import { ref } from 'vue'
 
-const isCompact = ref(false)
-const isCurrency = ref(false)
-
-function Switch({ isOn, toggle }: { isOn: boolean, toggle: () => void }) {
-  return (
-    <motion.button
-      class="switch-container"
-      style={{
-        justifyContent: `flex-${isOn ? 'end' : 'start'}`,
-      }}
-      initial={false}
-      animate={{
-        backgroundColor: isOn
-          ? 'var(--hue-6-transparent)'
-          : '#586d8c33',
-      }}
-      onClick={toggle}
-      focus={{
-        outline: '2px solid #4ff0b7',
-      }}
-    >
-      <motion.div
-        class="switch-handle"
-        layout
-        data-is-on={isOn}
-        transition={{
-          type: 'spring',
-          visualDuration: 0.2,
-          bounce: 0.2,
-        }}
-      />
-    </motion.button>
-  )
-}
+const isShow = ref(false)
 </script>
 
 <template>
-  <div class="container">
-    <AnimateNumber
-      :format="{
-        notation: isCompact ? 'compact' : undefined,
-        compactDisplay: isCompact ? 'short' : undefined,
-        roundingMode: isCompact ? 'trunc' : undefined,
-        style: isCurrency ? 'currency' : undefined,
-        currency: isCurrency ? 'USD' : undefined,
+  <button @click="isShow = !isShow">
+    show
+  </button>
+  <MotionConfig reduced-motion="user">
+    <Motion
+      class="w-[100px] h-[100px] bg-red-500"
+      :animate="{
+        scale: isShow ? 1 : 0.5,
       }"
-      locales="en-US"
-      class="number"
-      :transition="{
-        visualDuration: 0.6,
-        type: 'spring',
-        bounce: 0.25,
-        opacity: { duration: 0.3, ease: 'linear' },
-      }"
-      :value="123.49"
     />
-    <div class="controls">
-      <div>
-        Currency:
-        <Switch
-          :is-on="isCurrency"
-          :toggle="() => isCurrency = !isCurrency"
-        />
-      </div>
-      <div>
-        Compact:
-        <Switch
-          :is-on="isCompact"
-          :toggle="() => isCompact = !isCompact"
-        />
-      </div>
-    </div>
-  </div>
+  </MotionConfig>
 </template>
 
 <style>
