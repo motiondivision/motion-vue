@@ -2,7 +2,7 @@ import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { cancelFrame, frame, noop } from 'framer-motion/dom'
-import { isAnimateChanged, isSVGElement, resolveVariant } from '@/state/utils'
+import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, StateType } from '@/features'
 import { FeatureManager } from '@/features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
@@ -212,14 +212,11 @@ export class MotionState {
 
   // Update motion state with new options
   update(options: Options) {
-    const hasAnimateChange = isAnimateChanged(this.options, options)
     this.updateOptions(options)
     // Update features in parent-to-child order
     this.featureManager.update()
 
-    if (hasAnimateChange) {
-      this.startAnimation()
-    }
+    this.startAnimation()
   }
 
   // Set animation state active status and propagate to children
