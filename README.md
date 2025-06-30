@@ -62,7 +62,7 @@ Then import the `motion` component:
 
 ```vue
 <script setup>
-import { motion } from "motion-v";
+import { motion } from 'motion-v'
 </script>
 
 <template>
@@ -73,6 +73,7 @@ import { motion } from "motion-v";
 ### 💎 Contribute
 
 - Want to contribute to Motion? Our [contributing guide](https://github.com/motiondivision/motion-vue/blob/master/CONTRIBUTING.md) has you covered.
+- [Join our discord ](https://discord.com/invite/dCBuRgdNDG)
 
 ### 👩🏻‍⚖️ License
 
