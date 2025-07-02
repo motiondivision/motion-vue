@@ -79,11 +79,10 @@ export class AnimationFeature extends Feature {
     })
 
     const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
-    const { getChildAnimations, childAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates, isFallback)
+    const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates, isFallback)
     return this.executeAnimations({
       factories,
       getChildAnimations,
-      childAnimations,
       transition: animationOptions,
       controlActiveState,
       isExit,
@@ -100,7 +99,6 @@ export class AnimationFeature extends Feature {
     }: {
       factories: AnimationFactory[]
       getChildAnimations: () => Promise<any>
-      childAnimations: (() => Promise<any>)[]
       transition: $Transition | undefined
       controlActiveState: Partial<Record<string, boolean>> | undefined
       isExit: boolean
@@ -149,30 +147,33 @@ export class AnimationFeature extends Feature {
     controlActiveState: Partial<Record<string, boolean>> | undefined,
     isFallback: boolean,
   ) {
-    if (!this.state.visualElement.variantChildren?.size || !controlActiveState)
-      return { getChildAnimations: () => Promise.resolve(), childAnimations: [] }
+    const visualElement = this.state.visualElement
+    if (!visualElement.variantChildren?.size || !controlActiveState)
+      return { getChildAnimations: () => Promise.resolve() }
 
     const { staggerChildren = 0, staggerDirection = 1, delayChildren = 0 } = transition || {}
-    const maxStaggerDuration = (this.state.visualElement.variantChildren.size - 1) * staggerChildren
-    const generateStaggerDuration = staggerDirection === 1
-      ? (i = 0) => i * staggerChildren
-      : (i = 0) => maxStaggerDuration - i * staggerChildren
+    const numChildren = visualElement.variantChildren.size
+    const maxStaggerDuration = (numChildren - 1) * staggerChildren
+    const delayIsFunction = typeof delayChildren === 'function'
+    const generateStaggerDuration = delayIsFunction
+      ? (i: number) => delayChildren(i, numChildren)
+    // Support deprecated staggerChildren,will be removed in next major version
+      : staggerDirection === 1
+        ? (i = 0) => i * staggerChildren
+        : (i = 0) => maxStaggerDuration - i * staggerChildren
 
-    const childAnimations = Array.from(this.state.visualElement.variantChildren)
+    const childAnimations = Array.from(visualElement.variantChildren)
       .map((child: VisualElement & { state: MotionState }, index) => {
-        const childDelay = delayChildren + generateStaggerDuration(index)
         return child.state.animateUpdates({
           controlActiveState,
-          controlDelay: isFallback ? 0 : childDelay,
+          controlDelay: (delayIsFunction ? 0 : delayChildren) + generateStaggerDuration(index),
         })
       })
-      .filter(Boolean) as (() => Promise<any>)[]
 
     return {
-      getChildAnimations: () => Promise.all(childAnimations.map((animation) => {
-        return animation?.()
+      getChildAnimations: () => Promise.all(childAnimations.map((animation: () => Promise<any>) => {
+        return animation()
       })),
-      childAnimations,
     }
   }
 
