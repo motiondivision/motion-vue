@@ -6,9 +6,13 @@ import { getCurrentInstance, onMounted } from 'vue'
  * @param el - The HTML element to check
  * @returns The first non-text/comment element
  */
-export function getMotionElement(el: HTMLElement | SVGElement) {
-  if (el?.nodeType === 3 || el?.nodeType === 8)
-    return getMotionElement(el.nextSibling as HTMLElement)
+export function getMotionElement(el: HTMLElement | SVGElement | null): HTMLElement | SVGElement | null {
+  if (!el)
+    return null
+
+  if (el.nodeType === 3 || el.nodeType === 8) {
+    return getMotionElement(el.nextSibling as HTMLElement | SVGElement | null)
+  }
 
   return el
 }
