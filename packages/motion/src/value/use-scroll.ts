@@ -1,21 +1,14 @@
-import type { Ref } from 'vue'
-import { onMounted, watch } from 'vue'
+import { watch } from 'vue'
 import { motionValue, scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
-import { warning } from 'hey-listen'
 import { isSSR } from '@/utils/is'
+import type { MaybeComputedElementRef } from '@vueuse/core'
+import { getElement } from '@/components/hooks/use-motion-elm'
 
 export interface UseScrollOptions
   extends Omit<ScrollInfoOptions, 'container' | 'target'> {
-  container?: Ref<HTMLElement | null>
-  target?: Ref<HTMLElement | null>
-}
-
-function refWarning(name: string, ref?: Ref<HTMLElement | null>) {
-  warning(
-    Boolean(!ref || ref.value),
-    `You have defined a ${name} options but the provided ref is not yet hydrated, probably because it's defined higher up the tree. Try calling useScroll() in the same component as the ref.`,
-  )
+  container?: MaybeComputedElementRef
+  target?: MaybeComputedElementRef
 }
 
 function createScrollMotionValues() {
@@ -34,14 +27,9 @@ export function useScroll({
 }: UseScrollOptions = {}) {
   const values = createScrollMotionValues()
 
-  onMounted(() => {
-    refWarning('target', target)
-    refWarning('container', container)
-  })
-
   watch(
-    [() => container?.value, () => target?.value, () => options.offset],
-    (n, o, onCleanup) => {
+    [() => getElement(container), () => getElement(target), () => options.offset],
+    ([newContainer, newTarget], _, onCleanup) => {
       if (isSSR) {
         return
       }
@@ -54,8 +42,8 @@ export function useScroll({
         },
         {
           ...options,
-          container: container?.value ?? undefined,
-          target: target?.value ?? undefined,
+          container: newContainer ?? undefined,
+          target: newTarget ?? undefined,
         },
       )
       onCleanup(() => {
