@@ -8,7 +8,7 @@ import { getCurrentInstance, onMounted } from 'vue'
  */
 export function getMotionElement(el: HTMLElement | SVGElement | null): HTMLElement | SVGElement | null {
   if (!el)
-    return null
+    return undefined
 
   if (el.nodeType === 3 || el.nodeType === 8) {
     return getMotionElement(el.nextSibling as HTMLElement | SVGElement | null)

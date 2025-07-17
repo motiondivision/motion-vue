@@ -70,15 +70,12 @@
     "pub:release": "pnpm publish --access public"
   },
   "peerDependencies": {
+    "@vueuse/core": "^10.0.0",
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "@vueuse/core": "^10.0.0",
     "framer-motion": "12.22.0",
     "hey-listen": "^1.0.8",
     "motion-dom": "12.22.0"
-  },
-  "devDependencies": {
-    "vue": "3.4.38"
   }
 }

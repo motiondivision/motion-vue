@@ -9,14 +9,15 @@ export function usePopLayout(props: AnimatePresenceProps) {
   function addPopStyle(state: MotionState) {
     if (props.mode !== 'popLayout')
       return
-    const parent = state.element.offsetParent
+    const element = state.element as HTMLElement
+    const parent = element.offsetParent
     const parentWidth
                 = parent instanceof HTMLElement ? parent.offsetWidth || 0 : 0
     const size = {
-      height: state.element.offsetHeight || 0,
-      width: state.element.offsetWidth || 0,
-      top: state.element.offsetTop,
-      left: state.element.offsetLeft,
+      height: element.offsetHeight || 0,
+      width: element.offsetWidth || 0,
+      top: element.offsetTop,
+      left: element.offsetLeft,
       right: 0,
     }
     size.right = parentWidth - size.width - size.left
