@@ -34,7 +34,7 @@ describe('row-value', () => {
   it('should cleanup subscription on unmount', async () => {
     const value = motionValue('test')
     const unsubscribe = vi.fn()
-    vi.spyOn(value, 'on').mockImplementation(() => unsubscribe)
+    vi.spyOn(value, 'on').mockImplementation(unsubscribe)
 
     const wrapper = mount(RowValue, {
       props: {
