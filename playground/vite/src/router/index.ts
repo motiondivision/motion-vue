@@ -38,5 +38,11 @@ routes.push({
 
 export const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes: [
+    ...routes,
+    {
+      path: '/scroll-test',
+      component: () => import('../views/scroll-test/index.vue'),
+    },
+  ],
 })

@@ -25,7 +25,7 @@ const mountedLayoutIds = new Set<string>()
 export class MotionState {
   public readonly id: string
   public type: 'html' | 'svg'
-  public element: HTMLElement | null = null
+  public element: HTMLElement | SVGElement | null = null
   // Parent reference for handling component tree relationships
   public parent?: MotionState
   public options: Options & {
@@ -130,7 +130,7 @@ export class MotionState {
   }
 
   // Mount motion state to DOM element, handles parent-child relationships
-  mount(element: HTMLElement, options: Options, notAnimate = false) {
+  mount(element: HTMLElement | SVGElement, options: Options, notAnimate = false) {
     invariant(
       Boolean(element),
       'Animation state must be mounted with valid Element',

@@ -1,7 +1,7 @@
 import { onMounted } from 'vue'
 import { useMotionElm } from '@/components/hooks/use-motion-elm'
 
-export const presenceMeasure = new Map<HTMLElement, boolean>()
+export const presenceMeasure = new Map<HTMLElement | SVGElement, boolean>()
 export function usePresence() {
   const motionElement = useMotionElm()
   onMounted(() => {
