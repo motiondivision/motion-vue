@@ -2,7 +2,7 @@ import { unref, watchEffect } from 'vue'
 import { motionValue, scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { isSSR } from '@/utils/is'
-import type { MaybeComputedElementRef, MaybeRef } from '@vueuse/core'
+import type { MaybeComputedElementRef } from '@vueuse/core'
 import { getElement } from '@/components/hooks/use-motion-elm'
 import type { ToRefs } from '@/types/common'
 
@@ -19,14 +19,13 @@ function createScrollMotionValues() {
     scrollYProgress: motionValue(0),
   }
 }
-export function useScroll(scrollOptions: MaybeRef<UseScrollOptions> = {}) {
+export function useScroll(scrollOptions: UseScrollOptions = {}) {
   const values = createScrollMotionValues()
 
   watchEffect((onCleanup) => {
     if (isSSR) {
       return
     }
-    const options = unref(scrollOptions)
     const cleanup = scroll(
       (_progress, { x, y }) => {
         values.scrollX.set(x.current)
@@ -35,10 +34,10 @@ export function useScroll(scrollOptions: MaybeRef<UseScrollOptions> = {}) {
         values.scrollYProgress.set(y.progress)
       },
       {
-        offset: unref(options.offset),
-        axis: unref(options.axis),
-        container: getElement(options.container),
-        target: getElement(options.target),
+        offset: unref(scrollOptions.offset),
+        axis: unref(scrollOptions.axis),
+        container: getElement(scrollOptions.container),
+        target: getElement(scrollOptions.target),
       },
     )
     onCleanup(() => {

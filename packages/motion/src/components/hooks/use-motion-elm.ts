@@ -6,7 +6,7 @@ import { getCurrentInstance, onMounted } from 'vue'
  * @param el - The HTML element to check
  * @returns The first non-text/comment element
  */
-export function getMotionElement(el: HTMLElement | SVGElement | null): HTMLElement | SVGElement | null {
+export function getMotionElement(el: HTMLElement | SVGElement | null): HTMLElement | SVGElement | undefined {
   if (!el)
     return undefined
 
