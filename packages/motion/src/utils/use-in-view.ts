@@ -4,9 +4,14 @@ import type { Options } from '@/types/state'
 import { inView } from 'framer-motion/dom'
 import type { MaybeRef } from '@vueuse/core'
 
+type InViewOptions = Options['inViewOptions']
+export interface UseInViewOptions extends Omit<InViewOptions, 'root'> {
+  root?: MaybeRef<Element | Document>
+}
+
 export function useInView<T extends Element = any>(
   domRef: Ref<T | null>,
-  options?: MaybeRef<Options['inViewOptions']>,
+  options?: MaybeRef<UseInViewOptions>,
 ) {
   const isInView = ref(false)
 
@@ -24,7 +29,10 @@ export function useInView<T extends Element = any>(
             isInView.value = false
           }
     }
-    const cleanup = inView(domRef.value, onEnter, realOptions)
+    const cleanup = inView(domRef.value, onEnter, {
+      ...realOptions,
+      root: unref(realOptions.root),
+    })
     onCleanup(() => {
       cleanup()
     })
