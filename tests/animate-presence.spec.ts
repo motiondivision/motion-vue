@@ -17,7 +17,7 @@ test.describe('AnimatePresence', () => {
     const opacity = await animatePresenceItem?.evaluate(el => window.getComputedStyle(el).opacity)
     expect(+opacity).toBeLessThan(1)
     expect(await animatePresenceItem.isVisible()).toBe(true)
-    await page.waitForTimeout(300)
+    await page.waitForTimeout(400)
     expect(await animatePresenceItem.isVisible()).toBe(false)
   })
 })

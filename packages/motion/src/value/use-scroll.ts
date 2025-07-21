@@ -1,21 +1,14 @@
-import type { Ref } from 'vue'
-import { onMounted, watch } from 'vue'
+import { unref, watchEffect } from 'vue'
 import { motionValue, scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
-import { warning } from 'hey-listen'
 import { isSSR } from '@/utils/is'
+import type { MaybeComputedElementRef } from '@vueuse/core'
+import { getElement } from '@/components/hooks/use-motion-elm'
+import type { ToRefs } from '@/types/common'
 
-export interface UseScrollOptions
-  extends Omit<ScrollInfoOptions, 'container' | 'target'> {
-  container?: Ref<HTMLElement | null>
-  target?: Ref<HTMLElement | null>
-}
-
-function refWarning(name: string, ref?: Ref<HTMLElement | null>) {
-  warning(
-    Boolean(!ref || ref.value),
-    `You have defined a ${name} options but the provided ref is not yet hydrated, probably because it's defined higher up the tree. Try calling useScroll() in the same component as the ref.`,
-  )
+export interface UseScrollOptions extends Omit<ToRefs<ScrollInfoOptions>, 'container' | 'target'> {
+  container?: MaybeComputedElementRef
+  target?: MaybeComputedElementRef
 }
 
 function createScrollMotionValues() {
@@ -26,47 +19,33 @@ function createScrollMotionValues() {
     scrollYProgress: motionValue(0),
   }
 }
-
-export function useScroll({
-  container,
-  target,
-  ...options
-}: UseScrollOptions = {}) {
+export function useScroll(scrollOptions: UseScrollOptions = {}) {
   const values = createScrollMotionValues()
 
-  onMounted(() => {
-    refWarning('target', target)
-    refWarning('container', container)
+  watchEffect((onCleanup) => {
+    if (isSSR) {
+      return
+    }
+    const cleanup = scroll(
+      (_progress, { x, y }) => {
+        values.scrollX.set(x.current)
+        values.scrollXProgress.set(x.progress)
+        values.scrollY.set(y.current)
+        values.scrollYProgress.set(y.progress)
+      },
+      {
+        offset: unref(scrollOptions.offset),
+        axis: unref(scrollOptions.axis),
+        container: getElement(scrollOptions.container),
+        target: getElement(scrollOptions.target),
+      },
+    )
+    onCleanup(() => {
+      cleanup()
+    })
+  }, {
+    flush: 'post',
   })
-
-  watch(
-    [() => container?.value, () => target?.value, () => options.offset],
-    (n, o, onCleanup) => {
-      if (isSSR) {
-        return
-      }
-      const cleanup = scroll(
-        (_progress, { x, y }) => {
-          values.scrollX.set(x.current)
-          values.scrollXProgress.set(x.progress)
-          values.scrollY.set(y.current)
-          values.scrollYProgress.set(y.progress)
-        },
-        {
-          ...options,
-          container: container?.value ?? undefined,
-          target: target?.value ?? undefined,
-        },
-      )
-      onCleanup(() => {
-        cleanup()
-      })
-    },
-    {
-      immediate: true,
-      flush: 'post',
-    },
-  )
 
   return values
 }

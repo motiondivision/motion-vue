@@ -1,15 +1,16 @@
 import type { Ref } from 'vue'
-import { isRef, ref, unref, watch } from 'vue'
+import { ref, unref, watchEffect } from 'vue'
 import type { Options } from '@/types/state'
 import { inView } from 'framer-motion/dom'
+import type { MaybeRef } from '@vueuse/core'
 
 export function useInView<T extends Element = any>(
   domRef: Ref<T | null>,
-  options?: Options['inViewOptions'] | Ref<Options['inViewOptions']>,
+  options?: MaybeRef<Options['inViewOptions']>,
 ) {
   const isInView = ref(false)
 
-  watch([domRef, () => isRef(options) ? options.value : options], (_v1, _v2, onCleanup) => {
+  watchEffect((onCleanup) => {
     const realOptions = unref(options) || {}
     const { once } = realOptions
     if (!domRef.value || (once && isInView.value)) {
@@ -28,7 +29,7 @@ export function useInView<T extends Element = any>(
       cleanup()
     })
   }, {
-    immediate: true,
+    flush: 'post',
   })
 
   return isInView
