@@ -1,16 +1,15 @@
-import type { Ref } from 'vue'
 import { ref, unref, watchEffect } from 'vue'
 import type { Options } from '@/types/state'
 import { inView } from 'framer-motion/dom'
-import type { MaybeRef } from '@vueuse/core'
+import { type MaybeComputedElementRef, type MaybeRef, unrefElement } from '@vueuse/core'
 
 type InViewOptions = Options['inViewOptions']
 export interface UseInViewOptions extends Omit<InViewOptions, 'root'> {
   root?: MaybeRef<Element | Document>
 }
 
-export function useInView<T extends Element = any>(
-  domRef: Ref<T | null>,
+export function useInView(
+  domRef: MaybeComputedElementRef,
   options?: MaybeRef<UseInViewOptions>,
 ) {
   const isInView = ref(false)
@@ -18,7 +17,8 @@ export function useInView<T extends Element = any>(
   watchEffect((onCleanup) => {
     const realOptions = unref(options) || {}
     const { once } = realOptions
-    if (!domRef.value || (once && isInView.value)) {
+    const el = unrefElement(domRef)
+    if (!el || (once && isInView.value)) {
       return
     }
     const onEnter = () => {
@@ -29,7 +29,7 @@ export function useInView<T extends Element = any>(
             isInView.value = false
           }
     }
-    const cleanup = inView(domRef.value, onEnter, {
+    const cleanup = inView(el, onEnter, {
       ...realOptions,
       root: unref(realOptions.root),
     })
