@@ -1,4 +1,5 @@
 export * from 'framer-motion/dom'
+export { delay as delayInMs } from 'framer-motion/dist/es/utils/delay.mjs'
 export { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 export { motionValue as useMotionValue } from 'framer-motion/dom'
 export * from './components'
