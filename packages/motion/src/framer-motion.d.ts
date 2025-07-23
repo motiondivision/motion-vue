@@ -72,3 +72,10 @@ declare module 'framer-motion/dist/es/utils/reduced-motion/state.mjs' {
   export const prefersReducedMotion: { current: boolean }
   export const hasReducedMotionListener: { current: boolean }
 }
+
+declare module 'framer-motion/dist/es/utils/delay.mjs' {
+  import type { DelayedFunction } from 'framer-motion/dom'
+
+  export function delay(callback: DelayedFunction, timeout: number): () => void
+  export function delayInSeconds(callback: DelayedFunction, timeout: number): () => void
+}
