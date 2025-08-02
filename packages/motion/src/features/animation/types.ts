@@ -12,7 +12,6 @@ export interface AnimateUpdatesOptions {
   controlDelay?: number
   directAnimate?: Options['animate']
   directTransition?: Options['transition']
-  isFallback?: boolean
   isExit?: boolean
 }
 

@@ -74,8 +74,8 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "framer-motion": "12.22.0",
+    "framer-motion": "12.23.12",
     "hey-listen": "^1.0.8",
-    "motion-dom": "12.22.0"
+    "motion-dom": "12.23.12"
   }
 }

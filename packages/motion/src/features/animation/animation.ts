@@ -43,7 +43,6 @@ export class AnimationFeature extends Feature {
       },
       reducedMotionConfig: this.state.options.motionConfig.reducedMotion,
     })
-
     this.state.animateUpdates = this.animateUpdates
     if (this.state.isMounted())
       this.state.startAnimation()
@@ -61,7 +60,6 @@ export class AnimationFeature extends Feature {
     directAnimate,
     directTransition,
     controlDelay = 0,
-    isFallback,
     isExit,
   } = {}) => {
     // check if the user has reduced motion
@@ -79,7 +77,7 @@ export class AnimationFeature extends Feature {
     })
 
     const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
-    const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates, isFallback)
+    const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates)
     return this.executeAnimations({
       factories,
       getChildAnimations,
@@ -145,7 +143,6 @@ export class AnimationFeature extends Feature {
   setupChildAnimations(
     transition: $Transition | undefined,
     controlActiveState: Partial<Record<string, boolean>> | undefined,
-    isFallback: boolean,
   ) {
     const visualElement = this.state.visualElement
     if (!visualElement.variantChildren?.size || !controlActiveState)

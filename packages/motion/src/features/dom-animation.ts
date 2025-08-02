@@ -15,8 +15,4 @@ export const domAnimation = [
   HoverGesture,
   InViewGesture,
   FocusGesture,
-  // ProjectionFeature,
-  // DragGesture,
-  // LayoutFeature,
-  // PanGesture,
 ] as unknown as Feature[]

@@ -53,9 +53,6 @@ export class MotionState {
    */
   public currentProcess: ReturnType<typeof frame.render> | null = null
 
-  // Depth in component tree for lifecycle ordering
-  public depth: number
-
   // Base animation target values
   public baseTarget: DOMKeyframesDefinition
 
@@ -72,8 +69,6 @@ export class MotionState {
     this.parent = parent
     // Add to parent's children set for lifecycle management
     parent?.children?.add(this)
-    // Calculate depth in component tree
-    this.depth = parent?.depth + 1 || 0
 
     // Initialize with either initial or animate variant
     const initial = (options.initial === undefined && options.variants) ? this.context.initial : options.initial
@@ -173,8 +168,6 @@ export class MotionState {
     this.featureManager.beforeUnmount()
   }
 
-  // Unmount motion state and optionally unmount children
-  // Handles unmounting in the correct order based on component tree
   unmount(unMountChildren = false) {
     /**
      * Unlike React, within the same update cycle, the execution order of unmount and mount depends on the component's order in the component tree.
@@ -228,7 +221,6 @@ export class MotionState {
     })
     if (isAnimate) {
       this.animateUpdates({
-        isFallback: !isActive && name !== 'exit' && this.visualElement.isControllingVariants,
         isExit: name === 'exit' && this.activeStates.exit,
       })
     }
