@@ -1,4 +1,4 @@
-import type { MotionStateContext, Options } from '@/types'
+import type { $Transition, MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
 import { cancelFrame, frame, noop } from 'framer-motion/dom'
@@ -58,6 +58,10 @@ export class MotionState {
 
   // Current animation target values
   public target: DOMKeyframesDefinition
+  /**
+   * The final transition to be applied to the state
+   */
+  public finalTransition: $Transition
   private featureManager: FeatureManager
 
   // Visual element instance from Framer Motion
