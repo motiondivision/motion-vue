@@ -272,7 +272,7 @@ export class AnimationFeature extends Feature {
      * animate it by delayChildren
      */
     if (this.state.parent?.isMounted() && !visualElement.isControllingVariants && parentVisualElement?.enteringChildren?.has(visualElement)) {
-      const { delayChildren } = this.state.parent.finalTransition;
+      const { delayChildren } = this.state.parent.finalTransition || {};
       (this.animateUpdates({
         controlActiveState: this.state.parent.activeStates,
         controlDelay: calcChildStagger(parentVisualElement.enteringChildren, visualElement, delayChildren),
