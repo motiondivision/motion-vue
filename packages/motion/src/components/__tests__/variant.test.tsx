@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { Motion } from '@/components'
 import { motionValue, stagger } from 'framer-motion/dom'
-import { defineComponent, h, onMounted } from 'vue'
+import { defineComponent, h, nextTick, onMounted } from 'vue'
 
 describe('animate prop as variant', () => {
   it('when: beforeChildren works correctly', async () => {
@@ -418,5 +418,64 @@ describe('animate prop as variant', () => {
     expect(centerOrder).toEqual([2, 3, 1, 4])
     // First stagger should start from first element
     expect(firstOrder).toEqual([1, 2, 3, 4])
+  })
+  it('staggerChildren is calculated correctly for new children', async () => {
+    const Component = defineComponent({
+      props: {
+        items: {
+          type: Array as () => string[],
+          required: true,
+        },
+      },
+      setup(props) {
+        return () => (
+          <Motion
+            animate="enter"
+            variants={{
+              enter: { transition: { delayChildren: stagger(0.1) } },
+            }}
+          >
+            {props.items.map(item => (
+              <Motion
+                key={item}
+                id={item}
+                class="item"
+                variants={{ enter: { opacity: 1 } }}
+                initial={{ opacity: 0 }}
+              />
+            ))}
+          </Motion>
+        )
+      },
+    })
+
+    const wrapper = mount(Component, {
+      props: {
+        items: ['1', '2'],
+      },
+    })
+
+    await nextTick()
+    await nextTick()
+    await nextTick()
+    await nextTick()
+
+    await wrapper.setProps({
+      items: ['1', '2', '3', '4', '5'],
+    })
+
+    // Wait for animations to complete
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const elements = document.querySelectorAll('.item')
+
+    // Check that none of the opacities are the same
+    const opacities = Array.from(elements).map(el =>
+      parseFloat(window.getComputedStyle(el).opacity),
+    )
+
+    // All opacities should be unique
+    const uniqueOpacities = new Set(opacities)
+    expect(uniqueOpacities.size).toBe(opacities.length)
   })
 })

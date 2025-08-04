@@ -15,7 +15,7 @@ export function useInView(
   const isInView = ref(false)
 
   watchEffect((onCleanup) => {
-    const realOptions = unref(options) || {}
+    const realOptions = (unref(options) || {}) as UseInViewOptions
     const { once } = realOptions
     const el = unrefElement(domRef)
     if (!el || (once && isInView.value)) {
@@ -31,7 +31,7 @@ export function useInView(
     }
     const cleanup = inView(el, onEnter, {
       ...realOptions,
-      root: unref(realOptions.root),
+      root: unref(realOptions.root) as Element | Document,
     })
     onCleanup(() => {
       cleanup()

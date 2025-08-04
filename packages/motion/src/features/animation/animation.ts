@@ -13,6 +13,7 @@ import type { VisualElement } from 'framer-motion'
 import { animate, noop } from 'framer-motion/dom'
 import { createVisualElement } from '@/state/create-visual-element'
 import { prefersReducedMotion } from 'framer-motion/dist/es/utils/reduced-motion/state.mjs'
+import { calcChildStagger } from '@/features/animation/calc-child-stagger'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
@@ -43,7 +44,7 @@ export class AnimationFeature extends Feature {
       },
       reducedMotionConfig: this.state.options.motionConfig.reducedMotion,
     })
-
+    this.state.visualElement.parent?.addChild(this.state.visualElement)
     this.state.animateUpdates = this.animateUpdates
     if (this.state.isMounted())
       this.state.startAnimation()
@@ -61,7 +62,6 @@ export class AnimationFeature extends Feature {
     directAnimate,
     directTransition,
     controlDelay = 0,
-    isFallback,
     isExit,
   } = {}) => {
     // check if the user has reduced motion
@@ -77,9 +77,11 @@ export class AnimationFeature extends Feature {
       directAnimate,
       directTransition,
     })
+    // The final transition to be applied to the state
+    this.state.finalTransition = animationOptions
 
     const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
-    const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates, isFallback)
+    const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates)
     return this.executeAnimations({
       factories,
       getChildAnimations,
@@ -145,7 +147,6 @@ export class AnimationFeature extends Feature {
   setupChildAnimations(
     transition: $Transition | undefined,
     controlActiveState: Partial<Record<string, boolean>> | undefined,
-    isFallback: boolean,
   ) {
     const visualElement = this.state.visualElement
     if (!visualElement.variantChildren?.size || !controlActiveState)
@@ -262,6 +263,21 @@ export class AnimationFeature extends Feature {
     // Add state reference to visual element
     (this.state.visualElement as any).state = this.state
     this.updateAnimationControlsSubscription()
+
+    const visualElement = this.state.visualElement
+    const parentVisualElement = visualElement.parent
+    visualElement.enteringChildren = undefined
+    /**
+     * when current element is new entering child and it's controlled by parent,
+     * animate it by delayChildren
+     */
+    if (this.state.parent?.isMounted() && !visualElement.isControllingVariants && parentVisualElement?.enteringChildren?.has(visualElement)) {
+      const { delayChildren } = this.state.parent.finalTransition || {};
+      (this.animateUpdates({
+        controlActiveState: this.state.parent.activeStates,
+        controlDelay: calcChildStagger(parentVisualElement.enteringChildren, visualElement, delayChildren),
+      }) as Function) ()
+    }
   }
 
   update() {
