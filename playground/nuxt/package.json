@@ -13,7 +13,7 @@
     "motion-number-vue": "latest",
     "motion-plus-vue": "0.1.0",
     "motion-v": "workspace:*",
-    "nuxt": "^3.13.0",
+    "nuxt": "^3.16.0",
     "reka-ui": "^2.0.0",
     "vue": "latest",
     "vue-router": "latest"
