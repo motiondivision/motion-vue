@@ -52,7 +52,7 @@ export const MotionComponentProps = {
   'layoutRoot': { type: Boolean, default: false },
   'data-framer-portal-id': { type: String },
   'crossfade': { type: Boolean, default: true },
-  'layoutDependency': { type: [String, Number, Object, Array] },
+  'layoutDependency': { type: null },
   'onBeforeLayoutMeasure': { type: Function },
   'onLayoutMeasure': { type: Function },
   'onLayoutAnimationStart': { type: Function },
