@@ -1,6 +1,6 @@
 import type { MotionState } from '@/state/motion-state'
 
-export abstract class Feature {
+export class Feature {
   state: MotionState
 
   constructor(state: MotionState) {

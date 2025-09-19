@@ -7,9 +7,8 @@ export class FeatureManager {
   constructor(state: MotionState) {
     const { features = [], lazyMotionContext } = state.options
     const allFeatures = features.concat(lazyMotionContext.features.value)
-    this.features = allFeatures.map((Feature: any) => new Feature(state))
+    this.features = allFeatures.map(Feature => new Feature(state))
     // watch for lazy motion features
-    // @eslint-disable-next-line
     const featureInstances = this.features
     /**
      * Watch for lazy motion features

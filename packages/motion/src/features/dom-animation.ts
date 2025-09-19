@@ -9,10 +9,10 @@ import { FocusGesture } from '@/features/gestures/focus'
 // import { PanGesture } from '@/features/gestures/pan'
 import type { Feature } from '@/features/feature'
 
-export const domAnimation = [
+export const domAnimation: Array<typeof Feature> = [
   AnimationFeature,
   PressGesture,
   HoverGesture,
   InViewGesture,
   FocusGesture,
-] as unknown as Feature[]
+]

@@ -9,7 +9,7 @@ import { LayoutFeature } from '@/features/layout/layout'
 import { PanGesture } from '@/features/gestures/pan'
 import type { Feature } from '@/features/feature'
 
-export const domMax = [
+export const domMax: Array<typeof Feature> = [
   AnimationFeature,
   PressGesture,
   HoverGesture,
@@ -19,4 +19,4 @@ export const domMax = [
   PanGesture,
   DragGesture,
   LayoutFeature,
-] as unknown as Feature[]
+]
