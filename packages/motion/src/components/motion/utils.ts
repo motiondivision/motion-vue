@@ -12,7 +12,7 @@ type MotionCompProps = {
 }
 export interface MotionCreateOptions {
   forwardMotionProps?: boolean
-  features?: Feature[]
+  features?: Array<typeof Feature>
 }
 export function checkMotionIsHidden(instance: ComponentPublicInstance) {
   const isHidden = getMotionElement(instance.$el)?.style.display === 'none'
@@ -104,7 +104,7 @@ export function createMotionComponent(
     props: {
       ...MotionComponentProps,
       features: {
-        type: Object as PropType<Feature[] | Promise<Feature[]>>,
+        type: Object as PropType<Array<typeof Feature> | Promise<Array<typeof Feature>>>,
         default: () => (options.features || []),
       },
       as: { type: [String, Object], default: component || 'div' },
@@ -163,7 +163,7 @@ type MotionNameSpace = {
 } & MotionCompProps
 
 export function createMotionComponentWithFeatures(
-  features: Feature[] = [],
+  features: Array<typeof Feature> = [],
 ) {
   return new Proxy({} as unknown as MotionNameSpace, {
     get(target, prop) {

@@ -3,7 +3,7 @@ import { createContext } from '@/utils'
 import type { Ref } from 'vue'
 
 export type LazyMotionContext = {
-  features: Ref<Feature[]>
+  features: Ref<Array<typeof Feature>>
   strict: boolean
 }
 export const [useLazyMotionContext, lazyMotionContextProvider] = createContext<LazyMotionContext>('LazyMotionContext')

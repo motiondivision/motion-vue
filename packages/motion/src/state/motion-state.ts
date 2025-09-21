@@ -30,7 +30,7 @@ export class MotionState {
   public parent?: MotionState
   public options: Options & {
     animatePresenceContext?: PresenceContext
-    features?: Feature[]
+    features?: Array<typeof Feature>
     lazyMotionContext?: LazyMotionContext
   }
 
