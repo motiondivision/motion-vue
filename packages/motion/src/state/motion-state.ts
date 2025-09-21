@@ -137,16 +137,11 @@ export class MotionState {
     this.element = element
     this.updateOptions(options)
 
+    const shouldDelay = this.options.layoutId && this.visualElement.projection.getStack()?.members.length > 0
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
       this.startAnimation?.()
-    }
-    if (this.options.layoutId) {
-      mountedLayoutIds.add(this.options.layoutId)
-      frame.render(() => {
-        mountedLayoutIds.clear()
-      })
     }
   }
 
@@ -173,28 +168,22 @@ export class MotionState {
   }
 
   unmount(unMountChildren = false) {
-    /**
-     * Unlike React, within the same update cycle, the execution order of unmount and mount depends on the component's order in the component tree.
-     * Here we delay unmount for components with layoutId to ensure unmount executes after mount for layout animations.
-     */
-    const shouldDelay = this.options.layoutId && !mountedLayoutIds.has(this.options.layoutId)
-    const unmount = () => {
-      const unmountState = () => {
-        if (unMountChildren) {
-          Array.from(this.children).reverse().forEach(this.unmountChild)
-        }
-        this.parent?.children?.delete(this)
-        mountedStates.delete(this.element)
-        this.featureManager.unmount()
-        this.visualElement?.unmount()
-        // clear animation
-        this.clearAnimation()
-      }
-      // Delay unmount if needed for layout animations
-      shouldDelay ? Promise.resolve().then(unmountState) : unmountState()
+    const shouldDelay = this.options.layoutId && this.visualElement.projection?.getStack().lead === this.visualElement.projection && this.visualElement.projection.isProjecting()
+    if (shouldDelay) {
+      Promise.resolve().then(() => {
+        this.unmount(unMountChildren)
+      })
+      return
     }
-
-    unmount()
+    if (unMountChildren) {
+      Array.from(this.children).reverse().forEach(this.unmountChild)
+    }
+    this.parent?.children?.delete(this)
+    mountedStates.delete(this.element)
+    this.featureManager.unmount()
+    this.visualElement?.unmount()
+    // clear animation
+    this.clearAnimation()
   }
 
   private unmountChild(child: MotionState) {
