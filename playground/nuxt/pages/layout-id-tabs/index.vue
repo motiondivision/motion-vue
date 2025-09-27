@@ -33,7 +33,6 @@ const selectedTab = ref(tabs[0])
             :initial="{ y: 10, opacity: 0 }"
             :animate="{ y: 0, opacity: 1 }"
             :exit="{ y: -10, opacity: 0 }"
-            :transition="{ duration: 3 }"
           >
             {{ selectedTab ? selectedTab.icon : '😋' }}
           </Motion>
