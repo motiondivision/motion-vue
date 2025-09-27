@@ -228,7 +228,7 @@ export class AnimationFeature extends Feature {
       // If current node is a variant node, merge the control node's variant
       if (this.state.visualElement.isVariantNode) {
         const controlVariant = resolveVariant(this.state.context[name], variants, customValue)
-        resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, resolvedVariant) : variant
+        resolvedVariant = controlVariant ? Object.assign(controlVariant || {}, resolvedVariant) : Object.assign(variant, resolvedVariant)
       }
       if (!resolvedVariant)
         return
