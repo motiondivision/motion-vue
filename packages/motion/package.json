@@ -1,6 +1,6 @@
 {
   "name": "motion-v",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -60,10 +60,12 @@
   },
   "files": [
     "./LICENSE",
+    "./README.md",
     "./dist"
   ],
   "scripts": {
     "dev": "vite build --watch",
+    "prebuild": "cp ../../README.md ./README.md || true",
     "build": "rimraf dist && vite build",
     "test": "vitest --dom",
     "coverage": "vitest run --coverage",
