@@ -8,7 +8,7 @@ export function calcChildStagger(
   staggerChildren: number = 0,
   staggerDirection: number = 1,
 ): number {
-  const sortedChildren = Array.from(children).sort((a, b) => a.sortNodePosition(b))
+  const sortedChildren = Array.from(children)
   const index = sortedChildren.indexOf(child)
   const numChildren = children.size
   const maxStaggerDuration = (numChildren - 1) * staggerChildren
