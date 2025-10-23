@@ -169,21 +169,25 @@ export class MotionState {
 
   unmount(unMountChildren = false) {
     const shouldDelay = this.options.layoutId && this.visualElement.projection?.getStack().lead === this.visualElement.projection && this.visualElement.projection.isProjecting()
+    const unmountState = () => {
+      if (unMountChildren) {
+        Array.from(this.children).reverse().forEach(this.unmountChild)
+      }
+      this.parent?.children?.delete(this)
+      mountedStates.delete(this.element)
+      this.featureManager.unmount()
+      this.visualElement?.unmount()
+      // clear animation
+      this.clearAnimation()
+    }
     if (shouldDelay) {
       Promise.resolve().then(() => {
-        this.unmount(unMountChildren)
+        unmountState()
       })
-      return
     }
-    if (unMountChildren) {
-      Array.from(this.children).reverse().forEach(this.unmountChild)
+    else {
+      unmountState()
     }
-    this.parent?.children?.delete(this)
-    mountedStates.delete(this.element)
-    this.featureManager.unmount()
-    this.visualElement?.unmount()
-    // clear animation
-    this.clearAnimation()
   }
 
   private unmountChild(child: MotionState) {
