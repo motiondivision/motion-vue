@@ -60,3 +60,4 @@ new-docs
 # Playwright
 playwright-report
 test-results
+.cursor
