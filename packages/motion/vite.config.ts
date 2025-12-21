@@ -4,6 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import dts from 'vite-plugin-dts'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
+import pkg from './package.json'
 
 export default defineConfig({
   plugins: [
@@ -44,10 +45,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        // ...Object.keys(pkg.dependencies || {}),
-        'vue',
-        'hey-listen',
-        '@vueuse/core',
+        ...Object.keys(pkg.dependencies || {}),
+        ...Object.keys(pkg.peerDependencies || {}),
       ],
       output: [
         {
