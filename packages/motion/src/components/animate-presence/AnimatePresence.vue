@@ -43,7 +43,6 @@ function enter(el: HTMLElement) {
     return
   }
   removePopStyle(state)
-  state.isVShow = true
   removeDoneCallback(el)
   /**
    * Delay to ensure animations read the latest state before triggering.
@@ -79,8 +78,8 @@ function exit(el: Element, done: VoidFunction) {
   function doneCallback(e?: any) {
     if (e?.detail?.isExit) {
       const projection = state.visualElement.projection
-      // @ts-expect-error - animationProgress exists at runtime
-      if ((projection?.animationProgress > 0 && !state.isSafeToRemove && !state.isVShow)) {
+      // 存在布局动画
+      if (projection?.currentAnimation) {
         return
       }
       removeDoneCallback(motionEl)
@@ -122,7 +121,6 @@ const transitionProps = computed(() => {
 
 <template>
   <!-- @vue-ignore -->
-  <!-- eslint-disable-next-line vue/require-component-is -->
   <component
     :is="mode === 'wait' ? Transition : TransitionGroup"
     :css="false"

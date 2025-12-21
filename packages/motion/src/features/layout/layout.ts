@@ -46,9 +46,6 @@ export class LayoutFeature extends Feature {
         projection.isPresent = false
         projection.relegate()
       }
-      else if (this.state.options.layout) {
-        this.state.isSafeToRemove = true
-      }
     }
   }
 

@@ -34,8 +34,6 @@ export class MotionState {
     lazyMotionContext?: LazyMotionContext
   }
 
-  public isSafeToRemove = false
-  public isVShow = false
   // Track child components for proper lifecycle ordering
   private children?: Set<MotionState> = new Set()
 
