@@ -110,15 +110,22 @@ export class AnimationFeature extends Feature {
 
     const animationTarget = { ...this.state.target }
     const element = this.state.element
-
     /**
      * Finish the animation and dispatch events
      */
     const finishAnimation = (animationPromise: Promise<any>) => {
+      if (isExit) {
+        // set isExiting to true when exit animation is started
+        this.state.isExiting = true
+      }
       element.dispatchEvent(motionEvent('motionstart', animationTarget))
       this.state.options.onAnimationStart?.(animationTarget)
       animationPromise
         .then(() => {
+          if (isExit) {
+            // set isExiting to false when exit animation is completed
+            this.state.isExiting = false
+          }
           element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
           this.state.options.onAnimationComplete?.(animationTarget)
         })

@@ -26,9 +26,15 @@ onClickOutside(activeItemRef, () => {
   activeItem.value = null
 })
 
+const show = ref(false)
+const showRef = ref(null)
+onClickOutside(showRef, () => {
+  show.value = false
+})
 onKeyStroke('Escape', (e) => {
   e.preventDefault()
   activeItem.value = null
+  show.value = false
 })
 
 function setActiveItem(item) {
@@ -58,14 +64,13 @@ function setActiveItem(item) {
 
     <!-- With AnimatePresence -->
     <AnimatePresence v-if="useAnimatePresence">
-      <!-- <motion.div
+      <motion.div
         v-if="activeItem"
         class="overlay"
         :initial="{ opacity: 0 }"
         :animate="{ opacity: 1 }"
         :exit="{ opacity: 0 }"
-      /> -->
-      <!-- <div /> -->
+      />
     </AnimatePresence>
 
     <!-- Without AnimatePresence -->
@@ -76,6 +81,25 @@ function setActiveItem(item) {
       :animate="{ opacity: 1 }"
       :exit="{ opacity: 0 }"
     />
+
+    <ul class="list">
+      <motion.li
+        v-for="item in ITEMS"
+        :key="item.title"
+        :layout-id="`card-${item.title}`"
+        @click="setActiveItem(item)"
+      >
+        <motion.img
+          height="56"
+          width="56"
+          src="https://picsum.photos/56/56"
+          :layout-id="`image-${item.title}`"
+        />
+        <motion.h2 :layout-id="`title-${item.title}`">
+          {{ item.title }}
+        </motion.h2>
+      </motion.li>
+    </ul>
 
     <AnimatePresence>
       <div
@@ -110,24 +134,19 @@ function setActiveItem(item) {
       </div>
     </AnimatePresence>
 
-    <ul class="list">
-      <motion.li
-        v-for="item in ITEMS"
-        :key="item.title"
-        :layout-id="`card-${item.title}`"
-        @click="setActiveItem(item)"
-      >
-        <motion.img
-          height="56"
-          width="56"
-          src="https://picsum.photos/56/56"
-          :layout-id="`image-${item.title}`"
-        />
-        <motion.h2 :layout-id="`title-${item.title}`">
-          {{ item.title }}
-        </motion.h2>
-      </motion.li>
-    </ul>
+    <motion.div
+      layout-id="test"
+      class="w-[100px] h-[100px] bg-red-500"
+      @click="show = !show"
+    />
+    <AnimatePresence>
+      <motion.div
+        v-if="show"
+        ref="showRef"
+        layout-id="test"
+        class="w-[100px] h-[100px] bg-blue-500 fixed top-[50vh] left-40"
+      />
+    </AnimatePresence>
   </div>
 </template>
 

@@ -1,5 +1,6 @@
 import type { Feature } from '@/features'
 import type { MotionState } from '@/state'
+import type { Options } from '@/types'
 import { watch } from 'vue'
 
 export class FeatureManager {
@@ -43,16 +44,16 @@ export class FeatureManager {
     this.features.forEach(feature => feature.beforeMount?.())
   }
 
-  unmount() {
-    this.features.forEach(feature => feature.unmount())
+  unmount(unMountChildren = false) {
+    this.features.forEach(feature => feature.unmount(unMountChildren))
   }
 
   update() {
     this.features.forEach(feature => feature.update?.())
   }
 
-  beforeUpdate() {
-    this.features.forEach(feature => feature.beforeUpdate())
+  beforeUpdate(options: Options) {
+    this.features.forEach(feature => feature.beforeUpdate?.(options))
   }
 
   beforeUnmount() {

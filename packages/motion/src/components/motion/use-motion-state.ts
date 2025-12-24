@@ -151,7 +151,7 @@ export function useMotionState(props: MotionProps) {
   })
 
   onBeforeUpdate(() => {
-    state.beforeUpdate()
+    state.beforeUpdate(getMotionProps())
   })
 
   onUpdated(() => {

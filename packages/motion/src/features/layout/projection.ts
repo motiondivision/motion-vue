@@ -4,7 +4,7 @@ import { getClosestProjectingNode } from '@/features/layout/utils'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
-import { doneCallbacks } from '@/components/animate-presence/presence'
+import { motionEvent } from '@/state/event'
 
 export class ProjectionFeature extends Feature {
   constructor(state) {
@@ -31,10 +31,11 @@ export class ProjectionFeature extends Feature {
 
   setOptions() {
     const options = this.state.options
+    const { layoutId, layout, drag = false, dragConstraints = false } = options
     this.state.visualElement.projection.setOptions({
-      layout: options.layout,
-      layoutId: options.layoutId,
-      alwaysMeasureLayout: Boolean(options.drag) || (options.dragConstraints && isHTMLElement(options.dragConstraints)),
+      layout,
+      layoutId,
+      alwaysMeasureLayout: Boolean(layoutId) || Boolean(drag) || (dragConstraints && isHTMLElement(dragConstraints)),
       visualElement: this.state.visualElement,
       animationType: typeof options.layout === 'string' ? options.layout : 'both',
       // initialPromotionConfig
@@ -43,14 +44,7 @@ export class ProjectionFeature extends Feature {
       crossfade: options.crossfade,
       onExitComplete: () => {
         if (!this.state.visualElement.projection?.isPresent) {
-          const done = doneCallbacks.get(this.state.element)
-          if (done) {
-            done({
-              detail: {
-                isExit: true,
-              },
-            }, true)
-          }
+          this.state.element.dispatchEvent(motionEvent('motioncomplete', this.state.target, true))
         }
       },
     })

@@ -78,10 +78,6 @@ export class VisualElementDragControls {
     /**
      * Don't start dragging if this component is exiting
      */
-
-    if (!isPresent(this.visualElement))
-      return
-
     const onSessionStart = (event: PointerEvent) => {
       const { dragSnapToOrigin } = this.getProps()
 

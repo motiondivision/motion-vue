@@ -235,8 +235,8 @@ importers:
         specifier: 3.19.0
         version: 3.19.0(@netlify/blobs@9.1.2)(@parcel/watcher@2.4.1)(@types/node@24.3.0)(@vue/compiler-sfc@3.5.26)(db0@0.3.2)(encoding@0.1.13)(eslint@9.9.1(jiti@2.5.1))(ioredis@5.7.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.46.4)(terser@5.43.1)(typescript@5.9.2)(vite@7.3.0(@types/node@24.3.0)(jiti@2.5.1)(terser@5.43.1)(yaml@2.8.1))(yaml@2.8.1)
       reka-ui:
-        specifier: ^2.0.0
-        version: 2.0.0(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))
+        specifier: latest
+        version: 2.7.0(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))
       vue:
         specifier: latest
         version: 3.5.18(typescript@5.9.2)
@@ -8265,8 +8265,8 @@ packages:
   rehype-sort-attributes@5.0.1:
     resolution: {integrity: sha512-Bxo+AKUIELcnnAZwJDt5zUDDRpt4uzhfz9d0PVGhcxYWsbFj5Cv35xuWxu5r1LeYNFNhgGqsr9Q2QiIOM/Qctg==}
 
-  reka-ui@2.0.0:
-    resolution: {integrity: sha512-/1amDDvTnDIkSFbTZnUkiFWkxlc/UEe0pZsgvz3nDI15R9+yspQv/gIbM62Mo9LALK6A76NsgMNlXie04kv7PA==}
+  reka-ui@2.7.0:
+    resolution: {integrity: sha512-m+XmxQN2xtFzBP3OAdIafKq7C8OETo2fqfxcIIxYmNN2Ch3r5oAf6yEYCIJg5tL/yJU2mHqF70dCCekUkrAnXA==}
     peerDependencies:
       vue: '>= 3.2.0'
 
@@ -10827,7 +10827,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.7.2)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@22.13.9)(typescript@5.5.4))(typescript@5.7.2)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.7.2))(typescript@5.7.2)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -15105,7 +15105,7 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@22.13.9)(typescript@5.5.4))(typescript@5.7.2):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.7.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.7.2))(typescript@5.7.2):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.7.2)
@@ -19975,7 +19975,7 @@ snapshots:
       '@types/hast': 3.0.4
       unist-util-visit: 5.0.0
 
-  reka-ui@2.0.0(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2)):
+  reka-ui@2.7.0(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2)):
     dependencies:
       '@floating-ui/dom': 1.6.13
       '@floating-ui/vue': 1.1.6(vue@3.5.18(typescript@5.9.2))
@@ -19986,7 +19986,7 @@ snapshots:
       '@vueuse/shared': 12.7.0(typescript@5.9.2)
       aria-hidden: 1.2.4
       defu: 6.1.4
-      ohash: 1.1.4
+      ohash: 2.0.11
       vue: 3.5.18(typescript@5.9.2)
     transitivePeerDependencies:
       - '@vue/composition-api'
