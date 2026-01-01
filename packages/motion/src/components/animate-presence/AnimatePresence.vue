@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { Transition, TransitionGroup, computed, onUnmounted } from 'vue'
 import { mountedStates } from '@/state'
-import { doneCallbacks, removeDoneCallback } from '@/components/animate-presence/presence'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-import { delay } from '@/utils/delay'
 import { useAnimatePresence } from './presence'
 
 defineOptions({
@@ -37,34 +35,32 @@ function findMotionElement(el: Element): Element | null {
   return null
 }
 
-function enter(el: HTMLElement) {
-  const state = mountedStates.get(el)
-  if (!state) {
-    return
-  }
-  removePopStyle(state)
-  state.isVShow = true
-  removeDoneCallback(el)
-  /**
-   * Delay to ensure animations read the latest state before triggering.
-   * This allows the animation system to capture updated values after component updates.
-   */
-  delay(() => {
-    state.setActive('exit', false)
-  })
-}
-
 const exitDom = new Map<Element, boolean>()
 
+function enter(el: HTMLElement) {
+  const state = mountedStates.get(el)
+  if (state) {
+    state.getSnapshot(state.options, true)
+    state.setActive('exit', false)
+  }
+}
+
 onUnmounted(() => {
+  exitDom.forEach((value, key) => {
+    const state = mountedStates.get(key)
+    if (state) {
+      state.unmount(true)
+    }
+  })
   exitDom.clear()
 })
+
 function exit(el: Element, done: VoidFunction) {
   // Find Motion element
   const motionEl = findMotionElement(el)
   const state = mountedStates.get(motionEl)
   // Handle cases where Motion element or state is not found
-  if (!motionEl || !state) {
+  if (!state) {
     done()
     if (exitDom.size === 0) {
       props.onExitComplete?.()
@@ -72,40 +68,42 @@ function exit(el: Element, done: VoidFunction) {
     return
   }
 
-  exitDom.set(motionEl, true)
-  removeDoneCallback(motionEl)
-  addPopStyle(state)
-
-  function doneCallback(e?: any) {
+  const doneCallback = function (e?: any) {
+    if (!motionEl.isConnected)
+      return
     if (e?.detail?.isExit) {
       const projection = state.visualElement.projection
-      // @ts-expect-error - animationProgress exists at runtime
-      if ((projection?.animationProgress > 0 && !state.isSafeToRemove && !state.isVShow)) {
+      // have layout animation, wait for layout animation to complete when exit is not defined
+      if (projection?.currentAnimation && projection.currentAnimation.state === 'running' && !state.options.exit) {
         return
       }
-      removeDoneCallback(motionEl)
+      // exit animation is not finished, wait for it to complete
+      if (state.isExiting)
+        return
+      motionEl.removeEventListener('motioncomplete', doneCallback)
       exitDom.delete(motionEl)
       if (exitDom.size === 0) {
         props.onExitComplete?.()
       }
-      if (!styles.has(state)) {
-        state.willUpdate('done')
-      }
-      else {
+      if (styles.has(state)) {
         removePopStyle(state)
       }
+      state.getSnapshot(state.options, false)
       done()
       if (!motionEl.isConnected) {
         state.unmount(true)
       }
+      else {
+        state.didUpdate()
+      }
     }
   }
-
-  delay(() => {
-    state.setActive('exit', true)
-    doneCallbacks.set(motionEl, doneCallback)
-    motionEl.addEventListener('motioncomplete', doneCallback)
-  })
+  exitDom.set(motionEl, true)
+  addPopStyle(state)
+  motionEl.addEventListener('motioncomplete', doneCallback)
+  state.setActive('exit', true)
+  state.getSnapshot(state.options, false)
+  state.didUpdate()
 }
 
 const transitionProps = computed(() => {
@@ -122,14 +120,13 @@ const transitionProps = computed(() => {
 
 <template>
   <!-- @vue-ignore -->
-  <!-- eslint-disable-next-line vue/require-component-is -->
   <component
     :is="mode === 'wait' ? Transition : TransitionGroup"
     :css="false"
     v-bind="transitionProps"
     appear
-    @enter="enter"
     @leave="exit"
+    @enter="enter"
   >
     <slot />
   </component>

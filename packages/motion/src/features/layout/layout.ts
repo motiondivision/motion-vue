@@ -3,15 +3,20 @@ import type { MotionState } from '@/state/motion-state'
 import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from './config'
 import { globalProjectionState } from 'framer-motion/dist/es/projection/node/state.mjs'
+import { isDef } from '@vueuse/core'
+import type { Options } from '@/types'
 
+let hasLayoutUpdate = false
 export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
+    state.getSnapshot = this.getSnapshot.bind(this)
+    state.didUpdate = this.didUpdate.bind(this)
   }
 
-  beforeUpdate() {
-    this.state.willUpdate('beforeUpdate')
+  beforeUpdate(newOptions: Options) {
+    this.getSnapshot(newOptions, undefined)
   }
 
   update(): void {
@@ -19,7 +24,10 @@ export class LayoutFeature extends Feature {
   }
 
   didUpdate() {
+    if (!hasLayoutUpdate)
+      return
     if (this.state.options.layout || this.state.options.layoutId || this.state.options.drag) {
+      hasLayoutUpdate = false
       this.state.visualElement.projection?.root?.didUpdate()
     }
   }
@@ -31,6 +39,14 @@ export class LayoutFeature extends Feature {
       const projection = this.state.visualElement.projection
       if (projection) {
         projection.promote()
+        const stack = projection.getStack()
+        /**
+         * when has prev lead and prev lead has not been updated, we need to update the prev lead
+         */
+        if (stack?.prevLead && !stack.prevLead.snapshot) {
+          stack.prevLead.willUpdate()
+          hasLayoutUpdate = true
+        }
         layoutGroup?.group?.add(projection)
       }
       globalProjectionState.hasEverUpdated = true
@@ -39,17 +55,7 @@ export class LayoutFeature extends Feature {
   }
 
   beforeUnmount(): void {
-    const projection = this.state.visualElement.projection
-    if (projection) {
-      this.state.willUpdate('beforeUnmount')
-      if (this.state.options.layoutId) {
-        projection.isPresent = false
-        projection.relegate()
-      }
-      else if (this.state.options.layout) {
-        this.state.isSafeToRemove = true
-      }
-    }
+    this.getSnapshot(this.state.options, false)
   }
 
   unmount() {
@@ -60,7 +66,47 @@ export class LayoutFeature extends Feature {
       if (layoutGroup?.group && (this.state.options.layout || this.state.options.layoutId)) {
         layoutGroup.group.remove(projection)
       }
+      // when layoutId is set, unMount will update the layout
+      if (this.state.options.layoutId) {
+        hasLayoutUpdate = true
+      }
       this.didUpdate()
+    }
+  }
+
+  getSnapshot(newOptions: Options, isPresent?: boolean): void {
+    const projection = this.state.visualElement.projection
+    const { drag, layoutDependency, layout, layoutId } = newOptions
+    if (!projection || (!layout && !layoutId && !drag)) {
+      return
+    }
+    hasLayoutUpdate = true
+    const prevProps = this.state.options
+
+    /**
+     * If the drag or layoutDependency has changed, or the isPresent has changed, we need to update the snapshot
+     */
+    if (
+      drag
+      || prevProps.layoutDependency !== layoutDependency
+      || layoutDependency === undefined
+      || (isDef(isPresent) && projection.isPresent !== isPresent)
+    ) {
+      projection.willUpdate()
+    }
+
+    /**
+     * If the isPresent has changed, we need to update the projection
+     * and promote or relegate the projection accordingly
+     */
+    if (isDef(isPresent) && isPresent !== projection.isPresent) {
+      projection.isPresent = isPresent
+      if (isPresent) {
+        projection.promote()
+      }
+      else {
+        projection.relegate()
+      }
     }
   }
 }

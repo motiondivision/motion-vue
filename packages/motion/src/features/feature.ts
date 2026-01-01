@@ -1,4 +1,5 @@
 import type { MotionState } from '@/state/motion-state'
+import type { Options } from '@/types'
 
 export class Feature {
   state: MotionState
@@ -11,11 +12,11 @@ export class Feature {
 
   mount(): void {}
 
-  unmount(): void {}
+  unmount(unMountChildren = false): void {}
 
   update?(): void {}
 
-  beforeUpdate?(): void {}
+  beforeUpdate?(options: Options): void {}
 
   beforeUnmount?(): void {}
 }

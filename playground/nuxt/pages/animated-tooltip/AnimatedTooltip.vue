@@ -56,7 +56,6 @@ function handleMouseMove(event: MouseEvent) {
     <AnimatePresence>
       <Motion
         v-if="hoveredIndex === item.id"
-        layout-id="tooltip"
         mode="wait"
         :initial="{
           opacity: 0,

@@ -29,13 +29,13 @@ function onMove() {
     <button @click="onMove">
       move
     </button>
-    {{ visible }}
     <AnimatePresence>
       <Motion
         as-child
         :initial="{ opacity: 0, scale: 0.95 }"
         :animate="{ opacity: 1, scale: 1 }"
         :exit="{ opacity: 0, scale: 1.1 }"
+        :style="style"
       >
         <Child
           v-show="visible"

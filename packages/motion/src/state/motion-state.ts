@@ -6,7 +6,6 @@ import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, StateType } from '@/features'
 import { FeatureManager } from '@/features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
-import { doneCallbacks } from '@/components/animate-presence/presence'
 import type { AnimateUpdates } from '@/features/animation/types'
 import { isVariantLabels } from '@/state/utils/is-variant-labels'
 import type { LazyMotionContext } from '@/components/lazy-motion/context'
@@ -14,9 +13,6 @@ import type { LazyMotionContext } from '@/components/lazy-motion/context'
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
 let id = 0
-
-// Track mounted layout IDs to handle component tree lifecycle order
-const mountedLayoutIds = new Set<string>()
 
 /**
  * Core class that manages animation state and orchestrates animations.
@@ -28,14 +24,15 @@ export class MotionState {
   public element: HTMLElement | SVGElement | null = null
   // Parent reference for handling component tree relationships
   public parent?: MotionState
+
+  // Whether the element is exiting
+  public isExiting = false
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Array<typeof Feature>
     lazyMotionContext?: LazyMotionContext
   }
 
-  public isSafeToRemove = false
-  public isVShow = false
   // Track child components for proper lifecycle ordering
   private children?: Set<MotionState> = new Set()
 
@@ -118,9 +115,7 @@ export class MotionState {
     this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
-    }, {
-      isPresent: !doneCallbacks.has(this.element),
-    } as any)
+    }, null as any)
   }
 
   // Called before mounting, executes in parent-to-child order
@@ -137,7 +132,6 @@ export class MotionState {
     this.element = element
     this.updateOptions(options)
 
-    const shouldDelay = this.options.layoutId && this.visualElement.projection.getStack()?.members.length > 0
     // Mount features in parent-to-child order
     this.featureManager.mount()
     if (!notAnimate && this.options.animate) {
@@ -168,26 +162,18 @@ export class MotionState {
   }
 
   unmount(unMountChildren = false) {
-    const shouldDelay = this.options.layoutId && this.visualElement.projection?.getStack().lead === this.visualElement.projection && this.visualElement.projection.isProjecting()
     const unmountState = () => {
       if (unMountChildren) {
-        Array.from(this.children).reverse().forEach(this.unmountChild)
+        Array.from(this.children).forEach(this.unmountChild)
       }
       this.parent?.children?.delete(this)
       mountedStates.delete(this.element)
-      this.featureManager.unmount()
+      this.featureManager.unmount(unMountChildren)
       this.visualElement?.unmount()
       // clear animation
       this.clearAnimation()
     }
-    if (shouldDelay) {
-      Promise.resolve().then(() => {
-        unmountState()
-      })
-    }
-    else {
-      unmountState()
-    }
+    unmountState()
   }
 
   private unmountChild(child: MotionState) {
@@ -195,8 +181,8 @@ export class MotionState {
   }
 
   // Called before updating, executes in parent-to-child order
-  beforeUpdate() {
-    this.featureManager.beforeUpdate()
+  beforeUpdate(options: Options) {
+    this.featureManager.beforeUpdate(options)
   }
 
   // Update motion state with new options
@@ -230,10 +216,6 @@ export class MotionState {
     return Boolean(this.element)
   }
 
-  // Called before layout updates to prepare for changes
-  willUpdate(label: string) {
-    if (this.options.layout || this.options.layoutId) {
-      this.visualElement.projection?.willUpdate()
-    }
-  }
+  getSnapshot(options: Options, isPresent?: boolean, label?: string) {}
+  didUpdate(label?: string) {}
 }
