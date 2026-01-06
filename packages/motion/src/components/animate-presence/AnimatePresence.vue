@@ -74,7 +74,7 @@ function exit(el: Element, done: VoidFunction) {
     if (e?.detail?.isExit) {
       const projection = state.visualElement.projection
       // have layout animation, wait for layout animation to complete when exit is not defined
-      if (projection?.currentAnimation && projection.currentAnimation.state === 'running' && !state.options.exit) {
+      if (state.options?.layoutId && projection.currentAnimation?.state === 'running' && !state.options.exit) {
         return
       }
       // exit animation is not finished, wait for it to complete
@@ -86,7 +86,7 @@ function exit(el: Element, done: VoidFunction) {
         props.onExitComplete?.()
       }
       if (styles.has(state)) {
-        removePopStyle(state)
+        removePopStyle(state, el as HTMLElement)
       }
       state.getSnapshot(state.options, false)
       done()
@@ -99,7 +99,8 @@ function exit(el: Element, done: VoidFunction) {
     }
   }
   exitDom.set(motionEl, true)
-  addPopStyle(state)
+  // add pop style to the element
+  addPopStyle(state, el as HTMLElement)
   motionEl.addEventListener('motioncomplete', doneCallback)
   state.setActive('exit', true)
   state.getSnapshot(state.options, false)

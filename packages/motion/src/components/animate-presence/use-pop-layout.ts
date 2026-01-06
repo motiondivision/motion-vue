@@ -6,10 +6,9 @@ import { frame } from 'framer-motion/dom'
 export function usePopLayout(props: AnimatePresenceProps) {
   const styles = new WeakMap<MotionState, HTMLStyleElement>()
   const config = useMotionConfig()
-  function addPopStyle(state: MotionState) {
+  function addPopStyle(state: MotionState, element: HTMLElement) {
     if (props.mode !== 'popLayout')
       return
-    const element = state.element as HTMLElement
     const parent = element.offsetParent
     const parentWidth
                 = parent instanceof HTMLElement ? parent.offsetWidth || 0 : 0
@@ -21,9 +20,13 @@ export function usePopLayout(props: AnimatePresenceProps) {
       right: 0,
     }
     size.right = parentWidth - size.width - size.left
-    const x = props.anchorX === 'left' ? `left: ${size.left}` : `right: ${size.right}`
+    const x = props.anchorX === 'left' ? `left: ${size.left}px` : `right: ${size.right}px`
 
-    state.element.dataset.motionPopId = state.id
+    // Only set motionPopId if it doesn't exist, and use a prefix to distinguish from motion element
+    if (!element.dataset.motionPopId) {
+      element.dataset.motionPopId = `presence-${state.id}`
+    }
+    const popId = element.dataset.motionPopId
     const style = document.createElement('style')
     if (config.value.nonce) {
       style.nonce = config.value.nonce
@@ -32,24 +35,26 @@ export function usePopLayout(props: AnimatePresenceProps) {
     document.head.appendChild(style)
     if (style.sheet) {
       style.sheet.insertRule(`
-    [data-motion-pop-id="${state.id}"] {
+    [data-motion-pop-id="${popId}"] {
       position: absolute !important;
       width: ${size.width}px !important;
       height: ${size.height}px !important;
       top: ${size.top}px !important;
-      ${x}px !important;
+      ${x} !important;
       }
       `)
     }
   }
 
-  function removePopStyle(state: MotionState) {
+  function removePopStyle(state: MotionState, element: HTMLElement) {
     const style = styles.get(state)
     if (!style)
       return
     styles.delete(state)
     frame.render(() => {
       document.head.removeChild(style)
+      if (element)
+        element.dataset.motionPopId = ''
     })
   }
   return {
