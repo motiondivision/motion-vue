@@ -226,6 +226,7 @@ export class VisualElementDragControls {
         transformPagePoint: this.visualElement.getTransformPagePoint(),
         dragSnapToOrigin,
         contextWindow: getContextWindow(this.visualElement),
+        element: this.visualElement.current,
       },
     )
   }
