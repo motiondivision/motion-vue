@@ -235,8 +235,11 @@ export class PanSession {
 
     const { onEnd, onSessionEnd, resumeAnimation } = this.handlers
 
-    if (this.dragSnapToOrigin)
+    // Resume animation if dragSnapToOrigin is set OR if no drag started (user just clicked)
+    // This ensures constraint animations continue when interrupted by a click
+    if (this.dragSnapToOrigin || !this.startEvent) {
       resumeAnimation && resumeAnimation()
+    }
     if (!(this.lastMoveEvent && this.lastMoveEventInfo))
       return
 
