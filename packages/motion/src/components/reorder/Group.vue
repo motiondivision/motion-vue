@@ -7,6 +7,7 @@ import { invariant } from 'hey-listen'
 import { onBeforeUpdate, onUpdated, toRefs, useAttrs } from 'vue'
 import { reorderContextProvider } from './context'
 import { checkReorder, compareMin, getValue } from './utils'
+import { useDomRef } from '@/utils'
 </script>
 
 <!-- @ts-ignore -->
@@ -61,17 +62,23 @@ const { axis } = toRefs(props)
 
 let order: ItemData<any>[] = []
 let isReordering = false
+
 function warning() {
   invariant(Boolean(props.values), 'Reorder.Group must be provided a values prop')
 }
+
 onUpdated(() => {
   isReordering = false
 })
+
 onBeforeUpdate(() => {
   order = []
 })
 
+const groupRef = useDomRef()
+
 reorderContextProvider({
+  groupRef,
   axis,
   registerItem: (value, layout) => {
     // If the entry was already added, update it rather than adding it again
@@ -106,6 +113,10 @@ function bindProps() {
   return {
     ...attrs,
     ...rest,
+    style: {
+      overflowAnchor: 'none',
+      ...(rest.style as Record<string, any>),
+    },
   }
 }
 </script>
@@ -113,6 +124,7 @@ function bindProps() {
 <template>
   <Motion
     v-bind="bindProps()"
+    ref="groupRef"
   >
     <slot />
     {{ warning() }}

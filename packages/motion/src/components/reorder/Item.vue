@@ -7,6 +7,7 @@ import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
 import { invariant } from 'hey-listen'
 import type { ElementType } from '@/types'
+import { autoScrollIfNeeded, resetAutoScrollState } from './auto-scroll'
 </script>
 
 <script setup  generic="T extends ElementType = 'li', K = unknown, V = unknown" lang="ts">
@@ -61,7 +62,7 @@ function warning() {
   invariant(Boolean(context), 'Reorder.Item must be a child of Reorder.Group')
 }
 
-const { axis, registerItem, updateOrder } = context || {}
+const { axis, registerItem, updateOrder, groupRef } = context || {}
 
 const attrs = useAttrs()
 function bindProps() {
@@ -85,6 +86,35 @@ const drag = computed(() => {
   return axis.value
 })
 const isDragging = ref(false)
+
+// Track drag position for auto-scroll
+function handleDrag(event: PointerEvent, gesturePoint: any) {
+  const { velocity, point: pointerPoint } = gesturePoint
+  const offset = point[axis.value].get()
+
+  // Always attempt to update order - checkReorder handles the logic
+  updateOrder(props.value, offset, velocity[axis.value])
+
+  autoScrollIfNeeded(
+    groupRef.value,
+    pointerPoint[axis.value],
+    axis.value,
+    velocity[axis.value],
+  )
+
+  props.onDrag && props.onDrag(event, gesturePoint)
+}
+
+function handleDragEnd(event: PointerEvent, gesturePoint: any) {
+  isDragging.value = false
+  resetAutoScrollState()
+  props.onDragEnd && props.onDragEnd(event, gesturePoint)
+}
+
+function handleDragStart(event: PointerEvent, gesturePoint: any) {
+  isDragging.value = true
+  props.onDragStart?.(event, gesturePoint)
+}
 </script>
 
 <template>
@@ -92,17 +122,9 @@ const isDragging = ref(false)
     v-bind="bindProps()"
     :drag="drag"
     :drag-snap-to-origin="true"
-    @drag="(event, gesturePoint) => {
-      const { velocity } = gesturePoint
-      velocity[axis]
-        && updateOrder(value, point[axis].get(), velocity[axis])
-      !isDragging && (isDragging = true)
-      onDrag && onDrag(event, gesturePoint)
-    }"
-    @drag-end="(event, gesturePoint) => {
-      isDragging = false
-      onDragEnd && onDragEnd(event, gesturePoint)
-    }"
+    @drag="handleDrag"
+    @drag-end="handleDragEnd"
+    @drag-start="handleDragStart"
     @layout-measure="(measured) => registerItem(value, measured)"
   >
     <slot :is-dragging="isDragging" />
