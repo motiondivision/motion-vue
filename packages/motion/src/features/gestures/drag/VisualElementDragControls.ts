@@ -79,11 +79,14 @@ export class VisualElementDragControls {
      * Don't start dragging if this component is exiting
      */
     const onSessionStart = (event: PointerEvent) => {
-      const { dragSnapToOrigin } = this.getProps()
-
-      // Stop or pause any animations on both axis values immediately. This allows the user to throw and catch
-      // the component.
-      dragSnapToOrigin ? this.pauseAnimation() : this.stopAnimation()
+      // If snapToCursor is enabled, stop animations as new position values will be set
+      // Otherwise, pause animations to allow resumption if no drag begins
+      if (snapToCursor) {
+        this.stopAnimation()
+      }
+      else {
+        this.pauseAnimation()
+      }
 
       if (snapToCursor) {
         this.snapToCursor(extractEventInfo(event, 'page').point)
@@ -91,6 +94,9 @@ export class VisualElementDragControls {
     }
 
     const onStart = (event: PointerEvent, info: PanInfo) => {
+      // Stop any paused animations to prevent jumps when drag actually starts
+      this.stopAnimation()
+
       // Attempt to grab the global drag gesture lock - maybe make this part of PanSession
       const { drag, dragPropagation, onDragStart } = this.getProps()
 
@@ -220,6 +226,7 @@ export class VisualElementDragControls {
         transformPagePoint: this.visualElement.getTransformPagePoint(),
         dragSnapToOrigin,
         contextWindow: getContextWindow(this.visualElement),
+        element: this.visualElement.current,
       },
     )
   }
