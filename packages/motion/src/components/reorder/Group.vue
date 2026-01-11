@@ -4,7 +4,7 @@ import { Motion } from '@/components/motion'
 import type { ItemData } from './types'
 import type { AsTag } from '@/types'
 import { invariant } from 'hey-listen'
-import { onBeforeUpdate, onUpdated, toRefs, useAttrs } from 'vue'
+import { onUpdated, toRefs, useAttrs, watch } from 'vue'
 import { reorderContextProvider } from './context'
 import { checkReorder, compareMin, getValue } from './utils'
 import { useDomRef } from '@/utils'
@@ -71,8 +71,13 @@ onUpdated(() => {
   isReordering = false
 })
 
-onBeforeUpdate(() => {
-  order = []
+watch(() => props.values, () => {
+  // Only reset order if the values changed externally (not from our own reordering)
+  if (!isReordering) {
+    order = []
+  }
+}, {
+  flush: 'pre',
 })
 
 const groupRef = useDomRef()
@@ -98,6 +103,8 @@ reorderContextProvider({
     const newOrder = checkReorder(order, item, offset, velocity)
     if (order !== newOrder) {
       isReordering = true
+      // Update the internal order array to match the new order
+      order = newOrder
       props['onUpdate:values']?.(
         newOrder
           .map(getValue)

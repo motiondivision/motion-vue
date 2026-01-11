@@ -15,15 +15,18 @@ export function checkReorder<T>(
   offset: number,
   velocity: number,
 ): ItemData<T>[] {
-  if (!velocity)
-    return order
-
   const index = order.findIndex(item => item.value === value)
-
   if (index === -1)
     return order
 
-  const nextOffset = velocity > 0 ? 1 : -1
+  // Determine direction from velocity, fallback to offset if velocity is zero
+  const direction = velocity !== 0 ? velocity : offset
+
+  // If no movement, return early
+  if (!direction)
+    return order
+
+  const nextOffset = direction > 0 ? 1 : -1
   const nextItem = order[index + nextOffset]
 
   if (!nextItem)
