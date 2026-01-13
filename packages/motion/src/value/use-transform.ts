@@ -1,8 +1,8 @@
 import type { TransformOptions } from '@/types'
-import { type MotionValue, transform } from 'framer-motion/dom'
+import { type MotionValue, motionValue, transform } from 'framer-motion/dom'
 import { useComputed } from './use-computed'
 import { useCombineMotionValues } from '@/value/use-combine-values'
-import { type MaybeRef, computed, isRef } from 'vue'
+import { type MaybeRef, isRef, watch } from 'vue'
 
 type InputRange = number[]
 type SingleTransformer<I, O> = (input: I) => O
@@ -78,6 +78,48 @@ export function useTransform<I, O>(
   transformer: MultiTransformer<I, O>
 ): MotionValue<O>
 
+/**
+ * Create multiple `MotionValue`s that transform the output of a single `MotionValue`.
+ *
+ * @remarks
+ *
+ * Allows transforming a single input into multiple outputs, useful for coordinated animations.
+ *
+ * ```vue
+ * <script setup>
+ * import { Motion, useMotionValue, useTransform } from 'motion-v'
+ *
+ * const x = useMotionValue(0)
+ * const { opacity, scale } = useTransform(x, [0, 100], {
+ *   opacity: [0, 1],
+ *   scale: [0.5, 1]
+ * })
+ * </script>
+ *
+ * <template>
+ *   <Motion
+ *     :animate="{ x: 100 }"
+ *     :style="{ opacity, scale, x }"
+ *   />
+ * </template>
+ * ```
+ *
+ * @param value - `MotionValue` to transform
+ * @param inputRange - A linear series of numbers (either all increasing or decreasing)
+ * @param outputRange - An object where each key maps to an output range array
+ * @param options - Transform options (clamp, ease)
+ *
+ * @returns Object containing `MotionValue` for each output key
+ *
+ * @public
+ */
+export function useTransform<O>(
+  value: MotionValue<number>,
+  inputRange: InputRange | MaybeRef<InputRange>,
+  outputRange: { [K in keyof O]: O[K][] },
+  options?: TransformOptions<O[keyof O]>
+): { [K in keyof O]: MotionValue<O[K]> }
+
 // 实现
 export function useTransform<I, O>(
   input: | MotionValue<I>
@@ -86,48 +128,91 @@ export function useTransform<I, O>(
   | MotionValue<string | number>[]
   | (() => O),
   inputRangeOrTransformer?: MaybeRef<InputRange> | Transformer<I, O>,
-  outputRange?: O[],
+  outputRange?: O[] | { [K in keyof O]: O[K][] },
   options?: TransformOptions<O>,
-): MotionValue<O> {
+): MotionValue<O> | { [K in keyof O]: MotionValue<O[K]> } {
   if (typeof input === 'function') {
     return useComputed(input)
   }
 
-  const transformer
-     = typeof inputRangeOrTransformer === 'function'
-       ? inputRangeOrTransformer
-       : isRef(inputRangeOrTransformer)
-         ? computed(() => transform(inputRangeOrTransformer.value, outputRange!, options))
-         : transform(inputRangeOrTransformer, outputRange!, options)
+  // Check if outputRange is an object (multi-output mode)
+  if (outputRange && !Array.isArray(outputRange) && typeof outputRange === 'object') {
+    const result = {} as { [K in keyof O]: MotionValue<O[K]> }
+
+    for (const key in outputRange) {
+      if (Object.prototype.hasOwnProperty.call(outputRange, key)) {
+        const keyOutputRange = outputRange[key]
+        result[key] = useTransform(
+          input as MotionValue<number>,
+          inputRangeOrTransformer as MaybeRef<InputRange>,
+          keyOutputRange as any,
+          options as any,
+        ) as MotionValue<O[typeof key]>
+      }
+    }
+
+    return result
+  }
+
+  // Handle reactive inputRange by creating a bridge MotionValue
+  let inputValues: MotionValue<any>[]
+  let transformer: Transformer<I, O>
+
+  if (typeof inputRangeOrTransformer === 'function') {
+    // Direct transformer function
+    transformer = inputRangeOrTransformer
+    inputValues = Array.isArray(input) ? input : [input]
+  }
+  else if (isRef(inputRangeOrTransformer)) {
+    // Reactive inputRange - create a bridge MotionValue to trigger updates
+    const bridgeMV = motionValue(0)
+    let currentTransformer = transform(inputRangeOrTransformer.value, outputRange as any[], options)
+
+    // Watch the ref and update transformer + trigger re-calculation
+    watch(inputRangeOrTransformer, (newRange) => {
+      currentTransformer = transform(newRange, outputRange as any[], options)
+      // Trigger update by changing bridge value
+      bridgeMV.set(bridgeMV.get() + 1)
+    }, { flush: 'sync' })
+
+    transformer = (values: any) => {
+      return Array.isArray(values)
+        ? currentTransformer(values[0])
+        : currentTransformer(values)
+    }
+
+    inputValues = Array.isArray(input) ? [...input, bridgeMV] : [input, bridgeMV]
+  }
+  else {
+    // Static inputRange
+    transformer = transform(inputRangeOrTransformer, outputRange as any[], options) as any
+    inputValues = Array.isArray(input) ? input : [input]
+  }
 
   return Array.isArray(input)
-    ? useListTransform(
-      input,
-      transformer as MaybeRef<MultiTransformer<string | number, O>>,
-    )
-    : useListTransform([input], ([latest]) => {
-      if (isRef(transformer)) {
-        return (transformer.value as SingleTransformer<I, O>)(latest)
-      }
-      return (transformer as SingleTransformer<I, O>)(latest)
+    ? useListTransform(inputValues, transformer as MultiTransformer<string | number, O>)
+    : useListTransform(inputValues, (values) => {
+      // Extract only the input value (ignore bridge if present)
+      return (transformer as SingleTransformer<I, O>)(values[0] as I)
     })
 }
 
 function useListTransform<I, O>(
   values: MotionValue<I>[],
-  transformer: MaybeRef<MultiTransformer<I, O>>,
+  transformer: MultiTransformer<I, O>,
 ): MotionValue<O> {
   const latest: I[] = []
 
-  const { value, subscribe } = useCombineMotionValues(() => {
+  const combineValues = () => {
     latest.length = 0
     const numValues = values.length
     for (let i = 0; i < numValues; i++) {
       latest[i] = values[i].get()
     }
+    return transformer(latest)
+  }
 
-    return isRef(transformer) ? transformer.value(latest) : transformer(latest)
-  })
+  const { value, subscribe } = useCombineMotionValues(combineValues)
 
   subscribe(values)
 
