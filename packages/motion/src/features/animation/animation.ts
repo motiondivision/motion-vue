@@ -125,6 +125,12 @@ export class AnimationFeature extends Feature {
           if (isExit) {
             // set isExiting to false when exit animation is completed
             this.state.isExiting = false
+
+            // Notify AnimatePresence that exit animation is complete
+            const presenceContext = this.state.options.animatePresenceContext
+            if (presenceContext?.onMotionExitComplete && this.state.presenceContainer) {
+              presenceContext.onMotionExitComplete(this.state.presenceContainer, this.state)
+            }
           }
           element.dispatchEvent(motionEvent('motioncomplete', animationTarget, isExit))
           this.state.options.onAnimationComplete?.(animationTarget)

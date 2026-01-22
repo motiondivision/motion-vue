@@ -4,7 +4,7 @@ import { useLazyMotionContext } from '@/components/lazy-motion/context'
 import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
 import { checkMotionIsHidden } from '@/components/motion/utils'
-import { injectAnimatePresence } from '@/components/animate-presence/presence'
+import { PRESENCE_CHILD_ATTR, injectAnimatePresence } from '@/components/animate-presence/presence'
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 import type { DOMKeyframesDefinition } from 'framer-motion'
@@ -139,11 +139,35 @@ export function useMotionState(props: MotionProps) {
 
   onMounted(() => {
     state.mount(getMotionElement(instance.$el), getMotionProps(), checkMotionIsHidden(instance))
+
+    // Register to AnimatePresence container
+    if (animatePresenceContext.register && state.element) {
+      const container = state.element.closest(`[${PRESENCE_CHILD_ATTR}]`)
+      if (container) {
+        state.presenceContainer = container
+        animatePresenceContext.register(container, state)
+      }
+      else if (animatePresenceContext.registerPending) {
+        // SSR hydration scenario: enter hook not triggered, add to pending
+        animatePresenceContext.registerPending(state)
+      }
+    }
   })
 
   onBeforeUnmount(() => state.beforeUnmount())
 
   onUnmounted(() => {
+    // Unregister from AnimatePresence container
+    if (animatePresenceContext.unregister && state.presenceContainer) {
+      animatePresenceContext.unregister(state.presenceContainer, state)
+      state.presenceContainer = null
+    }
+
+    // Clean up from pending list if still there
+    if (animatePresenceContext.unregisterPending) {
+      animatePresenceContext.unregisterPending(state)
+    }
+
     const el = getMotionElement(instance.$el)
     if (!el?.isConnected) {
       state.unmount()

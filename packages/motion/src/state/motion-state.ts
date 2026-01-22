@@ -27,6 +27,8 @@ export class MotionState {
 
   // Whether the element is exiting
   public isExiting = false
+  // The AnimatePresence container this motion component belongs to
+  public presenceContainer: Element | null = null
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Array<typeof Feature>
