@@ -1,7 +1,5 @@
-import type { AnimatePresenceProps } from '@/components/animate-presence/types'
 import type { MotionState } from '@/state'
 import { createContext } from '@/utils'
-import { onMounted, watch } from 'vue'
 
 // Attribute used to mark AnimatePresence direct children
 export const PRESENCE_CHILD_ATTR = 'data-ap-child'
@@ -22,21 +20,3 @@ export interface PresenceContext {
 }
 
 export const [injectAnimatePresence, provideAnimatePresence] = createContext<PresenceContext>('AnimatePresenceContext')
-
-export function useAnimatePresence(props: AnimatePresenceProps) {
-  const presenceContext = {
-    initial: props.initial,
-    custom: props.custom,
-  }
-  watch(() => props.custom, (v) => {
-    presenceContext.custom = v
-  }, {
-    flush: 'pre',
-  })
-
-  provideAnimatePresence(presenceContext)
-
-  onMounted(() => {
-    presenceContext.initial = undefined
-  })
-}
