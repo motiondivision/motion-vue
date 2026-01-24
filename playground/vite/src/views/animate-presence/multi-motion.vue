@@ -3,6 +3,11 @@ import { ref } from 'vue'
 import { AnimatePresence, motion } from 'motion-v'
 
 const show = ref(true)
+const exitComplete = ref(false)
+
+function onExitComplete() {
+  exitComplete.value = true
+}
 </script>
 
 <template>
@@ -15,13 +20,15 @@ const show = ref(true)
       <button
         id="toggle"
         class="btn btn-primary"
-        @click="show = !show"
+        @click="show = !show; exitComplete = false"
       >
         {{ show ? 'Hide' : 'Show' }}
       </button>
 
+      <span id="exit-status">{{ exitComplete ? 'exited' : 'present' }}</span>
+
       <div class="w-full max-w-md">
-        <AnimatePresence>
+        <AnimatePresence :on-exit-complete="onExitComplete">
           <div
             v-if="show"
             class="space-y-4"
