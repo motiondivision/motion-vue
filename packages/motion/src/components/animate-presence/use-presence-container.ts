@@ -1,4 +1,4 @@
-import { onMounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { mountedStates } from '@/state'
 import type { MotionState } from '@/state'
 import type { AnimatePresenceProps } from './types'
@@ -14,7 +14,7 @@ interface ContainerState {
 
 export function usePresenceContainer(props: AnimatePresenceProps) {
   // ===== Container State Management =====
-  const containerStates = new WeakMap<Element, ContainerState>()
+  const containerStates = new Map<Element, ContainerState>()
   // Pending states for SSR hydration scenario (enter hook not triggered)
   const pendingStates = new Set<MotionState>()
 
@@ -35,15 +35,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
       containerStates.set(container, containerState)
     }
     containerState.motions.add(state)
-  }
-
-  // Called by motion component on unmount
-  function unregister(container: Element, state: MotionState) {
-    const containerState = containerStates.get(container)
-    if (containerState) {
-      containerState.motions.delete(state)
-      containerState.exitingMotions.delete(state)
-    }
   }
 
   // Called when a motion component's exit animation is complete
@@ -75,7 +66,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     initial: props.initial,
     custom: props.custom,
     register,
-    unregister,
     onMotionExitComplete,
     registerPending,
     unregisterPending,
@@ -123,6 +113,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
       }
     })
     containerState.motions?.[0]?.didUpdate()
+    containerState.motions.clear()
     props.onExitComplete?.()
   }
 
@@ -178,6 +169,16 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
       state.didUpdate()
     })
   }
+
+  onUnmounted(() => {
+    // Unmount all motion states in all containers
+    containerStates.forEach((containerState) => {
+      containerState.motions.forEach((state) => {
+        state.unmount()
+      })
+    })
+    containerStates.clear()
+  })
 
   return {
     enter,
