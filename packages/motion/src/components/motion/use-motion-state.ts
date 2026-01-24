@@ -157,12 +157,6 @@ export function useMotionState(props: MotionProps) {
   onBeforeUnmount(() => state.beforeUnmount())
 
   onUnmounted(() => {
-    // Unregister from AnimatePresence container
-    if (animatePresenceContext.unregister && state.presenceContainer) {
-      animatePresenceContext.unregister(state.presenceContainer, state)
-      state.presenceContainer = null
-    }
-
     // Clean up from pending list if still there
     if (animatePresenceContext.unregisterPending) {
       animatePresenceContext.unregisterPending(state)

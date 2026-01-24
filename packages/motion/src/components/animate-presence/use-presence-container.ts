@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import { mountedStates } from '@/state'
 import type { MotionState } from '@/state'
 import type { AnimatePresenceProps } from './types'
@@ -15,7 +15,6 @@ interface ContainerState {
 export function usePresenceContainer(props: AnimatePresenceProps) {
   // ===== Container State Management =====
   const containerStates = new WeakMap<Element, ContainerState>()
-  const activeContainers = new Set<Element>()
   // Pending states for SSR hydration scenario (enter hook not triggered)
   const pendingStates = new Set<MotionState>()
 
@@ -57,7 +56,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
 
     // When all motion components have completed exit
     if (containerState.exitingMotions.size === 0 && containerState.done) {
-      finalizeExit(container, containerState)
+      finalizeExit(containerState)
     }
   }
 
@@ -92,19 +91,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     presenceContext.initial = undefined
   })
 
-  // ===== Cleanup =====
-  onUnmounted(() => {
-    activeContainers.forEach((container) => {
-      const containerState = containerStates.get(container)
-      if (containerState) {
-        containerState.motions.forEach((state) => {
-          state.unmount(true)
-        })
-      }
-    })
-    activeContainers.clear()
-  })
-
   // ===== Mark Children with PRESENCE_CHILD_ATTR =====
   function markChild(el: Element) {
     if (el instanceof HTMLElement && !el.hasAttribute(PRESENCE_CHILD_ATTR)) {
@@ -119,39 +105,28 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   }
 
   // ===== Finalize Exit =====
-  function finalizeExit(container: Element, containerState: ContainerState) {
+  function finalizeExit(containerState: ContainerState) {
     // Remove pop style
     removePopStyle(containerState.el)
 
+    containerState.motions.forEach((state) => {
+      state.getSnapshot(state.options, false)
+    })
     // Call done to remove DOM
     containerState.done?.()
     containerState.done = undefined
 
     // Unmount motion states
     containerState.motions.forEach((state) => {
-      state.getSnapshot(state.options, false)
       if (!state.element?.isConnected) {
-        state.unmount(true)
-      }
-      else {
-        state.didUpdate()
+        state.unmount()
       }
     })
-
-    // Cleanup
-    activeContainers.delete(container)
-
-    // Trigger onExitComplete when all containers have finished
-    if (activeContainers.size === 0) {
-      props.onExitComplete?.()
-    }
+    containerState.motions?.[0]?.didUpdate()
+    props.onExitComplete?.()
   }
 
   // ===== Transition Handlers =====
-
-  function beforeEnter(el: HTMLElement) {
-    markChild(el)
-  }
 
   function enter(el: HTMLElement, done: VoidFunction) {
     markChild(el)
@@ -185,15 +160,12 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     // If no registered motion components, complete immediately
     if ((!containerState || containerState.motions.size === 0) && !containerMotionState) {
       done()
-      if (activeContainers.size === 0) {
-        props.onExitComplete?.()
-      }
+      props.onExitComplete?.()
       return
     }
 
     // Save done callback
     containerState.done = done
-    activeContainers.add(container)
 
     // Add pop style to the container
     addPopStyle(container)
@@ -208,7 +180,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   }
 
   return {
-    beforeEnter,
     enter,
     exit,
   }

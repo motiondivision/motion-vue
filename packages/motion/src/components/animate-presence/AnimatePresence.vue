@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<AnimatePresenceProps>(), {
   anchorX: 'left',
 })
 
-const { beforeEnter, enter, exit } = usePresenceContainer(props)
+const { enter, exit } = usePresenceContainer(props)
 
 const transitionProps = computed(() => {
   if (props.mode !== 'wait') {
@@ -36,7 +36,6 @@ const transitionProps = computed(() => {
     appear
     @leave="exit"
     @enter="enter"
-    @before-enter="beforeEnter"
   >
     <slot />
   </component>

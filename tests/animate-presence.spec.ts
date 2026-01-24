@@ -64,7 +64,7 @@ test.describe('AnimatePresence', () => {
     expect(structure.liHasMotionPopId).toBe(false)
 
     // Verify presence- prefix
-    expect(structure.divMotionPopId).toMatch(/^presence-motion-state-\d+$/)
+    expect(structure.divMotionPopId).toMatch(/^pop-\d+$/)
 
     // Verify div has absolute positioning from injected styles
     const divPosition = await lastItem.evaluate((divChild) => {

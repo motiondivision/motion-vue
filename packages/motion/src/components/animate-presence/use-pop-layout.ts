@@ -1,6 +1,5 @@
 import { useMotionConfig } from '@/components/motion-config/context'
 import type { AnimatePresenceProps } from './types'
-import { PRESENCE_CHILD_ATTR } from './presence'
 import { frame } from 'framer-motion/dom'
 
 let popId = 0
@@ -27,8 +26,7 @@ export function usePopLayout(props: AnimatePresenceProps) {
 
     // Use unique pop id for CSS selector
     const elementPopId = `pop-${popId++}`
-    element.setAttribute(PRESENCE_CHILD_ATTR, elementPopId)
-
+    element.dataset.motionPopId = elementPopId
     const style = document.createElement('style')
     if (config.value.nonce) {
       style.nonce = config.value.nonce
@@ -37,7 +35,7 @@ export function usePopLayout(props: AnimatePresenceProps) {
     document.head.appendChild(style)
     if (style.sheet) {
       style.sheet.insertRule(`
-    [${PRESENCE_CHILD_ATTR}="${elementPopId}"] {
+    [data-motion-pop-id="${elementPopId}"] {
       position: absolute !important;
       width: ${size.width}px !important;
       height: ${size.height}px !important;

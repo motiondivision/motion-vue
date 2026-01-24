@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { AnimatePresence } from 'motion-v'
+import { AnimatePresence, Motion } from 'motion-v'
 import Child from './child.vue'
 
 const visible = ref(true)
@@ -29,19 +29,27 @@ function onMove() {
     <button @click="onMove">
       move
     </button>
-    <!-- <client-only> -->
     <AnimatePresence>
-      <Child v-if="visible" />
+      <Motion
+        as-child
+        :initial="{ opacity: 0, scale: 0.95 }"
+        :animate="{ opacity: 1, scale: 1 }"
+        :exit="{ opacity: 0, scale: 1.1 }"
+        :style="style"
+      >
+        <Child
+          v-show="visible"
+        />
+      </Motion>
     </AnimatePresence>
-    <!-- </client-only> -->
   </div>
 </template>
 
-<style scoped>
-.rect {
-  position: fixed;
-  width: 100px;
-  height: 100px;
-  background: blue;
-}
-</style>
+  <style scoped>
+  .rect {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    background: blue;
+  }
+  </style>
