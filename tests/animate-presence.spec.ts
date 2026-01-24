@@ -21,6 +21,90 @@ test.describe('AnimatePresence', () => {
     expect(await animatePresenceItem.isVisible()).toBe(false)
   })
 
+  test('exit animations with multiple motion components', async ({ page }) => {
+    await page.goto('/animate-presence/multi-motion')
+
+    const toggle = page.locator('#toggle')
+    const motion1 = page.locator('#motion-1')
+    const motion2 = page.locator('#motion-2')
+    const motion3 = page.locator('#motion-3')
+
+    // All 3 motion components should be visible
+    await expect(motion1).toBeVisible()
+    await expect(motion2).toBeVisible()
+    await expect(motion3).toBeVisible()
+
+    // Trigger exit
+    await toggle.click()
+    await page.waitForTimeout(100)
+
+    // All should be animating (still visible but with reduced opacity)
+    const opacity1 = await motion1.evaluate(el => window.getComputedStyle(el).opacity)
+    expect(+opacity1).toBeLessThan(1)
+
+    // Wait for all animations to complete
+    await page.waitForTimeout(600)
+
+    // All should be removed from DOM
+    await expect(motion1).not.toBeVisible()
+    await expect(motion2).not.toBeVisible()
+    await expect(motion3).not.toBeVisible()
+  })
+
+  test('exit animations with nested motion components', async ({ page }) => {
+    await page.goto('/animate-presence/nested-motion')
+
+    const toggle = page.locator('#toggle')
+    const parent = page.locator('#parent-motion')
+    const child1 = page.locator('#child-motion-1')
+    const child2 = page.locator('#child-motion-2')
+    const grandchild = page.locator('#grandchild-motion')
+
+    // All should be visible
+    await expect(parent).toBeVisible()
+    await expect(child1).toBeVisible()
+    await expect(child2).toBeVisible()
+    await expect(grandchild).toBeVisible()
+
+    // Trigger exit
+    await toggle.click()
+    await page.waitForTimeout(100)
+
+    // Parent should be animating exit
+    const parentOpacity = await parent.evaluate(el => window.getComputedStyle(el).opacity)
+    expect(+parentOpacity).toBeLessThan(1)
+
+    // Wait for all animations to complete
+    await page.waitForTimeout(500)
+
+    // All should be removed
+    await expect(parent).not.toBeVisible()
+    await expect(child1).not.toBeVisible()
+    await expect(child2).not.toBeVisible()
+    await expect(grandchild).not.toBeVisible()
+  })
+
+  test('onExitComplete fires after all motion components exit', async ({ page }) => {
+    await page.goto('/animate-presence/multi-motion')
+
+    const toggle = page.locator('#toggle')
+    const exitStatus = page.locator('#exit-status')
+
+    // Initially present
+    await expect(exitStatus).toHaveText('present')
+
+    // Trigger exit
+    await toggle.click()
+
+    // Should still be present during animation
+    await page.waitForTimeout(100)
+    await expect(exitStatus).toHaveText('present')
+
+    // After all animations complete, onExitComplete should fire
+    await page.waitForTimeout(600)
+    await expect(exitStatus).toHaveText('exited')
+  })
+
   test('popLayout applies styles to direct child (div) not motion element (li)', async ({ page }) => {
     await page.goto('/pop-layout')
 
@@ -64,7 +148,7 @@ test.describe('AnimatePresence', () => {
     expect(structure.liHasMotionPopId).toBe(false)
 
     // Verify presence- prefix
-    expect(structure.divMotionPopId).toMatch(/^presence-motion-state-\d+$/)
+    expect(structure.divMotionPopId).toMatch(/^pop-\d+$/)
 
     // Verify div has absolute positioning from injected styles
     const divPosition = await lastItem.evaluate((divChild) => {

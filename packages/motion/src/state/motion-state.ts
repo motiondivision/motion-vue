@@ -27,6 +27,8 @@ export class MotionState {
 
   // Whether the element is exiting
   public isExiting = false
+  // The AnimatePresence container this motion component belongs to
+  public presenceContainer: Element | null = null
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Array<typeof Feature>
@@ -161,23 +163,13 @@ export class MotionState {
     this.featureManager.beforeUnmount()
   }
 
-  unmount(unMountChildren = false) {
-    const unmountState = () => {
-      if (unMountChildren) {
-        Array.from(this.children).forEach(this.unmountChild)
-      }
-      this.parent?.children?.delete(this)
-      mountedStates.delete(this.element)
-      this.featureManager.unmount(unMountChildren)
-      this.visualElement?.unmount()
-      // clear animation
-      this.clearAnimation()
-    }
-    unmountState()
-  }
-
-  private unmountChild(child: MotionState) {
-    child.unmount(true)
+  unmount() {
+    this.parent?.children?.delete(this)
+    mountedStates.delete(this.element)
+    this.featureManager.unmount()
+    this.visualElement?.unmount()
+    // clear animation
+    this.clearAnimation()
   }
 
   // Called before updating, executes in parent-to-child order
@@ -216,6 +208,6 @@ export class MotionState {
     return Boolean(this.element)
   }
 
-  getSnapshot(options: Options, isPresent?: boolean, label?: string) {}
+  getSnapshot(options: Options, isPresent?: boolean) {}
   didUpdate(label?: string) {}
 }

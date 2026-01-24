@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { AnimatePresence, Motion } from 'motion-v'
 import Child from './child.vue'
 
-const visible = ref(false)
+const visible = ref(true)
 
 const position = ref({ top: 100, left: 100 })
 
@@ -45,11 +45,11 @@ function onMove() {
   </div>
 </template>
 
-<style scoped>
-.rect {
-  position: fixed;
-  width: 100px;
-  height: 100px;
-  background: blue;
-}
-</style>
+  <style scoped>
+  .rect {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    background: blue;
+  }
+  </style>
