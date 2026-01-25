@@ -98,22 +98,20 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   function finalizeExit(containerState: ContainerState) {
     // Remove pop style
     removePopStyle(containerState.el)
-
-    containerState.motions.forEach((state) => {
-      state.getSnapshot(state.options, false)
-    })
     // Call done to remove DOM
     containerState.done?.()
     containerState.done = undefined
 
     // Unmount motion states
-    containerState.motions.forEach((state) => {
-      if (!state.element?.isConnected) {
+    if (!containerState.el?.isConnected) {
+      containerState.motions.forEach((state) => {
         state.unmount()
-      }
-    })
-    containerState.motions?.[0]?.didUpdate()
-    containerState.motions.clear()
+      })
+      containerState.motions.clear()
+    }
+    else {
+      containerState.motions.values().next()?.value?.didUpdate()
+    }
     props.onExitComplete?.()
   }
 
@@ -127,6 +125,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
       containerState.exitingMotions.clear()
       containerState.motions.forEach((s) => {
         s.setActive('exit', false)
+        s.getSnapshot(s.options, true)
       })
     }
     done()
@@ -166,8 +165,8 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
       containerState.exitingMotions.add(state)
       state.setActive('exit', true)
       state.getSnapshot(state.options, false)
-      state.didUpdate()
     })
+    containerState.motions.values().next()?.value?.didUpdate()
   }
 
   onUnmounted(() => {

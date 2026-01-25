@@ -42,7 +42,7 @@ export class ProjectionFeature extends Feature {
       layoutScroll: options.layoutScroll,
       crossfade: options.crossfade,
       onExitComplete: () => {
-        if (!this.state.visualElement.projection?.isPresent && this.state.options.layoutId) {
+        if (!this.state.visualElement.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
           this.state.options.animatePresenceContext?.onMotionExitComplete(this.state.presenceContainer, this.state)
         }
       },
