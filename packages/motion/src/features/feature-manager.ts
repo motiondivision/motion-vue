@@ -44,8 +44,8 @@ export class FeatureManager {
     this.features.forEach(feature => feature.beforeMount?.())
   }
 
-  unmount(unMountChildren = false) {
-    this.features.forEach(feature => feature.unmount(unMountChildren))
+  unmount() {
+    this.features.forEach(feature => feature.unmount())
   }
 
   update() {
