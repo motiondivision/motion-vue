@@ -41,7 +41,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
         </AnimatePresence>
         <AnimatePresence>
           <Motion
-            v-if="activeCard"
+            v-show="activeCard"
             :initial="{ opacity: 0 }"
             :animate="{ opacity: 1 }"
             :exit="{ opacity: 0 }"

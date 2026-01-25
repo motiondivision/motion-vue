@@ -12,7 +12,7 @@ export class Feature {
 
   mount(): void {}
 
-  unmount(unMountChildren = false): void {}
+  unmount(): void {}
 
   update?(): void {}
 
