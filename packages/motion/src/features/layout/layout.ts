@@ -1,8 +1,7 @@
 import { Feature } from '@/features/feature'
 import type { MotionState } from '@/state/motion-state'
-import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
+import { addScaleCorrector, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
-import { globalProjectionState } from 'framer-motion/dist/es/projection/node/state.mjs'
 import { isDef } from '@vueuse/core'
 import type { Options } from '@/types'
 

@@ -1,4 +1,4 @@
-import { pipe } from 'framer-motion/dom'
+import { pipe } from 'motion-utils'
 import { addDomEvent } from '@/events'
 import { Feature } from '@/features/feature'
 

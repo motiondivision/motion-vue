@@ -1,5 +1,5 @@
-import type { DOMKeyframesDefinition, ResolvedValues, VariantLabels } from 'framer-motion'
-import type { MotionValue, TransformProperties, animate } from 'framer-motion/dom'
+import type { DOMKeyframesDefinition, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
+import type { animate } from 'framer-motion/dom'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
 import type { PressProps } from '@/features/gestures/press/types'
@@ -33,7 +33,7 @@ export interface DragOptions {
 }
 
 type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transition'>
-export type MotionStyle = Partial<{
+export type MotionStyleProps = Partial<{
   [K in keyof Omit<VariantType & TransformPropertiesWithoutTransition, 'attrX' | 'attrY' | 'attrScale'>]: string | number | undefined | MotionValue
 }>
 
@@ -50,7 +50,7 @@ export interface Options<T = any> extends
     [k: string]: VariantType | ((custom: T) => VariantType)
   }
   inherit?: boolean
-  style?: MotionStyle
+  style?: MotionStyleProps
   transformTemplate?: (
     transform: TransformProperties,
     generatedTransform: string

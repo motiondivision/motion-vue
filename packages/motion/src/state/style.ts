@@ -1,8 +1,8 @@
-import type { DOMKeyframesDefinition, ResolvedValues } from 'framer-motion'
+import type { DOMKeyframesDefinition, ResolvedValues } from 'motion-dom'
 import { isCssVar, isNumber } from './utils'
 import { buildTransformTemplate, isTransform, transformAlias, transformDefinitions } from './transform'
-import { isMotionValue, px } from 'framer-motion/dom'
-import type { MotionStyle } from '@/types'
+import { isMotionValue, px } from 'motion-dom'
+import type { MotionStyleProps } from '@/types'
 
 type MotionStyleKey = Exclude<
   keyof CSSStyleDeclaration,
@@ -31,7 +31,7 @@ export const style = {
   },
 }
 
-export function createStyles(keyframes?: MotionStyle | DOMKeyframesDefinition): any {
+export function createStyles(keyframes?: MotionStyleProps | DOMKeyframesDefinition): any {
   const initialKeyframes: any = {}
   const transforms: [string, any][] = []
   for (let key in keyframes as any) {
@@ -137,7 +137,7 @@ function buildSVGPath(
   attrs['stroke-dasharray'] = `${pathLength} ${pathSpacing}`
 }
 
-export function convertSvgStyleToAttributes(keyframes?: MotionStyle | DOMKeyframesDefinition) {
+export function convertSvgStyleToAttributes(keyframes?: MotionStyleProps | DOMKeyframesDefinition) {
   const attrs: Record<string, any> = {}
   const styleProps: Record<string, any> = {}
   for (const key in keyframes as any) {

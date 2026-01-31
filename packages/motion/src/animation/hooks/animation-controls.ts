@@ -2,8 +2,8 @@ import type { AnimationControls } from '@/animation/types'
 import { type MotionState, mountedStates } from '@/state'
 import type { Options } from '@/types'
 import { invariant } from 'hey-listen'
-import { setTarget } from 'framer-motion/dist/es/render/utils/setters.mjs'
-import type { VisualElement } from 'framer-motion'
+import { setTarget } from 'motion-dom'
+import type { VisualElement } from 'motion-dom'
 import { resolveVariant } from '@/state/utils'
 
 function stopAnimation(visualElement: VisualElement) {

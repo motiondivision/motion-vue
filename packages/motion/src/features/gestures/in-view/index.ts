@@ -1,6 +1,7 @@
 import type { MotionState } from '@/state/motion-state'
 import { Feature } from '@/features'
-import { frame, inView } from 'framer-motion/dom'
+import { frame } from 'motion-dom'
+import { inView } from 'framer-motion/dom'
 import type { Options } from '@/types'
 
 function handleHoverEvent(

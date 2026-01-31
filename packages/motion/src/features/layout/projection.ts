@@ -1,7 +1,6 @@
 import { Feature } from '@/features/feature'
-import { HTMLProjectionNode } from 'framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs'
+import { HTMLProjectionNode, addScaleCorrector } from 'motion-dom'
 import { getClosestProjectingNode } from '@/features/layout/utils'
-import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 

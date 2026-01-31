@@ -1,8 +1,7 @@
-import type { AnimationPlaybackControls } from 'framer-motion'
+import type { AnimationPlaybackControls, AnimationScope } from 'motion-dom'
 import type { Ref, UnwrapRef } from 'vue'
 import { onUnmounted, ref } from 'vue'
 import { createScopedAnimate } from 'framer-motion/dom'
-import type { AnimationScope } from 'framer-motion/dom'
 
 type Scope = Ref<UnwrapRef<Element>> & { animations: AnimationPlaybackControls[] }
 export function useAnimate<T extends Element = any>(): [Scope, ReturnType<typeof createScopedAnimate>] {
@@ -27,7 +26,7 @@ export function useAnimate<T extends Element = any>(): [Scope, ReturnType<typeof
 
   domProxy.animations = []
 
-  const animate = createScopedAnimate(domProxy as unknown as AnimationScope<T>)
+  const animate = createScopedAnimate({ scope: domProxy as unknown as AnimationScope<T> })
 
   onUnmounted(() => {
     domProxy.animations.forEach(animation => animation.stop())

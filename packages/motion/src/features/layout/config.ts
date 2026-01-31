@@ -1,5 +1,4 @@
-import { correctBorderRadius } from 'framer-motion/dist/es/projection/styles/scale-border-radius.mjs'
-import { correctBoxShadow } from 'framer-motion/dist/es/projection/styles/scale-box-shadow.mjs'
+import { correctBorderRadius, correctBoxShadow } from 'motion-dom'
 
 export const defaultScaleCorrector = {
   borderRadius: {
