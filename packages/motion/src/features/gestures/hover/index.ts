@@ -1,6 +1,6 @@
 import type { MotionState } from '@/state/motion-state'
 import { Feature, extractEventInfo } from '@/features'
-import { frame, hover } from 'framer-motion/dom'
+import { frame, hover } from 'motion-dom'
 
 function handleHoverEvent(
   state: MotionState,

@@ -1,7 +1,8 @@
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
-import { calcLength } from '@/projection/geometry/delta-calc'
-import { progress as calcProgress, clamp, mixNumber } from 'framer-motion/dom'
-import type { Axis, BoundingBox, Box, DragElastic } from 'framer-motion'
+import type { DragElastic } from 'motion-dom'
+import { calcLength, mixNumber } from 'motion-dom'
+import type { Axis, BoundingBox, Box } from 'motion-utils'
+import { clamp, progress } from 'motion-utils'
 
 /**
  * Apply constraints to a point. These constraints are both physical along an
@@ -165,10 +166,10 @@ export function calcOrigin(source: Axis, target: Axis): number {
   const targetLength = calcLength(target)
 
   if (targetLength > sourceLength) {
-    origin = calcProgress(target.min, target.max - sourceLength, source.min)
+    origin = progress(target.min, target.max - sourceLength, source.min)
   }
   else if (sourceLength > targetLength) {
-    origin = calcProgress(source.min, source.max - targetLength, target.min)
+    origin = progress(source.min, source.max - targetLength, target.min)
   }
 
   return clamp(0, 1, origin)

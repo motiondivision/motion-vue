@@ -1,8 +1,9 @@
-import type { EventInfo, Point, TransformPoint } from 'framer-motion'
+import type { EventInfo } from 'motion-dom'
+import type { Point, TransformPoint } from 'motion-utils'
 import { addPointerEvent, isPrimaryPointer } from '@/events'
 import { extractEventInfo } from '@/events/event-info'
-import { cancelFrame, distance2D, frame, frameData, millisecondsToSeconds, pipe, secondsToMilliseconds } from 'framer-motion/dom'
-
+import { cancelFrame, distance2D, frame, frameData } from 'framer-motion/dom'
+import { millisecondsToSeconds, pipe, secondsToMilliseconds } from 'motion-utils'
 /**
  * Passed in to pan event handlers like `onPan` the `PanInfo` object contains
  * information about the current state of the tap gesture such as its

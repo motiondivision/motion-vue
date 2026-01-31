@@ -1,6 +1,6 @@
 import { onBeforeUpdate, onUnmounted } from 'vue'
-import { cancelFrame, frame } from 'framer-motion/dom'
-import type { FrameData } from 'framer-motion/dom'
+import { cancelFrame, frame } from 'motion-dom'
+import type { FrameData } from 'motion-dom'
 
 export type FrameCallback = (timestamp: number, delta: number) => void
 

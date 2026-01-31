@@ -1,5 +1,5 @@
-import type { MotionValue } from 'framer-motion/dom'
-import { isMotionValue } from 'framer-motion/dom'
+import type { MotionValue } from 'motion-dom'
+import { isMotionValue } from 'motion-dom'
 import { useCombineMotionValues } from './use-combine-values'
 
 /**

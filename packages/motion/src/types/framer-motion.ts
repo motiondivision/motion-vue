@@ -1,7 +1,5 @@
 import type { MotionNodeOptions } from 'motion-dom'
 
-export type { Point } from 'framer-motion'
-
 export type SupportedEdgeUnit = 'px' | 'vw' | 'vh' | '%'
 
 export type EdgeUnit = `${number}${SupportedEdgeUnit}`
@@ -23,17 +21,6 @@ export interface ScrollInfoOptions {
   target?: Element
   axis?: 'x' | 'y'
   offset?: ScrollOffset
-}
-
-export interface Orchestration {
-  delay?: number
-
-  when?: false | 'beforeChildren' | 'afterChildren' | string
-  delayChildren?: number
-
-  staggerChildren?: number
-
-  staggerDirection?: number
 }
 
 export type $Transition = MotionNodeOptions['transition']

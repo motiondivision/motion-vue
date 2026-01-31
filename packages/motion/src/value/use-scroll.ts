@@ -1,5 +1,6 @@
 import { unref, watchEffect } from 'vue'
-import { motionValue, scroll } from 'framer-motion/dom'
+import { motionValue } from 'motion-dom'
+import { scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { isSSR } from '@/utils/is'
 import type { MaybeComputedElementRef } from '@vueuse/core'

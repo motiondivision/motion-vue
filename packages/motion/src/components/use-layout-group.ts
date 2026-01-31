@@ -1,7 +1,7 @@
 import type { LayoutGroupState } from './context'
 import { injectLayoutGroup, provideLayoutGroup } from './context'
 import { useForceUpdate } from './use-force-update'
-import { nodeGroup } from './group'
+import { nodeGroup } from 'motion-dom'
 
 /**
  * Props for configuring layout group behavior

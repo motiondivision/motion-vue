@@ -1,4 +1,4 @@
-import { type MotionValue, cancelFrame, frame, motionValue } from 'framer-motion/dom'
+import { type MotionValue, cancelFrame, frame, motionValue } from 'motion-dom'
 import { onUnmounted } from 'vue'
 
 export function useCombineMotionValues<T>(
