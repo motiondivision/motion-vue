@@ -23,6 +23,8 @@ function handleHoverEvent(
 }
 
 export class HoverGesture extends Feature {
+  static key = 'hover' as const
+
   isActive() {
     const { whileHover, onHoverStart, onHoverEnd } = this.state.options
     return Boolean(whileHover || onHoverStart || onHoverEnd)

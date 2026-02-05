@@ -7,10 +7,11 @@ import { checkMotionIsHidden } from '@/components/motion/utils'
 import { PRESENCE_CHILD_ATTR, injectAnimatePresence } from '@/components/animate-presence/presence'
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
+import { updateLazyFeatures } from '@/features/lazy-features'
 import type { DOMKeyframesDefinition } from 'framer-motion'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
-import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 
 export function useMotionState(props: MotionProps) {
   // motion context
@@ -26,6 +27,11 @@ export function useMotionState(props: MotionProps) {
     features: ref([]),
     strict: false,
   })
+
+  // Update global lazy features when context features change
+  watch(lazyMotionContext.features, (features) => {
+    updateLazyFeatures(features)
+  }, { immediate: true })
 
   /**
    * If we're in development mode, check to make sure we're not rendering a motion component
@@ -59,7 +65,6 @@ export function useMotionState(props: MotionProps) {
   function getProps() {
     return {
       ...props,
-      lazyMotionContext,
       layoutId: getLayoutId(),
       transition: props.transition ?? config.value.transition,
       layoutGroup,

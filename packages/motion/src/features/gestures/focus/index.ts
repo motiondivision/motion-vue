@@ -3,6 +3,8 @@ import { addDomEvent } from '@/events'
 import { Feature } from '@/features/feature'
 
 export class FocusGesture extends Feature {
+  static key = 'focus' as const
+
   private isActive = false
 
   onFocus() {

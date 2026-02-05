@@ -64,3 +64,5 @@ test-results
 
 # Internal documentation (not for version control)
 internal-docs
+.agents
+.claude

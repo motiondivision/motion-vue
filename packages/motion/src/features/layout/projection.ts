@@ -5,6 +5,8 @@ import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 
 export class ProjectionFeature extends Feature {
+  static key = 'projection' as const
+
   constructor(state) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)

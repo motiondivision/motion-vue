@@ -7,6 +7,8 @@ import type { Options } from '@/types'
 
 let hasLayoutUpdate = false
 export class LayoutFeature extends Feature {
+  static key = 'layout' as const
+
   constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)

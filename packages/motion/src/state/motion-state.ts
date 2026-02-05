@@ -4,12 +4,11 @@ import type { DOMKeyframesDefinition, VisualElement } from 'motion-dom'
 import { cancelFrame, frame } from 'motion-dom'
 import { noop } from 'motion-utils'
 import { isSVGElement, resolveVariant } from '@/state/utils'
-import type { Feature, StateType } from '@/features'
-import { FeatureManager } from '@/features'
+import type { Feature, FeatureClass, FeatureKey, StateType } from '@/features'
+import { lazyFeatures } from '@/features/lazy-features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
 import type { AnimateUpdates } from '@/features/animation/types'
 import { isVariantLabels } from '@/state/utils/is-variant-labels'
-import type { LazyMotionContext } from '@/components/lazy-motion/context'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -33,7 +32,6 @@ export class MotionState {
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Array<typeof Feature>
-    lazyMotionContext?: LazyMotionContext
   }
 
   // Track child components for proper lifecycle ordering
@@ -62,7 +60,9 @@ export class MotionState {
    * The final transition to be applied to the state
    */
   public finalTransition: $Transition
-  private featureManager: FeatureManager
+
+  // Feature instances managed by key
+  private features = new Map<FeatureKey, Feature>()
 
   // Visual element instance from Framer Motion
   public visualElement: VisualElement<Element>
@@ -78,7 +78,7 @@ export class MotionState {
     const initial = (options.initial === undefined && options.variants) ? this.context.initial : options.initial
     const initialVariantSource = initial === false ? ['initial', 'animate'] : ['initial']
     this.initTarget(initialVariantSource)
-    this.featureManager = new FeatureManager(this)
+    this.initFeatures()
     this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
@@ -112,6 +112,34 @@ export class MotionState {
     this.target = { }
   }
 
+  /**
+   * Initialize features from options and global lazy features
+   * Features are stored by key to avoid duplicate instantiation
+   */
+  private initFeatures() {
+    const { features = [] } = this.options
+    // Combine options features with global lazy features
+    const allFeatures = [...features, ...lazyFeatures].filter(Boolean)
+
+    for (const FeatureCtor of allFeatures) {
+      // Skip if already registered
+      if (this.features.has(FeatureCtor.key)) {
+        continue
+      }
+
+      const instance = new (FeatureCtor as FeatureClass)(this)
+      this.features.set(FeatureCtor.key, instance)
+    }
+  }
+
+  /**
+   * Get a feature instance by key
+   * Useful for feature-to-feature communication
+   */
+  getFeature<T extends Feature>(key: FeatureKey): T | undefined {
+    return this.features.get(key) as T | undefined
+  }
+
   // Update visual element with new options
   updateOptions(options: Options) {
     this.options = options
@@ -123,7 +151,7 @@ export class MotionState {
 
   // Called before mounting, executes in parent-to-child order
   beforeMount() {
-    this.featureManager.beforeMount()
+    this.features.forEach(f => f.beforeMount?.())
   }
 
   // Mount motion state to DOM element, handles parent-child relationships
@@ -136,7 +164,7 @@ export class MotionState {
     this.updateOptions(options)
 
     // Mount features in parent-to-child order
-    this.featureManager.mount()
+    this.features.forEach(f => f.mount?.())
     if (!notAnimate && this.options.animate) {
       this.startAnimation?.()
     }
@@ -161,13 +189,13 @@ export class MotionState {
 
   // Called before unmounting, executes in child-to-parent order
   beforeUnmount() {
-    this.featureManager.beforeUnmount()
+    this.features.forEach(f => f.beforeUnmount?.())
   }
 
   unmount() {
     this.parent?.children?.delete(this)
     mountedStates.delete(this.element)
-    this.featureManager.unmount()
+    this.features.forEach(f => f.unmount?.())
     this.visualElement?.unmount()
     // clear animation
     this.clearAnimation()
@@ -175,14 +203,14 @@ export class MotionState {
 
   // Called before updating, executes in parent-to-child order
   beforeUpdate(options: Options) {
-    this.featureManager.beforeUpdate(options)
+    this.features.forEach(f => f.beforeUpdate?.(options))
   }
 
   // Update motion state with new options
   update(options: Options) {
     this.updateOptions(options)
     // Update features in parent-to-child order
-    this.featureManager.update()
+    this.features.forEach(f => f.update?.())
 
     this.startAnimation()
   }

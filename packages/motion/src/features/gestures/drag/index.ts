@@ -3,6 +3,8 @@ import { VisualElementDragControls } from '@/features/gestures/drag/VisualElemen
 import { noop } from 'motion-utils'
 
 export class DragGesture extends Feature {
+  static key = 'drag' as const
+
   controls: VisualElementDragControls
 
   removeGroupControls: Function = noop

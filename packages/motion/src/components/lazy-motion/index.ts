@@ -18,12 +18,14 @@ export const LazyMotion = defineComponent({
   },
   setup(props, { slots }) {
     const features = ref<any[]>(Array.isArray(props.features) ? props.features : [])
+
     if (!Array.isArray(props.features)) {
       const featuresPromise = typeof props.features === 'function' ? props.features() : props.features
       featuresPromise.then((feats) => {
         features.value = feats
       })
     }
+
     lazyMotionContextProvider({
       features,
       strict: props.strict,

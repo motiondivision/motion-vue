@@ -34,6 +34,8 @@ function handlePressEvent(
 }
 
 export class PressGesture extends Feature {
+  static key = 'press' as const
+
   isActive() {
     const { whilePress, onPress, onPressCancel, onPressStart } = this.state.options
     return Boolean(whilePress || onPress || onPressCancel || onPressStart)

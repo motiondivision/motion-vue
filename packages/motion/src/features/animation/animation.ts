@@ -19,6 +19,8 @@ const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePr
 export type StateType = typeof STATE_TYPES[number]
 
 export class AnimationFeature extends Feature {
+  static key = 'animation' as const
+
   unmountControls?: () => void
   constructor(state: MotionState) {
     super(state)
