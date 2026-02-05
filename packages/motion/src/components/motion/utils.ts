@@ -1,10 +1,11 @@
 import { getMotionElement } from '@/components/hooks/use-motion-elm'
-import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes, PropType } from 'vue'
+import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes } from 'vue'
 import { Comment, cloneVNode, defineComponent, h, mergeProps } from 'vue'
 import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
 import type { MotionProps } from '@/components/motion/types'
 import type { Feature } from '@/features'
+import { updateLazyFeatures } from '@/features/lazy-features'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
 type MotionCompProps = {
@@ -103,15 +104,11 @@ export function createMotionComponent(
     inheritAttrs: false,
     props: {
       ...MotionComponentProps,
-      features: {
-        type: Object as PropType<Array<typeof Feature> | Promise<Array<typeof Feature>>>,
-        default: () => (options.features || []),
-      },
       as: { type: [String, Object], default: component || 'div' },
     },
     name: name ? `motion.${name}` : 'Motion',
     setup(props, { slots }) {
-      const { getProps, getAttrs, state } = useMotionState(props as any)
+      const { getProps, getAttrs, state } = useMotionState(props as any, !!options.features?.length)
       /**
        * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
        * To prevent this, reapply the current motion state styles in vnode updated lifecycle
@@ -167,6 +164,11 @@ export function createMotionComponentWithFeatures(
 ) {
   return new Proxy({} as unknown as MotionNameSpace, {
     get(target, prop) {
+      // Update lazy features when component is accessed (for Motion component with domMax)
+      if (features.length) {
+        updateLazyFeatures(features)
+      }
+
       if (prop === 'create') {
         return (component: any, options?: MotionCreateOptions) =>
           createMotionComponent(component, {

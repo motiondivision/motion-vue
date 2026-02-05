@@ -13,7 +13,7 @@ import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 
-export function useMotionState(props: MotionProps) {
+export function useMotionState(props: MotionProps, hasBuiltInFeatures = false) {
   // motion context
   const parentState = injectMotion(null)
   // layout group context
@@ -39,8 +39,7 @@ export function useMotionState(props: MotionProps) {
    */
   if (
     process.env.NODE_ENV !== 'production'
-    // @ts-expect-error
-    && props.features?.length
+    && hasBuiltInFeatures
     && lazyMotionContext.strict
   ) {
     const strictMessage
