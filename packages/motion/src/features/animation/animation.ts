@@ -12,7 +12,6 @@ import { hasChanged, resolveVariant } from '@/state/utils'
 import type { $Transition, AnimationFactory, Options, VariantType } from '@/types'
 import { isDef } from '@vueuse/core'
 import type { VisualElement } from 'motion-dom'
-import { createVisualElement } from '@/state/create-visual-element'
 import { calcChildStagger } from '@/features/animation/calc-child-stagger'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
@@ -24,29 +23,7 @@ export class AnimationFeature extends Feature {
   unmountControls?: () => void
   constructor(state: MotionState) {
     super(state)
-    // Create visual element with initial config
-    this.state.visualElement = createVisualElement(this.state.options.as!, {
-      presenceContext: null,
-      parent: this.state.parent?.visualElement,
-      props: {
-        ...this.state.options,
-        whileTap: this.state.options.whilePress,
-      },
-      visualState: {
-        renderState: {
-          transform: {},
-          transformOrigin: {},
-          style: {},
-          vars: {},
-          attrs: {},
-        },
-        latestValues: {
-          ...this.state.baseTarget,
-        },
-      },
-      reducedMotionConfig: this.state.options.motionConfig.reducedMotion,
-    })
-    this.state.visualElement.parent?.addChild(this.state.visualElement)
+    // visualElement is now created in useMotionState
     this.state.animateUpdates = this.animateUpdates
     if (this.state.isMounted())
       this.state.startAnimation()

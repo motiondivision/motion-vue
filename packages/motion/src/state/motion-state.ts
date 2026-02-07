@@ -116,12 +116,8 @@ export class MotionState {
    * Initialize features from options and global lazy features
    * Features are stored by key to avoid duplicate instantiation
    */
-  private initFeatures() {
-    const { features = [] } = this.options
-    // Combine options features with global lazy features
-    const allFeatures = [...features, ...lazyFeatures].filter(Boolean)
-
-    for (const FeatureCtor of allFeatures) {
+  initFeatures() {
+    for (const FeatureCtor of lazyFeatures) {
       // Skip if already registered
       if (this.features.has(FeatureCtor.key)) {
         continue
@@ -173,9 +169,6 @@ export class MotionState {
   clearAnimation() {
     this.currentProcess && cancelFrame(this.currentProcess)
     this.currentProcess = null
-    this.visualElement?.variantChildren?.forEach((child) => {
-      (child as any).state.clearAnimation()
-    })
   }
 
   // update trigger animation
@@ -203,15 +196,11 @@ export class MotionState {
 
   // Called before updating, executes in parent-to-child order
   beforeUpdate(options: Options) {
-    this.features.forEach(f => f.beforeUpdate?.(options))
   }
 
   // Update motion state with new options
   update(options: Options) {
     this.updateOptions(options)
-    // Update features in parent-to-child order
-    this.features.forEach(f => f.update?.())
-
     this.startAnimation()
   }
 

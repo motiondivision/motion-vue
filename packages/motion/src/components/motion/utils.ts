@@ -4,8 +4,8 @@ import { Comment, cloneVNode, defineComponent, h, mergeProps } from 'vue'
 import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
 import type { MotionProps } from '@/components/motion/types'
-import type { Feature } from '@/features'
-import { updateLazyFeatures } from '@/features/lazy-features'
+import type { FeatureBundle } from '@/features/dom-animation'
+import type { createVisualElement } from '@/state/create-visual-element'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
 type MotionCompProps = {
@@ -13,7 +13,7 @@ type MotionCompProps = {
 }
 export interface MotionCreateOptions {
   forwardMotionProps?: boolean
-  features?: Array<typeof Feature>
+  renderer?: typeof createVisualElement
 }
 export function checkMotionIsHidden(instance: ComponentPublicInstance) {
   const isHidden = getMotionElement(instance.$el)?.style.display === 'none'
@@ -95,7 +95,7 @@ export function createMotionComponent(
 ) {
   const isString = typeof component === 'string'
   const name = isString ? component : component.name || ''
-  const componentCache = options.features?.length > 0 ? componentMaxCache : componentMiniCache
+  const componentCache = options.renderer ? componentMaxCache : componentMiniCache
   if (isString && componentCache?.has(component)) {
     return componentCache.get(component)
   }
@@ -108,7 +108,7 @@ export function createMotionComponent(
     },
     name: name ? `motion.${name}` : 'Motion',
     setup(props, { slots }) {
-      const { getProps, getAttrs, state } = useMotionState(props as any, !!options.features?.length)
+      const { getProps, getAttrs, state } = useMotionState(props as any, options.renderer)
       /**
        * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
        * To prevent this, reapply the current motion state styles in vnode updated lifecycle
@@ -160,25 +160,22 @@ type MotionNameSpace = {
 } & MotionCompProps
 
 export function createMotionComponentWithFeatures(
-  features: Array<typeof Feature> = [],
+  featureBundle?: FeatureBundle,
 ) {
-  return new Proxy({} as unknown as MotionNameSpace, {
-    get(target, prop) {
-      // Update lazy features when component is accessed (for Motion component with domMax)
-      if (features.length) {
-        updateLazyFeatures(features)
-      }
+  const renderer = featureBundle?.renderer
 
+  return new Proxy({} as unknown as MotionNameSpace, {
+    get(_, prop) {
       if (prop === 'create') {
         return (component: any, options?: MotionCreateOptions) =>
           createMotionComponent(component, {
             ...options,
-            features,
+            renderer,
           })
       }
 
       return createMotionComponent(prop as string, {
-        features,
+        renderer,
       })
     },
   })

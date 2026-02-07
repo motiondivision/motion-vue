@@ -7,16 +7,20 @@ import { ProjectionFeature } from '@/features/layout/projection'
 import { DragGesture } from '@/features/gestures/drag'
 import { LayoutFeature } from '@/features/layout/layout'
 import { PanGesture } from '@/features/gestures/pan'
-import type { Feature } from '@/features/feature'
+import type { FeatureBundle } from '@/features/dom-animation'
+import { createVisualElement } from '@/state/create-visual-element'
 
-export const domMax: Array<typeof Feature> = [
-  AnimationFeature,
-  PressGesture,
-  HoverGesture,
-  InViewGesture,
-  FocusGesture,
-  ProjectionFeature,
-  PanGesture,
-  DragGesture,
-  LayoutFeature,
-]
+export const domMax: FeatureBundle = {
+  renderer: createVisualElement,
+  features: [
+    AnimationFeature,
+    PressGesture,
+    HoverGesture,
+    InViewGesture,
+    FocusGesture,
+    ProjectionFeature,
+    PanGesture,
+    DragGesture,
+    LayoutFeature,
+  ],
+}

@@ -9,7 +9,7 @@ export const lazyFeatures: Array<typeof Feature> = []
 
 /**
  * Update the global lazy features array
- * Called from useMotionState when lazyMotionContext features change
+ * Called from useMotionState when LazyMotion context features change
  */
 export function updateLazyFeatures(features: Array<typeof Feature>) {
   for (const feature of features) {

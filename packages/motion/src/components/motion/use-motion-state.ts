@@ -8,12 +8,16 @@ import { PRESENCE_CHILD_ATTR, injectAnimatePresence } from '@/components/animate
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
 import { updateLazyFeatures } from '@/features/lazy-features'
+import type { createVisualElement } from '@/state/create-visual-element'
 import type { DOMKeyframesDefinition } from 'framer-motion'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 
-export function useMotionState(props: MotionProps, hasBuiltInFeatures = false) {
+export function useMotionState(
+  props: MotionProps,
+  renderer?: typeof createVisualElement,
+) {
   // motion context
   const parentState = injectMotion(null)
   // layout group context
@@ -24,14 +28,9 @@ export function useMotionState(props: MotionProps, hasBuiltInFeatures = false) {
   const animatePresenceContext = injectAnimatePresence({})
   // lazy motion context
   const lazyMotionContext = useLazyMotionContext({
-    features: ref([]),
+    features: ref({}),
     strict: false,
   })
-
-  // Update global lazy features when context features change
-  watch(lazyMotionContext.features, (features) => {
-    updateLazyFeatures(features)
-  }, { immediate: true })
 
   /**
    * If we're in development mode, check to make sure we're not rendering a motion component
@@ -39,7 +38,7 @@ export function useMotionState(props: MotionProps, hasBuiltInFeatures = false) {
    */
   if (
     process.env.NODE_ENV !== 'production'
-    && hasBuiltInFeatures
+    && renderer
     && lazyMotionContext.strict
   ) {
     const strictMessage
@@ -48,6 +47,7 @@ export function useMotionState(props: MotionProps, hasBuiltInFeatures = false) {
       ? warning(false, strictMessage)
       : invariant(false, strictMessage)
   }
+
   const attrs = useAttrs()
 
   /**
@@ -89,6 +89,60 @@ export function useMotionState(props: MotionProps, hasBuiltInFeatures = false) {
     parentState!,
   )
   provideMotion(state)
+
+  /**
+   * Initialize visual element with the provided renderer
+   */
+  function initVisualElement(createVE: typeof createVisualElement) {
+    if (state.visualElement)
+      return
+
+    state.visualElement = createVE(state.options.as!, {
+      presenceContext: null,
+      parent: state.parent?.visualElement,
+      props: {
+        ...state.options,
+        whileTap: state.options.whilePress,
+      },
+      visualState: {
+        renderState: {
+          transform: {},
+          transformOrigin: {},
+          style: {},
+          vars: {},
+          attrs: {},
+        },
+        latestValues: {
+          ...state.baseTarget,
+        },
+      },
+      reducedMotionConfig: state.options.motionConfig?.reducedMotion,
+    })
+    state.visualElement.parent?.addChild(state.visualElement)
+  }
+
+  // If renderer is provided directly (motion component), use it immediately
+  if (renderer) {
+    initVisualElement(renderer)
+  }
+
+  // Watch for lazy-loaded features (for m component with LazyMotion)
+  watch(lazyMotionContext.features, (bundle) => {
+    // Update lazy features when features array changes
+    if (bundle.features?.length) {
+      updateLazyFeatures(bundle.features)
+    }
+
+    // Initialize visual element if renderer becomes available
+    if (bundle.renderer && !state.visualElement) {
+      initVisualElement(bundle.renderer)
+
+      // If already mounted, need to re-initialize features and start animation
+      if (state.isMounted()) {
+        state.initFeatures()
+      }
+    }
+  }, { immediate: true })
 
   function getAttrs() {
     const isSVG = state.type === 'svg'
