@@ -1,32 +1,36 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createAnimationState } from '../animation-state'
-import type { MotionState } from '../motion-state'
+import type { VisualElement } from 'motion-dom'
 
 /**
- * Create a minimal mock MotionState for testing animation-state in isolation.
- * Only the properties accessed by createAnimationState are mocked.
+ * Create a minimal mock VisualElement for testing animation-state in isolation.
+ * The mock has a `.state` property (MotionState) attached, matching how
+ * AnimationFeature sets `(visualElement as any).state = motionState`.
  */
-function createMockMotionState(overrides: Record<string, any> = {}): MotionState {
-  return {
+function createMockVisualElement(overrides: Record<string, any> = {}): VisualElement<Element> {
+  const motionState = {
     options: {
       variants: {},
       ...overrides,
     },
     context: overrides.context ?? {},
-    visualElement: {
-      variantChildren: overrides.variantChildren,
-      manuallyAnimateOnMount: overrides.manuallyAnimateOnMount ?? false,
-      blockInitialAnimation: overrides.blockInitialAnimation ?? false,
-    },
     baseTarget: overrides.baseTarget ?? {},
+  }
+
+  return {
+    variantChildren: overrides.variantChildren,
+    manuallyAnimateOnMount: overrides.manuallyAnimateOnMount ?? false,
+    blockInitialAnimation: overrides.blockInitialAnimation ?? false,
+    // [Vue] MotionState is attached to visualElement as `.state`
+    state: motionState,
   } as any
 }
 
 describe('createAnimationState', () => {
   describe('aPI shape', () => {
     it('returns { animateChanges, setActive, setAnimateFunction, getState, reset }', () => {
-      const state = createMockMotionState()
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement()
+      const animState = createAnimationState(ve)
 
       expect(animState).toHaveProperty('animateChanges')
       expect(animState).toHaveProperty('setActive')
@@ -38,8 +42,8 @@ describe('createAnimationState', () => {
 
   describe('getState', () => {
     it('returns per-type state with correct initial values', () => {
-      const state = createMockMotionState()
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement()
+      const animState = createAnimationState(ve)
       const s = animState.getState()
 
       expect(s.animate.isActive).toBe(true)
@@ -62,8 +66,8 @@ describe('createAnimationState', () => {
   describe('animateChanges', () => {
     it('calls animate function with resolved animations', () => {
       const animateFn = vi.fn().mockReturnValue(Promise.resolve())
-      const state = createMockMotionState({ animate: { opacity: 1 } })
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement({ animate: { opacity: 1 } })
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => animateFn)
 
       animState.animateChanges()
@@ -73,8 +77,8 @@ describe('createAnimationState', () => {
 
     it('skips animation on initial render when initial === false', () => {
       const animateFn = vi.fn().mockReturnValue(Promise.resolve())
-      const state = createMockMotionState({ initial: false, animate: { opacity: 1 } })
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement({ initial: false, animate: { opacity: 1 } })
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => animateFn)
 
       animState.animateChanges()
@@ -84,12 +88,12 @@ describe('createAnimationState', () => {
 
     it('skips animation when initial === animate', () => {
       const animateFn = vi.fn().mockReturnValue(Promise.resolve())
-      const state = createMockMotionState({
+      const ve = createMockVisualElement({
         initial: 'visible',
         animate: 'visible',
         variants: { visible: { opacity: 1 } },
       })
-      const animState = createAnimationState(state)
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => animateFn)
 
       animState.animateChanges()
@@ -99,11 +103,11 @@ describe('createAnimationState', () => {
 
     it('resolves variant labels through variants map', () => {
       const animateFn = vi.fn().mockReturnValue(Promise.resolve())
-      const state = createMockMotionState({
+      const ve = createMockVisualElement({
         animate: 'visible',
         variants: { visible: { opacity: 1, x: 100 } },
       })
-      const animState = createAnimationState(state)
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => animateFn)
 
       animState.animateChanges()
@@ -114,8 +118,8 @@ describe('createAnimationState', () => {
     })
 
     it('tracks prevResolvedValues per type', () => {
-      const state = createMockMotionState({ animate: { opacity: 1 } })
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement({ animate: { opacity: 1 } })
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => vi.fn().mockReturnValue(Promise.resolve()))
 
       animState.animateChanges()
@@ -128,8 +132,8 @@ describe('createAnimationState', () => {
   describe('setActive', () => {
     it('returns resolved promise when isActive has not changed', async () => {
       const animateFn = vi.fn().mockReturnValue(Promise.resolve())
-      const state = createMockMotionState({ whileHover: { scale: 1.1 } })
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement({ whileHover: { scale: 1.1 } })
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => animateFn)
 
       // whileHover is already inactive, setting to false again
@@ -140,8 +144,8 @@ describe('createAnimationState', () => {
 
     it('activates type and triggers animateChanges', () => {
       const animateFn = vi.fn().mockReturnValue(Promise.resolve())
-      const state = createMockMotionState({ whileHover: { scale: 1.1 } })
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement({ whileHover: { scale: 1.1 } })
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => animateFn)
 
       // First call animateChanges to complete initial render
@@ -155,11 +159,11 @@ describe('createAnimationState', () => {
     })
 
     it('clears protectedKeys after animateChanges', () => {
-      const state = createMockMotionState({
+      const ve = createMockVisualElement({
         animate: { scale: 1 },
         whileHover: { scale: 1.1 },
       })
-      const animState = createAnimationState(state)
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => vi.fn().mockReturnValue(Promise.resolve()))
 
       animState.animateChanges()
@@ -176,11 +180,11 @@ describe('createAnimationState', () => {
       const childVE = { animationState: childAnimState }
       const variantChildren = new Set([childVE])
 
-      const state = createMockMotionState({
+      const ve = createMockVisualElement({
         whileHover: { scale: 1.1 },
         variantChildren,
       })
-      const animState = createAnimationState(state)
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => vi.fn().mockReturnValue(Promise.resolve()))
 
       animState.animateChanges() // complete initial render
@@ -192,8 +196,8 @@ describe('createAnimationState', () => {
 
   describe('reset', () => {
     it('resets all type states to defaults', () => {
-      const state = createMockMotionState({ whileHover: { scale: 1.1 } })
-      const animState = createAnimationState(state)
+      const ve = createMockVisualElement({ whileHover: { scale: 1.1 } })
+      const animState = createAnimationState(ve)
       animState.setAnimateFunction(() => vi.fn().mockReturnValue(Promise.resolve()))
 
       animState.setActive('whileHover', true)

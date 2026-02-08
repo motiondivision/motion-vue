@@ -8,6 +8,7 @@ import { resolveVariant, shallowCompare } from '@/state/utils'
 import { isAnimationControls } from '@/animation/utils'
 import { isVariantLabels } from '@/state/utils/is-variant-labels'
 import type { MotionState } from '@/state/motion-state'
+import type { VisualElement } from 'motion-dom'
 
 // --- Aligned with motion-dom variantPriorityOrder ---
 const variantPriorityOrder = [
@@ -71,7 +72,7 @@ function isKeyframesTarget(v: any): v is any[] {
 export interface AnimationStateAPI {
   animateChanges: (changedActiveType?: AnimationType) => Promise<any>
   setActive: (type: AnimationType, isActive: boolean) => Promise<any>
-  setAnimateFunction: (fn: (motionState: MotionState) => (animations: any[]) => Promise<any>) => void
+  setAnimateFunction: (fn: (visualElement: VisualElement<Element>) => (animations: any[]) => Promise<any>) => void
   getState: () => Record<string, AnimationTypeState>
   reset: () => void
 }
@@ -82,13 +83,22 @@ export interface AnimationStateAPI {
  * Ported from motion-dom's createAnimationState.
  * The resolution logic mirrors motion-dom so upstream diffs are easy to apply.
  * Execution is Vue-specific (injected via setAnimateFunction).
+ *
+ * @param visualElement - The visual element instance (aligned with motion-dom signature)
  */
-export function createAnimationState(motionState: MotionState): AnimationStateAPI {
+export function createAnimationState(visualElement: VisualElement<Element>): AnimationStateAPI {
   // [Vue] motion-dom: createAnimateFunction(visualElement)
   // We use a no-op default; AnimationFeature injects the real one via setAnimateFunction
   let animate: (animations: any[]) => Promise<any> = () => Promise.resolve()
   let state = createState()
   let isInitialRender = true
+
+  /**
+   * [Vue] Helper to access the MotionState attached to the visual element.
+   * In motion-dom, props/context/baseTarget are on the visualElement directly.
+   * In motion-vue, they live on the MotionState instance.
+   */
+  const getMotionState = (): MotionState => (visualElement as any).state
 
   /**
    * This function will be used to reduce the animation definitions for
@@ -97,7 +107,7 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
   const buildResolvedTypeValues = (type: AnimationType) => (acc: Record<string, any>, definition: any) => {
     // [Vue] motion-dom uses: resolveVariant(visualElement, definition, custom)
     // motion-vue's resolveVariant signature: resolveVariant(definition, variants, custom)
-    const props = motionState.options
+    const props = getMotionState().options
     const resolved = resolveVariant(
       definition,
       props.variants,
@@ -116,8 +126,8 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
    * This just allows us to inject mocked animation functions
    * @internal
    */
-  function setAnimateFunction(makeAnimator: (motionState: MotionState) => (animations: any[]) => Promise<any>) {
-    animate = makeAnimator(motionState)
+  function setAnimateFunction(makeAnimator: (visualElement: VisualElement<Element>) => (animations: any[]) => Promise<any>) {
+    animate = makeAnimator(visualElement)
   }
 
   /**
@@ -131,6 +141,7 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
    *    what to animate those to.
    */
   function animateChanges(changedActiveType?: AnimationType) {
+    const motionState = getMotionState()
     const props = motionState.options
     // [Vue] motion-dom: getVariantContext(visualElement.parent) || {}
     const context = motionState.context || {}
@@ -195,7 +206,7 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
       if (
         isInherited
         && isInitialRender
-        && motionState.visualElement?.manuallyAnimateOnMount
+        && visualElement.manuallyAnimateOnMount
       ) {
         isInherited = false
       }
@@ -331,7 +342,7 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
         encounteredKeys = { ...encounteredKeys, ...resolvedValues }
       }
 
-      if (isInitialRender && motionState.visualElement?.blockInitialAnimation) {
+      if (isInitialRender && visualElement.blockInitialAnimation) {
         shouldAnimateType = false
       }
 
@@ -360,7 +371,7 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
     if (removedKeys.size) {
       const fallbackAnimation: Record<string, any> = {}
       removedKeys.forEach((key) => {
-        // [Vue] Use baseTarget for fallback instead of visualElement.getBaseTarget
+        // [Vue] Use motionState.baseTarget for fallback instead of visualElement.getBaseTarget
         fallbackAnimation[key] = motionState.baseTarget[key] ?? null
       })
       animations.push({ animation: fallbackAnimation, options: {} })
@@ -371,7 +382,7 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
     if (
       isInitialRender
       && (props.initial === false || props.initial === props.animate)
-      && !motionState.visualElement?.manuallyAnimateOnMount
+      && !visualElement.manuallyAnimateOnMount
     ) {
       shouldAnimate = false
     }
@@ -390,8 +401,8 @@ export function createAnimationState(motionState: MotionState): AnimationStateAP
       return Promise.resolve()
 
     // Propagate active change to children
-    // [Vue] motion-dom: visualElement.variantChildren?.forEach(child => child.animationState?.setActive(...))
-    motionState.visualElement?.variantChildren?.forEach((child: any) => {
+    // Aligned with motion-dom: visualElement.variantChildren?.forEach(child => child.animationState?.setActive(...))
+    visualElement.variantChildren?.forEach((child: any) => {
       child.animationState?.setActive(type, isActive)
     })
 

@@ -33,10 +33,10 @@ export class AnimationFeature extends Feature {
   constructor(state: MotionState) {
     super(state)
 
-    // Create animation state and inject Vue-specific animate function
-    this.animationState = createAnimationState(state)
-    this.animationState.setAnimateFunction(motionState => (animations) => {
-      return this.executeAnimationEntries(motionState, animations)
+    // Create animation state with visualElement (aligned with motion-dom signature)
+    this.animationState = createAnimationState(state.visualElement)
+    this.animationState.setAnimateFunction(visualElement => (animations) => {
+      return this.executeAnimationEntries(visualElement, animations)
     })
 
     // Attach to visualElement for child propagation
@@ -53,9 +53,11 @@ export class AnimationFeature extends Feature {
    * and Vue's per-key animate() execution model.
    */
   private executeAnimationEntries(
-    motionState: MotionState,
+    visualElement: VisualElement<Element>,
     animations: Array<{ animation: any, options: Record<string, any> }>,
   ): Promise<any> {
+    // [Vue] Access MotionState from visualElement for Vue-specific execution
+    const motionState: MotionState = (visualElement as any).state
     const prevTarget = motionState.target
     motionState.target = { ...motionState.baseTarget }
 
