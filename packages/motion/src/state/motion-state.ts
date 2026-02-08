@@ -205,18 +205,14 @@ export class MotionState {
   }
 
   // Set animation state active status and propagate to children
-  setActive(name: StateType, isActive: boolean, isAnimate = true) {
-    if (!this.element || this.activeStates[name] === isActive)
+  // [Vue] Delegates to animationState.setActive which handles child propagation
+  // + animateChanges internally, aligned with motion-dom's architecture.
+  setActive(name: StateType, isActive: boolean) {
+    if (!this.element)
       return
-    this.activeStates[name] = isActive
-    this.visualElement.variantChildren?.forEach((child) => {
-      ((child as any).state as MotionState).setActive(name, isActive, false)
-    })
-    if (isAnimate) {
-      this.animateUpdates({
-        isExit: name === 'exit' && this.activeStates.exit,
-      })
-    }
+    this.activeStates[name] = isActive // keep mirror for compat
+    const animationFeature = this.getFeature('animation') as any
+    animationFeature?.animationState?.setActive(name, isActive)
   }
 
   // Core animation update logic
