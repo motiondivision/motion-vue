@@ -13,6 +13,8 @@ import type { $Transition, AnimationFactory, Options, VariantType } from '@/type
 import { isDef } from '@vueuse/core'
 import type { VisualElement } from 'motion-dom'
 import { calcChildStagger } from '@/features/animation/calc-child-stagger'
+import { createAnimationState } from '@/state/animation-state'
+import type { AnimationStateAPI } from '@/state/animation-state'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
@@ -21,12 +23,76 @@ export class AnimationFeature extends Feature {
   static key = 'animation' as const
 
   unmountControls?: () => void
+
+  /**
+   * Animation state manager ported from motion-dom.
+   * Handles priority-based resolution via animateChanges/setActive.
+   */
+  animationState: AnimationStateAPI
+
   constructor(state: MotionState) {
     super(state)
+
+    // Create animation state and inject Vue-specific animate function
+    this.animationState = createAnimationState(state)
+    this.animationState.setAnimateFunction(motionState => (animations) => {
+      return this.executeAnimationEntries(motionState, animations)
+    })
+
+    // Attach to visualElement for child propagation
+    ;(state.visualElement as any).animationState = this.animationState
+
     // visualElement is now created in useMotionState
     this.state.animateUpdates = this.animateUpdates
     if (this.state.isMounted())
       this.state.startAnimation()
+  }
+
+  /**
+   * Bridge between createAnimationState's { animation, options }[] output
+   * and Vue's per-key animate() execution model.
+   */
+  private executeAnimationEntries(
+    motionState: MotionState,
+    animations: Array<{ animation: any, options: Record<string, any> }>,
+  ): Promise<any> {
+    const prevTarget = motionState.target
+    motionState.target = { ...motionState.baseTarget }
+
+    // Resolve all animation entries into target values and extract transition
+    const { variants, custom, transition, animatePresenceContext } = motionState.options
+    const customValue = custom ?? animatePresenceContext?.custom
+    let variantTransition: $Transition = motionState.options.transition || {}
+
+    for (const { animation: definition, options } of animations) {
+      const resolved = resolveVariant(definition, variants, customValue)
+      if (!resolved)
+        continue
+
+      // If the variant has its own transition, use it
+      if (resolved.transition && options.type !== 'initial') {
+        variantTransition = resolved.transition
+      }
+
+      // Apply resolved values to target
+      Object.entries(resolved).forEach(([key, value]) => {
+        if (key === 'transition')
+          return
+        motionState.target[key] = value
+      })
+    }
+
+    motionState.finalTransition = variantTransition
+
+    const factories = this.createAnimationFactories(prevTarget, variantTransition, 0)
+    const { getChildAnimations } = this.setupChildAnimations(variantTransition, motionState.activeStates)
+    return this.executeAnimations({
+      factories,
+      getChildAnimations,
+      transition: variantTransition,
+      controlActiveState: motionState.activeStates,
+      isExit: motionState.activeStates.exit || false,
+    }) as Promise<any>
   }
 
   updateAnimationControlsSubscription() {
@@ -47,27 +113,44 @@ export class AnimationFeature extends Feature {
     const { reducedMotion } = this.state.options.motionConfig
     this.state.visualElement.shouldReduceMotion = reducedMotion === 'always' || (reducedMotion === 'user' && !!prefersReducedMotion.current)
 
-    const prevTarget = this.state.target
-    this.state.target = { ...this.state.baseTarget }
-    let animationOptions: $Transition = {}
+    // Direct animation path (AnimationControls / imperative API) bypasses createAnimationState
+    if (directAnimate) {
+      const prevTarget = this.state.target
+      this.state.target = { ...this.state.baseTarget }
+      const animationOptions = this.resolveDirectAnimation({ directAnimate, directTransition })
+      this.state.finalTransition = animationOptions
 
-    animationOptions = this.resolveStateAnimation({
-      controlActiveState,
-      directAnimate,
-      directTransition,
-    })
-    // The final transition to be applied to the state
-    this.state.finalTransition = animationOptions
+      const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
+      const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates)
+      return this.executeAnimations({
+        factories,
+        getChildAnimations,
+        transition: animationOptions,
+        controlActiveState,
+        isExit,
+      })
+    }
 
-    const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
-    const { getChildAnimations } = this.setupChildAnimations(animationOptions, this.state.activeStates)
-    return this.executeAnimations({
-      factories,
-      getChildAnimations,
-      transition: animationOptions,
-      controlActiveState,
-      isExit,
-    })
+    // Controlled child animation path (parent passing controlActiveState + controlDelay)
+    if (controlActiveState) {
+      const prevTarget = this.state.target
+      this.state.target = { ...this.state.baseTarget }
+      const animationOptions = this.resolveStateAnimation({ controlActiveState })
+      this.state.finalTransition = animationOptions
+
+      const factories = this.createAnimationFactories(prevTarget, animationOptions, controlDelay)
+      const { getChildAnimations } = this.setupChildAnimations(animationOptions, controlActiveState)
+      return this.executeAnimations({
+        factories,
+        getChildAnimations,
+        transition: animationOptions,
+        controlActiveState,
+        isExit,
+      })
+    }
+
+    // Standard variant-based animation path — delegate to createAnimationState
+    return this.animationState.animateChanges()
   }
 
   executeAnimations(
@@ -198,15 +281,45 @@ export class AnimationFeature extends Feature {
     return factories
   }
 
-  resolveStateAnimation(
+  /**
+   * Resolve direct animation (from AnimationControls / imperative API).
+   * This path bypasses createAnimationState.
+   */
+  resolveDirectAnimation(
     {
-      controlActiveState,
       directAnimate,
       directTransition,
     }: {
-      controlActiveState: Partial<Record<string, boolean>> | undefined
       directAnimate: Options['animate']
       directTransition: Options['transition'] | undefined
+    },
+  ) {
+    const { variants, custom, transition, animatePresenceContext } = this.state.options
+    const customValue = custom ?? animatePresenceContext?.custom
+
+    const variant = resolveVariant(directAnimate, variants, customValue)
+    const variantTransition = variant?.transition || directTransition || transition
+
+    if (variant) {
+      Object.entries(variant).forEach(([key, value]) => {
+        if (key === 'transition')
+          return
+        this.state.target[key] = value
+      })
+    }
+
+    return variantTransition
+  }
+
+  /**
+   * Resolve state animation for controlled child path.
+   * Kept for controlled child animations that need controlActiveState + controlDelay.
+   */
+  resolveStateAnimation(
+    {
+      controlActiveState,
+    }: {
+      controlActiveState: Partial<Record<string, boolean>> | undefined
     },
   ) {
     let variantTransition = this.state.options.transition
@@ -233,11 +346,6 @@ export class AnimationFeature extends Feature {
       variant = Object.assign(variant, resolvedVariant)
     })
 
-    if (directAnimate) {
-      variant = resolveVariant(directAnimate, variants, customValue)
-      variantTransition = variant.transition || directTransition || transition
-    }
-
     Object.entries(variant).forEach(([key, value]) => {
       if (key === 'transition')
         return
@@ -257,7 +365,7 @@ export class AnimationFeature extends Feature {
       visualElementStore.set(element, this.state.visualElement)
     }
     // Add state reference to visual element
-    (this.state.visualElement as any).state = this.state
+    ;(this.state.visualElement as any).state = this.state
     this.updateAnimationControlsSubscription()
 
     const visualElement = this.state.visualElement
@@ -272,7 +380,7 @@ export class AnimationFeature extends Feature {
       (this.animateUpdates({
         controlActiveState: this.state.parent.activeStates,
         controlDelay: calcChildStagger(parentVisualElement.enteringChildren, visualElement, delayChildren),
-      }) as Function) ()
+      }) as Function)()
     }
   }
 
