@@ -7,6 +7,7 @@ import type { MotionProps } from '@/components/motion/types'
 import type { FeatureBundle } from '@/features/dom-animation'
 import type { createVisualElement } from '@/state/create-visual-element'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
+import { updateLazyFeatures } from '@/features/lazy-features'
 
 type MotionCompProps = {
   create: <T extends DefineComponent>(T, options?: MotionCreateOptions) => DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
@@ -163,7 +164,7 @@ export function createMotionComponentWithFeatures(
   featureBundle?: FeatureBundle,
 ) {
   const renderer = featureBundle?.renderer
-
+  updateLazyFeatures(featureBundle?.features || [])
   return new Proxy({} as unknown as MotionNameSpace, {
     get(_, prop) {
       if (prop === 'create') {

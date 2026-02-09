@@ -1,5 +1,4 @@
-import type { MotionState } from '@/state/motion-state'
-import type { Options } from '@/types'
+import type { VisualElement } from 'motion-dom'
 
 // Feature 标识符类型
 export type FeatureKey =
@@ -13,31 +12,20 @@ export type FeatureKey =
   | 'pan'
   | 'inView'
 
-// Feature 构造函数类型
-export interface FeatureClass {
-  key: FeatureKey
-  new (state: MotionState): Feature
-}
-
-export class Feature {
-  // 每个子类必须声明自己的 key
+export abstract class Feature {
   static key: FeatureKey
 
-  state: MotionState
+  isMount: boolean
 
-  constructor(state: MotionState) {
-    this.state = state
+  node: VisualElement
+
+  constructor(node: VisualElement) {
+    this.node = node
   }
 
-  beforeMount(): void {}
+  abstract mount(): void
 
-  mount(): void {}
+  abstract unmount(): void
 
-  unmount(): void {}
-
-  update?(): void {}
-
-  beforeUpdate?(options: Options): void {}
-
-  beforeUnmount?(): void {}
+  update: () => {}
 }

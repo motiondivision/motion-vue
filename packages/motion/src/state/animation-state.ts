@@ -4,11 +4,11 @@
  * Ported from motion-dom/dist/es/render/utils/animation-state.mjs
  * Adaptations for Vue are marked with "// [Vue]" comments.
  */
-import { resolveVariant, shallowCompare } from '@/state/utils'
+import { shallowCompare } from '@/state/utils'
 import { isAnimationControls } from '@/animation/utils'
-import { isVariantLabels } from '@/state/utils/is-variant-labels'
-import type { MotionState } from '@/state/motion-state'
-import type { VisualElement } from 'motion-dom'
+import type { AnimationDefinition, TargetAndTransition, VisualElement, VisualElementAnimationOptions } from 'motion-dom'
+import { animateVisualElement, calcChildStagger, isVariantLabel, resolveVariant } from 'motion-dom'
+import { getVariantContext } from '@/state/utils/get-variant-context'
 
 // --- Aligned with motion-dom variantPriorityOrder ---
 const variantPriorityOrder = [
@@ -77,6 +77,27 @@ export interface AnimationStateAPI {
   reset: () => void
 }
 
+interface DefinitionAndOptions {
+  animation: AnimationDefinition
+  options?: VisualElementAnimationOptions
+}
+
+/**
+ * Type for the animate function that can be injected.
+ * This allows the animation implementation to be provided by the framework layer.
+ */
+export type AnimateFunction = (animations: DefinitionAndOptions[]) => Promise<any>
+
+function createAnimateFunction(visualElement: VisualElement<Element>): AnimateFunction {
+  return (animations: DefinitionAndOptions[]) => {
+    return Promise.all(
+      animations.map(({ animation, options }) =>
+        animateVisualElement(visualElement, animation, options),
+      ),
+    )
+  }
+}
+
 /**
  * Create animation state manager.
  *
@@ -86,41 +107,36 @@ export interface AnimationStateAPI {
  *
  * @param visualElement - The visual element instance (aligned with motion-dom signature)
  */
-export function createAnimationState(visualElement: VisualElement<Element>): AnimationStateAPI {
-  // [Vue] motion-dom: createAnimateFunction(visualElement)
-  // We use a no-op default; AnimationFeature injects the real one via setAnimateFunction
-  let animate: (animations: any[]) => Promise<any> = () => Promise.resolve()
+export function createAnimationState(visualElement: VisualElement<any>): AnimationStateAPI {
+  let animate = createAnimateFunction(visualElement)
   let state = createState()
   let isInitialRender = true
-
-  /**
-   * [Vue] Helper to access the MotionState attached to the visual element.
-   * In motion-dom, props/context/baseTarget are on the visualElement directly.
-   * In motion-vue, they live on the MotionState instance.
-   */
-  const getMotionState = (): MotionState => (visualElement as any).state
 
   /**
    * This function will be used to reduce the animation definitions for
    * each active animation type into an object of resolved values for it.
    */
-  const buildResolvedTypeValues = (type: AnimationType) => (acc: Record<string, any>, definition: any) => {
-    // [Vue] motion-dom uses: resolveVariant(visualElement, definition, custom)
-    // motion-vue's resolveVariant signature: resolveVariant(definition, variants, custom)
-    const props = getMotionState().options
-    const resolved = resolveVariant(
-      definition,
-      props.variants,
-      type === 'exit'
-        ? props.animatePresenceContext?.custom ?? props.custom
-        : props.custom,
-    )
-    if (resolved) {
-      const { transition: _transition, ...target } = resolved
-      acc = { ...acc, ...target }
-    }
-    return acc
-  }
+  const buildResolvedTypeValues
+   = (type: AnimationType) =>
+     (
+       acc: { [key: string]: any },
+       definition: string | TargetAndTransition | undefined,
+     ) => {
+       const resolved = resolveVariant(
+         visualElement,
+         definition,
+         type === 'exit'
+           ? visualElement.presenceContext?.custom
+           : undefined,
+       )
+
+       if (resolved) {
+         const { transition, transitionEnd, ...target } = resolved
+         acc = { ...acc, ...target, ...transitionEnd }
+       }
+
+       return acc
+     }
 
   /**
    * This just allows us to inject mocked animation functions
@@ -141,16 +157,13 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
    *    what to animate those to.
    */
   function animateChanges(changedActiveType?: AnimationType) {
-    const motionState = getMotionState()
-    const props = motionState.options
-    // [Vue] motion-dom: getVariantContext(visualElement.parent) || {}
-    const context = motionState.context || {}
-
+    const { props } = visualElement
+    const context = getVariantContext(visualElement.parent) || {}
     /**
      * A list of animations that we'll build into as we iterate through the animation
      * types. This will get executed at the end of the function.
      */
-    const animations: Array<{ animation: any, options: Record<string, any> }> = []
+    const animations: Array<DefinitionAndOptions> = []
 
     /**
      * Keep track of which values have been removed. Then, as we hit lower priority
@@ -183,7 +196,7 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
       const prop = props[type] !== undefined
         ? props[type]
         : context[type]
-      const propIsVariant = isVariantLabels(prop)
+      const propIsVariant = isVariantLabel(prop)
 
       /**
        * If this type has *just* changed isActive status, set activeDelta
@@ -283,7 +296,10 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
           removedKeys.delete(key)
         }
         typeState.needsAnimating[key] = true
-        // [Vue] motion-dom also does: visualElement.getValue(key)?.liveStyle = false
+
+        const motionValue = visualElement.getValue(key)
+        if (motionValue)
+          motionValue.liveStyle = false
       }
 
       for (const key in allKeys) {
@@ -291,7 +307,7 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
         const prev = prevResolvedValues[key]
 
         // If we've already handled this we can just skip ahead
-        if (Object.prototype.hasOwnProperty.call(encounteredKeys, key))
+        if (Object.hasOwnProperty.call(encounteredKeys, key))
           continue
 
         /**
@@ -355,10 +371,43 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
 
       if (shouldAnimateType && needsAnimating) {
         animations.push(
-          ...definitionList.map((animation: any) => ({
-            animation,
-            options: { type },
-          })),
+          ...definitionList.map((animation) => {
+            const options: VisualElementAnimationOptions = { type } as any
+
+            /**
+             * If we're performing the initial animation, but we're not
+             * rendering at the same time as the variant-controlling parent,
+             * we want to use the parent's transition to calculate the stagger.
+             */
+            if (
+              typeof animation === 'string'
+              && isInitialRender
+              && !willAnimateViaParent
+              && visualElement.manuallyAnimateOnMount
+              && visualElement.parent
+            ) {
+              const { parent } = visualElement
+              const parentVariant = resolveVariant(
+                parent,
+                animation,
+              )
+
+              if (parent.enteringChildren && parentVariant) {
+                const { delayChildren }
+                    = parentVariant.transition || {}
+                options.delay = calcChildStagger(
+                  parent.enteringChildren,
+                  visualElement,
+                  delayChildren,
+                )
+              }
+            }
+
+            return {
+              animation: animation as AnimationDefinition,
+              options,
+            }
+          }),
         )
       }
     }
@@ -369,12 +418,36 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
      * defined in the style prop, or the last read value.
      */
     if (removedKeys.size) {
-      const fallbackAnimation: Record<string, any> = {}
+      const fallbackAnimation: TargetAndTransition = {}
+
+      /**
+       * If the initial prop contains a transition we can use that, otherwise
+       * allow the animation function to use the visual element's default.
+       */
+      if (typeof props.initial !== 'boolean') {
+        const initialTransition = resolveVariant(
+          visualElement,
+          Array.isArray(props.initial)
+            ? props.initial[0]
+            : props.initial,
+        )
+
+        if (initialTransition && initialTransition.transition) {
+          fallbackAnimation.transition = initialTransition.transition
+        }
+      }
+
       removedKeys.forEach((key) => {
-        // [Vue] Use motionState.baseTarget for fallback instead of visualElement.getBaseTarget
-        fallbackAnimation[key] = motionState.baseTarget[key] ?? null
+        const fallbackTarget = visualElement.getBaseTarget(key)
+
+        const motionValue = visualElement.getValue(key)
+        if (motionValue)
+          motionValue.liveStyle = true
+
+        fallbackAnimation[key] = fallbackTarget ?? null
       })
-      animations.push({ animation: fallbackAnimation, options: {} })
+
+      animations.push({ animation: fallbackAnimation })
     }
 
     let shouldAnimate = Boolean(animations.length)
@@ -401,9 +474,8 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
       return Promise.resolve()
 
     // Propagate active change to children
-    // Aligned with motion-dom: visualElement.variantChildren?.forEach(child => child.animationState?.setActive(...))
-    visualElement.variantChildren?.forEach((child: any) => {
-      child.animationState?.setActive(type, isActive)
+    visualElement.variantChildren?.forEach((child) => {
+      child.animationState?.setActive(type as any, isActive)
     })
 
     state[type].isActive = isActive
@@ -423,9 +495,6 @@ export function createAnimationState(visualElement: VisualElement<Element>): Ani
     getState: () => state,
     reset: () => {
       state = createState()
-      // Temporarily disabling resetting isInitialRender flag
-      // (aligned with motion-dom comment)
-      // isInitialRender = true
     },
   }
 }

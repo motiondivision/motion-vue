@@ -3,7 +3,6 @@ import { getMotionElement } from '@/components/hooks/use-motion-elm'
 import { useLazyMotionContext } from '@/components/lazy-motion/context'
 import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
-import { checkMotionIsHidden } from '@/components/motion/utils'
 import { PRESENCE_CHILD_ATTR, injectAnimatePresence } from '@/components/animate-presence/presence'
 import { MotionState } from '@/state'
 import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
@@ -136,12 +135,8 @@ export function useMotionState(
     // Initialize visual element if renderer becomes available
     if (bundle.renderer && !state.visualElement) {
       initVisualElement(bundle.renderer)
-
-      // If already mounted, need to re-initialize features and start animation
-      if (state.isMounted()) {
-        state.initFeatures()
-      }
     }
+    state.updateFeatures()
   }, { immediate: true })
 
   function getAttrs() {
@@ -196,7 +191,7 @@ export function useMotionState(
   })
 
   onMounted(() => {
-    state.mount(getMotionElement(instance.$el), getMotionProps(), checkMotionIsHidden(instance))
+    state.mount(getMotionElement(instance.$el))
 
     // Register to AnimatePresence container
     if (animatePresenceContext.register && state.element) {

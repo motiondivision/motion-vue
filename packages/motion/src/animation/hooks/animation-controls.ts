@@ -48,10 +48,10 @@ export function animationControls(): AnimationControls {
       const animations: Array<Promise<any>> = []
       subscribers.forEach((state) => {
         animations.push(
-          state.animateUpdates({
-            directAnimate: definition,
-            directTransition: transitionOverride,
-          }) as Promise<any>,
+          // state.animateUpdates({
+          //   directAnimate: definition,
+          //   directTransition: transitionOverride,
+          // }) as Promise<any>,
         )
       })
 
