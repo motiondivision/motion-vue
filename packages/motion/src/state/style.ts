@@ -1,5 +1,9 @@
-import { buildHTMLStyles, buildSVGAttrs, isSVGTag } from 'motion-dom'
+import { buildHTMLStyles, buildSVGAttrs, camelCaseAttributes, isSVGTag } from 'motion-dom'
 import type { HTMLRenderState, SVGRenderState } from 'motion-dom'
+
+function camelToDash(str: string) {
+  return str.replace(/([A-Z])/g, match => `-${match.toLowerCase()}`)
+}
 
 function createHTMLRenderState(): HTMLRenderState {
   return {
@@ -37,8 +41,14 @@ export function createSVGStyles(
 ): { attrs: Record<string, any>, style: Record<string, any> } {
   const state = createSVGRenderState()
   buildSVGAttrs(state, latestValues, isSVGTag(tag), undefined, styleProp)
+  // Convert camelCase attr keys to dash-case for SVG (matching renderSVG behavior)
+  const attrs: Record<string, any> = {}
+  for (const key in state.attrs) {
+    const attrKey = camelCaseAttributes.has(key) ? key : camelToDash(key)
+    attrs[attrKey] = state.attrs[key]
+  }
   return {
-    attrs: state.attrs as Record<string, any>,
+    attrs,
     style: { ...state.style, ...state.vars } as Record<string, any>,
   }
 }

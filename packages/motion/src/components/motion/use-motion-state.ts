@@ -150,6 +150,12 @@ export function useMotionState(
       ...props.style,
       ...(isSVG ? {} : currentValues),
     }
+    // Extract MotionValue objects to their current values
+    // (buildSVGAttrs/buildHTMLStyles expect plain values)
+    for (const key in styleProps) {
+      if (isMotionValue(styleProps[key]))
+        styleProps[key] = styleProps[key].get()
+    }
     if (isSVG) {
       const { attrs: svgAttrs, style: svgStyle } = createSVGStyles(
         { ...currentValues, ...styleProps },
