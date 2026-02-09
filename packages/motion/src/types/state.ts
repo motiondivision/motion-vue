@@ -75,11 +75,3 @@ export interface MotionStateContext {
 }
 
 export type AnimationFactory = () => AnimationPlaybackControls | undefined
-
-export interface CssPropertyDefinition {
-  syntax: `<${string}>`
-  initialValue: string | number
-  toDefaultUnit: (v: number) => string | number
-}
-
-export type CssPropertyDefinitionMap = { [key: string]: CssPropertyDefinition }

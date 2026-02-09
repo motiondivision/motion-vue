@@ -50,12 +50,6 @@ export function isCssVar(name: string) {
   return name?.startsWith('--')
 }
 
-export const noopReturn = <V>(v: V) => v
-
-export function isNumber(value: any): boolean {
-  return typeof value === 'number'
-}
-
 export const svgElements = [
   'animate',
   'circle',

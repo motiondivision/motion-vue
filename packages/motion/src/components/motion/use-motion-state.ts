@@ -5,10 +5,9 @@ import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
 import { PRESENCE_CHILD_ATTR, injectAnimatePresence } from '@/components/animate-presence/presence'
 import { MotionState } from '@/state'
-import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
+import { createSVGStyles, createStyles } from '@/state/style'
 import { updateLazyFeatures } from '@/features/lazy-features'
 import type { createVisualElement } from '@/state/create-visual-element'
-import type { DOMKeyframesDefinition } from 'framer-motion'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
@@ -152,21 +151,13 @@ export function useMotionState(
       ...(isSVG ? {} : currentValues),
     }
     if (isSVG) {
-      const { attrs, style } = convertSvgStyleToAttributes({
-        ...currentValues,
-        ...styleProps,
-      } as DOMKeyframesDefinition)
-      if (style.transform || attrs.transformOrigin) {
-        style.transformOrigin = attrs.transformOrigin ?? '50% 50%'
-        delete attrs.transformOrigin
-      }
-      // If the transformBox is not set, set it to fill-box
-      if (style.transform) {
-        style.transformBox = style.transformBox ?? 'fill-box'
-        delete attrs.transformBox
-      }
-      Object.assign(attrsProps, attrs)
-      styleProps = style
+      const { attrs: svgAttrs, style: svgStyle } = createSVGStyles(
+        { ...currentValues, ...styleProps },
+        state.options.as as string,
+        props.style,
+      )
+      Object.assign(attrsProps, svgAttrs)
+      styleProps = svgStyle
     }
     if (props.drag && props.dragListener !== false) {
       Object.assign(styleProps, {
