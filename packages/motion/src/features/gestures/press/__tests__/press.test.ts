@@ -26,6 +26,7 @@ describe('press gesture', () => {
       },
     })
     await nextTick()
+
     const motion = wrapper.getByTestId('motion')
     expect(motion.tabIndex).toBe(0)
   })

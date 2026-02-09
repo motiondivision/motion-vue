@@ -61,7 +61,12 @@ function setActiveItem(item) {
         }}
       </p>
     </div>
-
+    <motion.div
+      :while-press="{ scale: 0.5 }"
+      class="w-[100px] h-[100px] bg-red-500"
+    >
+      12
+    </motion.div>
     <!-- With AnimatePresence -->
     <AnimatePresence v-if="useAnimatePresence">
       <motion.div

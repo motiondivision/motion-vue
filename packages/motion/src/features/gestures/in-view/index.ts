@@ -1,54 +1,39 @@
-import type { MotionState } from '@/state/motion-state'
-import { Feature } from '@/features'
+import { Feature } from '@/features/feature'
 import { frame } from 'motion-dom'
 import { inView } from 'framer-motion/dom'
-import type { Options } from '@/types'
-
-function handleHoverEvent(
-  state: MotionState,
-  entry: IntersectionObserverEntry,
-  lifecycle: 'Enter' | 'Leave',
-) {
-  const props = state.options
-  if (props.whileInView) {
-    state.setActive('whileInView', lifecycle === 'Enter')
-  }
-
-  const eventName = (`onViewport${lifecycle}`) as
-    | 'onViewportEnter'
-    | 'onViewportLeave'
-
-  const callback = props[eventName]
-  if (callback) {
-    frame.postRender(() => callback(entry))
-  }
-}
 
 export class InViewGesture extends Feature {
   static key = 'inView' as const
 
-  isActive() {
-    const { whileInView, onViewportEnter, onViewportLeave } = this.state.options
+  private removeObserver: VoidFunction | undefined
+
+  private isActive() {
+    const { whileInView, onViewportEnter, onViewportLeave } = this.node.props as any
     return Boolean(whileInView || onViewportEnter || onViewportLeave)
   }
 
-  constructor(state: MotionState) {
-    super(state)
-  }
-
-  startObserver() {
-    const element = this.state.element
+  private startObserver() {
+    const element = this.node.current as Element
     if (!element || !this.isActive())
       return
-    this.unmount()
-    const { once, ...viewOptions } = this.state.options.inViewOptions || {}
-    this.unmount = inView(
+
+    this.removeObserver?.()
+    const { once, ...viewOptions } = (this.node.props as any).inViewOptions || {}
+    this.removeObserver = inView(
       element,
       (_, entry) => {
-        handleHoverEvent(this.state, entry, 'Enter')
+        const props = this.node.props as any
+        this.node.animationState?.setActive('whileInView' as any, true)
+        if (props.onViewportEnter) {
+          frame.postRender(() => props.onViewportEnter(entry))
+        }
         if (!once) {
-          return (endEvent) => {
-            handleHoverEvent(this.state, entry, 'Leave')
+          return () => {
+            this.node.animationState?.setActive('whileInView' as any, false)
+            const leaveCallback = (this.node.props as any).onViewportLeave
+            if (leaveCallback) {
+              frame.postRender(() => leaveCallback(entry))
+            }
           }
         }
       },
@@ -60,21 +45,20 @@ export class InViewGesture extends Feature {
     this.startObserver()
   }
 
-  update(): void {
-    const { props, prevProps } = this.state.visualElement
-    const hasOptionsChanged = ['amount', 'margin', 'root'].some(
-      hasViewportOptionChanged(props as any, prevProps as any),
-    )
+  update() {
+    const { props, prevProps } = this.node
+    const hasOptionsChanged = ['amount', 'margin', 'root'].some((name) => {
+      const current = (props as any).inViewOptions?.[name]
+      const prev = (prevProps as any)?.inViewOptions?.[name]
+      return current !== prev
+    })
     if (hasOptionsChanged) {
       this.startObserver()
     }
   }
-}
 
-function hasViewportOptionChanged(
-  { inViewOptions = {} }: Options,
-  { inViewOptions: prevViewport = {} }: Options = {},
-) {
-  return (name: keyof typeof inViewOptions) =>
-    inViewOptions[name] !== prevViewport[name]
+  unmount() {
+    this.removeObserver?.()
+    this.removeObserver = undefined
+  }
 }

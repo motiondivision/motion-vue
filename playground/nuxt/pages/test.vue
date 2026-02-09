@@ -11,7 +11,12 @@ const isChecked = ref()
       type="checkbox"
     >
     With Animate Presence
-
+    <Motion
+      as="button"
+      :while-press="{ scale: 0.5 }"
+    >
+      12
+    </Motion>
     <Motion style="display: flex; width: 300px; gap: 10px">
       <AnimatePresence
         mode="popLayout"

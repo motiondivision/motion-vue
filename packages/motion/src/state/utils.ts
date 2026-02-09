@@ -33,7 +33,7 @@ export function resolveVariant(
 }
 
 export function shallowCompare(next: any[], prev: any[]) {
-  const prevLength = prev.length
+  const prevLength = prev?.length
 
   if (prevLength !== next.length)
     return false

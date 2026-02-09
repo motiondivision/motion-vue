@@ -1,9 +1,9 @@
-import type { MotionState } from '@/state/motion-state'
-import { Feature } from '@/features'
+import { Feature } from '@/features/feature'
+import type { Options } from '@/types'
 import { frame, press } from 'motion-dom'
 import type { EventInfo } from 'motion-dom'
 
-export function extractEventInfo(event: PointerEvent): EventInfo {
+function extractEventInfo(event: PointerEvent): EventInfo {
   return {
     point: {
       x: event.pageX,
@@ -12,37 +12,42 @@ export function extractEventInfo(event: PointerEvent): EventInfo {
   }
 }
 
-function handlePressEvent(
-  state: MotionState,
-  event: PointerEvent,
-  lifecycle: 'Start' | 'End' | 'Cancel',
-) {
-  const props = state.options
-  if (props.whilePress) {
-    state.setActive('whilePress', lifecycle === 'Start')
-  }
-
-  const eventName = (`onPress${lifecycle === 'End' ? '' : lifecycle}`) as
-    | 'onPressStart'
-    | 'onPress'
-    | 'onPressCancel'
-
-  const callback = props[eventName]
-  if (callback) {
-    frame.postRender(() => callback(event, extractEventInfo(event)))
-  }
-}
-
 export class PressGesture extends Feature {
   static key = 'press' as const
 
-  isActive() {
-    const { whilePress, onPress, onPressCancel, onPressStart } = this.state.options
+  private removePress: VoidFunction | undefined
+
+  private isActive() {
+    const { whilePress, onPress, onPressCancel, onPressStart } = this.node.props as any
     return Boolean(whilePress || onPress || onPressCancel || onPressStart)
   }
 
-  constructor(state: MotionState) {
-    super(state)
+  private register() {
+    const element = this.node.current as HTMLElement
+    if (!element || !this.isActive())
+      return
+
+    this.removePress?.()
+    this.removePress = press(
+      element,
+      (_el, startEvent) => {
+        const props = this.node.props as Options
+        this.node.animationState?.setActive('whilePress' as any, true)
+        if (props.onPressStart) {
+          frame.postRender(() => props.onPressStart(startEvent, extractEventInfo(startEvent)))
+        }
+
+        return (endEvent, { success }) => {
+          this.node.animationState?.setActive('whilePress' as any, false)
+          const callbackName = success ? 'onPress' : 'onPressCancel'
+          const callback = (this.node.props as any)[callbackName]
+          if (callback) {
+            frame.postRender(() => callback(endEvent, extractEventInfo(endEvent)))
+          }
+        }
+      },
+      { useGlobalTarget: (this.node.props as any).globalPressTarget },
+    )
   }
 
   mount() {
@@ -50,32 +55,15 @@ export class PressGesture extends Feature {
   }
 
   update() {
-    const { whilePress, onPress, onPressCancel, onPressStart } = this.state.options
-    // Re-register if whilePress changes
-    if (!(whilePress || onPress || onPressCancel || onPressStart)) {
+    const prev = this.node.prevProps as any
+    const wasActive = Boolean(prev?.whilePress || prev?.whileTap || prev?.onPress || prev?.onPressCancel || prev?.onPressStart)
+    if (!wasActive && this.isActive()) {
       this.register()
     }
   }
 
-  register() {
-    const element = this.state.element
-    if (!element || !this.isActive())
-      return
-    // Unmount previous press handler
-    this.unmount()
-    this.unmount = press(
-      element,
-      (el, startEvent) => {
-        handlePressEvent(this.state, startEvent, 'Start')
-
-        return (endEvent, { success }) =>
-          handlePressEvent(
-            this.state,
-            endEvent,
-            success ? 'End' : 'Cancel',
-          )
-      },
-      { useGlobalTarget: this.state.options.globalPressTarget },
-    )
+  unmount() {
+    this.removePress?.()
+    this.removePress = undefined
   }
 }
