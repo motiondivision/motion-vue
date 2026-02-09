@@ -27,5 +27,5 @@ export abstract class Feature {
 
   abstract unmount(): void
 
-  update: () => {}
+  update() {}
 }

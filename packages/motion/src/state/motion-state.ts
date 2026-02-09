@@ -94,7 +94,6 @@ export class MotionState {
    */
   updateFeatures() {
     for (const FeatureCtor of lazyFeatures) {
-      // Skip if already registered
       if (!this.features.has(FeatureCtor.key)) {
         // @ts-ignore
         this.features.set(FeatureCtor.key, new FeatureCtor(this.visualElement))

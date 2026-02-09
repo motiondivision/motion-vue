@@ -194,17 +194,6 @@ export function useMotionState(
   onMounted(() => {
     state.mount(getMotionElement(instance.$el))
 
-    // Apply initial styles after mount to fix SSR hydration mismatches.
-    // During SSR, styles aren't rendered; Vue's hydration doesn't patch style mismatches.
-    if (state.element) {
-      const { style } = getAttrs()
-      if (style) {
-        for (const [key, val] of Object.entries(style as Record<string, string>)) {
-          ;(state.element as HTMLElement).style[key as any] = val
-        }
-      }
-    }
-
     // Register to AnimatePresence container
     if (animatePresenceContext.register && state.element) {
       const container = state.element.closest(`[${PRESENCE_CHILD_ATTR}]`)
