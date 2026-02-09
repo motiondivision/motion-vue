@@ -64,9 +64,11 @@ export class MotionState {
     if (!this._context) {
       const handler = {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
-          return isVariantLabel(this.options[prop])
-            ? this.options[prop]
-            : this.parent?.context[prop]
+          const value = this.options[prop]
+          if (isVariantLabel(value) || (prop === 'initial' && value === false)) {
+            return value
+          }
+          return this.parent?.context[prop]
         },
       }
 
@@ -79,10 +81,12 @@ export class MotionState {
   private resolveInitialLatestValues(initialVariantSource: string[]) {
     const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
     this.latestValues = initialVariantSource.reduce((acc, variant) => {
-      return {
-        ...acc,
-        ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom),
+      const resolved = resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom)
+      if (resolved) {
+        const { transition, transitionEnd, ...target } = resolved as any
+        return { ...acc, ...target, ...transitionEnd }
       }
+      return acc
     }, {})
   }
 

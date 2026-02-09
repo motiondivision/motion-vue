@@ -21,14 +21,6 @@ export function resolveVariant(
   }
 }
 
-export function hasChanged(a: any, b: any): boolean {
-  if (typeof a !== typeof b)
-    return true
-  if (Array.isArray(a) && Array.isArray(b))
-    return !shallowCompare(a, b)
-  return a !== b
-}
-
 export function shallowCompare(next: any[], prev: any[]) {
   const prevLength = prev.length
 
