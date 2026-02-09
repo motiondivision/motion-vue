@@ -1,14 +1,14 @@
 import type { $Transition, AsTag, Options, VariantType } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
-export function resolveVariant(
+function resolveVariantValue(
   definition?: Options['animate'],
   variants?: Options['variants'],
   custom?: Options['custom'],
 ): VariantType | undefined {
   if (Array.isArray(definition)) {
     return definition.reduce((acc, item) => {
-      const resolvedVariant = resolveVariant(item, variants, custom)
+      const resolvedVariant = resolveVariantValue(item, variants, custom)
       return resolvedVariant ? { ...acc, ...resolvedVariant } : acc
     }, {})
   }
@@ -19,6 +19,18 @@ export function resolveVariant(
     const variant = variants[definition as string]
     return typeof variant === 'function' ? variant(custom) : variant
   }
+}
+
+export function resolveVariant(
+  definition?: Options['animate'],
+  variants?: Options['variants'],
+  custom?: Options['custom'],
+): VariantType | undefined {
+  const resolved = resolveVariantValue(definition, variants, custom)
+  if (!resolved)
+    return undefined
+  const { transition, transitionEnd, ...target } = resolved as any
+  return { ...target, ...transitionEnd }
 }
 
 export function shallowCompare(next: any[], prev: any[]) {

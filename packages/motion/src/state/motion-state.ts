@@ -81,12 +81,10 @@ export class MotionState {
   private resolveInitialLatestValues(initialVariantSource: string[]) {
     const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
     this.latestValues = initialVariantSource.reduce((acc, variant) => {
-      const resolved = resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom)
-      if (resolved) {
-        const { transition, transitionEnd, ...target } = resolved as any
-        return { ...acc, ...target, ...transitionEnd }
+      return {
+        ...acc,
+        ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom),
       }
-      return acc
     }, {})
   }
 
