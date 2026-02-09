@@ -1,6 +1,6 @@
-import type { $Transition, MotionStateContext, Options } from '@/types'
+import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
-import type { AnimationType, DOMKeyframesDefinition, VisualElement, frame } from 'motion-dom'
+import type { AnimationType, DOMKeyframesDefinition, VisualElement } from 'motion-dom'
 import { isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
@@ -34,29 +34,8 @@ export class MotionState {
   // Track child components for proper lifecycle ordering
   private children?: Set<MotionState> = new Set()
 
-  // Track which animation states are currently active
-  public activeStates: Partial<Record<StateType, boolean>> = {
-    initial: true,
-    animate: true,
-  }
-
-  /**
-   * Current animation process reference
-   * Tracks the ongoing animation process for mount/update animations
-   * Enables delayed animation loading and parent-child animation orchestration
-   * Allows parent variant elements to control child element animations
-   */
-  public currentProcess: ReturnType<typeof frame.render> | null = null
-
-  // Base animation target values
-  public baseTarget: DOMKeyframesDefinition
-
-  // Current animation target values
-  public target: DOMKeyframesDefinition
-  /**
-   * The final transition to be applied to the state
-   */
-  public finalTransition: $Transition
+  // Initial style values, serves as fallback before visualElement exists
+  public latestValues: DOMKeyframesDefinition
 
   // Feature instances managed by key
   private features = new Map<FeatureKey, Feature>()
@@ -74,7 +53,7 @@ export class MotionState {
     // Initialize with either initial or animate variant
     const initial = (options.initial === undefined && options.variants) ? this.context.initial : options.initial
     const initialVariantSource = initial === false ? ['initial', 'animate'] : ['initial']
-    this.initTarget(initialVariantSource)
+    this.resolveInitialLatestValues(initialVariantSource)
     this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
@@ -96,16 +75,15 @@ export class MotionState {
     return this._context
   }
 
-  // Initialize animation target values
-  private initTarget(initialVariantSource: string[]) {
+  // Resolve initial style values from variant sources
+  private resolveInitialLatestValues(initialVariantSource: string[]) {
     const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
-    this.baseTarget = initialVariantSource.reduce((acc, variant) => {
+    this.latestValues = initialVariantSource.reduce((acc, variant) => {
       return {
         ...acc,
         ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom),
       }
     }, {})
-    this.target = { }
   }
 
   /**

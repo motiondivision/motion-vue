@@ -112,7 +112,7 @@ export function useMotionState(
           attrs: {},
         },
         latestValues: {
-          ...state.baseTarget,
+          ...state.latestValues,
         },
       },
       reducedMotionConfig: state.options.motionConfig?.reducedMotion,
@@ -146,13 +146,14 @@ export function useMotionState(
       if (isMotionValue(attrs[key]))
         attrsProps[key] = attrs[key].get()
     })
+    const currentValues = state.visualElement?.latestValues || state.latestValues
     let styleProps: Record<string, any> = {
       ...props.style,
-      ...(isSVG ? {} : state.visualElement?.latestValues || state.baseTarget),
+      ...(isSVG ? {} : currentValues),
     }
     if (isSVG) {
       const { attrs, style } = convertSvgStyleToAttributes({
-        ...(state.isMounted() ? state.target : state.baseTarget),
+        ...currentValues,
         ...styleProps,
       } as DOMKeyframesDefinition)
       if (style.transform || attrs.transformOrigin) {

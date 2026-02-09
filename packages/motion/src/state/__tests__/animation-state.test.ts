@@ -14,7 +14,7 @@ function createMockVisualElement(overrides: Record<string, any> = {}): VisualEle
       ...overrides,
     },
     context: overrides.context ?? {},
-    baseTarget: overrides.baseTarget ?? {},
+    latestValues: overrides.latestValues ?? {},
   }
 
   return {
