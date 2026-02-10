@@ -1,158 +1,23 @@
 <script setup>
-import { ref } from 'vue'
-import { AnimatePresence, motion } from 'motion-v'
-import { onClickOutside, onKeyStroke } from '@vueuse/core'
+import { LazyMotion, m, motionValue } from 'motion-v'
 
-const ITEMS = [
-  {
-    title: 'Item One',
-    longDescription: 'This is the detailed description for item one.',
-  },
-  {
-    title: 'Item Two',
-    longDescription: 'This is the detailed description for item two.',
-  },
-  {
-    title: 'Item Three',
-    longDescription: 'This is the detailed description for item three.',
-  },
-]
+const x = motionValue(0)
 
-const activeItem = ref(null)
-const activeItemRef = ref(null)
-const useAnimatePresence = ref(false)
-
-onClickOutside(activeItemRef, () => {
-  activeItem.value = null
-})
-
-const show = ref(false)
-const showRef = ref(null)
-onClickOutside(showRef, () => {
-  show.value = false
-})
-onKeyStroke('Escape', (e) => {
-  e.preventDefault()
-  activeItem.value = null
-  show.value = false
-})
-
-function setActiveItem(item) {
-  activeItem.value = item
+const features = () => import('./test').then(mod => mod.default)
+function onComplete() {
+  console.log('animation complete')
 }
 </script>
 
 <template>
-  <div class="wrapper">
-    <!-- For Demonstration Purposes -->
-    <div class="controls">
-      <label class="checkbox">
-        <input
-          v-model="useAnimatePresence"
-          type="checkbox"
-        >
-        AnimatePresence on overlay
-      </label>
-      <p class="hint">
-        {{
-          useAnimatePresence
-            ? "⚠️ Now the shared layout transitions for the cards are broken"
-            : "⚠️ Now there is no exit animation on the overlay"
-        }}
-      </p>
-    </div>
-    <motion.div
-      :while-press="{ scale: 0.5 }"
-      class="w-[100px] h-[100px] bg-red-500"
-    >
-      12
-    </motion.div>
-    <!-- With AnimatePresence -->
-    <AnimatePresence v-if="useAnimatePresence">
-      <motion.div
-        v-if="activeItem"
-        class="overlay"
-        :initial="{ opacity: 0 }"
-        :animate="{ opacity: 1 }"
-        :exit="{ opacity: 0 }"
-      />
-    </AnimatePresence>
-
-    <!-- Without AnimatePresence -->
-    <motion.div
-      v-else-if="activeItem"
-      class="overlay"
-      :initial="{ opacity: 0 }"
-      :animate="{ opacity: 1 }"
-      :exit="{ opacity: 0 }"
+  <LazyMotion :features="features">
+    <m.div
+      :animate="{ x: 100 }"
+      :style="{ x }"
+      class="w-10 h-10 bg-red-500"
+      @animation-complete="onComplete"
     />
-
-    <ul class="list">
-      <motion.li
-        v-for="item in ITEMS"
-        :key="item.title"
-        :layout-id="`card-${item.title}`"
-        @click="setActiveItem(item)"
-      >
-        <motion.img
-          height="56"
-          width="56"
-          src="https://picsum.photos/56/56"
-          :layout-id="`image-${item.title}`"
-        />
-        <motion.h2 :layout-id="`title-${item.title}`">
-          {{ item.title }}
-        </motion.h2>
-      </motion.li>
-    </ul>
-
-    <AnimatePresence>
-      <div
-        v-if="activeItem"
-        class="active-item"
-      >
-        <motion.div
-          ref="activeItemRef"
-          :layout-id="`card-${activeItem.title}`"
-          class="inner"
-        >
-          <div class="header">
-            <motion.img
-              height="56"
-              width="56"
-              src="https://picsum.photos/56/56"
-              :layout-id="`image-${activeItem.title}`"
-            />
-            <motion.h2 :layout-id="`title-${activeItem.title}`">
-              {{ activeItem.title }}
-            </motion.h2>
-          </div>
-          <motion.p
-            :initial="{ opacity: 0 }"
-            :animate="{ opacity: 1 }"
-            :exit="{ opacity: 0 }"
-            class="long-description"
-          >
-            {{ activeItem.longDescription }}
-          </motion.p>
-        </motion.div>
-      </div>
-    </AnimatePresence>
-
-    <motion.div
-      layout-id="test"
-      class="w-[100px] h-[100px] bg-red-500"
-      @click="show = !show"
-    />
-    <AnimatePresence>
-      <motion.div
-        v-if="show"
-        ref="showRef"
-        layout-id="test"
-        class="w-[100px] h-[100px] bg-blue-500 fixed top-[50vh] left-40"
-      />
-    </AnimatePresence>
-  </div>
+  </LazyMotion>
 </template>
 
   <style scoped>

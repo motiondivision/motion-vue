@@ -93,6 +93,8 @@ export class MotionState {
    * Features are stored by key to avoid duplicate instantiation
    */
   updateFeatures() {
+    if (!this.visualElement)
+      return
     for (const FeatureCtor of lazyFeatures) {
       if (!this.features.has(FeatureCtor.key)) {
         // @ts-ignore

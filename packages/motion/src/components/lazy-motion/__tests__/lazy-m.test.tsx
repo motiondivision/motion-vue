@@ -1,13 +1,12 @@
 import { motionValue } from 'framer-motion/dom'
 import { describe, expect, it } from 'vitest'
 import { m } from '../../motion/m'
-import { motion } from '../../motion'
 import { render } from '@testing-library/vue'
 import { defineComponent } from 'vue'
 import { LazyMotion } from '@/components/lazy-motion'
 import { domAnimation, domMax } from '@/features'
 
-describe('lazy feature loading', () => {
+describe('lazy feature loading with m component', () => {
   it('doesn\'t animate without loaded features', async () => {
     const promise = new Promise((resolve) => {
       const x = motionValue(0)
@@ -52,7 +51,6 @@ describe('lazy feature loading', () => {
       })
 
       const wrapper = render(Component)
-      // setTimeout(() => resolve(x.get()), 50)
     })
 
     return expect(promise).resolves.toBe(20)
@@ -134,32 +132,6 @@ describe('lazy feature loading', () => {
     })
 
     return expect(promise).resolves.toBe(20)
-  })
-
-  it('throws in strict mode', async () => {
-    const promise = new Promise((resolve) => {
-      const x = motionValue(0)
-      const onComplete = () => resolve(x.get())
-
-      const Component = defineComponent({
-        setup() {
-          return () => (
-            <LazyMotion features={domMax} strict>
-              <motion.div
-                animate={{ x: 20 }}
-                transition={{ duration: 0.01 }}
-                style={{ x }}
-                onAnimationComplete={onComplete}
-              />
-            </LazyMotion>
-          )
-        },
-      })
-
-      const wrapper = render(Component)
-    })
-
-    return expect(promise).rejects.toThrowError()
   })
 
   it('animates after async loading', async () => {

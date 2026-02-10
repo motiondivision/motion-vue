@@ -35,7 +35,7 @@ describe('animate prop as object', () => {
         props: {
           animate: { x: 20 },
           style: { x },
-          onMotioncomplete: onComplete,
+          onAnimationComplete: onComplete,
         },
       })
     })
@@ -60,7 +60,7 @@ describe('animate prop as object', () => {
     await expect(promise).resolves.toBe(15)
   })
 
-  it('fires onMotionstart when animation begins', async () => {
+  it('fires onAnimationStart when animation begins', async () => {
     const promise = new Promise((resolve) => {
       const onStart = vi.fn()
       const onComplete = () => resolve(onStart)
@@ -70,8 +70,8 @@ describe('animate prop as object', () => {
       rerender({
         animate: { x: 20 },
         transition: { type: false },
-        onMotionstart: onStart,
-        onMotioncomplete: onComplete,
+        onAnimationStart: onStart,
+        onAnimationComplete: onComplete,
       })
 
       wrapper.unmount()
@@ -111,7 +111,7 @@ describe('animate prop as object', () => {
           animate: { x: 50 },
           transition: { from: 0, ease: 'linear' },
           onUpdate: (v: { x: number }) => output.push(v.x),
-          onMotioncomplete: () => resolve(output.every(v => v <= 50)),
+          onAnimationComplete: () => resolve(output.every(v => v <= 50)),
         },
       })
     })
@@ -202,7 +202,7 @@ describe('animate prop as object', () => {
           open: { y: 20 },
         },
         style: { x, y },
-        onMotioncomplete: () => {
+        onAnimationComplete: () => {
           resolve({ x: x.get(), y: y.get() })
         },
       })

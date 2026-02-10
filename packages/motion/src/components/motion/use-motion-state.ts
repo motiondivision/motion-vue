@@ -10,6 +10,7 @@ import type { createVisualElement } from '@/state/create-visual-element'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
+import { MotionState } from '@/state'
 
 export function useMotionState(
   props: MotionProps,
@@ -116,6 +117,9 @@ export function useMotionState(
       reducedMotionConfig: state.options.motionConfig?.reducedMotion,
     })
     state.visualElement.parent?.addChild(state.visualElement)
+    if (state.isMounted()) {
+      state.visualElement.mount(state.element)
+    }
   }
 
   // If renderer is provided directly (motion component), use it immediately
