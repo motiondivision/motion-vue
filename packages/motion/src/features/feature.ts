@@ -1,4 +1,4 @@
-import type { VisualElement } from 'motion-dom'
+import type { MotionState } from '@/state/motion-state'
 
 // Feature 标识符类型
 export type FeatureKey =
@@ -12,20 +12,20 @@ export type FeatureKey =
   | 'pan'
   | 'inView'
 
-export abstract class Feature {
+export class Feature {
   static key: FeatureKey
 
   isMount: boolean
 
-  node: VisualElement
+  state: MotionState
 
-  constructor(node: VisualElement) {
-    this.node = node
+  constructor(state: MotionState) {
+    this.state = state
   }
 
-  abstract mount(): void
+  mount() {}
 
-  abstract unmount(): void
+  unmount() {}
 
   update() {}
 }

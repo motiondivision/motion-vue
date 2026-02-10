@@ -1,7 +1,8 @@
 import { isAnimationControls } from '@/animation/utils'
 import { Feature } from '@/features/feature'
-import type { AnimationState, VisualElement } from 'motion-dom'
+import type { AnimationState } from 'motion-dom'
 import { createAnimationState } from '@/state/animation-state'
+import type { MotionState } from '@/state/motion-state'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
@@ -11,14 +12,15 @@ export class AnimationFeature extends Feature {
 
   unmountControls?: () => void
 
-  constructor(node: VisualElement) {
-    super(node)
+  constructor(state: MotionState) {
+    super(state)
     // Create animation state with visualElement (aligned with motion-dom signature)
-    node.animationState ||= createAnimationState(node) as AnimationState
+    const ve = state.visualElement
+    ve.animationState ||= createAnimationState(ve) as AnimationState
   }
 
   updateAnimationControlsSubscription() {
-    const { animate } = this.node.props
+    const { animate } = this.state.options
     if (isAnimationControls(animate)) {
       // this.unmountControls = animate.subscribe(this.state)
     }
@@ -28,7 +30,11 @@ export class AnimationFeature extends Feature {
    * Subscribe any provided AnimationControls to the component's VisualElement
    */
   mount() {
-    this.node.animationState?.animateChanges()
+    this.state.visualElement.animationState?.animateChanges()
+  }
+
+  update() {
+    this.state.visualElement.animationState?.animateChanges()
   }
 
   unmount() {

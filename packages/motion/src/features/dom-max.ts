@@ -5,6 +5,10 @@ import { PressGesture } from '@/features/gestures/press'
 import { HoverGesture } from '@/features/gestures/hover'
 import { InViewGesture } from '@/features/gestures/in-view'
 import { FocusGesture } from '@/features/gestures/focus'
+import { ProjectionFeature } from '@/features/layout/projection'
+import { PanGesture } from '@/features/gestures/pan'
+import { DragGesture } from '@/features/gestures/drag'
+import { LayoutFeature } from '@/features/layout/layout'
 
 export const domMax: FeatureBundle = {
   renderer: createVisualElement,
@@ -14,9 +18,9 @@ export const domMax: FeatureBundle = {
     HoverGesture,
     InViewGesture,
     FocusGesture,
-    // ProjectionFeature,
-    // PanGesture,
-    // DragGesture,
-    // LayoutFeature,
+    ProjectionFeature,
+    PanGesture,
+    DragGesture,
+    LayoutFeature,
   ],
 }

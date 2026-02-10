@@ -11,7 +11,6 @@ import { getContextWindow } from '@/utils'
 import type { AnimationGeneratorType, LayoutUpdateData, Transition, VisualElement } from 'motion-dom'
 import { addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, measurePageBox, mixNumber, percent } from 'motion-dom'
 import { invariant } from 'hey-listen'
-import { isPresent } from '@/state/utils/is-present'
 import type { MotionState } from '@/state'
 import type { MotionProps } from '@/components'
 import type { Axis, BoundingBox, Point } from 'motion-utils'
@@ -241,7 +240,7 @@ export class VisualElementDragControls {
 
   private cancel() {
     this.isDragging = false
-    const { projection, animationState } = this.visualElement
+    const { projection } = this.visualElement
     if (projection) {
       projection.isAnimationBlocked = false
     }
@@ -456,10 +455,7 @@ export class VisualElementDragControls {
   }
 
   private stopAnimation() {
-    /**
-     * 如果元素已经卸载，则不停止动画
-     */
-    if (!isPresent(this.visualElement))
+    if (!this.visualElement.projection?.isPresent)
       return
     eachAxis(axis => this.getAxisMotionValue(axis).stop())
   }

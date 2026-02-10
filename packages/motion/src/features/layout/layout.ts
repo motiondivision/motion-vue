@@ -16,14 +16,6 @@ export class LayoutFeature extends Feature {
     state.didUpdate = this.didUpdate.bind(this)
   }
 
-  beforeUpdate(newOptions: Options) {
-    this.getSnapshot(newOptions, undefined)
-  }
-
-  update(): void {
-    this.didUpdate()
-  }
-
   didUpdate() {
     if (!hasLayoutUpdate)
       return
@@ -53,10 +45,6 @@ export class LayoutFeature extends Feature {
       globalProjectionState.hasEverUpdated = true
     }
     this.didUpdate()
-  }
-
-  beforeUnmount(): void {
-    this.getSnapshot(this.state.options, false)
   }
 
   unmount() {

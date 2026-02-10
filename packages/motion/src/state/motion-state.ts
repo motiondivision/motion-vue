@@ -97,12 +97,11 @@ export class MotionState {
       return
     for (const FeatureCtor of lazyFeatures) {
       if (!this.features.has(FeatureCtor.key)) {
-        // @ts-ignore
-        this.features.set(FeatureCtor.key, new FeatureCtor(this.visualElement))
+        this.features.set(FeatureCtor.key, new FeatureCtor(this))
       }
       const feature = this.features.get(FeatureCtor.key)
-      if (!feature.isMount && this.isMounted()) {
-        feature.mount()
+      if (this.isMounted()) {
+        !feature.isMount ? feature.mount() : feature.update()
       }
     }
   }
@@ -133,6 +132,7 @@ export class MotionState {
 
   // Called before unmounting, executes in child-to-parent order
   beforeUnmount() {
+    this.getSnapshot(this.options, false)
   }
 
   unmount() {
@@ -143,13 +143,15 @@ export class MotionState {
   }
 
   // Called before updating, executes in parent-to-child order
-  beforeUpdate(options: Options) {
+  beforeUpdate() {
+    this.getSnapshot(this.options, undefined)
   }
 
   // Update motion state with new options
   update(options: Options) {
     this.updateOptions(options)
-    this.visualElement?.animationState?.animateChanges()
+    this.updateFeatures()
+    this.didUpdate()
   }
 
   // Set animation state active status and propagate to children
@@ -162,5 +164,5 @@ export class MotionState {
   }
 
   getSnapshot(options: Options, isPresent?: boolean) {}
-  didUpdate(label?: string) {}
+  didUpdate() {}
 }

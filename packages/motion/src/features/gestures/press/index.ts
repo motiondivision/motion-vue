@@ -17,13 +17,17 @@ export class PressGesture extends Feature {
 
   private removePress: VoidFunction | undefined
 
+  constructor(state) {
+    super(state)
+  }
+
   private isActive() {
-    const { whilePress, onPress, onPressCancel, onPressStart } = this.node.props as any
+    const { whilePress, onPress, onPressCancel, onPressStart } = this.state.options as any
     return Boolean(whilePress || onPress || onPressCancel || onPressStart)
   }
 
   private register() {
-    const element = this.node.current as HTMLElement
+    const element = this.state.element as HTMLElement
     if (!element || !this.isActive())
       return
 
@@ -31,22 +35,22 @@ export class PressGesture extends Feature {
     this.removePress = press(
       element,
       (_el, startEvent) => {
-        const props = this.node.props as Options
-        this.node.animationState?.setActive('whilePress' as any, true)
+        const props = this.state.options as Options
+        this.state.setActive('whilePress', true)
         if (props.onPressStart) {
           frame.postRender(() => props.onPressStart(startEvent, extractEventInfo(startEvent)))
         }
 
         return (endEvent, { success }) => {
-          this.node.animationState?.setActive('whilePress' as any, false)
+          this.state.setActive('whilePress', false)
           const callbackName = success ? 'onPress' : 'onPressCancel'
-          const callback = (this.node.props as any)[callbackName]
+          const callback = (this.state.options as any)[callbackName]
           if (callback) {
             frame.postRender(() => callback(endEvent, extractEventInfo(endEvent)))
           }
         }
       },
-      { useGlobalTarget: (this.node.props as any).globalPressTarget },
+      { useGlobalTarget: (this.state.options as any).globalPressTarget },
     )
   }
 
@@ -55,7 +59,7 @@ export class PressGesture extends Feature {
   }
 
   update() {
-    const prev = this.node.prevProps as any
+    const prev = this.state.visualElement.prevProps as any
     const wasActive = Boolean(prev?.whilePress || prev?.whileTap || prev?.onPress || prev?.onPressCancel || prev?.onPressStart)
     if (!wasActive && this.isActive()) {
       this.register()

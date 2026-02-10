@@ -7,6 +7,9 @@ export class FocusGesture extends Feature {
 
   private isFocused = false
   private removeFocus: VoidFunction | undefined
+  constructor(state) {
+    super(state)
+  }
 
   private onFocus() {
     let isFocusVisible = false
@@ -17,26 +20,26 @@ export class FocusGesture extends Feature {
      * to the element by default and we want to match that behaviour with whileFocus.
      */
     try {
-      isFocusVisible = (this.node.current as Element).matches(':focus-visible')
+      isFocusVisible = (this.state.element as Element).matches(':focus-visible')
     }
     catch {
       isFocusVisible = true
     }
     if (!isFocusVisible)
       return
-    this.node.animationState?.setActive('whileFocus', true)
+    this.state.setActive('whileFocus', true)
     this.isFocused = true
   }
 
   private onBlur() {
     if (!this.isFocused)
       return
-    this.node.animationState?.setActive('whileFocus' as any, false)
+    this.state.setActive('whileFocus', false)
     this.isFocused = false
   }
 
   mount() {
-    const element = this.node.current as Element
+    const element = this.state.element as Element
     this.removeFocus = pipe(
       addDomEvent(element, 'focus', () => this.onFocus()),
       addDomEvent(element, 'blur', () => this.onBlur()),
