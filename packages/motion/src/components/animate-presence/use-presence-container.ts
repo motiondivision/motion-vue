@@ -98,6 +98,9 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   function finalizeExit(containerState: ContainerState) {
     // Remove pop style
     removePopStyle(containerState.el)
+    containerState.motions.forEach((state) => {
+      state.getSnapshot(state.options, false)
+    })
     // Call done to remove DOM
     containerState.done?.()
     containerState.done = undefined
