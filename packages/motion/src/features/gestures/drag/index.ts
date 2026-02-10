@@ -12,7 +12,7 @@ export class DragGesture extends Feature {
 
   constructor(state) {
     super(state)
-    this.controls = new VisualElementDragControls(state.visualElement)
+    this.controls = new VisualElementDragControls(state)
   }
 
   mount() {

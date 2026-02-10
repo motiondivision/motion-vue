@@ -125,6 +125,7 @@ export class MotionState {
       Boolean(element),
       'Animation state must be mounted with valid Element',
     )
+    mountedStates.set(element, this)
     this.element = element
     this.visualElement?.mount(element)
     this.updateFeatures()
@@ -156,7 +157,16 @@ export class MotionState {
 
   // Set animation state active status and propagate to children
   setActive(name: StateType, isActive: boolean) {
+    if (name === 'exit' && isActive) {
+      this.isExiting = true
+    }
     this.visualElement?.animationState?.setActive(name as AnimationType, isActive)
+      .then(() => {
+        if (name === 'exit' && isActive) {
+          this.isExiting = false
+          this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
+        }
+      })
   }
 
   isMounted() {

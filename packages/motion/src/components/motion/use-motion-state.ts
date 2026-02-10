@@ -208,7 +208,7 @@ export function useMotionState(
   })
 
   onBeforeUpdate(() => {
-    state.beforeUpdate(getMotionProps())
+    state.beforeUpdate()
   })
 
   onUpdated(() => {
