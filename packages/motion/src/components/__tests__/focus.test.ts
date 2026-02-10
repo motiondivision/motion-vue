@@ -38,22 +38,4 @@ describe('focus behavior', () => {
     expect(el.style.transform).toBe('none')
     expect(el.style.boxShadow).not.toBe('0 0 0 2px #ff0088')
   })
-
-  it('should handle focus prop (deprecated)', async () => {
-    const wrapper = render(Motion, {
-      props: {
-        focus: { scale: 1.1 },
-        transition: { duration: 0 },
-      },
-      attrs: {
-        'data-testid': 'motion',
-      },
-    })
-    await nextTick()
-    const el = wrapper.getByTestId('motion')
-    mockFocusVisible(el)
-    await fireEvent.focus(el)
-    await delay(50)
-    expect(el.style.transform).toBe('scale(1.1)')
-  })
 })

@@ -6,34 +6,6 @@ import { frame, motionValue } from 'framer-motion/dom'
 import { delay } from '@/shared/test'
 
 describe('focus Gesture', () => {
-  it('focus applied', async () => {
-    const promise = new Promise(async (resolve) => {
-      const opacity = motionValue(1)
-      const { getByTestId } = render(defineComponent({
-        setup() {
-          return () => (
-            <motion.a
-              data-testid="myAnchorElement"
-              href="#"
-              focus={{ opacity: 0.1 }}
-              transition={{ duration: 0 }}
-              style={{ opacity }}
-            >
-            </motion.a>
-          )
-        },
-      }))
-      await nextTick()
-      const element = getByTestId('myAnchorElement') as HTMLElement
-      element.matches = () => true
-      element.focus()
-      await delay(0)
-      resolve(opacity.get())
-    })
-
-    return expect(promise).resolves.toBe(0.1)
-  })
-
   it('whileFocus not applied when :focus-visible is false', async () => {
     const promise = new Promise(async (resolve) => {
       const opacity = motionValue(1)
@@ -43,7 +15,7 @@ describe('focus Gesture', () => {
             <motion.a
               data-testid="myAnchorElement"
               href="#"
-              focus={{ opacity: 0.1 }}
+              whileFocus={{ opacity: 0.1 }}
               transition={{ duration: 0 }}
               style={{ opacity }}
             >
@@ -71,7 +43,7 @@ describe('focus Gesture', () => {
             <motion.a
               data-testid="myAnchorElement"
               href="#"
-              focus={{ opacity: 0.1 }}
+              whileFocus={{ opacity: 0.1 }}
               transition={{ duration: 0 }}
               style={{ opacity }}
             >
@@ -111,7 +83,7 @@ describe('focus Gesture', () => {
               ref={Aref}
               data-testid="myAnchorElement"
               href="#"
-              focus="hidden"
+              whileFocus="hidden"
               variants={variant}
               transition={{ type: false }}
               style={{ opacity }}
