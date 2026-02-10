@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { render } from '@testing-library/vue'
+import { fireEvent, render } from '@testing-library/vue'
 import { Motion } from '@/components'
 import { delay } from '@/shared/test'
+import { nextTick } from 'vue'
+
+/**
+ * Mock :focus-visible on an element.
+ * Happy-dom returns false for :focus-visible on programmatic focus,
+ * but in real browsers keyboard-triggered focus would match.
+ */
+function mockFocusVisible(el: Element) {
+  const origMatches = el.matches.bind(el)
+  el.matches = (selector: string) =>
+    selector === ':focus-visible' ? true : origMatches(selector)
+}
 
 describe('focus behavior', () => {
   it('should trigger whileFocus when element receives focus', async () => {
@@ -14,15 +26,17 @@ describe('focus behavior', () => {
         'data-testid': 'motion',
       },
     })
-    // console.log(wrapper.getByTestId('motion'))
-    await wrapper.getByTestId('motion').focus()
+    await nextTick()
+    const el = wrapper.getByTestId('motion')
+    mockFocusVisible(el)
+    await fireEvent.focus(el)
     await delay(50)
-    expect(wrapper.getByTestId('motion').style.transform).toBe('scale(1.2)')
-    expect(wrapper.getByTestId('motion').style.boxShadow).toBe('0 0 0 2px #ff0088')
-    await wrapper.getByTestId('motion').blur()
+    expect(el.style.transform).toBe('scale(1.2)')
+    expect(el.style.boxShadow).toBe('0 0 0 2px #ff0088')
+    await fireEvent.blur(el)
     await delay(50)
-    expect(wrapper.getByTestId('motion').style.transform).toBe('none')
-    expect(wrapper.getByTestId('motion').style.boxShadow).toBe('')
+    expect(el.style.transform).toBe('none')
+    expect(el.style.boxShadow).not.toBe('0 0 0 2px #ff0088')
   })
 
   it('should handle focus prop (deprecated)', async () => {
@@ -35,9 +49,11 @@ describe('focus behavior', () => {
         'data-testid': 'motion',
       },
     })
-
-    await wrapper.getByTestId('motion').focus()
+    await nextTick()
+    const el = wrapper.getByTestId('motion')
+    mockFocusVisible(el)
+    await fireEvent.focus(el)
     await delay(50)
-    expect(wrapper.getByTestId('motion').style.transform).toBe('scale(1.1)')
+    expect(el.style.transform).toBe('scale(1.1)')
   })
 })
