@@ -5,7 +5,7 @@
  * @param callback 回调函数
  */
 import { onUnmounted } from 'vue'
-import type { MotionValue, MotionValueEventCallbacks } from 'framer-motion/dom'
+import type { MotionValue, MotionValueEventCallbacks } from 'motion-dom'
 
 export function useMotionValueEvent<
   V,

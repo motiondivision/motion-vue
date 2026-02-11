@@ -3,72 +3,62 @@ import { mountedStates } from '@/state'
 import type { MotionState } from '@/state'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
-import { PRESENCE_CHILD_ATTR, provideAnimatePresence } from './presence'
+import { provideAnimatePresence } from './presence'
 
-interface ContainerState {
-  motions: Set<MotionState>
-  exitingMotions: Set<MotionState>
-  done?: VoidFunction
+interface ExitSession {
+  remaining: Set<MotionState>
+  states: MotionState[]
+  done: VoidFunction
   el: HTMLElement
 }
 
+let apId = 0
+
 export function usePresenceContainer(props: AnimatePresenceProps) {
-  // ===== Container State Management =====
-  const containerStates = new Map<Element, ContainerState>()
-  // Pending states for SSR hydration scenario (enter hook not triggered)
-  const pendingStates = new Set<MotionState>()
+  const presenceId = String(apId++)
+  const exitSessions = new Map<Element, ExitSession>()
 
   // ===== Pop Layout =====
   const { addPopStyle, removePopStyle } = usePopLayout(props)
 
-  // ===== Context Methods =====
-
-  // Called by motion component on mount
-  function register(container: Element, state: MotionState) {
-    let containerState = containerStates.get(container)
-    if (!containerState) {
-      containerState = {
-        motions: new Set(),
-        exitingMotions: new Set(),
-        el: container as HTMLElement,
-      }
-      containerStates.set(container, containerState)
+  // ===== Discover motion states inside a container =====
+  function findMotionStates(container: Element): MotionState[] {
+    const states: MotionState[] = []
+    // Check container itself
+    const selfState = mountedStates.get(container)
+    if (selfState && container.getAttribute('data-ap') === presenceId) {
+      states.push(selfState)
     }
-    containerState.motions.add(state)
+    // Query descendants scoped to this AnimatePresence
+    const elements = Array.from(container.querySelectorAll(`[data-ap="${presenceId}"]`))
+    for (const el of elements) {
+      const s = mountedStates.get(el)
+      if (s) {
+        states.push(s)
+      }
+    }
+    return states
   }
 
-  // Called when a motion component's exit animation is complete
+  // ===== Exit completion callback =====
   function onMotionExitComplete(container: Element, state: MotionState) {
-    const containerState = containerStates.get(container)
-    if (!containerState)
+    const session = exitSessions.get(container)
+    if (!session)
       return
 
-    containerState.exitingMotions.delete(state)
+    session.remaining.delete(state)
 
-    // When all motion components have completed exit
-    if (containerState.exitingMotions.size === 0 && containerState.done) {
-      finalizeExit(containerState)
+    if (session.remaining.size === 0) {
+      finalizeExit(session)
     }
-  }
-
-  // Register a motion component to pending list (for SSR hydration scenario)
-  function registerPending(state: MotionState) {
-    pendingStates.add(state)
-  }
-
-  // Unregister a motion component from pending list
-  function unregisterPending(state: MotionState) {
-    pendingStates.delete(state)
   }
 
   // ===== Provide Context =====
   const presenceContext = {
     initial: props.initial,
     custom: props.custom,
-    register,
+    presenceId,
     onMotionExitComplete,
-    registerPending,
-    unregisterPending,
   }
 
   watch(() => props.custom, (v) => {
@@ -81,39 +71,24 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     presenceContext.initial = undefined
   })
 
-  // ===== Mark Children with PRESENCE_CHILD_ATTR =====
-  function markChild(el: Element) {
-    if (el instanceof HTMLElement && !el.hasAttribute(PRESENCE_CHILD_ATTR)) {
-      el.setAttribute(PRESENCE_CHILD_ATTR, '')
-      // If child is a motion component, register it
-      const state = mountedStates.get(el)
-      if (state && !state.presenceContainer) {
-        state.presenceContainer = el
-        register(el, state)
-      }
-    }
-  }
-
   // ===== Finalize Exit =====
-  function finalizeExit(containerState: ContainerState) {
-    // Remove pop style
-    removePopStyle(containerState.el)
-    containerState.motions.forEach((state) => {
+  function finalizeExit(session: ExitSession) {
+    removePopStyle(session.el)
+    session.states.forEach((state) => {
       state.getSnapshot(state.options, false)
     })
     // Call done to remove DOM
-    containerState.done?.()
-    containerState.done = undefined
+    session.done()
+    exitSessions.delete(session.el)
 
     // Unmount motion states
-    if (!containerState.el?.isConnected) {
-      containerState.motions.forEach((state) => {
+    if (!session.el?.isConnected) {
+      session.states.forEach((state) => {
         state.unmount()
       })
-      containerState.motions.clear()
     }
     else {
-      containerState.motions.values().next()?.value?.didUpdate()
+      session.states[0]?.didUpdate()
     }
     props.onExitComplete?.()
   }
@@ -121,65 +96,53 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   // ===== Transition Handlers =====
 
   function enter(el: HTMLElement, done: VoidFunction) {
-    markChild(el)
-    // Reset exit state for all motion components in this container
-    const containerState = containerStates.get(el)
-    if (containerState) {
-      containerState.exitingMotions.clear()
-      containerState.motions.forEach((s) => {
-        s.setActive('exit', false)
-        s.getSnapshot(s.options, true)
-      })
-    }
+    const states = findMotionStates(el)
+    states.forEach((state) => {
+      state.setActive('exit', false)
+      state.getSnapshot(state.options, true)
+    })
     done()
   }
 
   function exit(el: Element, done: VoidFunction) {
     const container = el as HTMLElement
-    markChild(container)
+    // Discover all motion states inside this container at exit time
+    const states = findMotionStates(container)
 
-    // Register pending states that belong to this container (SSR hydration scenario)
-    pendingStates.forEach((state) => {
-      if (state.element && container.contains(state.element)) {
-        state.presenceContainer = container
-        register(container, state)
-        pendingStates.delete(state)
-      }
-    })
-
-    const containerState = containerStates.get(container)
-    const containerMotionState = mountedStates.get(container)
-
-    // If no registered motion components, complete immediately
-    if ((!containerState || containerState.motions.size === 0) && !containerMotionState) {
+    // If no motion components, complete immediately
+    if (states.length === 0) {
       done()
       props.onExitComplete?.()
       return
     }
 
-    // Save done callback
-    containerState.done = done
+    // Create transient exit session
+    const session: ExitSession = {
+      remaining: new Set(states),
+      states,
+      done,
+      el: container,
+    }
+    exitSessions.set(container, session)
 
-    // Add pop style to the container
     addPopStyle(container)
 
-    // Trigger exit animation for all motion components
-    containerState.motions.forEach((state) => {
-      containerState.exitingMotions.add(state)
+    // Lazily set presenceContainer and trigger exit animation
+    states.forEach((state) => {
+      state.presenceContainer = container
       state.setActive('exit', true)
       state.getSnapshot(state.options, false)
     })
-    containerState.motions.values().next()?.value?.didUpdate()
+    states[0]?.didUpdate()
   }
 
   onUnmounted(() => {
-    // Unmount all motion states in all containers
-    containerStates.forEach((containerState) => {
-      containerState.motions.forEach((state) => {
+    exitSessions.forEach((session) => {
+      session.states.forEach((state) => {
         state.unmount()
       })
     })
-    containerStates.clear()
+    exitSessions.clear()
   })
 
   return {

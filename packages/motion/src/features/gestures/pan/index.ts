@@ -1,4 +1,5 @@
-import { frame, noop } from 'framer-motion/dom'
+import { frame } from 'motion-dom'
+import { noop } from 'motion-utils'
 import type { PanInfo } from './PanSession'
 import { PanSession } from './PanSession'
 import { addPointerEvent } from '@/events'
@@ -15,6 +16,8 @@ function asyncHandler(handler?: PanEventHandler) {
 }
 
 export class PanGesture extends Feature {
+  static key = 'pan' as const
+
   private session?: PanSession
 
   private removePointerDownListener: Function = noop

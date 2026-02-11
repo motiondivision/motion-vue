@@ -1,5 +1,5 @@
-import type { MotionValue } from 'framer-motion/dom'
-import { frame, motionValue } from 'framer-motion/dom'
+import type { MotionValue } from 'motion-dom'
+import { frame, motionValue } from 'motion-dom'
 import { useMotionValueEvent } from '@/value/use-motion-value-event'
 
 /**

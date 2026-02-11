@@ -1,8 +1,10 @@
 import { Feature } from '@/features/feature'
 import { VisualElementDragControls } from '@/features/gestures/drag/VisualElementDragControls'
-import { noop } from 'framer-motion/dom'
+import { noop } from 'motion-utils'
 
 export class DragGesture extends Feature {
+  static key = 'drag' as const
+
   controls: VisualElementDragControls
 
   removeGroupControls: Function = noop
@@ -10,7 +12,7 @@ export class DragGesture extends Feature {
 
   constructor(state) {
     super(state)
-    this.controls = new VisualElementDragControls(state.visualElement)
+    this.controls = new VisualElementDragControls(state)
   }
 
   mount() {

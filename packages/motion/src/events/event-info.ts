@@ -1,4 +1,4 @@
-import { isPrimaryPointer } from '@/events'
+import { isPrimaryPointer } from './utils'
 import type { EventInfo } from './types'
 
 export type EventListenerWithPointInfo = (

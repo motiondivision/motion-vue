@@ -1,35 +1,43 @@
-import type { MotionState } from '@/state/motion-state'
-import { Feature, extractEventInfo } from '@/features'
-import { frame, hover } from 'framer-motion/dom'
-
-function handleHoverEvent(
-  state: MotionState,
-  event: PointerEvent,
-  lifecycle: 'Start' | 'End',
-) {
-  const props = state.options
-  if (props.whileHover) {
-    state.setActive('whileHover', lifecycle === 'Start')
-  }
-
-  const eventName = (`onHover${lifecycle}`) as
-    | 'onHoverStart'
-    | 'onHoverEnd'
-
-  const callback = props[eventName]
-  if (callback) {
-    frame.postRender(() => callback(event, extractEventInfo(event)))
-  }
-}
+import { Feature } from '@/features/feature'
+import { extractEventInfo } from '@/events/event-info'
+import { frame, hover } from 'motion-dom'
 
 export class HoverGesture extends Feature {
-  isActive() {
-    const { whileHover, onHoverStart, onHoverEnd } = this.state.options
+  static key = 'hover' as const
+
+  private removeHover: VoidFunction | undefined
+  constructor(state) {
+    super(state)
+  }
+
+  private isActive() {
+    const { whileHover, onHoverStart, onHoverEnd } = this.state.options as any
     return Boolean(whileHover || onHoverStart || onHoverEnd)
   }
 
-  constructor(state: MotionState) {
-    super(state)
+  private register() {
+    const element = this.state.element as HTMLElement
+    if (!element || !this.isActive())
+      return
+
+    this.removeHover?.()
+    this.removeHover = hover(
+      element,
+      (_el, startEvent) => {
+        const props = this.state.options as any
+        this.state.setActive('whileHover', true)
+        if (props.onHoverStart) {
+          frame.postRender(() => props.onHoverStart(startEvent, extractEventInfo(startEvent)))
+        }
+        return (endEvent) => {
+          this.state.setActive('whileHover', false)
+          const callback = (this.state.options as any).onHoverEnd
+          if (callback) {
+            frame.postRender(() => callback(endEvent, extractEventInfo(endEvent)))
+          }
+        }
+      },
+    )
   }
 
   mount() {
@@ -37,26 +45,15 @@ export class HoverGesture extends Feature {
   }
 
   update() {
-    const { whileHover, onHoverStart, onHoverEnd } = this.state.visualElement.prevProps
-    if (!(whileHover || onHoverStart || onHoverEnd)) {
+    const prev = this.state.visualElement.prevProps as any
+    const wasActive = Boolean(prev?.whileHover || prev?.onHoverStart || prev?.onHoverEnd)
+    if (!wasActive && this.isActive()) {
       this.register()
     }
   }
 
-  register() {
-    const element = this.state.element
-    if (!element || !this.isActive())
-      return
-    // Unmount previous hover handler
-    this.unmount()
-    this.unmount = hover(
-      element,
-      (el, startEvent) => {
-        handleHoverEvent(this.state, startEvent, 'Start')
-        return (endEvent) => {
-          handleHoverEvent(this.state, endEvent, 'End')
-        }
-      },
-    )
+  unmount() {
+    this.removeHover?.()
+    this.removeHover = undefined
   }
 }

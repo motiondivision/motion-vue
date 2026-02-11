@@ -1,28 +1,15 @@
-import type { AnimationControls } from '@/animation/types'
-import { type MotionState, mountedStates } from '@/state'
-import type { Options } from '@/types'
 import { invariant } from 'hey-listen'
-import { setTarget } from 'framer-motion/dist/es/render/utils/setters.mjs'
-import type { VisualElement } from 'framer-motion'
-import { resolveVariant } from '@/state/utils'
+import { animateVisualElement, setTarget } from 'motion-dom'
+import type { AnimationDefinition, LegacyAnimationControls, VisualElement } from 'motion-dom'
 
 function stopAnimation(visualElement: VisualElement) {
   visualElement.values.forEach(value => value.stop())
 }
 
-function setStateTarget(state: MotionState, definition: Options['animate']) {
-  const resolvedVariant = resolveVariant(definition, state.options.variants, state.options.custom)
-  Object.entries(resolvedVariant).forEach(([key, value]) => {
-    if (key === 'transition')
-      return
-    state.target[key] = value
-  })
-}
-
 /**
- * @public
+ * @deprecated
  */
-export function animationControls(): AnimationControls {
+export function animationControls(): LegacyAnimationControls {
   /**
    * Track whether the host component has mounted.
    */
@@ -31,9 +18,9 @@ export function animationControls(): AnimationControls {
   /**
    * A collection of linked component animation controls.
    */
-  const subscribers = new Set<MotionState>()
+  const subscribers = new Set<VisualElement>()
 
-  const controls: AnimationControls = {
+  const controls: LegacyAnimationControls = {
     subscribe(state) {
       subscribers.add(state)
       return () => void subscribers.delete(state)
@@ -46,12 +33,11 @@ export function animationControls(): AnimationControls {
       )
 
       const animations: Array<Promise<any>> = []
-      subscribers.forEach((state) => {
+      subscribers.forEach((visualElement) => {
         animations.push(
-          state.animateUpdates({
-            directAnimate: definition,
-            directTransition: transitionOverride,
-          }) as Promise<any>,
+          animateVisualElement(visualElement, definition, {
+            transitionOverride,
+          }),
         )
       })
 
@@ -63,14 +49,15 @@ export function animationControls(): AnimationControls {
         hasMounted,
         'controls.set() should only be called after a component has mounted. Consider calling within a useEffect hook.',
       )
-      return subscribers.forEach((state) => {
-        setValues(state, definition)
+
+      return subscribers.forEach((visualElement) => {
+        setValues(visualElement, definition)
       })
     },
 
     stop() {
-      subscribers.forEach((state) => {
-        stopAnimation(state.visualElement)
+      subscribers.forEach((visualElement) => {
+        stopAnimation(visualElement)
       })
     },
 
@@ -88,31 +75,30 @@ export function animationControls(): AnimationControls {
 }
 
 export function setValues(
-  state: MotionState,
-  definition: Options['animate'],
+  visualElement: VisualElement,
+  definition: AnimationDefinition,
 ) {
-  if (typeof definition === 'string') {
-    return setVariants(state, [definition])
+  if (Array.isArray(definition)) {
+    return setVariants(visualElement, definition)
   }
-  else if (Array.isArray(definition)) {
-    return setVariants(state, definition)
+  else if (typeof definition === 'string') {
+    return setVariants(visualElement, [definition])
   }
   else {
-    setStateTarget(state, definition)
-    setTarget(state.visualElement, definition as any)
+    setTarget(visualElement, definition as any)
   }
 }
 
-function setVariants(state: MotionState, variantLabels: string[]) {
+function setVariants(visualElement: VisualElement, variantLabels: string[]) {
   const reversedLabels = [...variantLabels].reverse()
-  const visualElement = state.visualElement
+
   reversedLabels.forEach((key) => {
     const variant = visualElement.getVariant(key)
     variant && setTarget(visualElement, variant)
-    setStateTarget(state, variant as any)
+
     if (visualElement.variantChildren) {
       visualElement.variantChildren.forEach((child) => {
-        setVariants(mountedStates.get(child.current as HTMLElement), variantLabels)
+        setVariants(child, variantLabels)
       })
     }
   })

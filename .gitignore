@@ -61,3 +61,8 @@ new-docs
 playwright-report
 test-results
 .cursor
+
+# Internal documentation (not for version control)
+internal-docs
+.agents
+.claude

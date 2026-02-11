@@ -1,23 +1,19 @@
-import { getMotionElement } from '@/components/hooks/use-motion-elm'
-import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes, PropType } from 'vue'
+import type { Component, DefineComponent, IntrinsicElementAttributes } from 'vue'
 import { Comment, cloneVNode, defineComponent, h, mergeProps } from 'vue'
 import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
 import type { MotionProps } from '@/components/motion/types'
-import type { Feature } from '@/features'
+import type { FeatureBundle } from '@/features/dom-animation'
+import type { createVisualElement } from '@/state/create-visual-element'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
+import { updateLazyFeatures } from '@/features/lazy-features'
 
 type MotionCompProps = {
   create: <T extends DefineComponent>(T, options?: MotionCreateOptions) => DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
 }
 export interface MotionCreateOptions {
   forwardMotionProps?: boolean
-  features?: Array<typeof Feature>
-}
-export function checkMotionIsHidden(instance: ComponentPublicInstance) {
-  const isHidden = getMotionElement(instance.$el)?.style.display === 'none'
-  const hasTransition = instance.$.vnode.transition
-  return hasTransition && isHidden
+  renderer?: typeof createVisualElement
 }
 
 const componentMaxCache = new Map<any, Component>()
@@ -94,7 +90,7 @@ export function createMotionComponent(
 ) {
   const isString = typeof component === 'string'
   const name = isString ? component : component.name || ''
-  const componentCache = options.features?.length > 0 ? componentMaxCache : componentMiniCache
+  const componentCache = options.renderer ? componentMaxCache : componentMiniCache
   if (isString && componentCache?.has(component)) {
     return componentCache.get(component)
   }
@@ -103,15 +99,11 @@ export function createMotionComponent(
     inheritAttrs: false,
     props: {
       ...MotionComponentProps,
-      features: {
-        type: Object as PropType<Array<typeof Feature> | Promise<Array<typeof Feature>>>,
-        default: () => (options.features || []),
-      },
       as: { type: [String, Object], default: component || 'div' },
     },
     name: name ? `motion.${name}` : 'Motion',
     setup(props, { slots }) {
-      const { getProps, getAttrs, state } = useMotionState(props as any)
+      const { getProps, getAttrs, state } = useMotionState(props as any, options.renderer)
       /**
        * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
        * To prevent this, reapply the current motion state styles in vnode updated lifecycle
@@ -163,20 +155,22 @@ type MotionNameSpace = {
 } & MotionCompProps
 
 export function createMotionComponentWithFeatures(
-  features: Array<typeof Feature> = [],
+  featureBundle?: FeatureBundle,
 ) {
+  const renderer = featureBundle?.renderer
+  updateLazyFeatures(featureBundle?.features || [])
   return new Proxy({} as unknown as MotionNameSpace, {
-    get(target, prop) {
+    get(_, prop) {
       if (prop === 'create') {
         return (component: any, options?: MotionCreateOptions) =>
           createMotionComponent(component, {
             ...options,
-            features,
+            renderer,
           })
       }
 
       return createMotionComponent(prop as string, {
-        features,
+        renderer,
       })
     },
   })

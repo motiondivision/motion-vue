@@ -3,16 +3,19 @@ import { getMotionElement } from '@/components/hooks/use-motion-elm'
 import { useLazyMotionContext } from '@/components/lazy-motion/context'
 import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
-import { checkMotionIsHidden } from '@/components/motion/utils'
-import { PRESENCE_CHILD_ATTR, injectAnimatePresence } from '@/components/animate-presence/presence'
-import { MotionState } from '@/state'
-import { convertSvgStyleToAttributes, createStyles } from '@/state/style'
-import type { DOMKeyframesDefinition } from 'framer-motion'
+import { injectAnimatePresence } from '@/components/animate-presence/presence'
+import { createSVGStyles, createStyles } from '@/state/style'
+import { updateLazyFeatures } from '@/features/lazy-features'
+import type { createVisualElement } from '@/state/create-visual-element'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
-import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs } from 'vue'
+import { getCurrentInstance, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
+import { MotionState } from '@/state'
 
-export function useMotionState(props: MotionProps) {
+export function useMotionState(
+  props: MotionProps,
+  renderer?: typeof createVisualElement,
+) {
   // motion context
   const parentState = injectMotion(null)
   // layout group context
@@ -23,7 +26,7 @@ export function useMotionState(props: MotionProps) {
   const animatePresenceContext = injectAnimatePresence({})
   // lazy motion context
   const lazyMotionContext = useLazyMotionContext({
-    features: ref([]),
+    features: ref({}),
     strict: false,
   })
 
@@ -33,8 +36,7 @@ export function useMotionState(props: MotionProps) {
    */
   if (
     process.env.NODE_ENV !== 'production'
-    // @ts-expect-error
-    && props.features?.length
+    && renderer
     && lazyMotionContext.strict
   ) {
     const strictMessage
@@ -43,6 +45,7 @@ export function useMotionState(props: MotionProps) {
       ? warning(false, strictMessage)
       : invariant(false, strictMessage)
   }
+
   const attrs = useAttrs()
 
   /**
@@ -59,7 +62,6 @@ export function useMotionState(props: MotionProps) {
   function getProps() {
     return {
       ...props,
-      lazyMotionContext,
       layoutId: getLayoutId(),
       transition: props.transition ?? config.value.transition,
       layoutGroup,
@@ -86,6 +88,59 @@ export function useMotionState(props: MotionProps) {
   )
   provideMotion(state)
 
+  /**
+   * Initialize visual element with the provided renderer
+   */
+  function initVisualElement(createVE: typeof createVisualElement) {
+    if (state.visualElement)
+      return
+
+    state.visualElement = createVE(state.options.as!, {
+      presenceContext: null,
+      parent: state.parent?.visualElement,
+      props: {
+        ...state.options,
+        whileTap: state.options.whilePress,
+      },
+      visualState: {
+        renderState: {
+          transform: {},
+          transformOrigin: {},
+          style: {},
+          vars: {},
+          attrs: {},
+        },
+        latestValues: {
+          ...state.latestValues,
+        },
+      },
+      reducedMotionConfig: state.options.motionConfig?.reducedMotion,
+    })
+    state.visualElement.parent?.addChild(state.visualElement)
+    if (state.isMounted()) {
+      state.visualElement.mount(state.element)
+    }
+  }
+
+  // If renderer is provided directly (motion component), use it immediately
+  if (renderer) {
+    initVisualElement(renderer)
+  }
+
+  // Watch for lazy-loaded features (for m component with LazyMotion)
+  watch(lazyMotionContext.features, (bundle) => {
+    // Update lazy features when features array changes
+    if (bundle.features?.length) {
+      updateLazyFeatures(bundle.features)
+    }
+
+    // Initialize visual element if renderer becomes available
+    if (bundle.renderer && !state.visualElement) {
+      initVisualElement(bundle.renderer)
+    }
+    state.updateFeatures()
+  }, { immediate: true })
+
   function getAttrs() {
     const isSVG = state.type === 'svg'
     const attrsProps = { ...attrs }
@@ -93,26 +148,25 @@ export function useMotionState(props: MotionProps) {
       if (isMotionValue(attrs[key]))
         attrsProps[key] = attrs[key].get()
     })
+    const currentValues = state.visualElement?.latestValues || state.latestValues
     let styleProps: Record<string, any> = {
       ...props.style,
-      ...(isSVG ? {} : state.visualElement?.latestValues || state.baseTarget),
+      ...(isSVG ? {} : currentValues),
+    }
+    // Extract MotionValue objects to their current values
+    // (buildSVGAttrs/buildHTMLStyles expect plain values)
+    for (const key in styleProps) {
+      if (isMotionValue(styleProps[key]))
+        styleProps[key] = styleProps[key].get()
     }
     if (isSVG) {
-      const { attrs, style } = convertSvgStyleToAttributes({
-        ...(state.isMounted() ? state.target : state.baseTarget),
-        ...styleProps,
-      } as DOMKeyframesDefinition)
-      if (style.transform || attrs.transformOrigin) {
-        style.transformOrigin = attrs.transformOrigin ?? '50% 50%'
-        delete attrs.transformOrigin
-      }
-      // If the transformBox is not set, set it to fill-box
-      if (style.transform) {
-        style.transformBox = style.transformBox ?? 'fill-box'
-        delete attrs.transformBox
-      }
-      Object.assign(attrsProps, attrs)
-      styleProps = style
+      const { attrs: svgAttrs, style: svgStyle } = createSVGStyles(
+        { ...currentValues, ...styleProps },
+        state.options.as as string,
+        props.style,
+      )
+      Object.assign(attrsProps, svgAttrs)
+      styleProps = svgStyle
     }
     if (props.drag && props.dragListener !== false) {
       Object.assign(styleProps, {
@@ -128,40 +182,21 @@ export function useMotionState(props: MotionProps) {
     const style = createStyles(styleProps)
     if (style)
       attrsProps.style = style
+    if (animatePresenceContext.presenceId) {
+      attrsProps['data-ap'] = animatePresenceContext.presenceId
+    }
     return attrsProps
   }
 
   const instance = getCurrentInstance().proxy
 
-  onBeforeMount(() => {
-    state.beforeMount()
-  })
-
   onMounted(() => {
-    state.mount(getMotionElement(instance.$el), getMotionProps(), checkMotionIsHidden(instance))
-
-    // Register to AnimatePresence container
-    if (animatePresenceContext.register && state.element) {
-      const container = state.element.closest(`[${PRESENCE_CHILD_ATTR}]`)
-      if (container) {
-        state.presenceContainer = container
-        animatePresenceContext.register(container, state)
-      }
-      else if (animatePresenceContext.registerPending) {
-        // SSR hydration scenario: enter hook not triggered, add to pending
-        animatePresenceContext.registerPending(state)
-      }
-    }
+    state.mount(getMotionElement(instance.$el))
   })
 
   onBeforeUnmount(() => state.beforeUnmount())
 
   onUnmounted(() => {
-    // Clean up from pending list if still there
-    if (animatePresenceContext.unregisterPending) {
-      animatePresenceContext.unregisterPending(state)
-    }
-
     const el = getMotionElement(instance.$el)
     if (!el?.isConnected) {
       state.unmount()
@@ -169,7 +204,7 @@ export function useMotionState(props: MotionProps) {
   })
 
   onBeforeUpdate(() => {
-    state.beforeUpdate(getMotionProps())
+    state.beforeUpdate()
   })
 
   onUpdated(() => {

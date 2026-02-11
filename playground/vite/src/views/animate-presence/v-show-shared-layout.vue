@@ -7,6 +7,7 @@ const animationStarted = ref(false)
 const animationCompleted = ref(false)
 
 function onAnimationStart() {
+  console.log('onAnimationStart')
   animationStarted.value = true
   animationCompleted.value = false
 }
@@ -45,17 +46,6 @@ function toggle() {
       <div class="relative w-full h-[300px]">
         <AnimatePresence>
           <Motion
-            v-show="show"
-            id="large-box"
-            layout-id="shared-box"
-            :transition="{ duration: 0.3 }"
-            class="absolute top-0 left-0 w-[200px] h-[200px] bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold"
-            @animation-start="onAnimationStart"
-            @animation-complete="onAnimationComplete"
-          >
-            Large Box
-          </Motion>
-          <Motion
             v-show="!show"
             id="small-box"
             layout-id="shared-box"
@@ -65,6 +55,17 @@ function toggle() {
             @animation-complete="onAnimationComplete"
           >
             Small
+          </Motion>
+          <Motion
+            v-show="show"
+            id="large-box"
+            layout-id="shared-box"
+            :transition="{ duration: 0.3 }"
+            class="absolute top-0 left-0 w-[200px] h-[200px] bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold"
+            @animation-start="onAnimationStart"
+            @animation-complete="onAnimationComplete"
+          >
+            Large Box
           </Motion>
         </AnimatePresence>
       </div>

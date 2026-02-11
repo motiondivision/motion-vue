@@ -1,38 +1,12 @@
-import { warning } from 'hey-listen'
-
 export const MotionComponentProps = {
   'ignoreStrict': { type: Boolean },
   'forwardMotionProps': { type: Boolean, default: false },
   'asChild': { type: Boolean, default: false },
-  'hover': { type: [String, Array, Object] },
-  'press': { type: [String, Array, Object] },
-  'inView': { type: [String, Array, Object] },
-  'focus': { type: [String, Array, Object] },
   'whileDrag': { type: [String, Array, Object] },
-  'whileHover': { type: [String, Array, Object], default: ({ hover }) => {
-    if (process.env.NODE_ENV === 'development' && hover) {
-      warning(true, 'hover is deprecated. Use whileHover instead.')
-    }
-    return hover
-  } },
-  'whilePress': { type: [String, Array, Object], default: ({ press }) => {
-    if (process.env.NODE_ENV === 'development' && press) {
-      warning(true, 'press is deprecated. Use whilePress instead.')
-    }
-    return press
-  } },
-  'whileInView': { type: [String, Array, Object], default: ({ inView }) => {
-    if (process.env.NODE_ENV === 'development' && inView) {
-      warning(true, 'inView is deprecated. Use whileInView instead.')
-    }
-    return inView
-  } },
-  'whileFocus': { type: [String, Array, Object], default: ({ focus }) => {
-    if (process.env.NODE_ENV === 'development' && focus) {
-      warning(true, 'focus is deprecated. Use whileFocus instead.')
-    }
-    return focus
-  } },
+  'whileHover': { type: [String, Array, Object] },
+  'whilePress': { type: [String, Array, Object] },
+  'whileInView': { type: [String, Array, Object] },
+  'whileFocus': { type: [String, Array, Object] },
   'custom': { type: [String, Number, Object, Array] },
   'initial': { type: [String, Array, Object, Boolean], default: undefined },
   'animate': { type: [String, Array, Object], default: undefined },

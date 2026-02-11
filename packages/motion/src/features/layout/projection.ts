@@ -1,37 +1,39 @@
 import { Feature } from '@/features/feature'
-import { HTMLProjectionNode } from 'framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs'
+import type { IProjectionNode } from 'motion-dom'
+import { HTMLProjectionNode, addScaleCorrector } from 'motion-dom'
 import { getClosestProjectingNode } from '@/features/layout/utils'
-import { addScaleCorrector } from 'framer-motion/dist/es/projection/styles/scale-correction.mjs'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
+import { isSSR } from '@/utils/is'
 
 export class ProjectionFeature extends Feature {
+  static key = 'projection' as const
+  private projection: IProjectionNode | undefined
   constructor(state) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
+    if (!isSSR) {
+      this.initProjection()
+    }
   }
 
   initProjection() {
     const options = this.state.options
-    // @ts-ignore
-    this.state.visualElement.projection = new HTMLProjectionNode<HTMLElement>(
+    this.state.visualElement.projection = new HTMLProjectionNode(
       this.state.visualElement.latestValues,
       options['data-framer-portal-id']
         ? undefined
         : getClosestProjectingNode(this.state.visualElement.parent),
     )
-    this.state.visualElement.projection.isPresent = true
+    this.projection = this.state.visualElement.projection
+    this.projection.isPresent = true
     this.setOptions()
-  }
-
-  beforeMount() {
-    this.initProjection()
   }
 
   setOptions() {
     const options = this.state.options
     const { layoutId, layout, drag = false, dragConstraints = false } = options
-    this.state.visualElement.projection.setOptions({
+    this.projection?.setOptions({
       layout,
       layoutId,
       alwaysMeasureLayout: Boolean(layoutId) || Boolean(drag) || (dragConstraints && isHTMLElement(dragConstraints)),
@@ -42,8 +44,8 @@ export class ProjectionFeature extends Feature {
       layoutScroll: options.layoutScroll,
       crossfade: options.crossfade,
       onExitComplete: () => {
-        if (!this.state.visualElement.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
-          this.state.options.animatePresenceContext?.onMotionExitComplete(this.state.presenceContainer, this.state)
+        if (!this.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
+          this.state.options.animatePresenceContext?.onMotionExitComplete?.(this.state.presenceContainer, this.state)
         }
       },
     })
@@ -54,6 +56,6 @@ export class ProjectionFeature extends Feature {
   }
 
   mount() {
-    this.state.visualElement.projection?.mount(this.state.element)
+    this.projection?.mount(this.state.element)
   }
 }

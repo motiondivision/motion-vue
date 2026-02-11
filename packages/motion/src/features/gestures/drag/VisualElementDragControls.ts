@@ -6,22 +6,14 @@ import { applyConstraints, calcOrigin, calcRelativeConstraints, calcViewportCons
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 import type { PanInfo } from '@/features/gestures/pan/PanSession'
 import { PanSession } from '@/features/gestures/pan/PanSession'
-import { calcLength } from '@/projection/geometry/delta-calc'
-import { createBox } from '@/projection/geometry/models'
-import { eachAxis } from '@/projection/utils/each-axis'
 import type { Options } from '@/types'
 import { getContextWindow } from '@/utils'
-import { addValueToWillChange } from '@/value/use-will-change/add-will-change'
-import type { AnimationGeneratorType, Axis, BoundingBox, Point, Transition, VisualElement } from 'framer-motion'
-import { frame, mixNumber, percent } from 'framer-motion/dom'
-import { measurePageBox } from '@/projection/utils/measure'
-import { convertBoundingBoxToBox, convertBoxToBoundingBox } from '@/projection/conversion'
-import { animateMotionValue } from 'framer-motion/dist/es/animation/interfaces/motion-value.mjs'
-import type { LayoutUpdateData } from '@/projection/node/types'
+import type { AnimationGeneratorType, LayoutUpdateData, Transition, VisualElement } from 'motion-dom'
+import { addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, measurePageBox, mixNumber, percent } from 'motion-dom'
 import { invariant } from 'hey-listen'
-import { isPresent } from '@/state/utils/is-present'
 import type { MotionState } from '@/state'
 import type { MotionProps } from '@/components'
+import type { Axis, BoundingBox, Point } from 'motion-utils'
 
 export const elementDragControls = new WeakMap<
   VisualElement,
@@ -41,7 +33,7 @@ type DragDirection = 'x' | 'y'
 // let latestPointerEvent: PointerEvent
 
 export class VisualElementDragControls {
-  private visualElement: VisualElement<HTMLElement>
+  private state: MotionState
 
   private panSession?: PanSession
 
@@ -67,8 +59,12 @@ export class VisualElementDragControls {
    */
   private elastic = createBox()
 
-  constructor(visualElement: VisualElement<HTMLElement>) {
-    this.visualElement = visualElement
+  constructor(state: MotionState) {
+    this.state = state
+  }
+
+  get visualElement() {
+    return this.state.visualElement
   }
 
   start(
@@ -154,8 +150,7 @@ export class VisualElementDragControls {
 
       addValueToWillChange(this.visualElement, 'transform')
 
-      const state = (this.visualElement as any).state as MotionState
-      state.setActive('whileDrag', true)
+      this.state.setActive('whileDrag', true)
     }
 
     const onMove = (event: PointerEvent, info: PanInfo) => {
@@ -226,7 +221,7 @@ export class VisualElementDragControls {
         transformPagePoint: this.visualElement.getTransformPagePoint(),
         dragSnapToOrigin,
         contextWindow: getContextWindow(this.visualElement),
-        element: this.visualElement.current,
+        element: this.state.element as HTMLElement,
       },
     )
   }
@@ -248,7 +243,7 @@ export class VisualElementDragControls {
 
   private cancel() {
     this.isDragging = false
-    const { projection, animationState } = this.visualElement
+    const { projection } = this.visualElement
     if (projection) {
       projection.isAnimationBlocked = false
     }
@@ -261,8 +256,7 @@ export class VisualElementDragControls {
       this.openGlobalLock = null
     }
 
-    const state = (this.visualElement as any).state as MotionState
-    state.setActive('whileDrag', false)
+    this.state.setActive('whileDrag', false)
   }
 
   private updateAxis(axis: DragDirection, _point: Point, offset?: Point) {
@@ -463,10 +457,7 @@ export class VisualElementDragControls {
   }
 
   private stopAnimation() {
-    /**
-     * 如果元素已经卸载，则不停止动画
-     */
-    if (!isPresent(this.visualElement))
+    if (!this.visualElement.projection?.isPresent)
       return
     eachAxis(axis => this.getAxisMotionValue(axis).stop())
   }
@@ -558,7 +549,7 @@ export class VisualElementDragControls {
      * Update the layout of this element and resolve the latest drag constraints
      */
     const { transformTemplate } = this.visualElement.getProps()
-    this.visualElement.current.style.transform = transformTemplate
+    this.state.element.style.transform = transformTemplate
       ? transformTemplate({}, '')
       : 'none'
     projection.root && projection.root.updateScroll()
@@ -585,10 +576,10 @@ export class VisualElementDragControls {
   }
 
   addListeners() {
-    if (!this.visualElement.current)
+    if (!this.state.element)
       return
     elementDragControls.set(this.visualElement, this)
-    const element = this.visualElement.current
+    const element = this.state.element as HTMLElement
 
     /**
      * Attach a pointerdown event listener on this DOM element to initiate drag tracking.

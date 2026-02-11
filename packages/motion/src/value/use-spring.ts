@@ -2,7 +2,7 @@ import type { Ref } from 'vue'
 import { isRef, watch } from 'vue'
 import { animateValue, frame, frameData, isMotionValue, motionValue } from 'framer-motion/dom'
 import type { JSAnimation, MotionValue } from 'framer-motion/dom'
-import type { SpringOptions } from 'framer-motion'
+import type { SpringOptions } from 'motion-dom'
 
 function toNumber(v: string | number) {
   if (typeof v === 'number')

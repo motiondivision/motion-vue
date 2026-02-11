@@ -1,14 +1,13 @@
-import type { $Transition, AsTag, Options, VariantType } from '@/types'
-import type { IntrinsicElementAttributes } from 'vue'
+import type { AsTag, Options, VariantType } from '@/types'
 
-export function resolveVariant(
+function resolveVariantValue(
   definition?: Options['animate'],
   variants?: Options['variants'],
   custom?: Options['custom'],
 ): VariantType | undefined {
   if (Array.isArray(definition)) {
     return definition.reduce((acc, item) => {
-      const resolvedVariant = resolveVariant(item, variants, custom)
+      const resolvedVariant = resolveVariantValue(item, variants, custom)
       return resolvedVariant ? { ...acc, ...resolvedVariant } : acc
     }, {})
   }
@@ -21,16 +20,20 @@ export function resolveVariant(
   }
 }
 
-export function hasChanged(a: any, b: any): boolean {
-  if (typeof a !== typeof b)
-    return true
-  if (Array.isArray(a) && Array.isArray(b))
-    return !shallowCompare(a, b)
-  return a !== b
+export function resolveVariant(
+  definition?: Options['animate'],
+  variants?: Options['variants'],
+  custom?: Options['custom'],
+): VariantType | undefined {
+  const resolved = resolveVariantValue(definition, variants, custom)
+  if (!resolved)
+    return undefined
+  const { transition, transitionEnd, ...target } = resolved as any
+  return { ...target, ...transitionEnd }
 }
 
 export function shallowCompare(next: any[], prev: any[]) {
-  const prevLength = prev.length
+  const prevLength = prev?.length
 
   if (prevLength !== next.length)
     return false
@@ -43,31 +46,9 @@ export function shallowCompare(next: any[], prev: any[]) {
   return true
 }
 
-export function addUniqueItem<T>(array: T[], item: T) {
-  !array.includes(item) && array.push(item)
-}
-
-export function removeItem<T>(array: T[], item: T) {
-  const index = array.indexOf(item)
-
-  index !== -1 && array.splice(index, 1)
-}
-
-export function getOptions(options: $Transition, key: string): $Transition {
-  return options[key as any] ? { ...options, ...options[key as any], [key]: undefined } : { ...options }
-}
-
 export function isCssVar(name: string) {
   return name?.startsWith('--')
 }
-
-export const noopReturn = <V>(v: V) => v
-
-export function isNumber(value: any): boolean {
-  return typeof value === 'number'
-}
-
-type ElementType = keyof IntrinsicElementAttributes
 
 export const svgElements = [
   'animate',

@@ -1,14 +1,11 @@
-import type { $Transition, MotionStateContext, Options } from '@/types'
+import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
-import type { DOMKeyframesDefinition, VisualElement } from 'framer-motion'
-import { cancelFrame, frame, noop } from 'framer-motion/dom'
+import type { AnimationType, DOMKeyframesDefinition, VisualElement } from 'motion-dom'
+import { frame, isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveVariant } from '@/state/utils'
-import type { Feature, StateType } from '@/features'
-import { FeatureManager } from '@/features'
+import type { Feature, FeatureKey, StateType } from '@/features'
+import { lazyFeatures } from '@/features/lazy-features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
-import type { AnimateUpdates } from '@/features/animation/types'
-import { isVariantLabels } from '@/state/utils/is-variant-labels'
-import type { LazyMotionContext } from '@/components/lazy-motion/context'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -28,40 +25,20 @@ export class MotionState {
   // Whether the element is exiting
   public isExiting = false
   // The AnimatePresence container this motion component belongs to
-  public presenceContainer: Element | null = null
+  public presenceContainer: HTMLElement | null = null
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Array<typeof Feature>
-    lazyMotionContext?: LazyMotionContext
   }
 
   // Track child components for proper lifecycle ordering
   private children?: Set<MotionState> = new Set()
 
-  // Track which animation states are currently active
-  public activeStates: Partial<Record<StateType, boolean>> = {
-    initial: true,
-    animate: true,
-  }
+  // Initial style values, serves as fallback before visualElement exists
+  public latestValues: DOMKeyframesDefinition
 
-  /**
-   * Current animation process reference
-   * Tracks the ongoing animation process for mount/update animations
-   * Enables delayed animation loading and parent-child animation orchestration
-   * Allows parent variant elements to control child element animations
-   */
-  public currentProcess: ReturnType<typeof frame.render> | null = null
-
-  // Base animation target values
-  public baseTarget: DOMKeyframesDefinition
-
-  // Current animation target values
-  public target: DOMKeyframesDefinition
-  /**
-   * The final transition to be applied to the state
-   */
-  public finalTransition: $Transition
-  private featureManager: FeatureManager
+  // Feature instances managed by key
+  private features = new Map<FeatureKey, Feature>()
 
   // Visual element instance from Framer Motion
   public visualElement: VisualElement<Element>
@@ -76,8 +53,7 @@ export class MotionState {
     // Initialize with either initial or animate variant
     const initial = (options.initial === undefined && options.variants) ? this.context.initial : options.initial
     const initialVariantSource = initial === false ? ['initial', 'animate'] : ['initial']
-    this.initTarget(initialVariantSource)
-    this.featureManager = new FeatureManager(this)
+    this.resolveInitialLatestValues(initialVariantSource)
     this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
@@ -88,9 +64,11 @@ export class MotionState {
     if (!this._context) {
       const handler = {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
-          return isVariantLabels(this.options[prop])
-            ? this.options[prop]
-            : this.parent?.context[prop]
+          const value = this.options[prop]
+          if (isVariantLabel(value) || (prop === 'initial' && value === false)) {
+            return value
+          }
+          return this.parent?.context[prop]
         },
       }
 
@@ -99,16 +77,39 @@ export class MotionState {
     return this._context
   }
 
-  // Initialize animation target values
-  private initTarget(initialVariantSource: string[]) {
+  // Resolve initial style values from variant sources
+  private resolveInitialLatestValues(initialVariantSource: string[]) {
     const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
-    this.baseTarget = initialVariantSource.reduce((acc, variant) => {
+    this.latestValues = initialVariantSource.reduce((acc, variant) => {
       return {
         ...acc,
         ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom),
       }
     }, {})
-    this.target = { }
+  }
+
+  /**
+   * Initialize features from options and global lazy features
+   * Features are stored by key to avoid duplicate instantiation
+   */
+  updateFeatures() {
+    if (!this.visualElement)
+      return
+    for (const FeatureCtor of lazyFeatures) {
+      if (!this.features.has(FeatureCtor.key)) {
+        this.features.set(FeatureCtor.key, new FeatureCtor(this))
+      }
+      const feature = this.features.get(FeatureCtor.key)
+      if (this.isMounted()) {
+        if (!feature.isMount) {
+          feature.mount()
+          feature.isMount = true
+        }
+        else {
+          feature.update()
+        }
+      }
+    }
   }
 
   // Update visual element with new options
@@ -120,94 +121,64 @@ export class MotionState {
     }, null as any)
   }
 
-  // Called before mounting, executes in parent-to-child order
-  beforeMount() {
-    this.featureManager.beforeMount()
-  }
-
   // Mount motion state to DOM element, handles parent-child relationships
-  mount(element: HTMLElement | SVGElement, options: Options, notAnimate = false) {
+  mount(element: HTMLElement | SVGElement) {
     invariant(
       Boolean(element),
       'Animation state must be mounted with valid Element',
     )
+    mountedStates.set(element, this)
     this.element = element
-    this.updateOptions(options)
-
-    // Mount features in parent-to-child order
-    this.featureManager.mount()
-    if (!notAnimate && this.options.animate) {
-      this.startAnimation?.()
-    }
-  }
-
-  clearAnimation() {
-    this.currentProcess && cancelFrame(this.currentProcess)
-    this.currentProcess = null
-    this.visualElement?.variantChildren?.forEach((child) => {
-      (child as any).state.clearAnimation()
-    })
-  }
-
-  // update trigger animation
-  startAnimation() {
-    this.clearAnimation()
-    this.currentProcess = frame.render(() => {
-      this.currentProcess = null
-      this.animateUpdates()
-    })
+    this.visualElement?.mount(element)
+    this.updateFeatures()
   }
 
   // Called before unmounting, executes in child-to-parent order
   beforeUnmount() {
-    this.featureManager.beforeUnmount()
+    this.getSnapshot(this.options, false)
   }
 
   unmount() {
     this.parent?.children?.delete(this)
     mountedStates.delete(this.element)
-    this.featureManager.unmount()
+    this.features.forEach(f => f.unmount?.())
     this.visualElement?.unmount()
-    // clear animation
-    this.clearAnimation()
   }
 
   // Called before updating, executes in parent-to-child order
-  beforeUpdate(options: Options) {
-    this.featureManager.beforeUpdate(options)
+  beforeUpdate() {
+    this.getSnapshot(this.options, undefined)
   }
 
   // Update motion state with new options
   update(options: Options) {
     this.updateOptions(options)
-    // Update features in parent-to-child order
-    this.featureManager.update()
-
-    this.startAnimation()
+    this.updateFeatures()
+    this.didUpdate()
   }
 
   // Set animation state active status and propagate to children
-  setActive(name: StateType, isActive: boolean, isAnimate = true) {
-    if (!this.element || this.activeStates[name] === isActive)
-      return
-    this.activeStates[name] = isActive
-    this.visualElement.variantChildren?.forEach((child) => {
-      ((child as any).state as MotionState).setActive(name, isActive, false)
-    })
-    if (isAnimate) {
-      this.animateUpdates({
-        isExit: name === 'exit' && this.activeStates.exit,
-      })
+  setActive(name: StateType, isActive: boolean) {
+    if (name === 'exit' && isActive) {
+      this.isExiting = true
     }
+    this.visualElement?.animationState?.setActive(name as AnimationType, isActive)
+      .then(() => {
+        frame.postRender(() => {
+          if (name === 'exit' && isActive) {
+            this.isExiting = false
+            if (!(this.options?.layoutId && this.visualElement.projection?.currentAnimation?.state === 'running' && !this.options.exit)) {
+              this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
+            }
+          }
+        })
+      })
   }
-
-  // Core animation update logic
-  animateUpdates: AnimateUpdates = noop as any
 
   isMounted() {
     return Boolean(this.element)
   }
 
   getSnapshot(options: Options, isPresent?: boolean) {}
-  didUpdate(label?: string) {}
+  didUpdate() {}
 }
