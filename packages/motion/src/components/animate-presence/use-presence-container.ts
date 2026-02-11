@@ -96,14 +96,11 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   // ===== Transition Handlers =====
 
   function enter(el: HTMLElement, done: VoidFunction) {
-    const session = exitSessions.get(el)
-    if (session) {
-      session.remaining.forEach((s) => {
-        s.setActive('exit', false)
-        s.getSnapshot(s.options, true)
-      })
-      exitSessions.delete(el)
-    }
+    const states = findMotionStates(el)
+    states.forEach((state) => {
+      state.setActive('exit', false)
+      state.getSnapshot(state.options, true)
+    })
     done()
   }
 

@@ -1,27 +1,33 @@
 <script setup>
-import { motion } from 'motion-v'
-
+import { AnimatePresence, motion } from 'motion-v'
+import { ref } from 'vue'
 /**
  * Removed unused motionValue/animation logic for clarity.
  * Kept features and onComplete demo.
  */
 
 const features = () => import('./test').then(mod => mod.default)
+const show = ref(false)
 function onComplete() {
   console.log('animation complete')
 }
 </script>
 
 <template>
-  <motion.a
-    data-testid="myAnchorElement"
-    href="#"
-    :while-focus="{ opacity: 0.1 }"
-    :transition="{ duration: 0 }"
-    :style="{ opacity: 1 }"
-  >
-    hello
-  </motion.a>
+  <button @click="show = !show">
+    show
+  </button>
+  <AnimatePresence>
+    <motion.div
+      v-show="show"
+      :initial="{ opacity: 0, y: 20 }"
+      :animate="{ opacity: 1, y: 0 }"
+      :exit="{ opacity: 0, y: -20 }"
+      class="w-10 h-10 bg-red-500"
+    >
+      <div>222</div>
+    </motion.div>
+  </AnimatePresence>
 </template>
 
 <style scoped>

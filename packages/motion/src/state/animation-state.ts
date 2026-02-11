@@ -48,7 +48,7 @@ function createState(): Record<string, AnimationTypeState> {
     animate: createTypeState(true),
     whileInView: createTypeState(),
     whileHover: createTypeState(),
-    whilePress: createTypeState(), // [Vue] motion-dom: whileTap
+    whilePress: createTypeState(),
     whileDrag: createTypeState(),
     whileFocus: createTypeState(),
     exit: createTypeState(),
@@ -495,6 +495,7 @@ export function createAnimationState(visualElement: VisualElement<any>): Animati
     getState: () => state,
     reset: () => {
       state = createState()
+      isInitialRender = true
     },
   }
 }

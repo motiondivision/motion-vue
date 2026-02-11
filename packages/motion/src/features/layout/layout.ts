@@ -4,6 +4,7 @@ import { addScaleCorrector, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
 import { isDef } from '@vueuse/core'
 import type { Options } from '@/types'
+import { isHidden } from '@/utils/is-hidden'
 
 let hasLayoutUpdate = false
 export class LayoutFeature extends Feature {
@@ -31,7 +32,9 @@ export class LayoutFeature extends Feature {
     if (options.layout || options.layoutId) {
       const projection = this.state.visualElement.projection
       if (projection) {
-        projection.promote()
+        const isPresent = !isHidden(this.state.element as HTMLElement)
+        projection.isPresent = isPresent
+        isPresent ? projection.promote() : projection.relegate()
         const stack = projection.getStack()
         /**
          * when has prev lead and prev lead has not been updated, we need to update the prev lead

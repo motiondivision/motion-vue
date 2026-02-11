@@ -1,5 +1,4 @@
-import { getMotionElement } from '@/components/hooks/use-motion-elm'
-import type { Component, ComponentPublicInstance, DefineComponent, IntrinsicElementAttributes } from 'vue'
+import type { Component, DefineComponent, IntrinsicElementAttributes } from 'vue'
 import { Comment, cloneVNode, defineComponent, h, mergeProps } from 'vue'
 import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
@@ -15,11 +14,6 @@ type MotionCompProps = {
 export interface MotionCreateOptions {
   forwardMotionProps?: boolean
   renderer?: typeof createVisualElement
-}
-export function checkMotionIsHidden(instance: ComponentPublicInstance) {
-  const isHidden = getMotionElement(instance.$el)?.style.display === 'none'
-  const hasTransition = instance.$.vnode.transition
-  return hasTransition && isHidden
 }
 
 const componentMaxCache = new Map<any, Component>()
