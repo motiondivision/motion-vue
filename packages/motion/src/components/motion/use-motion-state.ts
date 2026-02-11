@@ -9,7 +9,7 @@ import { updateLazyFeatures } from '@/features/lazy-features'
 import type { createVisualElement } from '@/state/create-visual-element'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
-import { getCurrentInstance, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
+import { getCurrentInstance, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 import { MotionState } from '@/state'
 
 export function useMotionState(
@@ -189,10 +189,6 @@ export function useMotionState(
   }
 
   const instance = getCurrentInstance().proxy
-
-  onBeforeMount(() => {
-    state.beforeMount()
-  })
 
   onMounted(() => {
     state.mount(getMotionElement(instance.$el))

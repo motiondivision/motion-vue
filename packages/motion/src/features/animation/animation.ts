@@ -23,7 +23,7 @@ export class AnimationFeature extends Feature {
   updateAnimationControlsSubscription() {
     const { animate } = this.state.options
     if (isAnimationControls(animate)) {
-      // this.unmountControls = animate.subscribe(this.state)
+      this.unmountControls = animate.subscribe(this.state.visualElement)
     }
   }
 
@@ -38,13 +38,20 @@ export class AnimationFeature extends Feature {
     else {
       this.state.visualElement.animationState?.animateChanges()
     }
+    this.updateAnimationControlsSubscription()
   }
 
   update() {
     this.state.visualElement.animationState?.animateChanges()
+    const { animate } = this.state.visualElement.getProps()
+    const { animate: prevAnimate } = this.state.visualElement.prevProps || {}
+    if (animate !== prevAnimate) {
+      this.updateAnimationControlsSubscription()
+    }
   }
 
   unmount() {
+    this.state.visualElement.animationState!.reset()
     this.unmountControls?.()
   }
 }

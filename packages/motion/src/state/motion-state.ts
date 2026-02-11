@@ -121,10 +121,6 @@ export class MotionState {
     }, null as any)
   }
 
-  // Called before mounting, executes in parent-to-child order
-  beforeMount() {
-  }
-
   // Mount motion state to DOM element, handles parent-child relationships
   mount(element: HTMLElement | SVGElement) {
     invariant(
