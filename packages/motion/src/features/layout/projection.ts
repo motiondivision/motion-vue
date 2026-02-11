@@ -44,14 +44,9 @@ export class ProjectionFeature extends Feature {
       layoutScroll: options.layoutScroll,
       crossfade: options.crossfade,
       onExitComplete: () => {
-        if (!this.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
+        if (!this.projection?.isPresent && this.state.options.layoutId) {
           // Defer to avoid re-entrant microtask.read() during projection update().
-          // notifyLayoutUpdate can call this synchronously while the microtask batcher
-          // is processing; a direct root.didUpdate() call here would be permanently lost
-          // because the microtask batcher's allowKeepAlive=false skips follow-up batches.
-          queueMicrotask(() => {
-            this.state.options.animatePresenceContext?.onMotionExitComplete?.(this.state.presenceContainer, this.state)
-          })
+          queueMicrotask(() => this.state.tryExitComplete())
         }
       },
     })

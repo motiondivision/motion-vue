@@ -182,16 +182,17 @@ export function useMotionState(
     const style = createStyles(styleProps)
     if (style)
       attrsProps.style = style
-    if (animatePresenceContext.presenceId) {
-      attrsProps['data-ap'] = animatePresenceContext.presenceId
-    }
     return attrsProps
   }
 
   const instance = getCurrentInstance().proxy
 
   onMounted(() => {
-    state.mount(getMotionElement(instance.$el))
+    const el = getMotionElement(instance.$el)
+    if (animatePresenceContext.presenceId) {
+      el?.setAttribute('data-ap', animatePresenceContext.presenceId)
+    }
+    state.mount(el)
   })
 
   onBeforeUnmount(() => state.beforeUnmount())

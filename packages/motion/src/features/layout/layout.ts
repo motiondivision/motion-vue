@@ -17,6 +17,14 @@ export class LayoutFeature extends Feature {
     state.didUpdate = this.didUpdate.bind(this)
   }
 
+  private updatePrevLead(projection: NonNullable<typeof this.state.visualElement.projection>) {
+    const stack = projection.getStack()
+    if (stack?.prevLead && !stack.prevLead.snapshot) {
+      stack.prevLead.willUpdate()
+      hasLayoutUpdate = true
+    }
+  }
+
   didUpdate() {
     if (!hasLayoutUpdate)
       return
@@ -35,14 +43,7 @@ export class LayoutFeature extends Feature {
         const isPresent = !isHidden(this.state.element as HTMLElement)
         projection.isPresent = isPresent
         isPresent ? projection.promote() : projection.relegate()
-        const stack = projection.getStack()
-        /**
-         * when has prev lead and prev lead has not been updated, we need to update the prev lead
-         */
-        if (stack?.prevLead && !stack.prevLead.snapshot) {
-          stack.prevLead.willUpdate()
-          hasLayoutUpdate = true
-        }
+        this.updatePrevLead(projection)
         layoutGroup?.group?.add(projection)
       }
       globalProjectionState.hasEverUpdated = true
@@ -95,6 +96,7 @@ export class LayoutFeature extends Feature {
       projection.isPresent = isPresent
       if (isPresent) {
         projection.promote()
+        this.updatePrevLead(projection)
       }
       else {
         projection.relegate()
