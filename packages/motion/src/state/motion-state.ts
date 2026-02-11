@@ -101,7 +101,13 @@ export class MotionState {
       }
       const feature = this.features.get(FeatureCtor.key)
       if (this.isMounted()) {
-        !feature.isMount ? feature.mount() : feature.update()
+        if (!feature.isMount) {
+          feature.mount()
+          feature.isMount = true
+        }
+        else {
+          feature.update()
+        }
       }
     }
   }

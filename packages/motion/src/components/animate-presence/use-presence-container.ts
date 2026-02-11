@@ -106,7 +106,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
 
   function exit(el: Element, done: VoidFunction) {
     const container = el as HTMLElement
-
     // Discover all motion states inside this container at exit time
     const states = findMotionStates(container)
 
