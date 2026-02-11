@@ -1,7 +1,7 @@
 import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import type { AnimationType, DOMKeyframesDefinition, VisualElement } from 'motion-dom'
-import { isVariantLabel } from 'motion-dom'
+import { frame, isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
 import { lazyFeatures } from '@/features/lazy-features'
@@ -25,7 +25,7 @@ export class MotionState {
   // Whether the element is exiting
   public isExiting = false
   // The AnimatePresence container this motion component belongs to
-  public presenceContainer: Element | null = null
+  public presenceContainer: HTMLElement | null = null
   public options: Options & {
     animatePresenceContext?: PresenceContext
     features?: Array<typeof Feature>
@@ -162,10 +162,14 @@ export class MotionState {
     }
     this.visualElement?.animationState?.setActive(name as AnimationType, isActive)
       .then(() => {
-        if (name === 'exit' && isActive) {
-          this.isExiting = false
-          this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
-        }
+        frame.postRender(() => {
+          if (name === 'exit' && isActive) {
+            this.isExiting = false
+            if (!(this.options?.layoutId && this.visualElement.projection?.currentAnimation?.state === 'running' && !this.options.exit)) {
+              this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
+            }
+          }
+        })
       })
   }
 

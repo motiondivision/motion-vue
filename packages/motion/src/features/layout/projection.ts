@@ -4,6 +4,7 @@ import { HTMLProjectionNode, addScaleCorrector } from 'motion-dom'
 import { getClosestProjectingNode } from '@/features/layout/utils'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
+import { isSSR } from '@/utils/is'
 
 export class ProjectionFeature extends Feature {
   static key = 'projection' as const
@@ -11,7 +12,9 @@ export class ProjectionFeature extends Feature {
   constructor(state) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
-    this.initProjection()
+    if (!isSSR) {
+      this.initProjection()
+    }
   }
 
   initProjection() {
@@ -42,7 +45,7 @@ export class ProjectionFeature extends Feature {
       crossfade: options.crossfade,
       onExitComplete: () => {
         if (!this.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
-          this.state.options.animatePresenceContext?.onMotionExitComplete(this.state.presenceContainer, this.state)
+          this.state.options.animatePresenceContext?.onMotionExitComplete?.(this.state.presenceContainer, this.state)
         }
       },
     })

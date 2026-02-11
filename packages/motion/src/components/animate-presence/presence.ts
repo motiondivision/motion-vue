@@ -6,7 +6,7 @@ export interface PresenceContext {
   custom?: any
   presenceId?: string
   // Notify when a motion component's exit animation is complete
-  onMotionExitComplete?: (container: Element, state: MotionState) => void
+  onMotionExitComplete?: (container: HTMLElement, state: MotionState) => void
 }
 
 export const [injectAnimatePresence, provideAnimatePresence] = createContext<PresenceContext>('AnimatePresenceContext')
