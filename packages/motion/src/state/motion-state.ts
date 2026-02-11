@@ -9,14 +9,12 @@ import type { PresenceContext } from '@/components/animate-presence/presence'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
-let id = 0
 
 /**
  * Core class that manages animation state and orchestrates animations.
  * Handles component lifecycle methods in the correct order based on component tree position.
  */
 export class MotionState {
-  public readonly id: string
   public type: 'html' | 'svg'
   public element: HTMLElement | SVGElement | null = null
   // Parent reference for handling component tree relationships
@@ -44,7 +42,6 @@ export class MotionState {
   public visualElement: VisualElement<Element>
 
   constructor(options: Options, parent?: MotionState) {
-    this.id = `motion-state-${id++}`
     this.options = options
     this.parent = parent
     // Add to parent's children set for lifecycle management
@@ -157,6 +154,16 @@ export class MotionState {
     this.didUpdate()
   }
 
+  tryExitComplete() {
+    if (this.isExiting)
+      return
+    if (this.options?.layoutId
+      && this.visualElement.projection?.currentAnimation?.state === 'running') {
+      return
+    }
+    this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
+  }
+
   // Set animation state active status and propagate to children
   setActive(name: StateType, isActive: boolean) {
     if (name === 'exit' && isActive) {
@@ -164,14 +171,12 @@ export class MotionState {
     }
     this.visualElement?.animationState?.setActive(name as AnimationType, isActive)
       .then(() => {
-        frame.postRender(() => {
-          if (name === 'exit' && isActive) {
-            this.isExiting = false
-            if (!(this.options?.layoutId && this.visualElement.projection?.currentAnimation?.state === 'running' && !this.options.exit)) {
-              this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
-            }
-          }
-        })
+        if (name === 'exit' && isActive) {
+          this.isExiting = false
+          this.options?.layoutId
+            ? frame.postRender(() => this.tryExitComplete())
+            : this.tryExitComplete()
+        }
       })
   }
 

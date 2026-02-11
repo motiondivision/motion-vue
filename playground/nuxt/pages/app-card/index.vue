@@ -1,19 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { AnimatePresence, LayoutGroup } from 'motion-v'
-import { CARDS, type Card } from './card'
+import { CARDS } from './card'
 import CardItem from './CardItem.vue'
 import ActiveCard from './ActiveCard.vue'
 import { useEventListener } from '@vueuse/core'
 
-const cardId = ref<Card['id'] | null>()
-const activeCard = computed(() =>
-  CARDS.find(card => card.id === cardId.value),
-)
+const showActiveCard = ref(false)
+const activeCard = CARDS[0]
 
 useEventListener('keydown', (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
-    cardId.value = null
+    showActiveCard.value = false
   }
 })
 </script>
@@ -24,24 +22,24 @@ useEventListener('keydown', (event: KeyboardEvent) => {
     <LayoutGroup>
       <div class="cards-wrapper">
         <CardItem
-          v-for="(card, i) in CARDS"
+          v-for="card in CARDS"
           :key="card.id"
           :card="card"
-          :data-id="cardId"
+          :data-id="showActiveCard"
           @select="() => {
-            cardId = CARDS[i].id
+            showActiveCard = true
           }"
         />
         <AnimatePresence>
           <ActiveCard
-            v-if="activeCard"
+            v-show="showActiveCard"
             :card="activeCard || {}"
-            @close="cardId = null"
+            @close="showActiveCard = false"
           />
         </AnimatePresence>
         <AnimatePresence>
           <Motion
-            v-if="activeCard"
+            v-show="showActiveCard"
             :initial="{ opacity: 0 }"
             :animate="{ opacity: 1 }"
             :exit="{ opacity: 0 }"

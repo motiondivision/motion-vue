@@ -44,8 +44,9 @@ export class ProjectionFeature extends Feature {
       layoutScroll: options.layoutScroll,
       crossfade: options.crossfade,
       onExitComplete: () => {
-        if (!this.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
-          this.state.options.animatePresenceContext?.onMotionExitComplete?.(this.state.presenceContainer, this.state)
+        if (!this.projection?.isPresent && this.state.options.layoutId) {
+          // Defer to avoid re-entrant microtask.read() during projection update().
+          queueMicrotask(() => this.state.tryExitComplete())
         }
       },
     })
