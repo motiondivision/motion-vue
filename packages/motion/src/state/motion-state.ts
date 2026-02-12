@@ -1,6 +1,6 @@
 import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
-import type { AnimationType, DOMKeyframesDefinition, VisualElement } from 'motion-dom'
+import type { AnimationType, DOMKeyframesDefinition, VisualElement, VisualElementOptions } from 'motion-dom'
 import { frame, isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
@@ -182,6 +182,35 @@ export class MotionState {
 
   isMounted() {
     return Boolean(this.element)
+  }
+
+  /**
+   * Create and attach a visual element using the given renderer.
+   * Shared by both the Motion component and v-motion directive.
+   */
+  initVisualElement(renderer: (tag: string, options: VisualElementOptions<any, any>) => VisualElement<Element>) {
+    if (this.visualElement)
+      return
+    this.visualElement = renderer(this.options.as as string, {
+      presenceContext: null,
+      parent: this.parent?.visualElement,
+      props: { ...this.options, whileTap: this.options.whilePress } as any,
+      visualState: {
+        renderState: {
+          transform: {},
+          transformOrigin: {},
+          style: {},
+          vars: {},
+          attrs: {},
+        },
+        latestValues: { ...this.latestValues } as any,
+      },
+      reducedMotionConfig: this.options.motionConfig?.reducedMotion,
+    })
+    this.visualElement.parent?.addChild(this.visualElement)
+    if (this.isMounted()) {
+      this.visualElement.mount(this.element)
+    }
   }
 
   getSnapshot(options: Options, isPresent?: boolean) {}

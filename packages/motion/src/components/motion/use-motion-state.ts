@@ -88,55 +88,18 @@ export function useMotionState(
   )
   provideMotion(state)
 
-  /**
-   * Initialize visual element with the provided renderer
-   */
-  function initVisualElement(createVE: typeof createVisualElement) {
-    if (state.visualElement)
-      return
-
-    state.visualElement = createVE(state.options.as!, {
-      presenceContext: null,
-      parent: state.parent?.visualElement,
-      props: {
-        ...state.options,
-        whileTap: state.options.whilePress,
-      },
-      visualState: {
-        renderState: {
-          transform: {},
-          transformOrigin: {},
-          style: {},
-          vars: {},
-          attrs: {},
-        },
-        latestValues: {
-          ...state.latestValues,
-        },
-      },
-      reducedMotionConfig: state.options.motionConfig?.reducedMotion,
-    })
-    state.visualElement.parent?.addChild(state.visualElement)
-    if (state.isMounted()) {
-      state.visualElement.mount(state.element)
-    }
-  }
-
   // If renderer is provided directly (motion component), use it immediately
   if (renderer) {
-    initVisualElement(renderer)
+    state.initVisualElement(renderer)
   }
 
   // Watch for lazy-loaded features (for m component with LazyMotion)
   watch(lazyMotionContext.features, (bundle) => {
-    // Update lazy features when features array changes
     if (bundle.features?.length) {
       updateLazyFeatures(bundle.features)
     }
-
-    // Initialize visual element if renderer becomes available
-    if (bundle.renderer && !state.visualElement) {
-      initVisualElement(bundle.renderer)
+    if (bundle.renderer) {
+      state.initVisualElement(bundle.renderer)
     }
     state.updateFeatures()
   }, { immediate: true })

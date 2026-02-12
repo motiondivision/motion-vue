@@ -26,11 +26,9 @@ function extractMotionProps(vnode: VNode, bindingValue: Options | undefined): Op
 
 /**
  * Clean up DOM side-effects from Vue's VNode prop patching on native elements.
- * - Restores native methods overwritten by prop patching (e.g. Element.prototype.animate)
- * - Removes object-valued attributes that become "[object Object]" on DOM
  *
  * Vue checks `key in el` before patching — if true, sets as property (`el[key] = value`),
- * which creates an own property shadowing the prototype method.
+ * which creates an own property shadowing the prototype method (e.g. Element.prototype.animate).
  * `delete el[key]` removes the own property, restoring the prototype chain.
  */
 function cleanVNodeProps(el: Element, vnodeProps: Record<string, any> | null) {
@@ -38,11 +36,9 @@ function cleanVNodeProps(el: Element, vnodeProps: Record<string, any> | null) {
     return
   for (const key in vnodeProps) {
     const value = vnodeProps[key]
-    // Restore native DOM methods (e.g. animate, focus) overwritten by Vue prop patching
     if (typeof value !== 'function' && key in Element.prototype) {
       delete (el as any)[key]
     }
-    // Remove object-valued attributes (e.g. initial="[object Object]")
     if (value != null && typeof value === 'object') {
       el.removeAttribute(key)
       el.removeAttribute(key.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`))
@@ -50,13 +46,17 @@ function cleanVNodeProps(el: Element, vnodeProps: Record<string, any> | null) {
   }
 }
 
-function resolveOptions(el: Element, options: Options): Options {
-  return { ...options, as: el.tagName.toLowerCase() }
+function resolveTag(el: Element): string
+function resolveTag(vnode: VNode): string
+function resolveTag(source: Element | VNode): string {
+  if (source instanceof Element)
+    return source.tagName.toLowerCase()
+  return typeof source.type === 'string' ? source.type : 'div'
 }
 
 /**
  * Compute CSS styles (and SVG attrs) from motion values.
- * Shared logic for both SSR and client-side initial style application.
+ * Shared by SSR and client-side initial style application.
  */
 function computeStyles(
   values: Record<string, any>,
@@ -70,10 +70,6 @@ function computeStyles(
   return { styles: createStyles({ ...styleProp, ...values }) }
 }
 
-/**
- * Resolve initial styles from Options for SSR rendering.
- * Uses MotionState to resolve latestValues, matching the component behavior exactly.
- */
 function resolveSSRStyles(options: Options): Record<string, string> | null {
   if (!options)
     return null
@@ -83,12 +79,8 @@ function resolveSSRStyles(options: Options): Record<string, string> | null {
   return computeStyles(state.latestValues, options.as as string || 'div', options.style).styles
 }
 
-/**
- * Apply initial styles from latestValues onto the DOM element.
- */
 function applyInitialStyles(el: HTMLElement | SVGElement, state: MotionState) {
-  const tag = el.tagName.toLowerCase()
-  const { styles, attrs } = computeStyles(state.latestValues, tag, state.options.style)
+  const { styles, attrs } = computeStyles(state.latestValues, resolveTag(el), state.options.style)
   if (attrs) {
     for (const key in attrs) el.setAttribute(key, String(attrs[key]))
   }
@@ -112,25 +104,10 @@ export function createMotionDirective(
   return {
     created(el, { value }, vnode) {
       const motionProps = extractMotionProps(vnode, value)
-      const options = resolveOptions(el, motionProps)
+      const options = { ...motionProps, as: resolveTag(el) }
       const state = new MotionState(options)
-
-      state.visualElement = renderer(options.as!, {
-        presenceContext: null,
-        parent: undefined,
-        props: { ...options, whileTap: options.whilePress },
-        visualState: {
-          renderState: {
-            transform: {},
-            transformOrigin: {},
-            style: {},
-            vars: {},
-            attrs: {},
-          },
-          latestValues: { ...state.latestValues },
-        },
-        reducedMotionConfig: options.motionConfig?.reducedMotion,
-      })
+      state.initVisualElement(renderer)
+      // Bridge state to mounted hook; state.mount() will re-register
       mountedStates.set(el, state)
     },
 
@@ -156,11 +133,14 @@ export function createMotionDirective(
         return
       cleanVNodeProps(el, vnode.props)
       const motionProps = extractMotionProps(vnode, value)
-      state.update(resolveOptions(el, motionProps))
+      state.update({ ...motionProps, as: resolveTag(el) })
     },
 
     beforeUnmount(el) {
-      mountedStates.get(el)?.beforeUnmount()
+      const state = mountedStates.get(el)
+      if (!state)
+        return
+      state.beforeUnmount()
     },
 
     unmounted(el) {
@@ -172,7 +152,7 @@ export function createMotionDirective(
 
     getSSRProps(binding, vnode) {
       const motionProps = extractMotionProps(vnode, binding.value)
-      const ssrStyles = resolveSSRStyles(motionProps)
+      const ssrStyles = resolveSSRStyles({ ...motionProps, as: resolveTag(vnode) })
       if (!ssrStyles)
         return {}
       return { style: ssrStyles }
@@ -180,7 +160,6 @@ export function createMotionDirective(
   }
 }
 
-// Default directive: uses domMax (all features)
 export const vMotion = createMotionDirective(domMax)
 
 /**
@@ -193,10 +172,7 @@ export const vMotion = createMotionDirective(domMax)
  * ```
  */
 export const MotionPlugin = {
-  install(app: App, options?: { featureBundle?: FeatureBundle }) {
-    const directive = options?.featureBundle
-      ? createMotionDirective(options.featureBundle)
-      : vMotion
-    app.directive('motion', directive)
+  install(app: App) {
+    app.directive('motion', vMotion)
   },
 }
