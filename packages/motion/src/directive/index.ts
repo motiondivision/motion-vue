@@ -145,6 +145,8 @@ export function createMotionDirective(
 
     beforeUpdate(el) {
       const state = mountedStates.get(el)
+      if (!state)
+        return
       state.beforeUpdate()
     },
 
