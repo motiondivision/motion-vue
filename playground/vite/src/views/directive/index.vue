@@ -144,6 +144,7 @@ const x = ref(0)
             v-motion
             :initial="{ opacity: 0, scale: 0.5, rotate: -10 }"
             :animate="{ opacity: 1, scale: 1, rotate: 0 }"
+            :exit="{ opacity: 0, scale: 0.5, rotate: 10 }"
             :transition="{ type: 'spring', duration: 0.5 }"
             class="box"
           >

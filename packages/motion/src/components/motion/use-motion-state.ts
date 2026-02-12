@@ -11,6 +11,7 @@ import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 import { MotionState } from '@/state'
+import { resolveMotionProps } from '@/utils/resolve-motion-props'
 
 export function useMotionState(
   props: MotionProps,
@@ -48,32 +49,12 @@ export function useMotionState(
 
   const attrs = useAttrs()
 
-  /**
-   * Get the layout ID for the motion component
-   * If both layoutGroup.id and props.layoutId exist, combine them with a hyphen
-   * Otherwise return props.layoutId or undefined
-   */
-  function getLayoutId() {
-    if (layoutGroup.id && props.layoutId)
-      return `${layoutGroup.id}-${props.layoutId}`
-    return props.layoutId || undefined
-  }
-
   function getProps() {
-    return {
-      ...props,
-      layoutId: getLayoutId(),
-      transition: props.transition ?? config.value.transition,
+    return resolveMotionProps(props, {
       layoutGroup,
-      motionConfig: config.value,
-      inViewOptions: props.inViewOptions ?? config.value.inViewOptions,
       presenceContext,
-      initial: presenceContext.initial === false
-        ? presenceContext.initial
-        : (
-            props.initial === true ? undefined : props.initial
-          ),
-    }
+      config: config.value,
+    })
   }
   function getMotionProps() {
     return {

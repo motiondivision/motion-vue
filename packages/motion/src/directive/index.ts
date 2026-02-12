@@ -9,11 +9,10 @@ import { updateLazyFeatures } from '@/features/lazy-features'
 import { isSVGElement } from '@/state/utils'
 import { warning } from 'hey-listen'
 import { layoutGroupInjectionKey, motionInjectionKey } from '@/components/context'
-import type { LayoutGroupState } from '@/components/context'
 import { animatePresenceInjectionKey } from '@/components/animate-presence/presence'
-import type { PresenceContext } from '@/components/animate-presence/presence'
 import { defaultConfig, motionConfigInjectionKey } from '@/components/motion-config/context'
 import type { MotionConfigState } from '@/components/motion-config/types'
+import { resolveMotionProps } from '@/utils/resolve-motion-props'
 
 /**
  * Extract props from VNode and merge with binding value.
@@ -165,30 +164,17 @@ function buildMotionOptions(
   tag: string,
 ): { options: Options, parentState: MotionState | null } {
   const parentState: MotionState | null = provides[motionInjectionKey as any] ?? null
-  const layoutGroup: LayoutGroupState = provides[layoutGroupInjectionKey as any] ?? {}
-  const presenceContext: PresenceContext = provides[animatePresenceInjectionKey as any] ?? {}
+  const layoutGroup = provides[layoutGroupInjectionKey as any] ?? {}
+  const presenceContext = provides[animatePresenceInjectionKey as any] ?? {}
   const configRef: ComputedRef<MotionConfigState> | null = provides[motionConfigInjectionKey as any] ?? null
   const config = configRef?.value ?? defaultConfig
-
-  const layoutId = layoutGroup.id && motionProps.layoutId
-    ? `${layoutGroup.id}-${motionProps.layoutId}`
-    : motionProps.layoutId || undefined
-
+  console.log('presenceContext', presenceContext)
   return {
     parentState,
-    options: {
-      ...motionProps,
-      as: tag,
-      layoutId,
-      transition: motionProps.transition ?? config.transition,
-      layoutGroup,
-      motionConfig: config,
-      inViewOptions: motionProps.inViewOptions ?? config.inViewOptions,
-      presenceContext,
-      initial: presenceContext.initial === false
-        ? presenceContext.initial
-        : (motionProps.initial === true ? undefined : motionProps.initial),
-    },
+    options: resolveMotionProps(
+      { ...motionProps, as: tag },
+      { layoutGroup, presenceContext, config },
+    ),
   }
 }
 
@@ -216,6 +202,9 @@ export function createMotionDirective(
       mountedStates.set(el, state)
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
+      if (options.presenceContext?.presenceId) {
+        el.setAttribute('data-ap', options.presenceContext.presenceId)
+      }
       state.mount(el)
     },
 
@@ -248,7 +237,8 @@ export function createMotionDirective(
       const state = mountedStates.get(el)
       if (!state)
         return
-      state.unmount()
+      if (!el.isConnected)
+        state.unmount()
     },
 
     getSSRProps(binding, vnode) {
