@@ -3,7 +3,7 @@ import { createContext } from '@/utils'
 import type { NodeGroup } from 'motion-dom'
 import type { Ref } from 'vue'
 
-export const [injectMotion, provideMotion] = createContext<MotionState>('Motion')
+export const [injectMotion, provideMotion, motionInjectionKey] = createContext<MotionState>('Motion')
 
 export interface LayoutGroupState {
   id?: string
@@ -12,4 +12,4 @@ export interface LayoutGroupState {
   key?: Ref<number>
 }
 
-export const [injectLayoutGroup, provideLayoutGroup] = createContext<LayoutGroupState>('LayoutGroup')
+export const [injectLayoutGroup, provideLayoutGroup, layoutGroupInjectionKey] = createContext<LayoutGroupState>('LayoutGroup')

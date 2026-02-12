@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { vMotion } from 'motion-v'
+import { AnimatePresence, vMotion } from 'motion-v'
 
 const isVisible = ref(true)
 const x = ref(0)
@@ -138,16 +138,18 @@ const x = ref(0)
         {{ isVisible ? 'Hide' : 'Show' }}
       </button>
       <div style="height: 120px; position: relative">
-        <div
-          v-if="isVisible"
-          v-motion
-          :initial="{ opacity: 0, scale: 0.5, rotate: -10 }"
-          :animate="{ opacity: 1, scale: 1, rotate: 0 }"
-          :transition="{ type: 'spring', duration: 0.5 }"
-          class="box"
-        >
-          Toggle me
-        </div>
+        <AnimatePresence>
+          <div
+            v-if="isVisible"
+            v-motion
+            :initial="{ opacity: 0, scale: 0.5, rotate: -10 }"
+            :animate="{ opacity: 1, scale: 1, rotate: 0 }"
+            :transition="{ type: 'spring', duration: 0.5 }"
+            class="box"
+          >
+            Toggle me
+          </div>
+        </AnimatePresence>
       </div>
     </section>
   </div>

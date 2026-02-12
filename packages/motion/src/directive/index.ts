@@ -1,4 +1,4 @@
-import type { App, ObjectDirective, VNode } from 'vue'
+import type { App, ComponentInternalInstance, ComputedRef, ObjectDirective, VNode } from 'vue'
 import type { Options } from '@/types'
 import type { FeatureBundle } from '@/features/dom-animation'
 import { domMax } from '@/features/dom-max'
@@ -7,6 +7,13 @@ import { createVisualElement as defaultRenderer } from '@/state/create-visual-el
 import { createSVGStyles, createStyles } from '@/state/style'
 import { updateLazyFeatures } from '@/features/lazy-features'
 import { isSVGElement } from '@/state/utils'
+import { warning } from 'hey-listen'
+import { layoutGroupInjectionKey, motionInjectionKey } from '@/components/context'
+import type { LayoutGroupState } from '@/components/context'
+import { animatePresenceInjectionKey } from '@/components/animate-presence/presence'
+import type { PresenceContext } from '@/components/animate-presence/presence'
+import { defaultConfig, motionConfigInjectionKey } from '@/components/motion-config/context'
+import type { MotionConfigState } from '@/components/motion-config/types'
 
 /**
  * Extract props from VNode and merge with binding value.
@@ -89,6 +96,102 @@ function applyInitialStyles(el: HTMLElement | SVGElement, state: MotionState) {
   }
 }
 
+function findComponentParent(vnode: VNode, root: ComponentInternalInstance): ComponentInternalInstance | null {
+  // Walk the tree from root until we find the child vnode
+  const stack = new Set<VNode>()
+  const walk = (children: VNode[]): boolean => {
+    for (const child of children) {
+      if (!child)
+        continue
+
+      if (child === vnode || (child.el && vnode.el && child.el === vnode.el)) {
+        return true
+      }
+
+      stack.add(child)
+      let result
+      if (child.suspense) {
+        // @ts-expect-error ssContent is not typed
+        result = walk([child.ssContent!])
+      }
+      else if (Array.isArray(child.children)) {
+        result = walk(child.children as VNode[])
+      }
+      else if (child.component?.vnode) {
+        result = walk([child.component?.subTree])
+      }
+      if (result) {
+        return result
+      }
+      stack.delete(child)
+    }
+
+    return false
+  }
+  if (!walk([root.subTree])) {
+    warning(false, 'Could not find original vnode, component will not inherit provides')
+    return root
+  }
+
+  // Return the first component parent
+  const result = Array.from(stack).reverse()
+  for (const child of result) {
+    if (child.component) {
+      return child.component
+    }
+  }
+  return root
+}
+
+/**
+ * Resolve the provides object from the vnode's component tree.
+ */
+function resolveProvides(vnode: VNode, binding: any): Record<symbol, any> {
+  // @ts-expect-error vnode.ctx is not typed
+  return (vnode.ctx === binding.instance!.$
+  // @ts-expect-error binding.instance!.$.provides is not typed
+    ? findComponentParent(vnode, binding.instance!.$)?.provides
+    // @ts-expect-error vnode.ctx.provides is not typed
+    : vnode.ctx?.provides) ?? binding.instance!.$.provides
+}
+
+/**
+ * Extract context values from the provides chain and build
+ * a full options object matching useMotionState behavior.
+ */
+function buildMotionOptions(
+  motionProps: Options,
+  provides: Record<symbol, any>,
+  tag: string,
+): { options: Options, parentState: MotionState | null } {
+  const parentState: MotionState | null = provides[motionInjectionKey as any] ?? null
+  const layoutGroup: LayoutGroupState = provides[layoutGroupInjectionKey as any] ?? {}
+  const presenceContext: PresenceContext = provides[animatePresenceInjectionKey as any] ?? {}
+  const configRef: ComputedRef<MotionConfigState> | null = provides[motionConfigInjectionKey as any] ?? null
+  const config = configRef?.value ?? defaultConfig
+
+  const layoutId = layoutGroup.id && motionProps.layoutId
+    ? `${layoutGroup.id}-${motionProps.layoutId}`
+    : motionProps.layoutId || undefined
+
+  return {
+    parentState,
+    options: {
+      ...motionProps,
+      as: tag,
+      layoutId,
+      transition: motionProps.transition ?? config.transition,
+      layoutGroup,
+      motionConfig: config,
+      inViewOptions: motionProps.inViewOptions ?? config.inViewOptions,
+      presenceContext,
+      initial: presenceContext.initial === false
+        ? presenceContext.initial
+        : (motionProps.initial === true ? undefined : motionProps.initial),
+    },
+  }
+}
+
 /**
  * Create a v-motion directive with the given feature bundle.
  * If no bundle is provided, defaults to domMax (all features).
@@ -102,19 +205,15 @@ export function createMotionDirective(
   }
 
   return {
-    created(el, { value }, vnode) {
-      const motionProps = extractMotionProps(vnode, value)
-      const options = { ...motionProps, as: resolveTag(el) }
-      const state = new MotionState(options)
-      state.initVisualElement(renderer)
-      // Bridge state to mounted hook; state.mount() will re-register
-      mountedStates.set(el, state)
-    },
 
-    mounted(el, _binding, vnode) {
-      const state = mountedStates.get(el)
-      if (!state)
-        return
+    mounted(el, binding, vnode) {
+      const provides = resolveProvides(vnode, binding)
+      const motionProps = extractMotionProps(vnode, binding.value)
+      const { options, parentState } = buildMotionOptions(motionProps, provides, resolveTag(el))
+
+      const state = new MotionState(options, parentState!)
+      state.initVisualElement(renderer)
+      mountedStates.set(el, state)
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
       state.mount(el)
@@ -127,13 +226,15 @@ export function createMotionDirective(
       state.beforeUpdate()
     },
 
-    updated(el, { value }, vnode) {
+    updated(el, binding, vnode) {
       const state = mountedStates.get(el)
       if (!state)
         return
       cleanVNodeProps(el, vnode.props)
-      const motionProps = extractMotionProps(vnode, value)
-      state.update({ ...motionProps, as: resolveTag(el) })
+      const provides = resolveProvides(vnode, binding)
+      const motionProps = extractMotionProps(vnode, binding.value)
+      const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
+      state.update(options)
     },
 
     beforeUnmount(el) {

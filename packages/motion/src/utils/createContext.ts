@@ -50,5 +50,5 @@ export function createContext<ContextValue>(
     return contextValue
   }
 
-  return [injectContext, provideContext] as const
+  return [injectContext, provideContext, injectionKey] as const
 }
