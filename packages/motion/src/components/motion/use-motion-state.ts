@@ -23,7 +23,7 @@ export function useMotionState(
   // motion config context
   const config = useMotionConfig()
   // animate presence context
-  const animatePresenceContext = injectAnimatePresence({})
+  const presenceContext = injectAnimatePresence({})
   // lazy motion context
   const lazyMotionContext = useLazyMotionContext({
     features: ref({}),
@@ -67,9 +67,9 @@ export function useMotionState(
       layoutGroup,
       motionConfig: config.value,
       inViewOptions: props.inViewOptions ?? config.value.inViewOptions,
-      animatePresenceContext,
-      initial: animatePresenceContext.initial === false
-        ? animatePresenceContext.initial
+      presenceContext,
+      initial: presenceContext.initial === false
+        ? presenceContext.initial
         : (
             props.initial === true ? undefined : props.initial
           ),
@@ -189,8 +189,8 @@ export function useMotionState(
 
   onMounted(() => {
     const el = getMotionElement(instance.$el)
-    if (animatePresenceContext.presenceId) {
-      el?.setAttribute('data-ap', animatePresenceContext.presenceId)
+    if (presenceContext.presenceId) {
+      el?.setAttribute('data-ap', presenceContext.presenceId)
     }
     state.mount(el)
   })

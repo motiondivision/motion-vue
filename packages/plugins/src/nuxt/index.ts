@@ -24,6 +24,8 @@ const utilities = [
   'useLayoutGroup',
   'useDragControls',
   'useReducedMotion',
+  'vMotion',
+  'createMotionDirective',
 ]
 
 export type Components = keyof typeof components

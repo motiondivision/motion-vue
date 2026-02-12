@@ -25,7 +25,7 @@ export class MotionState {
   // The AnimatePresence container this motion component belongs to
   public presenceContainer: HTMLElement | null = null
   public options: Options & {
-    animatePresenceContext?: PresenceContext
+    presenceContext?: PresenceContext
     features?: Array<typeof Feature>
   }
 
@@ -76,7 +76,7 @@ export class MotionState {
 
   // Resolve initial style values from variant sources
   private resolveInitialLatestValues(initialVariantSource: string[]) {
-    const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
+    const custom = this.options.custom ?? this.options.presenceContext?.custom
     this.latestValues = initialVariantSource.reduce((acc, variant) => {
       return {
         ...acc,
@@ -161,7 +161,7 @@ export class MotionState {
       && this.visualElement.projection?.currentAnimation?.state === 'running') {
       return
     }
-    this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
+    this.options.presenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
   }
 
   // Set animation state active status and propagate to children
