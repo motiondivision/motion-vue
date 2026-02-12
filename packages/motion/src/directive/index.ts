@@ -168,7 +168,6 @@ function buildMotionOptions(
   const presenceContext = provides[animatePresenceInjectionKey as any] ?? {}
   const configRef: ComputedRef<MotionConfigState> | null = provides[motionConfigInjectionKey as any] ?? null
   const config = configRef?.value ?? defaultConfig
-  console.log('presenceContext', presenceContext)
   return {
     parentState,
     options: resolveMotionProps(
@@ -191,20 +190,20 @@ export function createMotionDirective(
   }
 
   return {
-
-    mounted(el, binding, vnode) {
+    created(el, binding, vnode) {
       const provides = resolveProvides(vnode, binding)
       const motionProps = extractMotionProps(vnode, binding.value)
       const { options, parentState } = buildMotionOptions(motionProps, provides, resolveTag(el))
-
       const state = new MotionState(options, parentState!)
       state.initVisualElement(renderer)
       mountedStates.set(el, state)
+    },
+    mounted(el, binding, vnode) {
+      const state = mountedStates.get(el)
+      if (!state)
+        return
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
-      if (options.presenceContext?.presenceId) {
-        el.setAttribute('data-ap', options.presenceContext.presenceId)
-      }
       state.mount(el)
     },
 

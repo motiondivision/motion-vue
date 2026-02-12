@@ -6,6 +6,7 @@ import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
 import { lazyFeatures } from '@/features/lazy-features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
+import { motionGlobalConfig } from '@/config'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -126,8 +127,28 @@ export class MotionState {
     )
     mountedStates.set(element, this)
     this.element = element
+    element.setAttribute(motionGlobalConfig.motionAttribute, this.options.presenceContext?.presenceId ?? '')
+    this.syncVisualElementParent()
     this.visualElement?.mount(element)
     this.updateFeatures()
+  }
+
+  /**
+   * Use closest() to find the nearest ancestor motion element in the DOM,
+   * then sync the VE parent hierarchy accordingly.
+   */
+  private syncVisualElementParent() {
+    if (!this.visualElement || !this.element)
+      return
+    const closestEl = this.element.parentElement?.closest(`[${motionGlobalConfig.motionAttribute}]`)
+    const closestParent = closestEl ? mountedStates.get(closestEl) : null
+    const expectedParent = closestParent?.visualElement
+    if (this.visualElement.parent === expectedParent)
+      return
+    this.visualElement.parent?.removeChild(this.visualElement)
+    this.visualElement.parent = expectedParent as any
+    this.parent = closestParent
+    expectedParent?.addChild(this.visualElement)
   }
 
   // Called before unmounting, executes in child-to-parent order

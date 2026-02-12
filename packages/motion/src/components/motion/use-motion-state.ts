@@ -133,9 +133,6 @@ export function useMotionState(
 
   onMounted(() => {
     const el = getMotionElement(instance.$el)
-    if (presenceContext.presenceId) {
-      el?.setAttribute('data-ap', presenceContext.presenceId)
-    }
     state.mount(el)
   })
 

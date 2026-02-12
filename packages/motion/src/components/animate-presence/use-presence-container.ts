@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 import { mountedStates } from '@/state'
+import { motionGlobalConfig } from '@/config'
 import type { MotionState } from '@/state'
 import type { AnimatePresenceProps } from './types'
 import { usePopLayout } from './use-pop-layout'
@@ -26,11 +27,11 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     const states: MotionState[] = []
     // Check container itself
     const selfState = mountedStates.get(container)
-    if (selfState && container.getAttribute('data-ap') === presenceId) {
+    if (selfState && container.getAttribute(motionGlobalConfig.motionAttribute) === presenceId) {
       states.push(selfState)
     }
     // Query descendants scoped to this AnimatePresence
-    const elements = Array.from(container.querySelectorAll(`[data-ap="${presenceId}"]`))
+    const elements = Array.from(container.querySelectorAll(`[${motionGlobalConfig.motionAttribute}="${presenceId}"]`))
     for (const el of elements) {
       const s = mountedStates.get(el)
       if (s) {
