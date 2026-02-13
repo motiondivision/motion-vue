@@ -1,9 +1,17 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import jsx from '@vitejs/plugin-vue-jsx'
+import Components from 'unplugin-vue-components/vite'
+import MotionVResolver from 'motion-v/resolver'
 
 export default defineConfig({
-  plugins: [vue(), jsx()],
+  plugins: [
+    vue(),
+    jsx(),
+    Components({
+      resolvers: [MotionVResolver()],
+    }),
+  ],
   server: {
     port: 5173,
     // 监听 node_modules 中的特定包，实现热更新

@@ -14,5 +14,8 @@
     "reka-ui": "^2.7.0",
     "vue": "^3.4.0",
     "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "unplugin-vue-components": "^0.28.0"
   }
 }

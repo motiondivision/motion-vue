@@ -5,7 +5,21 @@ export default defineNuxtConfig({
   css: ['~/assets/css/tailwind.css'],
   modules: [
     '@nuxtjs/tailwindcss',
-    'motion-v/nuxt',
+    ['motion-v/nuxt', {
+      directives: true,
+      presets: {
+        'fade-in': {
+          initial: { opacity: 0 },
+          animate: { opacity: 1 },
+          transition: { duration: 0.5 },
+        },
+        'slide-up': {
+          initial: { opacity: 0, y: 40 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.5 },
+        },
+      },
+    }],
   ],
   app: {
     head: {

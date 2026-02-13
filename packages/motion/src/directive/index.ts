@@ -23,8 +23,8 @@ import { resolveMotionProps } from '@/utils/resolve-motion-props'
  * - `<div v-motion="{ initial: {...}, animate: {...} }" />`  (binding value)
  * - Mix of both (VNode props override binding value)
  */
-function extractMotionProps(vnode: VNode, bindingValue: Options | undefined): Options {
-  const vnodeProps = vnode.props
+function extractMotionProps(vnode: VNode | null, bindingValue: Options | undefined): Options {
+  const vnodeProps = vnode?.props
   if (!vnodeProps)
     return bindingValue || {}
   return { ...(bindingValue || {}), ...vnodeProps }
@@ -180,19 +180,28 @@ function buildMotionOptions(
 /**
  * Create a v-motion directive with the given feature bundle.
  * If no bundle is provided, defaults to domMax (all features).
+ *
+ * @param featureBundle - Optional feature bundle (domAnimation or domMax)
+ * @param defaultOptions - Optional default motion props merged under user props
  */
 export function createMotionDirective(
   featureBundle?: FeatureBundle,
+  defaultOptions?: Options,
 ): Directive<HTMLElement | SVGElement, Options> {
   const renderer = featureBundle?.renderer ?? defaultRenderer
   if (featureBundle?.features) {
     updateLazyFeatures(featureBundle.features)
   }
 
+  function mergeMotionProps(vnode: VNode, bindingValue: Options | undefined): Options {
+    const userProps = extractMotionProps(vnode, bindingValue)
+    return defaultOptions ? { ...defaultOptions, ...userProps } : userProps
+  }
+
   return {
     created(el, binding, vnode) {
       const provides = resolveProvides(vnode, binding)
-      const motionProps = extractMotionProps(vnode, binding.value)
+      const motionProps = mergeMotionProps(vnode, binding.value)
       const { options, parentState } = buildMotionOptions(motionProps, provides, resolveTag(el))
       const state = new MotionState(options, parentState!)
       state.initVisualElement(renderer)
@@ -221,7 +230,7 @@ export function createMotionDirective(
         return
       cleanVNodeProps(el, vnode.props)
       const provides = resolveProvides(vnode, binding)
-      const motionProps = extractMotionProps(vnode, binding.value)
+      const motionProps = mergeMotionProps(vnode, binding.value)
       const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
       state.update(options)
     },
@@ -242,8 +251,9 @@ export function createMotionDirective(
     },
 
     getSSRProps(binding, vnode) {
-      const motionProps = extractMotionProps(vnode, binding.value)
-      const ssrStyles = resolveSSRStyles({ ...motionProps, as: resolveTag(vnode) })
+      const motionProps = mergeMotionProps(vnode, binding.value)
+      const tag = vnode ? resolveTag(vnode) : 'div'
+      const ssrStyles = resolveSSRStyles({ ...motionProps, as: tag })
       if (!ssrStyles)
         return {}
       return { style: ssrStyles }
@@ -251,7 +261,37 @@ export function createMotionDirective(
   }
 }
 
+/**
+ * Create a preset directive with default motion options baked in.
+ * Users can still override any option via binding value or VNode props.
+ *
+ * @example
+ * ```ts
+ * const vFadeIn = createPresetDirective({
+ *   initial: { opacity: 0 },
+ *   animate: { opacity: 1 },
+ * })
+ * app.directive('fade-in', vFadeIn)
+ * ```
+ */
+export function createPresetDirective(
+  preset: Options,
+  featureBundle?: FeatureBundle,
+): Directive<HTMLElement | SVGElement, Options> {
+  return createMotionDirective(featureBundle ?? domMax, preset)
+}
+
 export const vMotion = createMotionDirective(domMax)
+
+export interface MotionPluginOptions {
+  /** Custom preset directives (e.g. { 'fade-in': { initial: { opacity: 0 }, animate: { opacity: 1 } } }) */
+  presets?: Record<string, Options>
+}
+
+/** Structural type for app.use(MotionPlugin, options) — avoids Vue version mismatch on Plugin<> */
+export interface MotionPluginType {
+  install: (app: App, options?: MotionPluginOptions) => void
+}
 
 /**
  * Vue plugin for global v-motion directive registration.
@@ -260,10 +300,28 @@ export const vMotion = createMotionDirective(domMax)
  * ```ts
  * import { MotionPlugin } from 'motion-v'
  * app.use(MotionPlugin)
+ *
+ * // With custom presets
+ * app.use(MotionPlugin, {
+ *   presets: {
+ *     'fade-in': { initial: { opacity: 0 }, animate: { opacity: 1 } },
+ *   },
+ * })
  * ```
  */
-export const MotionPlugin = {
-  install(app: App) {
+export const MotionPlugin: MotionPluginType = {
+  install(app: App, options) {
     app.directive('motion', vMotion)
+    if (options?.presets) {
+      for (const [name, preset] of Object.entries(options.presets)) {
+        app.directive(name, createPresetDirective(preset))
+      }
+    }
   },
+}
+
+declare module 'vue' {
+  interface GlobalDirectives {
+    vMotion: typeof vMotion
+  }
 }

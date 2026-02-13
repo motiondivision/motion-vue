@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createApp, defineComponent, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
-import { MotionPlugin, createMotionDirective, vMotion } from '@/directive'
+import { MotionPlugin, createMotionDirective, createPresetDirective, vMotion } from '@/directive'
 import { domAnimation } from '@/features/dom-animation'
 import { delay } from '@/shared/test'
 
@@ -245,11 +245,120 @@ describe('v-motion directive', () => {
     })
   })
 
+  describe('createPresetDirective', () => {
+    it('applies preset defaults', async () => {
+      const vFadeIn = createPresetDirective({
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        transition: { duration: 0.05 },
+      })
+      const wrapper = mount(defineComponent({
+        directives: { fadeIn: vFadeIn },
+        template: `<div v-fade-in data-testid="box" />`,
+      }))
+      await nextTick()
+      const el = wrapper.find('[data-testid="box"]').element as HTMLElement
+      expect(el.style.opacity).toBe('0')
+      await delay(200)
+      expect(Number(el.style.opacity)).toBe(1)
+    })
+
+    it('user binding overrides preset defaults', async () => {
+      const vFadeIn = createPresetDirective({
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      })
+      const wrapper = mount(defineComponent({
+        directives: { fadeIn: vFadeIn },
+        template: `<div v-fade-in="{ initial: { opacity: 0.3 } }" data-testid="box" />`,
+      }))
+      await nextTick()
+      const el = wrapper.find('[data-testid="box"]').element as HTMLElement
+      // User override should win over preset default
+      expect(el.style.opacity).toBe('0.3')
+    })
+
+    it('works with custom featureBundle', async () => {
+      const vFadeIn = createPresetDirective(
+        { initial: { opacity: 0 }, animate: { opacity: 1 } },
+        domAnimation,
+      )
+      const wrapper = mount(defineComponent({
+        directives: { fadeIn: vFadeIn },
+        template: `<div v-fade-in data-testid="box" />`,
+      }))
+      await nextTick()
+      const el = wrapper.find('[data-testid="box"]').element as HTMLElement
+      expect(el.style.opacity).toBe('0')
+    })
+
+    it('preset with transform values', async () => {
+      const vSlideUp = createPresetDirective({
+        initial: { opacity: 0, y: 40 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.05 },
+      })
+      const wrapper = mount(defineComponent({
+        directives: { slideUp: vSlideUp },
+        template: `<div v-slide-up data-testid="box" />`,
+      }))
+      await nextTick()
+      const el = wrapper.find('[data-testid="box"]').element as HTMLElement
+      expect(el.style.opacity).toBe('0')
+      expect(el.style.transform).toContain('translateY(40px)')
+      await delay(200)
+      expect(Number(el.style.opacity)).toBe(1)
+    })
+
+    it('sSR returns preset styles', () => {
+      const vFadeIn = createPresetDirective({
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+      })
+      const binding = { value: undefined } as any
+      const result = vFadeIn.getSSRProps!(binding, {} as any, {} as any)
+      expect(result).toHaveProperty('style')
+      expect(result.style).toHaveProperty('opacity', 0)
+      expect(result.style).toHaveProperty('transform')
+    })
+
+    it('sSR user override merges with preset', () => {
+      const vFadeIn = createPresetDirective({
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      })
+      const binding = { value: { initial: { opacity: 0.5, y: 10 } } } as any
+      const result = vFadeIn.getSSRProps!(binding, {} as any, {} as any)
+      expect(result).toHaveProperty('style')
+      // User override should win
+      expect(result.style).toHaveProperty('opacity', 0.5)
+    })
+
+    it('cleans up on unmount', async () => {
+      const vFadeIn = createPresetDirective({
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      })
+      const wrapper = mount(defineComponent({
+        directives: { fadeIn: vFadeIn },
+        setup() {
+          const show = ref(true)
+          return { show }
+        },
+        template: `<div v-if="show" v-fade-in data-testid="box" />`,
+      }))
+      await nextTick()
+      expect(wrapper.find('[data-testid="box"]').exists()).toBe(true)
+      wrapper.vm.show = false
+      await nextTick()
+      expect(wrapper.find('[data-testid="box"]').exists()).toBe(false)
+    })
+  })
+
   describe('motionPlugin', () => {
     it('registers v-motion directive globally', () => {
       const app = createApp({ template: '<div />' })
       app.use(MotionPlugin)
-      // Plugin registers directive; verify no errors
       expect(app.directive('motion')).toBeDefined()
     })
 
@@ -257,6 +366,19 @@ describe('v-motion directive', () => {
       const app = createApp({ template: '<div />' })
       app.use(MotionPlugin, { featureBundle: domAnimation })
       expect(app.directive('motion')).toBeDefined()
+    })
+
+    it('registers preset directives via presets option', () => {
+      const app = createApp({ template: '<div />' })
+      app.use(MotionPlugin, {
+        presets: {
+          'fade-in': { initial: { opacity: 0 }, animate: { opacity: 1 } },
+          'slide-up': { initial: { opacity: 0, y: 40 }, animate: { opacity: 1, y: 0 } },
+        },
+      })
+      expect(app.directive('motion')).toBeDefined()
+      expect(app.directive('fade-in')).toBeDefined()
+      expect(app.directive('slide-up')).toBeDefined()
     })
   })
 })

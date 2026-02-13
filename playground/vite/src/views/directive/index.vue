@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AnimatePresence, vMotion } from 'motion-v'
 
 const isVisible = ref(true)
 const x = ref(0)
