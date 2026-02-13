@@ -28,8 +28,8 @@ export default defineConfig({
   build: {
     minify: false,
     lib: {
-      name: 'motion-v',
       entry: path.resolve(__dirname, 'src/index.ts'),
+      formats: ['es'],
     },
     rollupOptions: {
       external: [
@@ -39,9 +39,6 @@ export default defineConfig({
       ],
       output: {
         format: 'es',
-        globals: {
-          vue: 'Vue',
-        },
         entryFileNames(chunkInfo) {
           if (chunkInfo.name.includes('node_modules'))
             return `${chunkInfo.name.replace(/node_modules/g, 'external')}.mjs`
