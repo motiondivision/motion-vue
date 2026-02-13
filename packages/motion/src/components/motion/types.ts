@@ -4,17 +4,12 @@ import type { IntrinsicElementAttributes } from 'vue'
 export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Omit<Options<K>, 'motionConfig' | 'layoutGroup'> {
   as?: T
   asChild?: boolean
-  hover?: Options['hover']
-  press?: Options['press']
-  inView?: Options['inView']
-  focus?: Options['focus']
   whileDrag?: Options['whileDrag']
   whileHover?: Options['whileHover']
   whilePress?: Options['whilePress']
   whileInView?: Options['whileInView']
   whileFocus?: Options['whileFocus']
   forwardMotionProps?: boolean
-  // features?: Feature[]
   ignoreStrict?: boolean
 }
 type __VLS_PrettifyLocal<T> = {

@@ -1,4 +1,4 @@
-import type { DOMKeyframesDefinition, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
+import type { DOMKeyframesDefinition, LegacyAnimationControls, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
 import type { animate } from 'framer-motion/dom'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
@@ -10,7 +10,6 @@ import type { PanProps } from '@/features/gestures/pan/types'
 import type { MotionConfigState } from '@/components/motion-config/types'
 import type { $Transition } from './framer-motion'
 import type { FocusProps } from '@/features/gestures/focus/types'
-import type { AnimationControls } from '@/animation/types'
 import type { AsTag } from '@/types/common'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
@@ -44,7 +43,7 @@ export interface Options<T = any> extends
   custom?: T
   as?: AsTag
   initial?: VariantLabels | VariantType | boolean
-  animate?: VariantLabels | VariantType | AnimationControls
+  animate?: VariantLabels | VariantType | LegacyAnimationControls
   exit?: VariantLabels | VariantType
   variants?: {
     [k: string]: VariantType | ((custom: T) => VariantType)

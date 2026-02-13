@@ -14,7 +14,7 @@ export const defaultConfig: MotionConfigState = {
 /**
  * Context for sharing motion configuration with child components
  */
-export const [injectMotionConfig, provideMotionConfig] = createContext<ComputedRef<MotionConfigState>>('MotionConfig')
+export const [injectMotionConfig, provideMotionConfig, motionConfigInjectionKey] = createContext<ComputedRef<MotionConfigState>>('MotionConfig')
 
 export function useMotionConfig() {
   return injectMotionConfig(computed(() => defaultConfig))

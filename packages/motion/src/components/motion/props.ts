@@ -16,8 +16,6 @@ export const MotionComponentProps = {
   'style': { type: Object },
   'transformTemplate': { type: Function },
   'transition': { type: Object },
-  'layoutGroup': { type: Object },
-  'motionConfig': { type: Object },
   'onAnimationComplete': { type: Function },
   'onUpdate': { type: Function },
   'layout': { type: [Boolean, String], default: false },

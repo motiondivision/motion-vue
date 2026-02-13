@@ -1,129 +1,114 @@
-<script setup>
-import { AnimatePresence, motion } from 'motion-v'
+<script setup lang="ts">
 import { ref } from 'vue'
-/**
- * Removed unused motionValue/animation logic for clarity.
- * Kept features and onComplete demo.
- */
+import { AnimatePresence, Motion, vMotion } from 'motion-v'
 
-const features = () => import('./test').then(mod => mod.default)
-const show = ref(false)
-function onComplete() {
-  console.log('animation complete')
-}
+const isVisible = ref(true)
+const x = ref(0)
 </script>
 
 <template>
-  <button @click="show = !show">
-    show
-  </button>
-  <AnimatePresence>
-    <motion.div
-      v-show="show"
-      :initial="{ opacity: 0, y: 20 }"
-      :animate="{ opacity: 1, y: 0 }"
-      :exit="{ opacity: 0, y: -20 }"
-      class="w-10 h-10 bg-red-500"
-    >
-      <div>222</div>
-    </motion.div>
-  </AnimatePresence>
+  <div class="container">
+    <!-- 8. Mount / Unmount -->
+    <section>
+      <h2>Mount / Unmount</h2>
+      <button @click="isVisible = !isVisible">
+        {{ isVisible ? 'Hide' : 'Show' }}
+      </button>
+      <div style="height: 120px; position: relative">
+        <AnimatePresence>
+          <div
+            v-if="isVisible"
+            v-motion
+            :initial="{ opacity: 0, scale: 0.5, rotate: -10 }"
+            :animate="{ opacity: 1, scale: 1, rotate: 0 }"
+            :exit="{ opacity: 0, scale: 0.5, rotate: 10 }"
+            :transition="{ type: 'spring', duration: 0.5 }"
+            class="box"
+          >
+            <Motion layout-id="123">
+              <Motion
+                layout-id="456"
+              >
+                Toggle m
+              </Motion>
+            </Motion>
+          </div>
+        </AnimatePresence>
+      </div>
+    </section>
+  </div>
 </template>
 
 <style scoped>
-.wrapper {
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+p {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.grid {
   display: grid;
-  place-items: center;
-  height: 100vh
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0;
+section {
+  margin-bottom: 2rem;
 }
 
-.list li {
+.box {
+  width: 180px;
+  height: 90px;
+  background: #646cff;
+  border-radius: 12px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.box.interactive {
   cursor: pointer;
-  align-items: center;
-  gap: 16px;
-  padding: 8px;
-  background: white;
-}
-
-.active-item {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  z-index: 10;
-}
-
-.active-item .inner {
-  display: flex;
-  width: 400px;
-  flex-direction: column;
-  gap: 16px;
-  background: white;
-  padding: 16px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.long-description {
-  font-size: 14px;
-  color: #63635d;
-}
-
-.overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.3);
+  user-select: none;
 }
 
 .controls {
-  position: absolute;
-  top: 16px;
-  left: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
 }
 
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
+button {
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
-.hint {
-  font-size: 13px;
-  color: #b45309;
-}
-</style>
-
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-}
-
-body,
-html,
-#app {
-  height: 100%;
-}
-
-body {
-  font-family: system-ui, sans-serif;
+button:hover {
+  background: #f0f0f0;
 }
 </style>

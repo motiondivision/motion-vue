@@ -21,6 +21,7 @@ const routes = [
   { path: '/animated-tooltip', name: 'Animated Tooltip' },
   { path: '/drag-to-reorder-lists', name: 'drag-to-reorder-lists' },
   { path: '/reorder-layout', name: 'Reorder Layout' },
+  { path: '/preset-directive', name: 'Preset Directive' },
 ]
 const isShow = ref(false)
 // toggle for sandbox mode

@@ -1,11 +1,12 @@
 import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
-import type { AnimationType, DOMKeyframesDefinition, VisualElement } from 'motion-dom'
+import type { AnimationType, DOMKeyframesDefinition, VisualElement, VisualElementOptions } from 'motion-dom'
 import { frame, isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveVariant } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
 import { lazyFeatures } from '@/features/lazy-features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
+import { motionGlobalConfig } from '@/config'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
@@ -25,7 +26,7 @@ export class MotionState {
   // The AnimatePresence container this motion component belongs to
   public presenceContainer: HTMLElement | null = null
   public options: Options & {
-    animatePresenceContext?: PresenceContext
+    presenceContext?: PresenceContext
     features?: Array<typeof Feature>
   }
 
@@ -76,7 +77,7 @@ export class MotionState {
 
   // Resolve initial style values from variant sources
   private resolveInitialLatestValues(initialVariantSource: string[]) {
-    const custom = this.options.custom ?? this.options.animatePresenceContext?.custom
+    const custom = this.options.custom ?? this.options.presenceContext?.custom
     this.latestValues = initialVariantSource.reduce((acc, variant) => {
       return {
         ...acc,
@@ -126,6 +127,7 @@ export class MotionState {
     )
     mountedStates.set(element, this)
     this.element = element
+    element.setAttribute(motionGlobalConfig.motionAttribute, this.options.presenceContext?.presenceId ?? '')
     this.visualElement?.mount(element)
     this.updateFeatures()
   }
@@ -161,7 +163,7 @@ export class MotionState {
       && this.visualElement.projection?.currentAnimation?.state === 'running') {
       return
     }
-    this.options.animatePresenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
+    this.options.presenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
   }
 
   // Set animation state active status and propagate to children
@@ -182,6 +184,35 @@ export class MotionState {
 
   isMounted() {
     return Boolean(this.element)
+  }
+
+  /**
+   * Create and attach a visual element using the given renderer.
+   * Shared by both the Motion component and v-motion directive.
+   */
+  initVisualElement(renderer: (tag: string, options: VisualElementOptions<any, any>) => VisualElement<Element>) {
+    if (this.visualElement)
+      return
+    this.visualElement = renderer(this.options.as as string, {
+      presenceContext: null,
+      parent: this.parent?.visualElement,
+      props: { ...this.options, whileTap: this.options.whilePress } as any,
+      visualState: {
+        renderState: {
+          transform: {},
+          transformOrigin: {},
+          style: {},
+          vars: {},
+          attrs: {},
+        },
+        latestValues: { ...this.latestValues } as any,
+      },
+      reducedMotionConfig: this.options.motionConfig?.reducedMotion,
+    })
+    this.visualElement.parent?.addChild(this.visualElement)
+    if (this.isMounted()) {
+      this.visualElement.mount(this.element)
+    }
   }
 
   getSnapshot(options: Options, isPresent?: boolean) {}

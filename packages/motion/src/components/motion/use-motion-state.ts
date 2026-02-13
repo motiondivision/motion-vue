@@ -11,6 +11,7 @@ import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 import { MotionState } from '@/state'
+import { resolveMotionProps } from '@/utils/resolve-motion-props'
 
 export function useMotionState(
   props: MotionProps,
@@ -23,7 +24,7 @@ export function useMotionState(
   // motion config context
   const config = useMotionConfig()
   // animate presence context
-  const animatePresenceContext = injectAnimatePresence({})
+  const presenceContext = injectAnimatePresence({})
   // lazy motion context
   const lazyMotionContext = useLazyMotionContext({
     features: ref({}),
@@ -48,32 +49,12 @@ export function useMotionState(
 
   const attrs = useAttrs()
 
-  /**
-   * Get the layout ID for the motion component
-   * If both layoutGroup.id and props.layoutId exist, combine them with a hyphen
-   * Otherwise return props.layoutId or undefined
-   */
-  function getLayoutId() {
-    if (layoutGroup.id && props.layoutId)
-      return `${layoutGroup.id}-${props.layoutId}`
-    return props.layoutId || undefined
-  }
-
   function getProps() {
-    return {
-      ...props,
-      layoutId: getLayoutId(),
-      transition: props.transition ?? config.value.transition,
+    return resolveMotionProps(props, {
       layoutGroup,
-      motionConfig: config.value,
-      inViewOptions: props.inViewOptions ?? config.value.inViewOptions,
-      animatePresenceContext,
-      initial: animatePresenceContext.initial === false
-        ? animatePresenceContext.initial
-        : (
-            props.initial === true ? undefined : props.initial
-          ),
-    }
+      presenceContext,
+      config: config.value,
+    })
   }
   function getMotionProps() {
     return {
@@ -88,55 +69,18 @@ export function useMotionState(
   )
   provideMotion(state)
 
-  /**
-   * Initialize visual element with the provided renderer
-   */
-  function initVisualElement(createVE: typeof createVisualElement) {
-    if (state.visualElement)
-      return
-
-    state.visualElement = createVE(state.options.as!, {
-      presenceContext: null,
-      parent: state.parent?.visualElement,
-      props: {
-        ...state.options,
-        whileTap: state.options.whilePress,
-      },
-      visualState: {
-        renderState: {
-          transform: {},
-          transformOrigin: {},
-          style: {},
-          vars: {},
-          attrs: {},
-        },
-        latestValues: {
-          ...state.latestValues,
-        },
-      },
-      reducedMotionConfig: state.options.motionConfig?.reducedMotion,
-    })
-    state.visualElement.parent?.addChild(state.visualElement)
-    if (state.isMounted()) {
-      state.visualElement.mount(state.element)
-    }
-  }
-
   // If renderer is provided directly (motion component), use it immediately
   if (renderer) {
-    initVisualElement(renderer)
+    state.initVisualElement(renderer)
   }
 
   // Watch for lazy-loaded features (for m component with LazyMotion)
   watch(lazyMotionContext.features, (bundle) => {
-    // Update lazy features when features array changes
     if (bundle.features?.length) {
       updateLazyFeatures(bundle.features)
     }
-
-    // Initialize visual element if renderer becomes available
-    if (bundle.renderer && !state.visualElement) {
-      initVisualElement(bundle.renderer)
+    if (bundle.renderer) {
+      state.initVisualElement(bundle.renderer)
     }
     state.updateFeatures()
   }, { immediate: true })
@@ -189,9 +133,6 @@ export function useMotionState(
 
   onMounted(() => {
     const el = getMotionElement(instance.$el)
-    if (animatePresenceContext.presenceId) {
-      el?.setAttribute('data-ap', animatePresenceContext.presenceId)
-    }
     state.mount(el)
   })
 

@@ -9,4 +9,4 @@ export interface PresenceContext {
   onMotionExitComplete?: (container: HTMLElement, state: MotionState) => void
 }
 
-export const [injectAnimatePresence, provideAnimatePresence] = createContext<PresenceContext>('AnimatePresenceContext')
+export const [injectAnimatePresence, provideAnimatePresence, animatePresenceInjectionKey] = createContext<PresenceContext>('AnimatePresenceContext')

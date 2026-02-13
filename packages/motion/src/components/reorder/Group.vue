@@ -86,6 +86,9 @@ reorderContextProvider({
   groupRef,
   axis,
   registerItem: (value, layout) => {
+    // Skip items that are no longer in the values list (e.g., exiting with AnimatePresence)
+    if (!props.values.includes(value))
+      return
     // If the entry was already added, update it rather than adding it again
     const idx = order.findIndex(entry => value === entry.value)
     if (idx !== -1) {

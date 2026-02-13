@@ -125,7 +125,7 @@ export function createMotionComponent(
         const motionAttrs = getAttrs()
         const asTag = props.asChild ? 'template' : props.as
         const allAttrs = {
-          ...(options.forwardMotionProps || props.forwardMotionProps ? motionProps : {}),
+          ...(props.forwardMotionProps ? motionProps : {}),
           ...motionAttrs,
           onVnodeUpdated,
         }

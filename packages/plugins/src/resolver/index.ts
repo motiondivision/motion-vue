@@ -8,6 +8,7 @@ const components = new Set([
   'ReorderGroup',
   'ReorderItem',
   'M',
+  'vMotion',
 ])
 
 export default function (): ComponentResolver {
