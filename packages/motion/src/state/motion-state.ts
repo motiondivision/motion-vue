@@ -128,27 +128,8 @@ export class MotionState {
     mountedStates.set(element, this)
     this.element = element
     element.setAttribute(motionGlobalConfig.motionAttribute, this.options.presenceContext?.presenceId ?? '')
-    this.syncVisualElementParent()
     this.visualElement?.mount(element)
     this.updateFeatures()
-  }
-
-  /**
-   * Use closest() to find the nearest ancestor motion element in the DOM,
-   * then sync the VE parent hierarchy accordingly.
-   */
-  private syncVisualElementParent() {
-    if (!this.visualElement || !this.element)
-      return
-    const closestEl = this.element.parentElement?.closest(`[${motionGlobalConfig.motionAttribute}]`)
-    const closestParent = closestEl ? mountedStates.get(closestEl) : null
-    const expectedParent = closestParent?.visualElement
-    if (this.visualElement.parent === expectedParent)
-      return
-    this.visualElement.parent?.removeChild(this.visualElement)
-    this.visualElement.parent = expectedParent as any
-    this.parent = closestParent
-    expectedParent?.addChild(this.visualElement)
   }
 
   // Called before unmounting, executes in child-to-parent order

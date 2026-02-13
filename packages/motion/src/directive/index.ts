@@ -205,6 +205,7 @@ export function createMotionDirective(
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
       state.mount(el)
+      state.updateFeatures()
     },
 
     beforeUpdate(el) {
