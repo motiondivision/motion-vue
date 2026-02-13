@@ -1,6 +1,5 @@
-import { isAnimationControls } from '@/animation/utils'
 import { Feature } from '@/features/feature'
-import type { AnimationState } from 'motion-dom'
+import { type AnimationState, isAnimationControls } from 'motion-dom'
 import { createAnimationState } from '@/state/animation-state'
 import type { MotionState } from '@/state/motion-state'
 import { isHidden } from '@/utils/is-hidden'

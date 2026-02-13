@@ -5,9 +5,8 @@
  * Adaptations for Vue are marked with "// [Vue]" comments.
  */
 import { shallowCompare } from '@/state/utils'
-import { isAnimationControls } from '@/animation/utils'
 import type { AnimationDefinition, TargetAndTransition, VisualElement, VisualElementAnimationOptions } from 'motion-dom'
-import { animateVisualElement, calcChildStagger, isVariantLabel, resolveVariant } from 'motion-dom'
+import { animateVisualElement, calcChildStagger, isAnimationControls, isVariantLabel, resolveVariant } from 'motion-dom'
 import { getVariantContext } from '@/state/utils/get-variant-context'
 
 // --- Aligned with motion-dom variantPriorityOrder ---

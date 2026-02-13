@@ -16,7 +16,7 @@ export interface MotionContext {
 export function resolveMotionProps(
   props: Options,
   context: MotionContext,
-): Options {
+): Options & { presenceContext: PresenceContext } {
   const { layoutGroup, presenceContext, config } = context
 
   const layoutId = layoutGroup.id && props.layoutId
