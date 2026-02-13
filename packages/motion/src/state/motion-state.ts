@@ -2,7 +2,7 @@ import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import type { AnimationType, DOMKeyframesDefinition, VisualElement, VisualElementOptions } from 'motion-dom'
 import { frame, isVariantLabel } from 'motion-dom'
-import { isSVGElement, resolveVariant } from '@/state/utils'
+import { isSVGElement, resolveInitialValues } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
 import { lazyFeatures } from '@/features/lazy-features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
@@ -48,10 +48,7 @@ export class MotionState {
     // Add to parent's children set for lifecycle management
     parent?.children?.add(this)
 
-    // Initialize with either initial or animate variant
-    const initial = (options.initial === undefined && options.variants) ? this.context.initial : options.initial
-    const initialVariantSource = initial === false ? ['initial', 'animate'] : ['initial']
-    this.resolveInitialLatestValues(initialVariantSource)
+    this.latestValues = resolveInitialValues(options, this.context)
     this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
   }
 
@@ -73,17 +70,6 @@ export class MotionState {
       this._context = new Proxy({} as MotionStateContext, handler)
     }
     return this._context
-  }
-
-  // Resolve initial style values from variant sources
-  private resolveInitialLatestValues(initialVariantSource: string[]) {
-    const custom = this.options.custom ?? this.options.presenceContext?.custom
-    this.latestValues = initialVariantSource.reduce((acc, variant) => {
-      return {
-        ...acc,
-        ...resolveVariant(this.options[variant] || this.context[variant], this.options.variants, custom),
-      }
-    }, {})
   }
 
   /**

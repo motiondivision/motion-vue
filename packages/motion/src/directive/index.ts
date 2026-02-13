@@ -6,7 +6,7 @@ import { MotionState, mountedStates } from '@/state'
 import { createVisualElement as defaultRenderer } from '@/state/create-visual-element'
 import { createSVGStyles, createStyles } from '@/state/style'
 import { updateLazyFeatures } from '@/features/lazy-features'
-import { isSVGElement } from '@/state/utils'
+import { isSVGElement, resolveInitialValues } from '@/state/utils'
 import { warning } from 'hey-listen'
 import { layoutGroupInjectionKey, motionInjectionKey } from '@/components/context'
 import { animatePresenceInjectionKey } from '@/components/animate-presence/presence'
@@ -79,10 +79,10 @@ function computeStyles(
 function resolveSSRStyles(options: Options): Record<string, string> | null {
   if (!options)
     return null
-  const state = new MotionState(options)
-  if (Object.keys(state.latestValues).length === 0)
+  const latestValues = resolveInitialValues(options)
+  if (Object.keys(latestValues).length === 0)
     return null
-  return computeStyles(state.latestValues, options.as as string || 'div', options.style).styles
+  return computeStyles(latestValues, options.as as string || 'div', options.style).styles
 }
 
 function applyInitialStyles(el: HTMLElement | SVGElement, state: MotionState) {
@@ -228,7 +228,7 @@ export function createMotionDirective(
       const state = mountedStates.get(el)
       if (!state)
         return
-      cleanVNodeProps(el, vnode.props)
+      // cleanVNodeProps(el, vnode.props)
       const provides = resolveProvides(vnode, binding)
       const motionProps = mergeMotionProps(vnode, binding.value)
       const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
