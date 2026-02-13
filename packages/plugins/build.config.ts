@@ -8,9 +8,6 @@ export default defineBuildConfig([
     outDir: '../motion/dist',
     clean: false,
     declaration: 'node16',
-    rollup: {
-      emitCJS: true,
-    },
     externals: [
       ...Object.keys(dependencies),
     ],
@@ -25,8 +22,5 @@ export default defineBuildConfig([
     externals: [
       'unplugin-vue-components',
     ],
-    rollup: {
-      emitCJS: true,
-    },
   },
 ])

@@ -1,5 +1,6 @@
 {
   "name": "motion-v",
+  "type": "module",
   "version": "1.10.3",
   "description": "",
   "author": "",
@@ -19,31 +20,18 @@
   "exports": {
     ".": {
       "types": "./dist/es/index.d.ts",
-      "import": "./dist/es/index.mjs",
-      "require": "./dist/cjs/index.js"
+      "import": "./dist/es/index.mjs"
     },
     "./nuxt": {
-      "import": {
-        "types": "./dist/nuxt/index.d.mts",
-        "default": "./dist/nuxt/index.mjs"
-      },
-      "require": {
-        "types": "./dist/nuxt/index.d.cts",
-        "default": "./dist/nuxt/index.cjs"
-      }
+      "types": "./dist/nuxt/index.d.mts",
+      "import": "./dist/nuxt/index.mjs"
     },
     "./resolver": {
-      "import": {
-        "types": "./dist/resolver/index.d.mts",
-        "default": "./dist/resolver/index.mjs"
-      },
-      "require": {
-        "types": "./dist/resolver/index.d.cts",
-        "default": "./dist/resolver/index.cjs"
-      }
+      "types": "./dist/resolver/index.d.mts",
+      "import": "./dist/resolver/index.mjs"
     }
   },
-  "main": "./dist/cjs/index.js",
+  "main": "./dist/es/index.mjs",
   "module": "./dist/es/index.mjs",
   "types": "./dist/es/index.d.ts",
   "typesVersions": {

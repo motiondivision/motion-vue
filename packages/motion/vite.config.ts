@@ -37,34 +37,21 @@ export default defineConfig({
         ...Object.keys(pkg.peerDependencies || {}),
         'framer-motion/dom',
       ],
-      output: [
-        {
-          format: 'es',
-          globals: {
-            vue: 'Vue',
-          },
-          entryFileNames(chunkInfo) {
-            if (chunkInfo.name.includes('node_modules'))
-              return `${chunkInfo.name.replace(/node_modules/g, 'external')}.mjs`
-            return '[name].mjs'
-          },
-          dir: './dist/es',
-          exports: 'named',
-          preserveModules: true,
-          preserveModulesRoot: 'src',
+      output: {
+        format: 'es',
+        globals: {
+          vue: 'Vue',
         },
-        {
-          format: 'cjs',
-          name: 'motion-v',
-          globals: {
-            vue: 'Vue',
-          },
-          entryFileNames: '[name].js',
-          dir: 'dist/cjs',
-          exports: 'named',
-          esModule: true,
+        entryFileNames(chunkInfo) {
+          if (chunkInfo.name.includes('node_modules'))
+            return `${chunkInfo.name.replace(/node_modules/g, 'external')}.mjs`
+          return '[name].mjs'
         },
-      ],
+        dir: './dist/es',
+        exports: 'named',
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+      },
     },
   },
 })
