@@ -1,4 +1,4 @@
-import type { App, ComponentInternalInstance, ComputedRef, ObjectDirective, VNode } from 'vue'
+import type { App, ComponentInternalInstance, ComputedRef, Directive, VNode } from 'vue'
 import type { Options } from '@/types'
 import type { FeatureBundle } from '@/features/dom-animation'
 import { domMax } from '@/features/dom-max'
@@ -183,7 +183,7 @@ function buildMotionOptions(
  */
 export function createMotionDirective(
   featureBundle?: FeatureBundle,
-): ObjectDirective<HTMLElement | SVGElement, Options> {
+): Directive<HTMLElement | SVGElement, Options> {
   const renderer = featureBundle?.renderer ?? defaultRenderer
   if (featureBundle?.features) {
     updateLazyFeatures(featureBundle.features)

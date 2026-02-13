@@ -13,10 +13,6 @@ export interface PressProps {
    */
   globalPressTarget?: boolean
   /**
-   * @deprecated Use `whilePress` instead.
-   */
-  press?: VariantLabels | VariantType
-  /**
    * Variant to apply when the element is pressed.
    */
   whilePress?: VariantLabels | VariantType

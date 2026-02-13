@@ -3,10 +3,6 @@ import type { VariantLabels } from 'motion-dom'
 
 export type FocusProps = {
   /**
-   * @deprecated Use `whileFocus` instead.
-   */
-  focus?: VariantLabels | VariantType
-  /**
    * Variant to apply when the element is focused.
    */
   whileFocus?: VariantLabels | VariantType

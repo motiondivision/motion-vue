@@ -11,7 +11,6 @@ import type { MotionConfigState } from '@/components/motion-config/types'
 import type { $Transition } from './framer-motion'
 import type { FocusProps } from '@/features/gestures/focus/types'
 import type { AsTag } from '@/types/common'
-import type { PresenceContext } from '@/components/animate-presence/presence'
 
 type AnimationPlaybackControls = ReturnType<typeof animate>
 export interface VariantType extends DOMKeyframesDefinition {
@@ -63,7 +62,6 @@ export interface Options<T = any> extends
   onAnimationComplete?: (definition: Options['animate']) => void
   onUpdate?: (latest: ResolvedValues) => void
   onAnimationStart?: (definition: Options['animate']) => void
-  presenceContext?: PresenceContext
 }
 
 export interface MotionStateContext {

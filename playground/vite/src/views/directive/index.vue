@@ -16,7 +16,7 @@ const x = ref(0)
         <h2>Props Extraction</h2>
         <p>v-motion as marker, config as individual props</p>
         <div
-          v-motion
+          v-motion=""
           :initial="{ opacity: 0, y: 30 }"
           :animate="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.6 }"
