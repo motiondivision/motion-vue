@@ -45,9 +45,8 @@ function cleanVNodeProps(el: Element, vnodeProps: Record<string, any> | null) {
     if (typeof value !== 'function' && key in Element.prototype) {
       delete (el as any)[key]
     }
-    if (value != null && typeof value === 'object') {
+    if (value != null && typeof value === 'object' && key !== 'style') {
       el.removeAttribute(key)
-      el.removeAttribute(key.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`))
     }
   }
 }
@@ -203,6 +202,7 @@ export function createMotionDirective(
       const provides = resolveProvides(vnode, binding)
       const motionProps = mergeMotionProps(vnode, binding.value)
       const { options, parentState } = buildMotionOptions(motionProps, provides, resolveTag(el))
+      console.log('options', options)
       const state = new MotionState(options, parentState!)
       state.initVisualElement(renderer)
       mountedStates.set(el, state)
@@ -228,7 +228,7 @@ export function createMotionDirective(
       const state = mountedStates.get(el)
       if (!state)
         return
-      // cleanVNodeProps(el, vnode.props)
+      cleanVNodeProps(el, vnode.props)
       const provides = resolveProvides(vnode, binding)
       const motionProps = mergeMotionProps(vnode, binding.value)
       const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
