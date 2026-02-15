@@ -34,6 +34,7 @@ const transitionProps = computed(() => {
     :is="mode === 'wait' ? Transition : TransitionGroup"
     v-bind="transitionProps"
     appear
+    :css="false"
     @leave="exit"
     @enter="enter"
   >
