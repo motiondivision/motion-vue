@@ -1,6 +1,6 @@
 import { Feature } from '@/features/feature'
 import type { MotionState } from '@/state/motion-state'
-import { addScaleCorrector, globalProjectionState } from 'motion-dom'
+import { addScaleCorrector, frame, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
 import { isDef } from '@vueuse/core'
 import type { Options } from '@/types'
@@ -9,6 +9,7 @@ import { isHidden } from '@/utils/is-hidden'
 let hasLayoutUpdate = false
 export class LayoutFeature extends Feature {
   static key = 'layout' as const
+  private hasMountSettled = false
 
   constructor(state: MotionState) {
     super(state)
@@ -39,16 +40,28 @@ export class LayoutFeature extends Feature {
     const layoutGroup = this.state.options.layoutGroup
     if (options.layout || options.layoutId) {
       const projection = this.state.visualElement.projection
-      if (projection) {
+      if (options.layoutId) {
         const isPresent = !isHidden(this.state.element as HTMLElement)
         projection.isPresent = isPresent
         isPresent ? projection.promote() : projection.relegate()
         this.updatePrevLead(projection)
-        layoutGroup?.group?.add(projection)
       }
+      layoutGroup?.group?.add(projection)
       globalProjectionState.hasEverUpdated = true
     }
     this.didUpdate()
+
+    /**
+     * Allow one render frame for the projection tree and ancestor animations
+     * to settle before accepting layout snapshots. Vue mounts children before
+     * parents, so at this point the projection tree may lack the correct parent
+     * link, and ancestor elements may be mid-animation (e.g. scale/position),
+     * which would cause incorrect bounding rect measurements and spurious
+     * layout deltas.
+     */
+    frame.postRender(() => {
+      this.hasMountSettled = true
+    })
   }
 
   unmount() {
@@ -73,6 +86,14 @@ export class LayoutFeature extends Feature {
     if (!projection || (!layout && !layoutId && !drag)) {
       return
     }
+
+    /**
+     * Skip snapshot capture until the mount has settled.
+     */
+    if (!this.hasMountSettled) {
+      return
+    }
+
     hasLayoutUpdate = true
     const prevProps = this.state.options
 
