@@ -83,7 +83,7 @@ export function useMotionState(
       state.initVisualElement(bundle.renderer)
     }
     state.updateFeatures()
-  }, { immediate: true })
+  }, { immediate: true, flush: 'pre' })
 
   function getAttrs() {
     const isSVG = state.type === 'svg'
