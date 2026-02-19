@@ -136,8 +136,7 @@ export class MotionState {
   }
 
   // Update motion state with new options
-  update(options: Options) {
-    this.updateOptions(options)
+  update() {
     this.updateFeatures()
     this.didUpdate()
   }

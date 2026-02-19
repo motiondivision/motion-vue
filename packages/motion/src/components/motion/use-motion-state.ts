@@ -147,10 +147,13 @@ export function useMotionState(
 
   onBeforeUpdate(() => {
     state.beforeUpdate()
+    // Update visual element props early (parent fires before children)
+    // so children's animateChanges() sees the latest parent variant context.
+    state.updateOptions(getMotionProps())
   })
 
   onUpdated(() => {
-    state.update(getMotionProps())
+    state.update()
   })
 
   return {

@@ -217,11 +217,15 @@ export function createMotionDirective(
       state.updateFeatures()
     },
 
-    beforeUpdate(el) {
+    beforeUpdate(el, binding, vnode) {
       const state = mountedStates.get(el)
       if (!state)
         return
+      const provides = resolveProvides(vnode, binding)
+      const motionProps = mergeMotionProps(vnode, binding.value)
+      const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
       state.beforeUpdate()
+      state.updateOptions(options)
     },
 
     updated(el, binding, vnode) {
@@ -229,10 +233,7 @@ export function createMotionDirective(
       if (!state)
         return
       cleanVNodeProps(el, vnode.props)
-      const provides = resolveProvides(vnode, binding)
-      const motionProps = mergeMotionProps(vnode, binding.value)
-      const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
-      state.update(options)
+      state.update()
     },
 
     beforeUnmount(el) {
