@@ -51,6 +51,9 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Uses `useMotionState` composable to initialize and manage state
    - Caches components for performance (separate caches for mini/max feature sets)
    - Main export is `motion` object with `.create()` method for any HTML/SVG tag
+   - `useMotionState` lifecycle order: `onMounted` (mount), `onBeforeUpdate` (beforeUpdate + updateOptions), `onUpdated` (update), `onBeforeUnmount` (beforeUnmount), `onUnmounted` (unmount if disconnected)
+   - Props are updated via `state.updateOptions()` in `onBeforeUpdate` (not `onUpdated`) so parent variant context is available to children during their update cycle
+   - Props merging (layoutId namespacing, transition defaults, presence initial) is handled by `resolveMotionProps` utility (`src/utils/resolve-motion-props.ts`), shared with the `v-motion` directive
 
 2. **Visual Element State** (`packages/motion/src/state/`)
    - Core `MotionState` class manages animation state and lifecycle
@@ -81,6 +84,15 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Wraps Vue's `Transition`/`TransitionGroup` components
    - Provides presence context to child motion components
    - Handles popLayout feature to prevent layout shift during exit animations
+
+7. **v-motion Directive** (`packages/motion/src/`)
+   - Full-featured directive alternative to the `<motion>` component — no wrapper element required
+   - Exports: `vMotion` (domMax bundle), `createMotionDirective(bundle?)`, `createPresetDirective(defaults)`, `MotionPlugin`
+   - Supports all animation, gesture, layout, and exit props identical to `<motion>`
+   - **Key limitation**: does not support parent-child variant propagation (no Vue provide/inject context)
+   - Two syntax styles: props syntax (`v-motion :animate="..."`) and binding value syntax (`v-motion="{ animate: ... }"`) — props win on conflict
+   - Preset directives created via `createPresetDirective` can be overridden per-use via binding value
+   - Registered globally via `MotionPlugin` (supports `presets` option) or Nuxt module (`motionV.directives: true`)
 
 ### Build Configuration
 - Uses Vite for building with separate ES (`.mjs`) and CJS (`.js`) outputs
