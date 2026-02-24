@@ -70,13 +70,15 @@ const show = ref(true)
         {{ show ? 'Hide' : 'Show' }}
       </button>
       <div class="h-28 relative">
-        <div
-          v-if="show"
-          v-fade-in
-          class="w-44 h-24 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-semibold"
-        >
-          Toggle me
-        </div>
+        <AnimatePresence>
+          <div
+            v-show="show"
+            v-fade-in
+            class="w-44 h-24 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-semibold"
+          >
+            Toggle me
+          </div>
+        </AnimatePresence>
       </div>
     </div>
   </div>

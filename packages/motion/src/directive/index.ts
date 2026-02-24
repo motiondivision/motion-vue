@@ -202,7 +202,6 @@ export function createMotionDirective(
       const provides = resolveProvides(vnode, binding)
       const motionProps = mergeMotionProps(vnode, binding.value)
       const { options, parentState } = buildMotionOptions(motionProps, provides, resolveTag(el))
-      console.log('options', options)
       const state = new MotionState(options, parentState!)
       state.initVisualElement(renderer)
       mountedStates.set(el, state)
