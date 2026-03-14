@@ -102,7 +102,7 @@ export class MotionState {
     this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
-    }, null as any)
+    }, this.options.presenceContext ?? null)
   }
 
   // Mount motion state to DOM element, handles parent-child relationships
@@ -179,7 +179,7 @@ export class MotionState {
     if (this.visualElement)
       return
     this.visualElement = renderer(this.options.as as string, {
-      presenceContext: null,
+      presenceContext: this.options.presenceContext ?? null,
       parent: this.parent?.visualElement,
       props: { ...this.options, whileTap: this.options.whilePress } as any,
       visualState: {

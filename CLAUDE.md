@@ -84,6 +84,8 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Wraps Vue's `Transition`/`TransitionGroup` components
    - Provides presence context to child motion components
    - Handles popLayout feature to prevent layout shift during exit animations
+   - `custom` prop is synced eagerly inside the `exit()` hook (not via a Vue watcher) because Vue's `@leave` fires synchronously during patching — a `flush: 'pre'` watcher is not guaranteed to have run when `v-if` and `custom` change in the same tick
+   - `presenceContext` is passed to `visualElement` both at init (`initVisualElement`) and on updates (`updateOptions`) so exit variant functions receive the correct `custom` value
 
 7. **v-motion Directive** (`packages/motion/src/`)
    - Full-featured directive alternative to the `<motion>` component — no wrapper element required
@@ -150,3 +152,4 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - If playground doesn't reflect changes, ensure you ran `pnpm build`
    - Plugin builds happen automatically after motion build via `afterBuild` hook
    - Watch mode available with `pnpm dev` for iterative development
+   - If exit variant functions do not receive the `custom` value: ensure `presenceContext` is threaded through `initVisualElement` and `updateOptions` in `MotionState`, and that `custom` is synced eagerly at the start of the `exit()` hook in `usePresenceContainer`
