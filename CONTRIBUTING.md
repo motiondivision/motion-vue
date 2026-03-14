@@ -6,28 +6,18 @@ We are delighted that you are considering contributing to our project. Your cont
 
 ### Prerequisites
 
-- Ensure [Git](https://git-scm.com/) is installed.
-- Ensure [Node.js](https://nodejs.org/) is installed.
-- Ensure [pnpm](https://pnpm.io/) package manager is installed.
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- [pnpm](https://pnpm.io/) (v9.15.0+)
 
-### Fork the Repository
+### Fork & Clone
 
-Fork the repository by clicking the fork button at the top of the page. This action will create a copy of this repository in your account.
-
-### Clone Your Fork
-
-Navigate to your GitHub account, open the forked repository, click the code button, and then click the copy to clipboard icon.
-
-Open a terminal and execute the following git command:
+1. Fork the repository by clicking the fork button at the top of the page.
+2. Clone your fork:
 
 ```bash
-git clone "url you just copied"
-```
-
-### Change Directory to the Cloned Folder
-
-```bash
-cd "folder name"
+git clone https://github.com/<your-username>/motion-vue.git
+cd motion-vue
 ```
 
 ### Install Dependencies
@@ -38,68 +28,104 @@ pnpm install
 
 ### Build the Motion Package
 
-Building the motion package is essential to compile the latest code changes and ensure the package functions correctly within the project. This step generates the necessary build artifacts, allowing you to develop, test, and verify your modifications effectively.
+Building the motion package is essential before development. This compiles the latest code and generates the necessary build artifacts.
 
 ```bash
 pnpm build
 ```
 
-This will build all the necessary files for the motion package.
+> **Note**: Plugin builds happen automatically after the motion build via the `afterBuild` hook.
 
 ### Start the Development Server
 
-To start the development server and test the motion package in the playground, run the following command:
+To start the playground for interactive testing:
+
 ```bash
-pnpm run dev:play
+pnpm play
 ```
 
-This will start the development server and open the browser with the playground.
+This starts the Nuxt playground on port 3001.
 
-### Additional Commands
+For the Vite playground (used by E2E tests):
 
-Here are some additional commands that you might find useful:
+```bash
+pnpm play:vite
+```
 
-- **dev**: This command runs the development server for the motion package.
-  ```bash
-  pnpm run dev
-  ```
+This starts on port 5173.
 
-- **build**: This command builds all packages within the project.
-  ```bash
-  pnpm run build
-  ```
+For watch mode on the motion package (auto-rebuilds on changes):
 
-- **test**: This command runs tests for the motion package.
-  ```bash
-  pnpm run test
-  ```
+```bash
+pnpm dev
+```
 
-- **prepare**: This command sets up git hooks using simple-git-hooks.
-  ```bash
-  pnpm run prepare
-  ```
+> **Tip**: If the playground doesn't reflect your changes, make sure you ran `pnpm build` first.
 
-- **docs:install**: This command installs dependencies for the documentation.
-  ```bash
-  pnpm run docs:install
-  ```
+## Project Structure
 
-- **docs:dev**: This command runs the development server for the documentation.
-  ```bash
-  pnpm run docs:dev
-  ```
+```
+motion-vue/
+├── packages/
+│   ├── motion/       # Core motion library (published as `motion-v`)
+│   └── plugins/      # Nuxt module and unplugin-vue-components resolver
+├── playground/
+│   ├── nuxt/         # Nuxt playground (pnpm play, port 3001)
+│   └── vite/         # Vite playground for E2E tests (port 5173)
+└── tests/            # E2E tests (Playwright)
+```
 
-- **docs:build**: This command builds the documentation.
-  ```bash
-  pnpm run docs:build
-  ```
+## Commands Reference
 
-- **docs:gen**: This command generates documentation files.
-  ```bash
-  pnpm run docs:gen
-  ```
+### Development & Build
 
-- **docs:contributors**: This command generates a list of contributors for the documentation.
-  ```bash
-  pnpm run docs:contributors
-  ```
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Watch mode for the motion package |
+| `pnpm build` | Build the motion package and plugins |
+| `pnpm play` | Start the Nuxt playground |
+| `pnpm play:vite` | Start the Vite playground (port 5173) |
+
+### Testing
+
+| Command | Description |
+|---------|-------------|
+| `pnpm test` | Run unit tests (Vitest) |
+| `pnpm test:e2e` | Run E2E tests (Playwright) |
+
+You can also run a single test file:
+
+```bash
+pnpm --filter motion-v test <test-file-name>
+```
+
+## Git Workflow
+
+### Commit Convention
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/). Commit messages are validated by **commitlint** via a git hook.
+
+Examples:
+
+```
+feat: add spring animation support
+fix: resolve layout animation flicker
+docs: update AnimatePresence usage guide
+chore: bump dependencies
+```
+
+### Pre-commit Hooks
+
+- **pre-commit**: Runs ESLint auto-fix on staged `*.{js,ts,vue}` files via `lint-staged`
+- **commit-msg**: Validates commit message format via `commitlint`
+
+Git hooks are set up automatically via `simple-git-hooks` when you run `pnpm install`. If hooks aren't working, run:
+
+```bash
+pnpm prepare
+```
+
+## Writing Tests
+
+- **Unit tests**: Add test files in `__tests__` directories co-located with the source code. Tests use Vitest with Vue Test Utils in a JSDOM environment.
+- **E2E tests**: Add test files in the root `/tests` directory using Playwright. E2E tests run against the Vite playground (port 5173) on Chromium and WebKit.
