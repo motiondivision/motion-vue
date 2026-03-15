@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "rick-release": {
+      "source": "rick-hup/skills",
+      "sourceType": "github",
+      "computedHash": "cf01172284ff2e9b990e8efd0ec01ec5dcfbbb8c9510d9a9a1afc226d875e3b0"
+    }
+  }
+}

@@ -102,6 +102,7 @@ export class MotionState {
     this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
+      // @ts-expect-error
     }, this.options.presenceContext ?? null)
   }
 
@@ -179,6 +180,7 @@ export class MotionState {
     if (this.visualElement)
       return
     this.visualElement = renderer(this.options.as as string, {
+      // @ts-expect-error
       presenceContext: this.options.presenceContext ?? null,
       parent: this.parent?.visualElement,
       props: { ...this.options, whileTap: this.options.whilePress } as any,
