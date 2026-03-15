@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { mountedStates } from '@/state'
 import { motionGlobalConfig } from '@/config'
 import type { MotionState } from '@/state'
@@ -62,10 +62,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     onMotionExitComplete,
   }
 
-  watch(() => props.custom, (v) => {
-    presenceContext.custom = v
-  }, { flush: 'pre' })
-
   provideAnimatePresence(presenceContext)
 
   onMounted(() => {
@@ -106,6 +102,9 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   }
 
   function exit(el: Element, done: VoidFunction) {
+    // Sync custom eagerly — the @leave hook fires synchronously during patching.
+    presenceContext.custom = props.custom
+
     const container = el as HTMLElement
     // Discover all motion states inside this container at exit time
     const states = findMotionStates(container)
