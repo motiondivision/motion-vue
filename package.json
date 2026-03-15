@@ -1,6 +1,6 @@
 {
   "name": "vue-motion",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "packageManager": "pnpm@9.15.0+sha1.8bfdb6d72b4d5fdf87d21d27f2bfbe2b21dd2629",
   "description": "",
@@ -27,7 +27,6 @@
     "play": "pnpm --filter motion-playground play",
     "play:vite": "pnpm --filter @motion-vue/playground-vite dev",
     "lint-staged": "lint-staged",
-    "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
     "pub:release": "pnpm --filter motion-v pub:release",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

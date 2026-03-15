@@ -1,7 +1,7 @@
 {
   "name": "motion-v",
   "type": "module",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -37,7 +37,6 @@
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/*/index.d.ts",
         "./dist/es/index.d.ts"
       ],
       "nuxt": [
