@@ -1,72 +1,46 @@
-import type { Ref } from 'vue'
-import { isRef, watch } from 'vue'
-import { animateValue, frame, frameData, isMotionValue, motionValue } from 'framer-motion/dom'
-import type { JSAnimation, MotionValue } from 'framer-motion/dom'
-import type { SpringOptions } from 'motion-dom'
+import type { MaybeRef } from 'vue'
+import { toValue, watch } from 'vue'
+import { isMotionValue, motionValue } from 'framer-motion/dom'
+import type { MotionValue } from 'framer-motion/dom'
+import type { FollowValueOptions, SpringOptions } from 'motion-dom'
+import { attachFollow } from 'motion-dom'
 
-function toNumber(v: string | number) {
-  if (typeof v === 'number')
-    return v
-  return parseFloat(v)
+type AnyResolvedKeyframe = string | number
+
+export function useFollowValue<T extends AnyResolvedKeyframe>(
+  source: T | MotionValue<T>,
+  options: MaybeRef<FollowValueOptions> = {},
+) {
+  const value = motionValue(
+    isMotionValue(source) ? source.get() : source,
+  )
+
+  let cleanup: VoidFunction | undefined
+
+  watch(() => toValue(options), (_1, _2, onCleanup) => {
+    cleanup = attachFollow(value, source, toValue(options))
+    onCleanup(() => {
+      cleanup?.()
+    })
+  }, { immediate: true })
+
+  return value
 }
 
 export function useSpring(
   source: MotionValue<string> | MotionValue<number> | number,
-  config: SpringOptions | Ref<SpringOptions> = {},
+  config: MaybeRef<SpringOptions> = {},
 ) {
-  let activeSpringAnimation: JSAnimation<number> | null = null
   const value = motionValue(
-    isMotionValue(source) ? toNumber(source.get()) : source,
+    isMotionValue(source) ? source.get() : source,
   )
-  let latestValue = value.get()
-  let latestSetter = () => {}
 
-  const stopAnimation = () => {
-    if (activeSpringAnimation) {
-      activeSpringAnimation.stop()
-      activeSpringAnimation = null
-    }
-  }
-
-  const startAnimation = () => {
-    const animation = activeSpringAnimation
-
-    if (animation?.time === 0) {
-      animation.sample(frameData.delta)
-    }
-
-    stopAnimation()
-    const springConfig = isRef(config) ? (config as Ref<SpringOptions>).value : config
-    activeSpringAnimation = animateValue({
-      keyframes: [value.get(), latestValue],
-      velocity: value.getVelocity(),
-      type: 'spring',
-      restDelta: 0.001,
-      restSpeed: 0.01,
-      ...springConfig,
-      onUpdate: latestSetter,
+  watch(() => toValue(config), (_1, _2, onCleanup) => {
+    const cleanup = attachFollow(value, source, { type: 'spring', ...toValue(config) })
+    onCleanup(() => {
+      cleanup?.()
     })
-  }
-
-  watch(() => {
-    if (isRef(config)) {
-      return (config as Ref<SpringOptions>).value
-    }
-    return config
-  }, () => {
-    (value as any).attach((v, set) => {
-      latestValue = v
-      latestSetter = set
-      frame.update(startAnimation)
-      return value.get()
-    }, stopAnimation)
   }, { immediate: true })
-
-  if (isMotionValue(source)) {
-    source.on('change', (v) => {
-      value.set(toNumber(v))
-    })
-  }
 
   return value
 }
