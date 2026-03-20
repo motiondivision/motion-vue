@@ -1,15 +1,16 @@
-import { unref, watchEffect } from 'vue'
+import { type MaybeRefOrGetter, toValue, watchEffect } from 'vue'
 import { motionValue } from 'motion-dom'
 import { scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { isSSR } from '@/utils/is'
 import type { MaybeComputedElementRef } from '@vueuse/core'
 import { getElement } from '@/components/hooks/use-motion-elm'
-import type { ToRefs } from '@/types/common'
 
-export interface UseScrollOptions extends Omit<ToRefs<ScrollInfoOptions>, 'container' | 'target'> {
+export interface UseScrollOptions {
   container?: MaybeComputedElementRef
   target?: MaybeComputedElementRef
+  axis?: MaybeRefOrGetter<ScrollInfoOptions['axis']>
+  offset?: MaybeRefOrGetter<ScrollInfoOptions['offset']>
 }
 
 function createScrollMotionValues() {
@@ -35,8 +36,8 @@ export function useScroll(scrollOptions: UseScrollOptions = {}) {
         values.scrollYProgress.set(y.progress)
       },
       {
-        offset: unref(scrollOptions.offset),
-        axis: unref(scrollOptions.axis),
+        offset: toValue(scrollOptions.offset),
+        axis: toValue(scrollOptions.axis),
         container: getElement(scrollOptions.container),
         target: getElement(scrollOptions.target),
       },

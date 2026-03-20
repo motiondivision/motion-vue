@@ -74,12 +74,20 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Provides imperative animation controls via `useAnimationControls`
    - Manages animation sequencing and orchestration across components
 
-5. **Layout Animations** (`packages/motion/src/features/layout/`)
+5. **Scroll Tracking** (`packages/motion/src/value/use-scroll.ts`)
+   - `useScroll(options?)` composable returns `{ scrollX, scrollY, scrollXProgress, scrollYProgress }` as motion values
+   - `container` and `target` options accept `MaybeComputedElementRef` (supports Vue component instances via `getElement`)
+   - `axis` and `offset` options accept `MaybeRefOrGetter` (resolved with `toValue`, supports both refs and getter functions)
+   - Uses `watchEffect` with `flush: 'post'` to reactively re-subscribe when reactive options change
+   - SSR-safe: skips scroll setup when `isSSR` is true
+   - Delegates to Framer Motion's `scroll` function from `framer-motion/dom`
+
+6. **Layout Animations** (`packages/motion/src/features/layout/`)
    - Handles shared layout animations between components
    - Manages projection nodes for FLIP animations
    - Supports layout groups for coordinated animations via `LayoutGroup` component
 
-6. **AnimatePresence** (`packages/motion/src/components/animate-presence/`)
+7. **AnimatePresence** (`packages/motion/src/components/animate-presence/`)
    - Manages exit animations for components being removed from the DOM
    - Wraps Vue's `Transition`/`TransitionGroup` components
    - Provides presence context to child motion components
@@ -87,7 +95,7 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - `custom` prop is synced eagerly inside the `exit()` hook (not via a Vue watcher) because Vue's `@leave` fires synchronously during patching — a `flush: 'pre'` watcher is not guaranteed to have run when `v-if` and `custom` change in the same tick
    - `presenceContext` is passed to `visualElement` both at init (`initVisualElement`) and on updates (`updateOptions`) so exit variant functions receive the correct `custom` value
 
-7. **v-motion Directive** (`packages/motion/src/`)
+8. **v-motion Directive** (`packages/motion/src/`)
    - Full-featured directive alternative to the `<motion>` component — no wrapper element required
    - Exports: `vMotion` (domMax bundle), `createMotionDirective(bundle?)`, `createPresetDirective(defaults)`, `MotionPlugin`
    - Supports all animation, gesture, layout, and exit props identical to `<motion>`
