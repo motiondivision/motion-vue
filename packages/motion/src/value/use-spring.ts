@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import { isRef, watch } from 'vue'
-import { animateValue, frame, isMotionValue, motionValue } from 'framer-motion/dom'
+import { animateValue, frame, frameData, isMotionValue, motionValue } from 'framer-motion/dom'
 import type { JSAnimation, MotionValue } from 'framer-motion/dom'
 import type { SpringOptions } from 'motion-dom'
 
@@ -19,50 +19,32 @@ export function useSpring(
     isMotionValue(source) ? toNumber(source.get()) : source,
   )
   let latestValue = value.get()
-  let latestSetter: (v: number) => void = () => {}
+  let latestSetter = () => {}
 
   const stopAnimation = () => {
     if (activeSpringAnimation) {
       activeSpringAnimation.stop()
       activeSpringAnimation = null
     }
-    value.animation = undefined
   }
 
   const startAnimation = () => {
-    const currentValue = toNumber(value.get())
-    const targetValue = toNumber(latestValue)
+    const animation = activeSpringAnimation
 
-    if (currentValue === targetValue) {
-      stopAnimation()
-      return
+    if (animation?.time === 0) {
+      animation.sample(frameData.delta)
     }
 
-    const velocity = activeSpringAnimation
-      ? activeSpringAnimation.getGeneratorVelocity()
-      : value.getVelocity()
-
     stopAnimation()
-
     const springConfig = isRef(config) ? (config as Ref<SpringOptions>).value : config
     activeSpringAnimation = animateValue({
-      keyframes: [currentValue, targetValue],
-      velocity,
+      keyframes: [value.get(), latestValue],
+      velocity: value.getVelocity(),
       type: 'spring',
       restDelta: 0.001,
       restSpeed: 0.01,
       ...springConfig,
       onUpdate: latestSetter,
-    })
-  }
-
-  const scheduleAnimation = () => {
-    startAnimation()
-    value.animation = activeSpringAnimation ?? undefined
-    ;(value as any).events.animationStart?.notify()
-    activeSpringAnimation?.then(() => {
-      value.animation = undefined
-      ;(value as any).events.animationComplete?.notify()
     })
   }
 
@@ -72,10 +54,11 @@ export function useSpring(
     }
     return config
   }, () => {
-    (value as any).attach((v: number, set: (v: number) => void) => {
+    (value as any).attach((v, set) => {
       latestValue = v
       latestSetter = set
-      frame.postRender(scheduleAnimation)
+      frame.update(startAnimation)
+      return value.get()
     }, stopAnimation)
   }, { immediate: true })
 
