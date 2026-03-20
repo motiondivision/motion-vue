@@ -1,5 +1,5 @@
 export * from 'framer-motion/dom'
-export { delay as delayInMs, addScaleCorrector } from 'motion-dom'
+export { delay as delayInMs, addScaleCorrector, attachFollow, attachSpring } from 'motion-dom'
 export { motionValue as useMotionValue } from 'motion-dom'
 export * from './components'
 export { default as LayoutGroup } from './components/LayoutGroup.vue'
