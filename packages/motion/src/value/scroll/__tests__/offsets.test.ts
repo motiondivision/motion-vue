@@ -62,6 +62,32 @@ describe('offsetToViewTimelineRange', () => {
     })
   })
 
+  it('maps string form of Exit preset to exit range', () => {
+    // Exit = [[0, 0], [1, 0]] → 'start start', 'end start'
+    expect(offsetToViewTimelineRange(['start start', 'end start'])).toEqual({
+      rangeStart: 'exit 0%',
+      rangeEnd: 'exit 100%',
+    })
+  })
+
+  it('maps string form of Any preset to cover range', () => {
+    expect(offsetToViewTimelineRange(['end start', 'start end'])).toEqual({
+      rangeStart: 'cover 0%',
+      rangeEnd: 'cover 100%',
+    })
+  })
+
+  it('maps string form of All preset to contain range', () => {
+    expect(offsetToViewTimelineRange(['start start', 'end end'])).toEqual({
+      rangeStart: 'contain 0%',
+      rangeEnd: 'contain 100%',
+    })
+  })
+
+  it('returns undefined for bare number Edge values', () => {
+    expect(offsetToViewTimelineRange([0, 1] as any)).toBeUndefined()
+  })
+
   it('returns undefined for unrecognised offset', () => {
     expect(offsetToViewTimelineRange(['start center', 'end start'])).toBeUndefined()
   })
