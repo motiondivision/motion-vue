@@ -292,4 +292,105 @@ describe('useScroll', () => {
     expect(mockScroll).toHaveBeenCalledTimes(2)
     expect(mockScroll.mock.calls[1][1].offset).toEqual(['start start', 'end end'])
   })
+
+  describe('scroll timeline acceleration', () => {
+    it('sets accelerate on progress values when ScrollTimeline is supported (no target)', async () => {
+      const { supportsScrollTimeline } = await import('motion-dom')
+      vi.mocked(supportsScrollTimeline).mockReturnValue(true)
+
+      let values: ReturnType<typeof useScroll>
+      const Component = defineComponent({
+        setup() {
+          values = useScroll()
+          return () => <div />
+        },
+      })
+
+      mount(Component)
+
+      expect(values!.scrollXProgress.accelerate).toBeDefined()
+      expect(values!.scrollYProgress.accelerate).toBeDefined()
+      expect(values!.scrollX.accelerate).toBeUndefined()
+      expect(values!.scrollY.accelerate).toBeUndefined()
+    })
+
+    it('does not set accelerate when ScrollTimeline is not supported', async () => {
+      const { supportsScrollTimeline } = await import('motion-dom')
+      vi.mocked(supportsScrollTimeline).mockReturnValue(false)
+
+      let values: ReturnType<typeof useScroll>
+      const Component = defineComponent({
+        setup() {
+          values = useScroll()
+          return () => <div />
+        },
+      })
+
+      mount(Component)
+
+      expect(values!.scrollXProgress.accelerate).toBeUndefined()
+      expect(values!.scrollYProgress.accelerate).toBeUndefined()
+    })
+
+    it('sets accelerate when ViewTimeline is supported and target uses recognised offset', async () => {
+      const { supportsViewTimeline } = await import('motion-dom')
+      vi.mocked(supportsViewTimeline).mockReturnValue(true)
+
+      let values: ReturnType<typeof useScroll>
+      const Component = defineComponent({
+        setup() {
+          const targetRef = ref<HTMLElement>()
+          values = useScroll({ target: targetRef, offset: [[0, 1], [1, 1]] as any })
+          return () => <div ref={targetRef} />
+        },
+      })
+
+      mount(Component)
+
+      expect(values!.scrollXProgress.accelerate).toBeDefined()
+      expect(values!.scrollYProgress.accelerate).toBeDefined()
+    })
+
+    it('does not set accelerate when target uses unrecognised offset', async () => {
+      const { supportsViewTimeline } = await import('motion-dom')
+      vi.mocked(supportsViewTimeline).mockReturnValue(true)
+
+      let values: ReturnType<typeof useScroll>
+      const Component = defineComponent({
+        setup() {
+          const targetRef = ref<HTMLElement>()
+          values = useScroll({ target: targetRef, offset: ['start center', 'end start'] as any })
+          return () => <div ref={targetRef} />
+        },
+      })
+
+      mount(Component)
+
+      expect(values!.scrollXProgress.accelerate).toBeUndefined()
+      expect(values!.scrollYProgress.accelerate).toBeUndefined()
+    })
+
+    it('accelerate factory calls scroll with resolved options', async () => {
+      const { supportsScrollTimeline } = await import('motion-dom')
+      vi.mocked(supportsScrollTimeline).mockReturnValue(true)
+
+      let values: ReturnType<typeof useScroll>
+      const Component = defineComponent({
+        setup() {
+          values = useScroll({ axis: 'x' })
+          return () => <div />
+        },
+      })
+
+      mount(Component)
+
+      const mockAnimation = {} as any
+      values!.scrollXProgress.accelerate!.factory(mockAnimation)
+
+      expect(mockScroll).toHaveBeenCalledWith(
+        mockAnimation,
+        expect.objectContaining({ axis: 'x' }),
+      )
+    })
+  })
 })

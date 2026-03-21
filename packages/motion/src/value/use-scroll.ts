@@ -1,10 +1,11 @@
 import { type MaybeRefOrGetter, toValue, watchEffect } from 'vue'
-import { motionValue } from 'motion-dom'
+import { type AnimationPlaybackControlsWithThen, motionValue, supportsScrollTimeline, supportsViewTimeline } from 'motion-dom'
 import { scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { isSSR } from '@/utils/is'
 import type { MaybeComputedElementRef } from '@vueuse/core'
 import { getElement } from '@/components/hooks/use-motion-elm'
+import { offsetToViewTimelineRange } from './scroll/offsets'
 
 export interface UseScrollOptions extends Omit<ScrollInfoOptions, 'container' | 'target'> {
   container?: MaybeComputedElementRef
@@ -20,8 +21,48 @@ function createScrollMotionValues() {
   }
 }
 
+function canAccelerateScroll(
+  target: MaybeComputedElementRef | undefined,
+  offset: ScrollInfoOptions['offset'],
+): boolean {
+  if (isSSR)
+    return false
+  return target
+    ? supportsViewTimeline() && !!offsetToViewTimelineRange(offset)
+    : supportsScrollTimeline()
+}
+
+function makeAccelerateConfig(
+  axis: 'x' | 'y',
+  options: MaybeRefOrGetter<UseScrollOptions>,
+) {
+  return {
+    factory: (animation: AnimationPlaybackControlsWithThen) => {
+      const { container, target, ...rest } = toValue(options)
+      return scroll(animation, {
+        ...rest,
+        axis,
+        container: getElement(container),
+        target: getElement(target),
+      })
+    },
+    times: [0, 1],
+    keyframes: [0, 1],
+    ease: (v: number) => v,
+    duration: 1,
+  }
+}
+
 export function useScroll(options: MaybeRefOrGetter<UseScrollOptions> = {}) {
   const values = createScrollMotionValues()
+
+  // Set acceleration config once at setup time if browser supports it.
+  // The factory lazily resolves options via toValue() at invocation time.
+  const { target, offset } = toValue(options)
+  if (canAccelerateScroll(target, offset)) {
+    values.scrollXProgress.accelerate = makeAccelerateConfig('x', options)
+    values.scrollYProgress.accelerate = makeAccelerateConfig('y', options)
+  }
 
   watchEffect((onCleanup) => {
     if (isSSR) {
