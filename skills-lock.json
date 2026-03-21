@@ -5,6 +5,11 @@
       "source": "rick-hup/skills",
       "sourceType": "github",
       "computedHash": "cf01172284ff2e9b990e8efd0ec01ec5dcfbbb8c9510d9a9a1afc226d875e3b0"
+    },
+    "rick:changelog": {
+      "source": "rick-hup/skills",
+      "sourceType": "github",
+      "computedHash": "3a4b61d34b305be0df10c78884ce32038329d4de9349732d77645f41b79641c6"
     }
   }
 }
