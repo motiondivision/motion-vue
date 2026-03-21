@@ -31,7 +31,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "bumpp": "bumpp package.json packages/*/package.json docs/package.json"
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
