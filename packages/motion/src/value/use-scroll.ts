@@ -6,11 +6,9 @@ import { isSSR } from '@/utils/is'
 import type { MaybeComputedElementRef } from '@vueuse/core'
 import { getElement } from '@/components/hooks/use-motion-elm'
 
-export interface UseScrollOptions {
+export interface UseScrollOptions extends Omit<ScrollInfoOptions, 'container' | 'target'> {
   container?: MaybeComputedElementRef
   target?: MaybeComputedElementRef
-  axis?: MaybeRefOrGetter<ScrollInfoOptions['axis']>
-  offset?: MaybeRefOrGetter<ScrollInfoOptions['offset']>
 }
 
 function createScrollMotionValues() {
@@ -21,13 +19,15 @@ function createScrollMotionValues() {
     scrollYProgress: motionValue(0),
   }
 }
-export function useScroll(scrollOptions: UseScrollOptions = {}) {
+
+export function useScroll(options: MaybeRefOrGetter<UseScrollOptions> = {}) {
   const values = createScrollMotionValues()
 
   watchEffect((onCleanup) => {
     if (isSSR) {
       return
     }
+    const { container, target, ...rest } = toValue(options)
     const cleanup = scroll(
       (_progress, { x, y }) => {
         values.scrollX.set(x.current)
@@ -36,10 +36,9 @@ export function useScroll(scrollOptions: UseScrollOptions = {}) {
         values.scrollYProgress.set(y.progress)
       },
       {
-        offset: toValue(scrollOptions.offset),
-        axis: toValue(scrollOptions.axis),
-        container: getElement(scrollOptions.container),
-        target: getElement(scrollOptions.target),
+        ...rest,
+        container: getElement(container),
+        target: getElement(target),
       },
     )
     onCleanup(() => {

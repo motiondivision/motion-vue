@@ -58,6 +58,8 @@ function normaliseOffset(offset: ScrollOffsetType): NormalisedOffset | undefined
       result.push(parsed)
     }
     else {
+      // bare number Edge values are not mapped to [target, container] coordinates
+      // fall through to undefined → signals JS-based scroll tracking fallback
       return undefined
     }
   }
