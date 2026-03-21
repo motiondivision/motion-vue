@@ -7,6 +7,7 @@ export { useLayoutGroup } from './components/use-layout-group'
 export type { LayoutGroupProps } from './components/use-layout-group'
 export * from './components/context'
 export * from './value'
+// @ts-expect-error ScrollOffset exists in both value (as const) and types (as type), which is intentional - namespace merging
 export * from './types'
 export * from './animation'
 export * from './utils'
