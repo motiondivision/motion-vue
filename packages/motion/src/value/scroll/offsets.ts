@@ -1,4 +1,6 @@
-import type { ScrollOffset as ScrollOffsetType } from '@/types'
+import type { Edge, Intersection, ProgressIntersection } from '@/types'
+
+type ScrollOffsetType = Array<Edge | Intersection | ProgressIntersection>
 
 /**
  * Preset scroll offsets matching framer-motion's ScrollOffset presets.
@@ -17,6 +19,8 @@ export const ScrollOffset = {
   /** Progress 0→1 while target is fully contained within the container */
   All: [[0, 0], [1, 1]] as const,
 }
+
+export type ScrollOffset = ScrollOffsetType
 
 type NormalisedOffset = [[number, number], [number, number]]
 
