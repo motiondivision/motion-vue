@@ -4,11 +4,11 @@ import { computed, defineComponent, ref } from 'vue'
 import { useScroll } from '@/value/use-scroll'
 import { delay } from '@/shared/test'
 
-const mockCleanup = vi.fn()
-const mockScroll = vi.fn(() => mockCleanup)
+const mockCleanup = vi.fn<() => void>()
+const mockScroll = vi.fn<(callback: (...args: any[]) => any, options?: any) => () => void>(() => mockCleanup)
 
 vi.mock('framer-motion/dom', () => ({
-  scroll: (...args: any[]) => mockScroll(...args),
+  scroll: (...args: any[]) => mockScroll(...(args as [callback: (...args: any[]) => any, options?: any])),
 }))
 
 // Mock motion-dom for acceleration tests (Task 4 will extend this)
