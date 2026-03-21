@@ -188,12 +188,40 @@ export function useTransform<I, O>(
     inputValues = Array.isArray(input) ? input : [input]
   }
 
-  return Array.isArray(input)
+  const result = Array.isArray(input)
     ? useListTransform(inputValues, transformer as MultiTransformer<string | number, O>)
     : useListTransform(inputValues, (values) => {
       // Extract only the input value (ignore bridge if present)
       return (transformer as SingleTransformer<I, O>)(values[0] as I)
     })
+
+  // Propagate accelerate config for native scroll timeline support.
+  // When the input is a scroll progress MotionValue with an accelerate config
+  // (set by useScroll), we forward it to the output with updated times/keyframes
+  // so the motion component can use a native scroll timeline for this transform.
+  if (!Array.isArray(input)) {
+    const inputAccelerate = (input as MotionValue<any>).accelerate
+    if (
+      inputAccelerate
+      && !inputAccelerate.isTransformed
+      && typeof inputRangeOrTransformer !== 'function'
+      && Array.isArray(outputRange)
+      && options?.clamp !== false
+    ) {
+      const resolvedInputRange = isRef(inputRangeOrTransformer)
+        ? inputRangeOrTransformer.value
+        : inputRangeOrTransformer
+      result.accelerate = {
+        ...inputAccelerate,
+        times: resolvedInputRange,
+        keyframes: outputRange,
+        isTransformed: true,
+        ...(options?.ease ? { ease: options.ease } : {}),
+      }
+    }
+  }
+
+  return result
 }
 
 function useListTransform<I, O>(

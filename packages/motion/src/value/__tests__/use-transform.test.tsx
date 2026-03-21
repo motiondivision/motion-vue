@@ -41,6 +41,92 @@ describe('useTransform', () => {
     expect(opacity.get()).toBe(1)
   })
 
+  describe('accelerate propagation', () => {
+    it('should propagate accelerate config from input to output for range transform', () => {
+      const x = motionValue(0)
+      const mockAccelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: (v: number) => v,
+        duration: 1,
+      }
+      x.accelerate = mockAccelerate
+
+      const opacity = useTransform(x, [0, 1], [0, 1])
+
+      expect(opacity.accelerate).toBeDefined()
+      expect(opacity.accelerate!.times).toEqual([0, 1])
+      expect(opacity.accelerate!.keyframes).toEqual([0, 1])
+      expect(opacity.accelerate!.isTransformed).toBe(true)
+      expect(opacity.accelerate!.factory).toBe(mockAccelerate.factory)
+    })
+
+    it('should not propagate accelerate when transformer is a function', () => {
+      const x = motionValue(0)
+      x.accelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: (v: number) => v,
+        duration: 1,
+      }
+
+      const doubled = useTransform(x, (v) => v * 2)
+
+      expect(doubled.accelerate).toBeUndefined()
+    })
+
+    it('should not propagate accelerate when clamp is false', () => {
+      const x = motionValue(0)
+      x.accelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: (v: number) => v,
+        duration: 1,
+      }
+
+      const opacity = useTransform(x, [0, 1], [0, 1], { clamp: false })
+
+      expect(opacity.accelerate).toBeUndefined()
+    })
+
+    it('should not propagate accelerate when already transformed', () => {
+      const x = motionValue(0)
+      x.accelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: (v: number) => v,
+        duration: 1,
+        isTransformed: true,
+      }
+
+      const opacity = useTransform(x, [0, 1], [0, 1])
+
+      expect(opacity.accelerate).toBeUndefined()
+    })
+
+    it('should use resolved inputRange value when inputRange is a ref', () => {
+      const x = motionValue(0)
+      const mockAccelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: (v: number) => v,
+        duration: 1,
+      }
+      x.accelerate = mockAccelerate
+
+      const inputRange = ref([0, 100])
+      const opacity = useTransform(x, inputRange, [0, 1])
+
+      expect(opacity.accelerate).toBeDefined()
+      expect(opacity.accelerate!.times).toEqual([0, 100])
+    })
+  })
+
   describe('multi-output transform', () => {
     it('should transform single input to multiple outputs', () => {
       const x = motionValue(0)

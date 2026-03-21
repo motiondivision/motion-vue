@@ -1,5 +1,5 @@
 import { type MotionValue, cancelFrame, frame, motionValue } from 'motion-dom'
-import { onUnmounted } from 'vue'
+import { getCurrentInstance, onUnmounted } from 'vue'
 
 export function useCombineMotionValues<T>(
   combineValues: () => T,
@@ -32,9 +32,11 @@ export function useCombineMotionValues<T>(
     cancelFrame(updateValue)
   }
 
-  onUnmounted(() => {
-    unsubscribe()
-  })
+  if (getCurrentInstance()) {
+    onUnmounted(() => {
+      unsubscribe()
+    })
+  }
   return {
     subscribe,
     unsubscribe,
