@@ -1,5 +1,5 @@
 import { type MaybeRefOrGetter, toValue, watchEffect } from 'vue'
-import { type AnimationPlaybackControlsWithThen, motionValue, supportsScrollTimeline, supportsViewTimeline } from 'motion-dom'
+import { type AccelerateConfig, type AnimationPlaybackControlsWithThen, motionValue, supportsScrollTimeline, supportsViewTimeline } from 'motion-dom'
 import { scroll } from 'framer-motion/dom'
 import type { ScrollInfoOptions } from '@/types'
 import { isSSR } from '@/utils/is'
@@ -35,7 +35,7 @@ function canAccelerateScroll(
 function makeAccelerateConfig(
   axis: 'x' | 'y',
   options: MaybeRefOrGetter<UseScrollOptions>,
-) {
+): AccelerateConfig {
   return {
     factory: (animation: AnimationPlaybackControlsWithThen) => {
       const { container, target, ...rest } = toValue(options)
@@ -57,7 +57,12 @@ export function useScroll(options: MaybeRefOrGetter<UseScrollOptions> = {}) {
   const values = createScrollMotionValues()
 
   // Set acceleration config once at setup time if browser supports it.
-  // The factory lazily resolves options via toValue() at invocation time.
+  // The factory lazily resolves options via toValue() at invocation time,
+  // so it always gets current values when the VisualElement invokes it.
+  // Note: when options is a getter, target/offset are resolved here at
+  // construction time (before onMounted), so target will be undefined.
+  // This means getter-wrapped targets always use the ScrollTimeline path
+  // rather than ViewTimeline — the same behaviour as React's useScroll.
   const { target, offset } = toValue(options)
   if (canAccelerateScroll(target, offset)) {
     values.scrollXProgress.accelerate = makeAccelerateConfig('x', options)
