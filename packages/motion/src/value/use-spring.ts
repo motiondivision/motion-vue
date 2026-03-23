@@ -27,8 +27,10 @@ export function useFollowValue<T extends AnyResolvedKeyframe>(
   return value
 }
 
+export function useSpring(source: MotionValue<string> | string, config?: MaybeRef<SpringOptions>): MotionValue<string>
+export function useSpring(source: MotionValue<number> | number, config?: MaybeRef<SpringOptions>): MotionValue<number>
 export function useSpring(
-  source: MotionValue<string> | MotionValue<number> | number,
+  source: MotionValue<string> | MotionValue<number> | string | number,
   config: MaybeRef<SpringOptions> = {},
 ) {
   const value = motionValue(
