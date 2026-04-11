@@ -61,6 +61,7 @@ new-docs
 playwright-report
 test-results
 .cursor
+.omx
 
 # Internal documentation (not for version control)
 internal-docs
