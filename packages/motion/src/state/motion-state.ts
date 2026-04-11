@@ -114,7 +114,10 @@ export class MotionState {
     )
     mountedStates.set(element, this)
     this.element = element
-    element.setAttribute(motionGlobalConfig.motionAttribute, this.options.presenceContext?.presenceId ?? '')
+    const presenceId = this.options.presenceContext?.presenceId
+    if (presenceId !== undefined) {
+      element.setAttribute(motionGlobalConfig.motionAttribute, presenceId)
+    }
     this.visualElement?.mount(element)
     this.updateFeatures()
   }
