@@ -7,6 +7,7 @@ import { type ComputedRef, computed } from 'vue'
  */
 export const defaultConfig: MotionConfigState = {
   reducedMotion: 'never',
+  skipAnimations: false,
   transition: undefined,
   nonce: undefined,
 }

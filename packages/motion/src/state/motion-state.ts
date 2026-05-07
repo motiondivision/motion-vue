@@ -198,6 +198,7 @@ export class MotionState {
         latestValues: { ...this.latestValues } as any,
       },
       reducedMotionConfig: this.options.motionConfig?.reducedMotion,
+      skipAnimations: this.options.motionConfig?.skipAnimations,
     })
     this.visualElement.parent?.addChild(this.visualElement)
     if (this.isMounted()) {
