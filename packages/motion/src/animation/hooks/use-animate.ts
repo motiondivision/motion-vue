@@ -1,7 +1,8 @@
 import type { AnimationPlaybackControls, AnimationScope } from 'motion-dom'
 import type { Ref, UnwrapRef } from 'vue'
-import { onUnmounted, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import { createScopedAnimate } from 'framer-motion/dom'
+import { useMotionConfig } from '@/components/motion-config'
 
 type Scope = Ref<UnwrapRef<Element>> & { animations: AnimationPlaybackControls[] }
 export function useAnimate<T extends Element = any>(): [Scope, ReturnType<typeof createScopedAnimate>] {
@@ -26,7 +27,19 @@ export function useAnimate<T extends Element = any>(): [Scope, ReturnType<typeof
 
   domProxy.animations = []
 
-  const animate = createScopedAnimate({ scope: domProxy as unknown as AnimationScope<T> })
+  const config = useMotionConfig()
+
+  // Recreate the scoped animate whenever `skipAnimations` changes so imperative
+  // animations respect `<MotionConfig skip-animations>`, mirroring React's useAnimate.
+  const scopedAnimate = computed(() => createScopedAnimate({
+    scope: domProxy as unknown as AnimationScope<T>,
+    skipAnimations: config.value.skipAnimations,
+  }))
+
+  // Stable wrapper so callers keep a single reference while always delegating to
+  // the latest config-aware scoped animate.
+  const animate = ((...args: Parameters<ReturnType<typeof createScopedAnimate>>) =>
+    scopedAnimate.value(...args)) as ReturnType<typeof createScopedAnimate>
 
   onUnmounted(() => {
     domProxy.animations.forEach(animation => animation.stop())

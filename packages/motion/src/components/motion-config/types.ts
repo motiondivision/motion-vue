@@ -12,6 +12,8 @@ export interface MotionConfigState {
   reduceMotion?: 'user' | 'never' | 'always'
   /** Controls motion reduction based on user preference or explicit setting */
   reducedMotion?: 'user' | 'never' | 'always'
+  /** Skip all animations in this subtree, applying final values instantly */
+  skipAnimations?: boolean
   /** Custom nonce for CSP compliance with inline styles */
   nonce?: string
   /** Options for the inView prop */

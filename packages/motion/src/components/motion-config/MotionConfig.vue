@@ -24,6 +24,7 @@ const parentConfig = useMotionConfig()
 const config = computed(() => ({
   transition: props.transition ?? parentConfig.value.transition,
   reducedMotion: props.reducedMotion ?? parentConfig.value.reducedMotion,
+  skipAnimations: props.skipAnimations ?? parentConfig.value.skipAnimations,
   nonce: props.nonce ?? parentConfig.value.nonce,
   inViewOptions: props.inViewOptions ?? parentConfig.value.inViewOptions,
 }))
