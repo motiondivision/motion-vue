@@ -1,4 +1,4 @@
-import type { DOMKeyframesDefinition, LegacyAnimationControls, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
+import type { DOMKeyframesDefinition, LegacyAnimationControls, MotionPath, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
 import type { animate } from 'framer-motion/dom'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
@@ -32,6 +32,18 @@ export interface DragOptions {
 }
 
 type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transition'>
+
+/**
+ * In motion-dom's `Transition` union, the `path` key carries two meanings:
+ * the curved-motion factory (`arc()`, typed `MotionPath`) and the SVG `path`
+ * attribute's per-value transition (typed `ValueTransition`, and non-optional
+ * in the mapped `SVGPathTransitions`). That collision can obscure the
+ * `MotionPath` type at call sites like `transition: { path: arc() }`.
+ *
+ * This distributive override pins `path` to `MotionPath` on every union member
+ * while preserving each member's other fields, so `arc()` is accepted cleanly.
+ */
+type WithMotionPath<T> = T extends any ? Omit<T, 'path'> & { path?: MotionPath } : never
 export type MotionStyleProps = Partial<{
   [K in keyof Omit<VariantType & TransformPropertiesWithoutTransition, 'attrX' | 'attrY' | 'attrScale'>]: string | number | undefined | MotionValue
 }>
@@ -54,8 +66,8 @@ export interface Options<T = any> extends
     transform: TransformProperties,
     generatedTransform: string
   ) => string
-  transition?: $Transition & {
-    layout?: $Transition
+  transition?: WithMotionPath<$Transition> & {
+    layout?: WithMotionPath<$Transition>
   }
   layoutGroup?: LayoutGroupState
   motionConfig?: MotionConfigState
