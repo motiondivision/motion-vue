@@ -24,8 +24,8 @@ export interface GroupProps<T extends AsTag, K, V> extends
    */
   'axis'?: ReorderAxis
   /**
-   * A callback to fire with the new value order. For instance, if the values
-   * are provided as a state from `useState`, this could be the set state function.
+   * A callback to fire with the new value order. Use `v-model`
+   * to keep the values state in sync automatically.
    *
    * @public
    */
@@ -34,16 +34,10 @@ export interface GroupProps<T extends AsTag, K, V> extends
   /**
    * The latest values state.
    *
-   * ```jsx
-   * function Component() {
-   *   const [items, setItems] = useState([0, 1, 2])
-   *
-   *   return (
-   *     <Reorder.Group values={items} onReorder={setItems}>
-   *         {items.map((item) => <Reorder.Item key={item} value={item} />)}
-   *     </Reorder.Group>
-   *   )
-   * }
+   * ```vue
+   * <Reorder.Group v-model="items">
+   *   <Reorder.Item v-for="item in items" :key="item" :value="item" />
+   * </Reorder.Group>
    * ```
    *
    * @public
