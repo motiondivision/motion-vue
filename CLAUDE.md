@@ -161,3 +161,17 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Plugin builds happen automatically after motion build via `afterBuild` hook
    - Watch mode available with `pnpm dev` for iterative development
    - If exit variant functions do not receive the `custom` value: ensure `presenceContext` is threaded through `initVisualElement` and `updateOptions` in `MotionState`, and that `custom` is synced eagerly at the start of the `exit()` hook in `usePresenceContainer`
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live as GitHub issues in `motiondivision/motion-vue`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Uses the five canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: `CONTEXT.md` at the repo root plus `docs/adr/` for decisions. See `docs/agents/domain.md`.
