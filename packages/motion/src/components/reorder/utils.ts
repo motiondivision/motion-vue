@@ -1,44 +1,74 @@
-import type { ItemData } from '@/components/reorder/types'
+import type { ItemData, ReorderAxis } from '@/components/reorder/types'
+import type { Axis, Box, Point } from 'motion-utils'
 import { isMotionValue, mixNumber, motionValue } from 'framer-motion/dom'
-
-export function compareMin<V>(a: ItemData<V>, b: ItemData<V>) {
-  return a.layout.min - b.layout.min
-}
-
-export function getValue<V>(item: ItemData<V>) {
-  return item.value
-}
+import { moveItem } from 'motion-utils'
 
 export function checkReorder<T>(
   order: ItemData<T>[],
   value: T,
-  offset: number,
-  velocity: number,
+  offset: Point,
+  velocity: Point,
+  axis: ReorderAxis,
+  direction: 'ltr' | 'rtl' = 'ltr',
 ): ItemData<T>[] {
   const index = order.findIndex(item => item.value === value)
   if (index === -1)
     return order
 
-  // Determine direction from velocity, fallback to offset if velocity is zero
-  const direction = velocity !== 0 ? velocity : offset
+  if (axis === 'xy') {
+    const { layout } = order[index]
+    const center = {
+      x: mixNumber(layout.x.min, layout.x.max, 0.5) + offset.x,
+      y: mixNumber(layout.y.min, layout.y.max, 0.5) + offset.y,
+    }
 
-  // If no movement, return early
-  if (!direction)
+    const lines = getLines(order)
+    const sourceLine = lines.find(line => line.items.includes(order[index]))
+    const targetLine = lines.reduce((closest, line) =>
+      distanceToLine(center.y, line) < distanceToLine(center.y, closest)
+        ? line
+        : closest,
+    )
+
+    if (targetLine !== sourceLine) {
+      return moveToLine(order, index, center.x, targetLine, direction)
+    }
+
+    const currentDistance = distanceToBox(center, layout)
+    let target = -1
+    let targetDistance = currentDistance
+    order.forEach((item, targetIndex) => {
+      if (targetIndex === index)
+        return
+      const distance = distanceToBox(center, item.layout)
+      if (distance < targetDistance) {
+        target = targetIndex
+        targetDistance = distance
+      }
+    })
+
+    return target === -1
+      ? order
+      : moveItem(order, index, index + Math.sign(target - index))
+  }
+
+  if (!velocity[axis])
     return order
 
-  const nextOffset = direction > 0 ? 1 : -1
+  const nextOffset = velocity[axis] > 0 ? 1 : -1
   const nextItem = order[index + nextOffset]
 
   if (!nextItem)
     return order
 
   const item = order[index]
-  const nextLayout = nextItem.layout
+  const itemLayout = item.layout[axis]
+  const nextLayout = nextItem.layout[axis]
   const nextItemCenter = mixNumber(nextLayout.min, nextLayout.max, 0.5)
 
   if (
-    (nextOffset === 1 && item.layout.max + offset > nextItemCenter)
-    || (nextOffset === -1 && item.layout.min + offset < nextItemCenter)
+    (nextOffset === 1 && itemLayout.max + offset[axis] > nextItemCenter)
+    || (nextOffset === -1 && itemLayout.min + offset[axis] < nextItemCenter)
   ) {
     return moveItem(order, index, index + nextOffset)
   }
@@ -46,17 +76,77 @@ export function checkReorder<T>(
   return order
 }
 
-export function moveItem<T>([...arr]: T[], fromIndex: number, toIndex: number) {
-  const startIndex = fromIndex < 0 ? arr.length + fromIndex : fromIndex
+interface Line<T> {
+  items: ItemData<T>[]
+  min: number
+  max: number
+}
 
-  if (startIndex >= 0 && startIndex < arr.length) {
-    const endIndex = toIndex < 0 ? arr.length + toIndex : toIndex
+function getLines<T>(order: ItemData<T>[]): Line<T>[] {
+  const lines: Line<T>[] = []
+  order.forEach((item) => {
+    const { min, max } = item.layout.y
+    const line = lines[lines.length - 1]
+    if (!line || min >= line.max || max <= line.min) {
+      lines.push({ items: [item], min, max })
+    }
+    else {
+      line.items.push(item)
+      line.min = Math.min(line.min, min)
+      line.max = Math.max(line.max, max)
+    }
+  })
+  return lines
+}
 
-    const [item] = arr.splice(fromIndex, 1)
-    arr.splice(endIndex, 0, item)
+function distanceToLine<T>(y: number, line: Line<T>): number {
+  return y < line.min ? line.min - y : y > line.max ? y - line.max : 0
+}
+
+function moveToLine<T>(
+  order: ItemData<T>[],
+  index: number,
+  x: number,
+  line: Line<T>,
+  direction: 'ltr' | 'rtl',
+): ItemData<T>[] {
+  const remaining = order.filter((_, itemIndex) => itemIndex !== index)
+  const before = line.items.find((item) => {
+    const center = mixNumber(item.layout.x.min, item.layout.x.max, 0.5)
+    return direction === 'ltr' ? x < center : x > center
+  })
+  const targetIndex = before
+    ? remaining.indexOf(before)
+    : remaining.indexOf(line.items[line.items.length - 1]) + 1
+
+  const nextOrder = [...remaining]
+  nextOrder.splice(targetIndex, 0, order[index])
+
+  return nextOrder.every((item, itemIndex) => item === order[itemIndex])
+    ? order
+    : nextOrder
+}
+
+function distanceToBox(point: Point, box: Box): number {
+  const x = Math.max(box.x.min - point.x, 0, point.x - box.x.max)
+  const y = Math.max(box.y.min - point.y, 0, point.y - box.y.max)
+  return x * x + y * y
+}
+
+const isSeparated = (a: Axis, b: Axis) => a.max <= b.min || b.max <= a.min
+
+export function detectAxis(layouts: Box[]): ReorderAxis {
+  let x = false
+  let y = false
+  for (let i = 0; i < layouts.length; i++) {
+    for (let j = i + 1; j < layouts.length; j++) {
+      x ||= isSeparated(layouts[i].x, layouts[j].x)
+      y ||= isSeparated(layouts[i].y, layouts[j].y)
+      if (x && y)
+        return 'xy'
+    }
   }
-
-  return arr
+  return x ? 'x' : 'y'
 }
 
 export function useDefaultMotionValue(value: any, defaultValue: number = 0) {

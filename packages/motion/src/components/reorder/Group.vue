@@ -1,12 +1,13 @@
 <script lang="ts">
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
-import type { ItemData } from './types'
+import type { ReorderAxis } from './types'
 import type { AsTag } from '@/types'
+import type { Box, Point } from 'motion-utils'
 import { invariant } from 'hey-listen'
-import { onUpdated, toRefs, useAttrs, watch } from 'vue'
+import { computed, onUpdated, ref, useAttrs } from 'vue'
 import { reorderContextProvider } from './context'
-import { checkReorder, compareMin, getValue } from './utils'
+import { checkReorder, detectAxis } from './utils'
 import { useDomRef } from '@/utils'
 </script>
 
@@ -15,12 +16,13 @@ import { useDomRef } from '@/utils'
 export interface GroupProps<T extends AsTag, K, V> extends
   MotionProps<T, K> {
   /**
-   * The axis to reorder along. By default, items will be draggable on this axis.
-   * To make draggable on both axes, set `<Reorder.Item drag />`
+   * The axis to reorder along. By default, the axis is auto-detected from
+   * the measured item layouts. Set `"xy"` to enable reordering in
+   * wrapped/grid layouts.
    *
    * @public
    */
-  'axis'?: 'x' | 'y'
+  'axis'?: ReorderAxis
   /**
    * A callback to fire with the new value order. For instance, if the values
    * are provided as a state from `useState`, this could be the set state function.
@@ -56,12 +58,13 @@ defineOptions({
 
 const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
   as: 'ul',
-  axis: 'y',
 })
-const { axis } = toRefs(props)
 
-let order: ItemData<any>[] = []
+const itemLayouts = new Map<V, Box>()
+const detectedAxis = ref<ReorderAxis>('y')
 let isReordering = false
+
+const axis = computed<ReorderAxis>(() => props.axis || detectedAxis.value)
 
 function warning() {
   invariant(Boolean(props.values), 'Reorder.Group must be provided a values prop')
@@ -71,48 +74,56 @@ onUpdated(() => {
   isReordering = false
 })
 
-watch(() => props.values, () => {
-  // Only reset order if the values changed externally (not from our own reordering)
-  if (!isReordering) {
-    order = []
-  }
-}, {
-  flush: 'pre',
-})
-
 const groupRef = useDomRef()
 
 reorderContextProvider({
   groupRef,
   axis,
-  registerItem: (value, layout) => {
-    // Skip items that are no longer in the values list (e.g., exiting with AnimatePresence)
-    if (!props.values.includes(value))
-      return
-    // If the entry was already added, update it rather than adding it again
-    const idx = order.findIndex(entry => value === entry.value)
-    if (idx !== -1) {
-      order[idx].layout = layout[axis.value]
+  registerItem: (value: V, layout: Box) => {
+    // Prune layouts for values no longer in the list (e.g. removed or
+    // exiting with AnimatePresence)
+    const valuesSet = new Set(props.values)
+    itemLayouts.forEach((_, itemValue) => {
+      if (!valuesSet.has(itemValue))
+        itemLayouts.delete(itemValue)
+    })
+    itemLayouts.set(value, layout)
+    if (!props.axis) {
+      const nextAxis = detectAxis(props.values.flatMap((itemValue) => {
+        const itemLayout = itemLayouts.get(itemValue)
+        return itemLayout ? [itemLayout] : []
+      }))
+      if (nextAxis !== detectedAxis.value)
+        detectedAxis.value = nextAxis
     }
-    else {
-      order.push({ value, layout: layout[axis.value] })
-    }
-    order.sort(compareMin)
   },
-  updateOrder: (item: any, offset: number, velocity: number) => {
+  updateOrder: (item: V, offset: Point, velocity: Point) => {
     if (isReordering)
       return
 
-    const newOrder = checkReorder(order, item, offset, velocity)
+    // Build the order from the latest values so unmeasured items (e.g.
+    // entering/exiting with AnimatePresence) keep their positions
+    const order = props.values.flatMap((value) => {
+      const layout = itemLayouts.get(value)
+      return layout ? [{ value, layout }] : []
+    })
+
+    const element = groupRef.value
+    const direction = element?.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl'
+      ? 'rtl' as const
+      : 'ltr' as const
+
+    const newOrder = checkReorder(order, item, offset, velocity, axis.value, direction)
     if (order !== newOrder) {
       isReordering = true
-      // Update the internal order array to match the new order
-      order = newOrder
-      props['onUpdate:values']?.(
-        newOrder
-          .map(getValue)
-          .filter(value => props.values.includes(value)),
-      )
+      // Remap the reordered measured items onto their slots in values,
+      // leaving unmeasured values in place
+      const newValues = [...props.values]
+      const measuredIndexes = order.map(({ value }) => props.values.indexOf(value))
+      newOrder.forEach(({ value }, index) => {
+        newValues[measuredIndexes[index]] = value
+      })
+      props['onUpdate:values']?.(newValues)
     }
   },
 })
