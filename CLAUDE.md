@@ -15,10 +15,6 @@ Motion for Vue is a Vue.js port of Framer Motion, providing declarative animatio
 - `pnpm test:e2e` - Run Playwright end-to-end tests
 - `pnpm play` - Start the Nuxt playground for interactive testing
 
-### Documentation
-- `pnpm docs:dev` - Start documentation development server
-- `pnpm docs:build` - Build documentation site
-
 ### Testing
 - Single test: `pnpm --filter motion-v test [test-file-name]`
 - Coverage: `pnpm --filter motion-v coverage`
@@ -40,7 +36,6 @@ The monorepo contains three main packages:
 - `packages/plugins/` - Nuxt module and resolver for unplugin-vue-components
 - `playground/nuxt/` - Nuxt playground (run with `pnpm play`)
 - `playground/vite/` - Vite playground for E2E tests (runs on port 5173)
-- `docs/` - Documentation site
 
 ### Core Components Architecture
 Motion components are built on top of Framer Motion's core, with Vue-specific adaptations:

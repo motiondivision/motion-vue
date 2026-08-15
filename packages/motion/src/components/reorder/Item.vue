@@ -42,6 +42,7 @@ const props = withDefaults(defineProps<GroupItemProps<ElementType>>(), {
   layoutId: undefined,
   layoutScroll: false,
   layoutRoot: false,
+  drag: undefined,
   dragListener: true,
   dragElastic: 0.5,
   dragMomentum: true,
@@ -83,10 +84,10 @@ function bindProps() {
   }
 }
 const drag = computed(() => {
-  if (props.drag) {
+  if (props.drag !== undefined) {
     return props.drag
   }
-  return axis.value
+  return axis?.value === 'xy' ? true : axis?.value
 })
 
 const isDragging = ref(false)
@@ -94,16 +95,20 @@ const isDragging = ref(false)
 // Track drag position for auto-scroll
 function handleDrag(event: PointerEvent, gesturePoint: any) {
   const { velocity, point: pointerPoint } = gesturePoint
-  const offset = point[axis.value].get()
+  const offset = { x: point.x.get(), y: point.y.get() }
 
   // Always attempt to update order - checkReorder handles the logic
-  updateOrder(props.value, offset, velocity[axis.value])
+  updateOrder?.(props.value, offset, velocity)
+
+  const scrollAxis = axis?.value === 'xy'
+    ? (Math.abs(velocity.x) > Math.abs(velocity.y) ? 'x' : 'y')
+    : axis?.value
 
   autoScrollIfNeeded(
-    groupRef.value,
-    pointerPoint[axis.value],
-    axis.value,
-    velocity[axis.value],
+    groupRef?.value as Element,
+    pointerPoint?.[scrollAxis as 'x' | 'y'],
+    scrollAxis as 'x' | 'y',
+    velocity?.[scrollAxis as 'x' | 'y'],
   )
   if (!isDragging.value)
     isDragging.value = true
@@ -130,7 +135,7 @@ function handleDragStart(event: PointerEvent, gesturePoint: any) {
     @drag-end="handleDragEnd"
     @drag-start="handleDragStart"
     @layout-measure="(measured) => {
-      registerItem(value, measured)
+      registerItem?.(value, measured)
     }"
   >
     <slot :is-dragging="isDragging" />

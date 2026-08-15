@@ -36,10 +36,14 @@ export function resetAutoScrollState(): void {
   }
 }
 
+function isDocumentScroll(element: Element): boolean {
+  return element === document.body || element === document.documentElement
+}
+
 function isScrollableElement(element: Element, axis: 'x' | 'y'): boolean {
   const style = getComputedStyle(element)
   const overflow = axis === 'x' ? style.overflowX : style.overflowY
-  return overflowStyles.has(overflow)
+  return overflowStyles.has(overflow) || isDocumentScroll(element)
 }
 
 function findScrollableAncestor(
@@ -49,7 +53,7 @@ function findScrollableAncestor(
   let current = element?.parentElement
   while (current) {
     if (isScrollableElement(current, axis)) {
-      return current
+      return current as HTMLElement
     }
     current = current.parentElement
   }
@@ -63,8 +67,10 @@ function getScrollAmount(
 ): { amount: number, edge: ActiveEdge } {
   const rect = scrollElement.getBoundingClientRect()
 
-  const start = axis === 'x' ? rect.left : rect.top
-  const end = axis === 'x' ? rect.right : rect.bottom
+  // Clamp the scrollable element's edges to the viewport, as it may
+  // extend beyond the visible area
+  const start = axis === 'x' ? Math.max(0, rect.left) : Math.max(0, rect.top)
+  const end = axis === 'x' ? Math.min(window.innerWidth, rect.right) : Math.min(window.innerHeight, rect.bottom)
 
   const distanceFromStart = pointerPosition - start
   const distanceFromEnd = end - pointerPosition
@@ -97,8 +103,13 @@ export function autoScrollIfNeeded(
   if (!scrollableAncestor)
     return
 
+  // Convert pointer position from page coordinates to viewport coordinates.
+  // The gesture system uses pageX/pageY but getBoundingClientRect() returns
+  // viewport-relative coordinates, so we need to account for page scroll.
+  const viewportPointerPosition = pointerPosition - (axis === 'x' ? window.scrollX : window.scrollY)
+
   const { amount: scrollAmount, edge } = getScrollAmount(
-    pointerPosition,
+    viewportPointerPosition,
     scrollableAncestor,
     axis,
   )
@@ -111,6 +122,7 @@ export function autoScrollIfNeeded(
   }
 
   const currentActiveEdge = activeScrollEdge.get(scrollableAncestor)
+  const isDocument = isDocumentScroll(scrollableAncestor)
 
   // If not currently scrolling this edge, check velocity to see if we should start
   if (currentActiveEdge !== edge) {
@@ -128,9 +140,9 @@ export function autoScrollIfNeeded(
     const maxScroll
             = axis === 'x'
               ? scrollableAncestor.scrollWidth
-              - scrollableAncestor.clientWidth
+              - (isDocument ? window.innerWidth : scrollableAncestor.clientWidth)
               : scrollableAncestor.scrollHeight
-              - scrollableAncestor.clientHeight
+              - (isDocument ? window.innerHeight : scrollableAncestor.clientHeight)
     initialScrollLimits.set(scrollableAncestor, maxScroll)
   }
 
@@ -139,17 +151,27 @@ export function autoScrollIfNeeded(
     const initialLimit = initialScrollLimits.get(scrollableAncestor)!
     const currentScroll
             = axis === 'x'
-              ? scrollableAncestor.scrollLeft
-              : scrollableAncestor.scrollTop
+              ? (isDocument ? window.scrollX : scrollableAncestor.scrollLeft)
+              : (isDocument ? window.scrollY : scrollableAncestor.scrollTop)
     if (currentScroll >= initialLimit)
       return
   }
 
   // Apply scroll
   if (axis === 'x') {
-    scrollableAncestor.scrollLeft += scrollAmount
+    if (isDocument) {
+      window.scrollBy({ left: scrollAmount })
+    }
+    else {
+      scrollableAncestor.scrollLeft += scrollAmount
+    }
   }
   else {
-    scrollableAncestor.scrollTop += scrollAmount
+    if (isDocument) {
+      window.scrollBy({ top: scrollAmount })
+    }
+    else {
+      scrollableAncestor.scrollTop += scrollAmount
+    }
   }
 }

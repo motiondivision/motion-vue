@@ -1,6 +1,8 @@
-import type { Axis } from 'framer-motion'
+import type { Box } from 'framer-motion'
+
+export type ReorderAxis = 'x' | 'y' | 'xy'
 
 export interface ItemData<T> {
   value: T
-  layout: Axis
+  layout: Box
 }
