@@ -3,24 +3,42 @@ import { mountedStates } from '@/state'
 import { motionGlobalConfig } from '@/config'
 import type { MotionState } from '@/state'
 import type { AnimatePresenceProps } from './types'
-import { usePopLayout } from './use-pop-layout'
+import { useMotionConfig } from '@/components/motion-config/context'
+import { createExitSession } from './exit-session'
+import type { PresenceContext } from './presence'
 import { provideAnimatePresence } from './presence'
-
-interface ExitSession {
-  remaining: Set<MotionState>
-  states: MotionState[]
-  done: VoidFunction
-  el: HTMLElement
-}
 
 let apId = 0
 
 export function usePresenceContainer(props: AnimatePresenceProps) {
   const presenceId = String(apId++)
-  const exitSessions = new Map<Element, ExitSession>()
+  const motionConfig = useMotionConfig()
 
-  // ===== Pop Layout =====
-  const { addPopStyle, removePopStyle } = usePopLayout(props)
+  const sessions = createExitSession({
+    props,
+    getNonce: () => motionConfig.value.nonce,
+    onAllComplete: () => props.onExitComplete?.(),
+  })
+
+  // ===== Provide Context =====
+  // Pure data, never mutated after provide: `initial`/`custom` are getters,
+  // so consumers read current values lazily by construction.
+  let hasMounted = false
+  const presenceContext: PresenceContext = {
+    get initial() {
+      return hasMounted ? undefined : props.initial
+    },
+    get custom() {
+      return props.custom
+    },
+    presenceId,
+  }
+
+  provideAnimatePresence(presenceContext)
+
+  onMounted(() => {
+    hasMounted = true
+  })
 
   // ===== Discover motion states inside a container =====
   function findMotionStates(container: Element): MotionState[] {
@@ -41,70 +59,18 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     return states
   }
 
-  // ===== Exit completion callback =====
-  function onMotionExitComplete(container: Element, state: MotionState) {
-    const session = exitSessions.get(container)
-    if (!session)
-      return
-
-    session.remaining.delete(state)
-
-    if (session.remaining.size === 0) {
-      finalizeExit(session)
-    }
-  }
-
-  // ===== Provide Context =====
-  const presenceContext = {
-    initial: props.initial,
-    custom: props.custom,
-    presenceId,
-    onMotionExitComplete,
-  }
-
-  provideAnimatePresence(presenceContext)
-
-  onMounted(() => {
-    presenceContext.initial = undefined
-  })
-
-  // ===== Finalize Exit =====
-  function finalizeExit(session: ExitSession) {
-    removePopStyle(session.el)
-    session.states.forEach((state) => {
-      state.getSnapshot(state.options, false)
-    })
-    // Call done to remove DOM
-    session.done()
-    exitSessions.delete(session.el)
-
-    // Unmount motion states
-    if (!session.el?.isConnected) {
-      session.states.forEach((state) => {
-        state.unmount()
-      })
-    }
-    else {
-      session.states[0]?.didUpdate()
-    }
-    props.onExitComplete?.()
-  }
-
   // ===== Transition Handlers =====
 
   function enter(el: HTMLElement, done: VoidFunction) {
+    sessions.abort(el)
     const states = findMotionStates(el)
     states.forEach((state) => {
-      state.setActive('exit', false)
-      state.getSnapshot(state.options, true)
+      state.reenter()
     })
     done()
   }
 
   function exit(el: Element, done: VoidFunction) {
-    // Sync custom eagerly — the @leave hook fires synchronously during patching.
-    presenceContext.custom = props.custom
-
     const container = el as HTMLElement
     // Discover all motion states inside this container at exit time
     const states = findMotionStates(container)
@@ -116,33 +82,11 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
       return
     }
 
-    // Create transient exit session
-    const session: ExitSession = {
-      remaining: new Set(states),
-      states,
-      done,
-      el: container,
-    }
-    exitSessions.set(container, session)
-
-    addPopStyle(container)
-
-    // Lazily set presenceContainer and trigger exit animation
-    states.forEach((state) => {
-      state.presenceContainer = container
-      state.setActive('exit', true)
-      state.getSnapshot(state.options, false)
-    })
-    states[0]?.didUpdate()
+    sessions.track(container, states, done)
   }
 
   onUnmounted(() => {
-    exitSessions.forEach((session) => {
-      session.states.forEach((state) => {
-        state.unmount()
-      })
-    })
-    exitSessions.clear()
+    sessions.dispose()
   })
 
   return {

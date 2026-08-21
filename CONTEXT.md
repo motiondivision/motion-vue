@@ -23,3 +23,11 @@ _Avoid_: fixed default axis
 **`onUpdate:values`**:
 The canonical Vue equivalent of React's `onReorder` callback; emitting `update:values` enables `v-model:values`.
 _Avoid_: onReorder
+
+**Presence Context**:
+The pure-data object provided by AnimatePresence and injected by motion children: `{ initial, custom, presenceId }`. Carries no callbacks and is never mutated after being provided — `initial` is a getter, so consumers read it lazily by construction.
+_Avoid_: presence props, presence state
+
+**Exit Session**:
+The bookkeeping unit AnimatePresence creates per exiting element: tracks the element's `MotionState.exit()` promise, its pop-layout style, and the fan-in toward `onExitComplete`. Aborted (not completed) when the element re-enters mid-exit.
+_Avoid_: exit context, leave record

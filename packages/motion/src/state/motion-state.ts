@@ -191,6 +191,7 @@ export class MotionState {
   reenter() {
     this.exitGeneration++
     this.settleExit()
+    this.isExiting = false
     this.setActive('exit', false)
     this.getSnapshot(this.options, true)
   }
@@ -215,16 +216,6 @@ export class MotionState {
     this.pendingExit = undefined
   }
 
-  tryExitComplete() {
-    if (this.isExiting)
-      return
-    if (this.options?.layoutId
-      && this.visualElement.projection?.currentAnimation?.state === 'running') {
-      return
-    }
-    this.options.presenceContext?.onMotionExitComplete?.(this.presenceContainer, this)
-  }
-
   // Set animation state active status and propagate to children
   setActive(name: StateType, isActive: boolean) {
     if (name === 'exit' && isActive) {
@@ -234,9 +225,6 @@ export class MotionState {
       .then(() => {
         if (name === 'exit' && isActive) {
           this.isExiting = false
-          this.options?.layoutId
-            ? frame.postRender(() => this.tryExitComplete())
-            : this.tryExitComplete()
         }
       })
   }
