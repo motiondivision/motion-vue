@@ -130,6 +130,7 @@ export class MotionState {
   unmount() {
     this.parent?.children?.delete(this)
     mountedStates.delete(this.element)
+    this.settleExit()
     this.features.forEach(f => f.unmount?.())
     this.visualElement?.unmount()
   }
@@ -143,6 +144,75 @@ export class MotionState {
   update() {
     this.updateFeatures()
     this.didUpdate()
+  }
+
+  // ===== Presence exit protocol =====
+  // Generation counter: bumped by exit() and reenter(). A completion carrying
+  // a stale generation is a silent no-op — this is how mid-exit reentry and
+  // re-entry-then-exit-again sequences stay consistent.
+  private exitGeneration = 0
+  private pendingExit?: { resolve: () => void }
+
+  /**
+   * Run the full exit sequence for AnimatePresence and resolve when this
+   * state's exit completes — including the layoutId projection handoff,
+   * which is signalled back via completeExitFromProjection().
+   */
+  exit(container: HTMLElement): Promise<void> {
+    const generation = ++this.exitGeneration
+    this.presenceContainer = container
+    this.isExiting = true
+
+    const completion = new Promise<void>((resolve) => {
+      this.pendingExit = { resolve }
+    })
+
+    const exitAnimation = this.visualElement?.animationState?.setActive('exit' as AnimationType, true)
+    if (exitAnimation) {
+      exitAnimation.then(() => {
+        if (generation !== this.exitGeneration)
+          return
+        this.isExiting = false
+        this.options?.layoutId
+          ? frame.postRender(() => this.tryCompleteExit(generation))
+          : this.tryCompleteExit(generation)
+      })
+    }
+    else {
+      this.isExiting = false
+      this.tryCompleteExit(generation)
+    }
+
+    this.getSnapshot(this.options, false)
+    return completion
+  }
+
+  /** Re-enter while an exit is in flight; the stale exit resolves silently. */
+  reenter() {
+    this.exitGeneration++
+    this.settleExit()
+    this.setActive('exit', false)
+    this.getSnapshot(this.options, true)
+  }
+
+  /** ProjectionFeature notifies here when a layoutId exit handoff completes. */
+  completeExitFromProjection() {
+    this.tryCompleteExit(this.exitGeneration)
+  }
+
+  private tryCompleteExit(generation: number) {
+    if (generation !== this.exitGeneration || this.isExiting)
+      return
+    if (this.options?.layoutId
+      && this.visualElement.projection?.currentAnimation?.state === 'running') {
+      return
+    }
+    this.settleExit()
+  }
+
+  private settleExit() {
+    this.pendingExit?.resolve()
+    this.pendingExit = undefined
   }
 
   tryExitComplete() {
