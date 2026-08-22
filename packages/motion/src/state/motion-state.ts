@@ -39,8 +39,8 @@ export class MotionState {
   // Feature instances managed by key
   private features = new Map<FeatureKey, Feature>()
 
-  // Visual element instance from Framer Motion
-  public visualElement: VisualElement<Element>
+  // Visual element instance from Framer Motion (assigned by initVisualElement)
+  public visualElement!: VisualElement<Element>
 
   constructor(options: Options, parent?: MotionState) {
     this.options = options
@@ -59,7 +59,7 @@ export class MotionState {
     if (!this._context) {
       const handler = {
         get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
-          const value = this.options[prop]
+          const value = this.options[prop as keyof Options]
           if (isVariantLabel(value) || (prop === 'initial' && value === false)) {
             return value
           }
@@ -83,7 +83,7 @@ export class MotionState {
       if (!this.features.has(FeatureCtor.key)) {
         this.features.set(FeatureCtor.key, new FeatureCtor(this))
       }
-      const feature = this.features.get(FeatureCtor.key)
+      const feature = this.features.get(FeatureCtor.key)!
       if (this.isMounted()) {
         if (!feature.isMount) {
           feature.mount()
@@ -102,7 +102,7 @@ export class MotionState {
     this.visualElement?.update({
       ...this.options as any,
       whileTap: this.options.whilePress,
-      // @ts-expect-error
+      // @ts-expect-error — VisualElement.update's second arg types presenceContext as PresenceContextProps, not our narrowed data shape
     }, this.options.presenceContext ?? null)
   }
 
@@ -129,7 +129,8 @@ export class MotionState {
 
   unmount() {
     this.parent?.children?.delete(this)
-    mountedStates.delete(this.element)
+    if (this.element)
+      mountedStates.delete(this.element)
     this.settleExit()
     this.features.forEach(f => f.unmount?.())
     this.visualElement?.unmount()
@@ -241,7 +242,7 @@ export class MotionState {
     if (this.visualElement)
       return
     this.visualElement = renderer(this.options.as as string, {
-      // @ts-expect-error
+      // @ts-expect-error — VisualElementOptions types presenceContext as PresenceContextProps, not our narrowed data shape
       presenceContext: this.options.presenceContext ?? null,
       parent: this.parent?.visualElement,
       props: { ...this.options, whileTap: this.options.whilePress } as any,
@@ -259,7 +260,7 @@ export class MotionState {
     })
     this.visualElement.parent?.addChild(this.visualElement)
     if (this.isMounted()) {
-      this.visualElement.mount(this.element)
+      this.visualElement.mount(this.element!)
     }
   }
 
