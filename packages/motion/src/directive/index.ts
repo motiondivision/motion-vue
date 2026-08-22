@@ -54,9 +54,10 @@ function cleanVNodeProps(el: Element, vnodeProps: Record<string, any> | null) {
 function resolveTag(el: Element): string
 function resolveTag(vnode: VNode): string
 function resolveTag(source: Element | VNode): string {
-  if (source instanceof Element)
+  if (typeof Element !== 'undefined' && source instanceof Element)
     return source.tagName.toLowerCase()
-  return typeof source.type === 'string' ? source.type : 'div'
+  const vnode = source as VNode
+  return typeof vnode.type === 'string' ? vnode.type : 'div'
 }
 
 /**
