@@ -12,6 +12,17 @@ import { motionGlobalConfig } from '@/config'
 export const mountedStates = new WeakMap<Element, MotionState>()
 
 /**
+ * Normalize public options to upstream (motion-dom) naming.
+ * The public API prop is `whilePress`; motion-dom internals speak
+ * `whileTap`. This boundary is the ONLY place the translation happens —
+ * everything downstream (animationState, setActive, variantProps)
+ * uses upstream names.
+ */
+function toUpstreamProps(options: Options): Options & { whileTap: Options['whilePress'] } {
+  return { ...options, whileTap: options.whilePress }
+}
+
+/**
  * Core class that manages animation state and orchestrates animations.
  * Handles component lifecycle methods in the correct order based on component tree position.
  */
@@ -99,11 +110,11 @@ export class MotionState {
   // Update visual element with new options
   updateOptions(options: Options) {
     this.options = options
-    this.visualElement?.update({
-      ...this.options as any,
-      whileTap: this.options.whilePress,
+    this.visualElement?.update(
+      toUpstreamProps(this.options) as any,
       // @ts-expect-error — VisualElement.update's second arg types presenceContext as PresenceContextProps, not our narrowed data shape
-    }, this.options.presenceContext ?? null)
+      this.options.presenceContext ?? null,
+    )
   }
 
   // Mount motion state to DOM element, handles parent-child relationships
@@ -245,7 +256,7 @@ export class MotionState {
       // @ts-expect-error — VisualElementOptions types presenceContext as PresenceContextProps, not our narrowed data shape
       presenceContext: this.options.presenceContext ?? null,
       parent: this.parent?.visualElement,
-      props: { ...this.options, whileTap: this.options.whilePress } as any,
+      props: toUpstreamProps(this.options) as any,
       visualState: {
         renderState: {
           transform: {},

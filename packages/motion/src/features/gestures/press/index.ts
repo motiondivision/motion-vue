@@ -36,13 +36,14 @@ export class PressGesture extends Feature {
       element,
       (_el, startEvent) => {
         const props = this.state.options as Options
-        this.state.setActive('whilePress', true)
+        // Upstream naming: `whileTap` is the public `whilePress` prop
+        this.state.setActive('whileTap', true)
         if (props.onPressStart) {
           frame.postRender(() => props.onPressStart(startEvent, extractEventInfo(startEvent)))
         }
 
         return (endEvent, { success }) => {
-          this.state.setActive('whilePress', false)
+          this.state.setActive('whileTap', false)
           const callbackName = success ? 'onPress' : 'onPressCancel'
           const callback = (this.state.options as any)[callbackName]
           if (callback) {
@@ -60,7 +61,8 @@ export class PressGesture extends Feature {
 
   update() {
     const prev = this.state.visualElement.prevProps as any
-    const wasActive = Boolean(prev?.whilePress || prev?.whileTap || prev?.onPress || prev?.onPressCancel || prev?.onPressStart)
+    // Visual element props carry upstream naming (whileTap) after the boundary
+    const wasActive = Boolean(prev?.whileTap || prev?.onPress || prev?.onPressCancel || prev?.onPressStart)
     if (!wasActive && this.isActive()) {
       this.register()
     }

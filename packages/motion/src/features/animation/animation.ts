@@ -1,10 +1,12 @@
 import { Feature } from '@/features/feature'
-import { type AnimationState, isAnimationControls } from 'motion-dom'
-import { createAnimationState } from '@/state/animation-state'
+import { type AnimationState, createAnimationState, isAnimationControls } from 'motion-dom'
 import type { MotionState } from '@/state/motion-state'
 import { isHidden } from '@/utils/is-hidden'
 
-const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
+// Internal animation types use upstream (motion-dom) naming: `whileTap` is
+// the public `whilePress` prop — the translation happens once at the
+// MotionState → visual element props boundary.
+const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whileTap', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
 
 export class AnimationFeature extends Feature {
