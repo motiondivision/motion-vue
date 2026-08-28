@@ -14,8 +14,6 @@ export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
-    state.getSnapshot = this.getSnapshot.bind(this)
-    state.didUpdate = this.didUpdate.bind(this)
   }
 
   private updatePrevLead(projection: NonNullable<typeof this.state.visualElement.projection>) {

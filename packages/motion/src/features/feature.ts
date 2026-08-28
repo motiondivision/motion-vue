@@ -1,4 +1,5 @@
 import type { MotionState } from '@/state/motion-state'
+import type { Options } from '@/types'
 
 // Feature 标识符类型
 export type FeatureKey =
@@ -22,6 +23,14 @@ export class Feature {
   constructor(state: MotionState) {
     this.state = state
   }
+
+  /**
+   * Optional protocol hooks, called by MotionState on every registered
+   * feature in registration order. Implement them instead of patching
+   * methods onto MotionState.
+   */
+  getSnapshot?(options: Options, isPresent?: boolean): void
+  didUpdate?(): void
 
   mount() {}
 

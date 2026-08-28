@@ -159,20 +159,24 @@ export class MotionState {
   }
 
   // ===== Presence exit protocol =====
-  // Generation counter: bumped by exit() and reenter(). A completion carrying
-  // a stale generation is a silent no-op — this is how mid-exit reentry and
-  // re-entry-then-exit-again sequences stay consistent.
+  // Generation counter: bumped by activateExit() and reenter(). A completion
+  // carrying a stale generation is a silent no-op — this is how mid-exit
+  // reentry and re-entry-then-exit-again sequences stay consistent.
   private exitGeneration = 0
   private pendingExit?: { resolve: () => void }
 
   /**
-   * Run the full exit sequence for AnimatePresence and resolve when this
-   * state's exit completes — including the layoutId projection handoff,
-   * which is signalled back via completeExitFromProjection().
+   * The single internal activation point for the exit state. All exit
+   * bookkeeping (generation, isExiting, completion promise) lives here —
+   * presence exits (exit()) and hidden mounts (AnimationFeature.mount)
+   * both route through it. Never activate exit via setActive().
+   *
+   * @internal
    */
-  exit(container: HTMLElement): Promise<void> {
+  activateExit(container?: HTMLElement): Promise<void> {
     const generation = ++this.exitGeneration
-    this.presenceContainer = container
+    if (container)
+      this.presenceContainer = container
     this.isExiting = true
 
     const completion = new Promise<void>((resolve) => {
@@ -195,6 +199,16 @@ export class MotionState {
       this.tryCompleteExit(generation)
     }
 
+    return completion
+  }
+
+  /**
+   * Run the full exit sequence for AnimatePresence and resolve when this
+   * state's exit completes — including the layoutId projection handoff,
+   * which is signalled back via completeExitFromProjection().
+   */
+  exit(container: HTMLElement): Promise<void> {
+    const completion = this.activateExit(container)
     this.getSnapshot(this.options, false)
     return completion
   }
@@ -204,7 +218,7 @@ export class MotionState {
     this.exitGeneration++
     this.settleExit()
     this.isExiting = false
-    this.setActive('exit', false)
+    this.visualElement?.animationState?.setActive('exit' as AnimationType, false)
     this.getSnapshot(this.options, true)
   }
 
@@ -228,17 +242,13 @@ export class MotionState {
     this.pendingExit = undefined
   }
 
-  // Set animation state active status and propagate to children
+  // Set animation state active status (gesture types only) and propagate to children
   setActive(name: StateType, isActive: boolean) {
-    if (name === 'exit' && isActive) {
-      this.isExiting = true
-    }
+    invariant(
+      name !== ('exit' as StateType),
+      'setActive() does not manage the exit state — use exit() / reenter() instead.',
+    )
     this.visualElement?.animationState?.setActive(name as AnimationType, isActive)
-      .then(() => {
-        if (name === 'exit' && isActive) {
-          this.isExiting = false
-        }
-      })
   }
 
   isMounted() {
@@ -275,6 +285,15 @@ export class MotionState {
     }
   }
 
-  getSnapshot(options: Options, isPresent?: boolean) {}
-  didUpdate() {}
+  /**
+   * Layout protocol facades — forward to every registered feature that
+   * implements the getSnapshot/didUpdate protocol (currently LayoutFeature).
+   */
+  getSnapshot(options: Options, isPresent?: boolean) {
+    this.features.forEach(f => f.getSnapshot?.(options, isPresent))
+  }
+
+  didUpdate() {
+    this.features.forEach(f => f.didUpdate?.())
+  }
 }

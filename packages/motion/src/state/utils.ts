@@ -56,20 +56,6 @@ export function resolveInitialValues(
   }, {})
 }
 
-export function shallowCompare(next: any[], prev: any[]) {
-  const prevLength = prev?.length
-
-  if (prevLength !== next.length)
-    return false
-
-  for (let i = 0; i < prevLength; i++) {
-    if (prev[i] !== next[i])
-      return false
-  }
-
-  return true
-}
-
 export function isCssVar(name: string) {
   return name?.startsWith('--')
 }

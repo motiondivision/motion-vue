@@ -34,7 +34,7 @@ export class AnimationFeature extends Feature {
   mount() {
     const isPresent = !isHidden(this.state.element as HTMLElement)
     if (!isPresent) {
-      this.state.setActive('exit', true)
+      this.state.activateExit()
     }
     else {
       this.state.visualElement.animationState?.animateChanges()
