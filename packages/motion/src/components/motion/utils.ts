@@ -8,7 +8,10 @@ import type { MotionBundle } from '@/state/motion-state'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
 type MotionCompProps = {
-  create: <T extends DefineComponent>(component: T, options?: MotionCreateOptions) => DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
+  create: {
+    <T extends DefineComponent>(component: T, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
+    (component: string, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'>>
+  }
 }
 export interface MotionCreateOptions extends MotionBundle {
   forwardMotionProps?: boolean

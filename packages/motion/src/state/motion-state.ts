@@ -156,7 +156,7 @@ export class MotionState {
   // Called before unmounting, lets features capture pre-removal state
   // (e.g. LayoutFeature's layout snapshot)
   beforeUnmount() {
-    this.getSnapshot()
+    this.getSnapshot(false)
   }
 
   unmount() {
@@ -173,7 +173,7 @@ export class MotionState {
 
   // Called before updating, executes in parent-to-child order
   beforeUpdate() {
-    this.getSnapshot()
+    this.getSnapshot(!this.isExiting)
   }
 
   // Update motion state with new options
@@ -219,7 +219,7 @@ export class MotionState {
       this.tryCompleteExit(generation)
     }
 
-    this.getSnapshot()
+    this.getSnapshot(false)
     return completion
   }
 
@@ -229,7 +229,7 @@ export class MotionState {
     this.settleExit()
     this.isExiting = false
     this.setActive('exit', false)
-    this.getSnapshot()
+    this.getSnapshot(true)
   }
 
   /** ProjectionFeature notifies here when a layoutId exit handoff completes. */
@@ -299,10 +299,8 @@ export class MotionState {
     }
   }
 
-  getSnapshot() {
-    this.features.forEach((f) => {
-      f.getSnapshot()
-    })
+  getSnapshot(isPresent: boolean) {
+    this.features.get('layout')?.getSnapshot(isPresent)
   }
 
   didUpdate() {}

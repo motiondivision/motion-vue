@@ -26,7 +26,7 @@ export class ProjectionFeature extends Feature {
         : getClosestProjectingNode(this.state.visualElement.parent),
     )
     this.projection = this.state.visualElement.projection
-    this.projection.isPresent = true
+    this.projection!.isPresent = true
     this.setOptions()
   }
 

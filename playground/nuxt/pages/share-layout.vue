@@ -16,10 +16,11 @@ useEventListener('keydown', (event: KeyboardEvent) => {
       <LayoutGroup>
         <AnimatePresence>
           <Motion
-            v-show="show"
+            v-if="show"
             layout-id="test"
             :transition="{ duration: 3 }"
             class="w-[200px] h-[200px] fixed top-0 left-0 bg-white rounded-md"
+            data-a="1"
             @click="show = !show"
           >
             <Motion
@@ -31,8 +32,9 @@ useEventListener('keydown', (event: KeyboardEvent) => {
             </Motion>
           </Motion>
           <Motion
-            v-show="!show"
+            v-if="!show"
             layout-id="test"
+            data-a="2"
             class="w-[100px] h-[100px] bg-white rounded-md"
             :transition="{ duration: 3 }"
             @click="() => {

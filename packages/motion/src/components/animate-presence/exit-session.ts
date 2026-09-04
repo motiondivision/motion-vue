@@ -111,7 +111,7 @@ export function createExitSession(config: ExitSessionConfig) {
     sessions.delete(session.el)
     removePopStyle(session)
     session.states.forEach((state) => {
-      state.getSnapshot()
+      state.getSnapshot(false)
     })
     // Call done to remove DOM
     session.done()
@@ -120,9 +120,6 @@ export function createExitSession(config: ExitSessionConfig) {
       session.states.forEach((state) => {
         state.unmount()
       })
-    }
-    else {
-      session.states[0]?.didUpdate()
     }
     config.onAllComplete()
   }

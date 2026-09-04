@@ -35,5 +35,5 @@ export class Feature {
 
   update() {}
 
-  getSnapshot() {}
+  getSnapshot(isPresent: boolean) {}
 }

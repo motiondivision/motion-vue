@@ -225,7 +225,7 @@ export function createMotionDirective(
       if (!state)
         return
       state.updateOptions(resolveStateOptions(el, binding, vnode).options)
-      state.beforeUpdate()
+      state.getSnapshot(true)
     },
 
     updated(el, _binding, vnode) {
@@ -241,7 +241,7 @@ export function createMotionDirective(
       if (!state)
         return
       state.updateOptions(resolveStateOptions(el, binding, vnode).options)
-      state.beforeUnmount()
+      state.getSnapshot(false)
     },
 
     unmounted(el) {
