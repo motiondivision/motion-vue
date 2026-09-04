@@ -17,8 +17,8 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   })
 
   // ===== Registry =====
-  // Motion states under this AnimatePresence register themselves via context
-  // (MotionState constructor/teardown). inject resolves to the nearest
+  // Motion states under this AnimatePresence are registered by ExitFeature
+  // (mount/unmount) via context. inject resolves to the nearest
   // ancestor, so nested AnimatePresence instances scope correctly — no DOM
   // attribute tagging or querySelectorAll discovery needed.
   const registered = new Set<MotionState>()

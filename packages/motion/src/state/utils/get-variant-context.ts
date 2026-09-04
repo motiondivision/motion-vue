@@ -12,6 +12,9 @@ type VariantStateContext = {
   whileDrag?: string | string[]
   whileFocus?: string | string[]
   whilePress?: string | string[]
+  // Not part of local variantProps (inheritance not enabled for it yet),
+  // but declared so AnimationType-typed index access type-checks
+  whileInView?: string | string[]
 }
 
 /**

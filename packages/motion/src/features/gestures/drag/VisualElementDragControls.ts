@@ -1,4 +1,5 @@
-import { addDomEvent, addPointerEvent, extractEventInfo } from '@/events'
+import { addDomEvent, addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, measurePageBox, mixNumber, percent } from 'motion-dom'
+import { addPointerEvent, extractEventInfo } from '@/events'
 import type { Lock } from '@/features/gestures/drag/lock'
 import { getGlobalLock } from '@/features/gestures/drag/lock'
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
@@ -9,7 +10,6 @@ import { PanSession } from '@/features/gestures/pan/PanSession'
 import type { Options } from '@/types'
 import { getContextWindow } from '@/utils'
 import type { AnimationGeneratorType, LayoutUpdateData, Transition, VisualElement } from 'motion-dom'
-import { addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, measurePageBox, mixNumber, percent } from 'motion-dom'
 import { invariant } from 'hey-listen'
 import type { MotionState } from '@/state'
 import type { MotionProps } from '@/components'
@@ -549,7 +549,7 @@ export class VisualElementDragControls {
      * Update the layout of this element and resolve the latest drag constraints
      */
     const { transformTemplate } = this.visualElement.getProps()
-    this.state.element.style.transform = transformTemplate
+    this.state.element!.style.transform = transformTemplate
       ? transformTemplate({}, '')
       : 'none'
     projection.root && projection.root.updateScroll()

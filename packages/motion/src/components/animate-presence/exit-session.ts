@@ -91,9 +91,6 @@ export function createExitSession(config: ExitSessionConfig) {
     const completions = states.map(state =>
       state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve(),
     )
-    // One tree-level layout flush per exit batch: LayoutFeature gates the
-    // flush on a module-global flag, so a single didUpdate() serves every state.
-    states[0]?.didUpdate()
 
     Promise.all(completions).then(() => {
       if (!session.aborted)

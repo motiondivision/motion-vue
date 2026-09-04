@@ -38,7 +38,7 @@ afterEach(() => {
 })
 
 describe('createExitSession', () => {
-  it('starts exit on every tracked state and flushes the layout tree once', () => {
+  it('starts exit on every tracked state', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
@@ -50,9 +50,6 @@ describe('createExitSession', () => {
 
     expect(a.exit).toHaveBeenCalledTimes(1)
     expect(b.exit).toHaveBeenCalledTimes(1)
-    // One tree-level flush per batch, via the first state only
-    expect(a.state.didUpdate).toHaveBeenCalledTimes(1)
-    expect(b.state.didUpdate).not.toHaveBeenCalled()
     expect(done).not.toHaveBeenCalled()
   })
 
@@ -104,8 +101,6 @@ describe('createExitSession', () => {
     await flush()
 
     expect(a.state.unmount).not.toHaveBeenCalled()
-    // Once at track time only
-    expect(a.state.didUpdate).toHaveBeenCalledTimes(1)
     document.body.removeChild(el)
   })
 

@@ -1,4 +1,4 @@
-import { addDomEvent } from './add-dom-event'
+import { addDomEvent } from 'motion-dom'
 import type { EventListenerWithPointInfo } from './event-info'
 import { addPointerInfo } from './event-info'
 

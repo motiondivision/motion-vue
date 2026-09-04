@@ -6,11 +6,12 @@ import { getClosestProjectingNode } from '@/features/layout/utils'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 import { isSSR } from '@/utils/is'
+import type { MotionState } from '@/state'
 
 export class ProjectionFeature extends Feature {
   static key = 'projection' as const
   private projection: IProjectionNode | undefined
-  constructor(state) {
+  constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
     if (!isSSR) {
