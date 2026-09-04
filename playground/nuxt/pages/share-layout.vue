@@ -11,7 +11,7 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <div class="h-screen w-screen bg-gradient-to-br flex items-center justify-center from-indigo-500 via-purple-500 to-pink-500">
+  <div class="flex min-h-[calc(100vh-73px)] items-center justify-center">
     <MotionConfig>
       <LayoutGroup>
         <AnimatePresence>

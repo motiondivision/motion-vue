@@ -24,7 +24,7 @@ function removeItemById(id: any) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center py-10">
     <div class="flex flex-col items-center pb-[50px]">
       <label class="flex items-center my-5">
         <code class="font-mono">popLayout</code>
@@ -37,7 +37,7 @@ function removeItemById(id: any) {
       <Motion
         as="button"
         :initial="{ scale: 1 }"
-        :while-tap="{ scale: 0.95 }"
+        :while-press="{ scale: 0.95 }"
         class="w-[150px] px-6 py-4 text-lg font-bold text-white bg-pink-500 rounded-full cursor-pointer"
         @click="addItem"
       >

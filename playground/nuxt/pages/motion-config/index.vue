@@ -3,7 +3,7 @@ import { Motion, MotionConfig } from 'motion-v'
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center h-screen">
+  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-73px)]">
     <MotionConfig reduce-motion="always">
       <Motion
         :initial="{ opacity: 0, y: 100 }"

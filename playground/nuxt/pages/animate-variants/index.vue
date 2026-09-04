@@ -67,7 +67,7 @@ const colors = ['#FF008C', '#D309E1', '#9C1AFF', '#7700FF', '#4400FF']
 </script>
 
 <template>
-  <div>
+  <div class="flex min-h-[calc(100vh-73px)] items-center justify-center">
     <div class="container">
       <motion.nav
         ref="containerRef"

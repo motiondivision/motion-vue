@@ -24,7 +24,7 @@ function handlePanEnd() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center ">
+  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-73px)]">
     <Motion
       class="card touch-none"
       :transform-template="template"

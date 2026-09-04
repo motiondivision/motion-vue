@@ -179,6 +179,7 @@ const Item = defineComponent({
   max-width: 340px;
   height: 240px;
   overflow: auto;
+  margin: 40px auto;
   padding: 16px;
   background-color: #ffffff;
   border-radius: 16px;

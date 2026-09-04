@@ -23,7 +23,7 @@ function toggleOpen() {
 </script>
 
 <template>
-  <div class="app h-screen w-screen">
+  <div class="app min-h-[calc(100vh-73px)]">
     <Motion
       :layout="true"
       :data-open="isOpen"
@@ -42,7 +42,7 @@ function toggleOpen() {
 
 <style>
 .app {
-  @apply bg-gradient-to-tr from-[#7b2ff7] to-[#f107a3] bg-no-repeat flex justify-center items-center;
+  @apply flex justify-center items-center;
 
 }
 </style>

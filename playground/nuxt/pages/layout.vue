@@ -14,8 +14,11 @@ function handleAnimationStart() {
 </script>
 
 <template>
-  <div class="flex flex-col space-y-4 items-center justify-center p-8 h-screen">
-    <button @click="isExpanded = !isExpanded">
+  <div class="flex flex-col space-y-4 items-center justify-center p-8 min-h-[calc(100vh-73px)]">
+    <button
+      class="rounded-md border border-white/10 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      @click="isExpanded = !isExpanded"
+    >
       {{ isExpanded ? 'Shrink' : 'Expand' }}
     </button>
 
