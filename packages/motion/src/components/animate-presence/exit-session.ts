@@ -1,5 +1,6 @@
 import { frame } from 'framer-motion/dom'
 import type { MotionState } from '@/state'
+import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'
 
 export interface ExitSessionConfig {
@@ -87,7 +88,9 @@ export function createExitSession(config: ExitSessionConfig) {
     sessions.set(el, session)
     addPopStyle(session)
 
-    const completions = states.map(state => state.exit(el))
+    const completions = states.map(state =>
+      state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve(),
+    )
     // One tree-level layout flush per exit batch: LayoutFeature gates the
     // flush on a module-global flag, so a single didUpdate() serves every state.
     states[0]?.didUpdate()

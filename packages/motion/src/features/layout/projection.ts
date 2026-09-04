@@ -1,4 +1,5 @@
 import { Feature } from '@/features/feature'
+import type { ExitFeature } from '@/features/exit/exit'
 import type { IProjectionNode } from 'motion-dom'
 import { HTMLProjectionNode, addScaleCorrector } from 'motion-dom'
 import { getClosestProjectingNode } from '@/features/layout/utils'
@@ -50,7 +51,7 @@ export class ProjectionFeature extends Feature {
           // is processing; a direct root.didUpdate() call here would be permanently lost
           // because the microtask batcher's allowKeepAlive=false skips follow-up batches.
           queueMicrotask(() => {
-            this.state.completeExitFromProjection()
+            this.state.getFeature<ExitFeature>('exit')?.completeExitFromProjection()
           })
         }
       },

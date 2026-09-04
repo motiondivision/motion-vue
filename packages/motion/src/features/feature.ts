@@ -5,6 +5,7 @@ export type FeatureKey =
   | 'animation'
   | 'projection'
   | 'layout'
+  | 'exit'
   | 'hover'
   | 'press'
   | 'focus'
