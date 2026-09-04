@@ -73,7 +73,7 @@ export class LayoutFeature extends Feature {
     const projection = this.state.visualElement.projection
     const { layout, layoutId, drag, layoutDependency } = this.state.visualElement.props
     const prevProps = this.state.visualElement.prevProps!
-    if (!layout && !layoutId && !drag) {
+    if (!projection || (!layout && !layoutId && !drag)) {
       return
     }
 

@@ -240,6 +240,11 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   cursor: pointer;
 }
 
+/* layoutId 投影需要 transform 生效——非替换 inline 元素上 transform 无效 */
+.feedback-button > span {
+  display: inline-block;
+}
+
 .feedback-popover {
   position: absolute;
   inset: 0;
