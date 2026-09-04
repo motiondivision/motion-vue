@@ -5,7 +5,6 @@ import { domMax } from '@/features/dom-max'
 import { MotionState, mountedStates } from '@/state'
 import { createVisualElement as defaultRenderer } from '@/state/create-visual-element'
 import { createSVGStyles, createStyles } from '@/state/style'
-import { updateLazyFeatures } from '@/features/lazy-features'
 import { isSVGElement, resolveInitialValues } from '@/state/utils'
 import { warning } from 'hey-listen'
 import { layoutGroupInjectionKey, motionInjectionKey } from '@/components/context'
@@ -91,7 +90,7 @@ function applyInitialStyles(el: HTMLElement | SVGElement, state: MotionState) {
     for (const key in attrs) el.setAttribute(key, String(attrs[key]))
   }
   if (styles) {
-    for (const key in styles) el.style[key] = styles[key]
+    for (const key in styles) el.style[key as any] = styles[key]
   }
 }
 
@@ -189,46 +188,47 @@ export function createMotionDirective(
   defaultOptions?: Options,
 ): Directive<HTMLElement | SVGElement, Options> {
   const renderer = featureBundle?.renderer ?? defaultRenderer
-  if (featureBundle?.features) {
-    updateLazyFeatures(featureBundle.features)
-  }
+  const features = featureBundle?.features ?? domMax.features
 
   function mergeMotionProps(vnode: VNode, bindingValue: Options | undefined): Options {
     const userProps = extractMotionProps(vnode, bindingValue)
     return defaultOptions ? { ...defaultOptions, ...userProps } : userProps
   }
 
+  /**
+   * Build fresh motion options from the current vnode + binding,
+   * resolving context through the component tree.
+   */
+  function resolveStateOptions(el: HTMLElement | SVGElement, binding: any, vnode: VNode) {
+    const provides = resolveProvides(vnode, binding)
+    const motionProps = mergeMotionProps(vnode, binding.value)
+    return buildMotionOptions(motionProps, provides, resolveTag(el))
+  }
+
   return {
     created(el, binding, vnode) {
-      const provides = resolveProvides(vnode, binding)
-      const motionProps = mergeMotionProps(vnode, binding.value)
-      const { options, parentState } = buildMotionOptions(motionProps, provides, resolveTag(el))
-      const state = new MotionState(options, parentState!)
-      state.initVisualElement(renderer)
+      const { options, parentState } = resolveStateOptions(el, binding, vnode)
+      const state = new MotionState(options, parentState!, { renderer, features })
       mountedStates.set(el, state)
     },
-    mounted(el, binding, vnode) {
+    mounted(el, _binding, vnode) {
       const state = mountedStates.get(el)
       if (!state)
         return
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
       state.mount(el)
-      state.updateFeatures()
     },
 
     beforeUpdate(el, binding, vnode) {
       const state = mountedStates.get(el)
       if (!state)
         return
-      const provides = resolveProvides(vnode, binding)
-      const motionProps = mergeMotionProps(vnode, binding.value)
-      const { options } = buildMotionOptions(motionProps, provides, resolveTag(el))
+      state.updateOptions(resolveStateOptions(el, binding, vnode).options)
       state.beforeUpdate()
-      state.updateOptions(options)
     },
 
-    updated(el, binding, vnode) {
+    updated(el, _binding, vnode) {
       const state = mountedStates.get(el)
       if (!state)
         return
@@ -236,10 +236,11 @@ export function createMotionDirective(
       state.update()
     },
 
-    beforeUnmount(el) {
+    beforeUnmount(el, binding, vnode) {
       const state = mountedStates.get(el)
       if (!state)
         return
+      state.updateOptions(resolveStateOptions(el, binding, vnode).options)
       state.beforeUnmount()
     },
 

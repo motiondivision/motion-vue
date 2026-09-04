@@ -5,8 +5,7 @@ import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
 import { injectAnimatePresence } from '@/components/animate-presence/presence'
 import { createSVGStyles, createStyles } from '@/state/style'
-import { updateLazyFeatures } from '@/features/lazy-features'
-import type { createVisualElement } from '@/state/create-visual-element'
+import type { MotionBundle } from '@/state/motion-state'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
@@ -15,7 +14,7 @@ import { resolveMotionProps } from '@/utils/resolve-motion-props'
 
 export function useMotionState(
   props: MotionProps,
-  renderer?: typeof createVisualElement,
+  bundle: MotionBundle = {},
 ) {
   // motion context
   const parentState = injectMotion(null)
@@ -37,7 +36,7 @@ export function useMotionState(
    */
   if (
     process.env.NODE_ENV !== 'production'
-    && renderer
+    && bundle.renderer
     && lazyMotionContext.strict
   ) {
     const strictMessage
@@ -66,23 +65,13 @@ export function useMotionState(
   const state = new MotionState(
     getMotionProps(),
     parentState!,
+    bundle,
   )
   provideMotion(state)
 
-  // If renderer is provided directly (motion component), use it immediately
-  if (renderer) {
-    state.initVisualElement(renderer)
-  }
-
   // Watch for lazy-loaded features (for m component with LazyMotion)
   watch(lazyMotionContext.features, (bundle) => {
-    if (bundle.features?.length) {
-      updateLazyFeatures(bundle.features)
-    }
-    if (bundle.renderer) {
-      state.initVisualElement(bundle.renderer)
-    }
-    state.updateFeatures()
+    state.setBundle(bundle)
   }, { immediate: true, flush: 'pre' })
 
   function getAttrs() {
@@ -129,27 +118,28 @@ export function useMotionState(
     return attrsProps
   }
 
-  const instance = getCurrentInstance().proxy
+  const instance = getCurrentInstance()?.proxy
 
   onMounted(() => {
-    const el = getMotionElement(instance.$el)
+    const el = getMotionElement(instance?.$el)!
     state.mount(el)
   })
 
-  onBeforeUnmount(() => state.beforeUnmount())
+  onBeforeUnmount(() => {
+    state.updateOptions(getMotionProps())
+    state.beforeUnmount()
+  })
 
   onUnmounted(() => {
-    const el = getMotionElement(instance.$el)
+    const el = getMotionElement(instance?.$el)
     if (!el?.isConnected) {
       state.unmount()
     }
   })
 
   onBeforeUpdate(() => {
-    state.beforeUpdate()
-    // Update visual element props early (parent fires before children)
-    // so children's animateChanges() sees the latest parent variant context.
     state.updateOptions(getMotionProps())
+    state.beforeUpdate()
   })
 
   onUpdated(() => {

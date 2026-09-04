@@ -36,7 +36,7 @@ describe('motionState.exit(container)', () => {
     expect(state.presenceContainer).toBe(container)
     expect(state.isExiting).toBe(true)
     expect(setActive).toHaveBeenCalledWith('exit', true)
-    expect(getSnapshot).toHaveBeenCalledWith(state.options, false)
+    expect(getSnapshot).toHaveBeenCalledTimes(1)
 
     animationResolvers[0]()
     await completion
@@ -61,7 +61,8 @@ describe('motionState.exit(container)', () => {
     await completion
     expect(state.isExiting).toBe(false)
     expect(setActive).toHaveBeenLastCalledWith('exit', false)
-    expect(getSnapshot).toHaveBeenLastCalledWith(state.options, true)
+    // Exit and reenter each snapshot once
+    expect(getSnapshot).toHaveBeenCalledTimes(2)
 
     // The stale exit's animation settling later must not clobber state
     animationResolvers[0]()

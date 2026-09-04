@@ -111,7 +111,7 @@ export function createExitSession(config: ExitSessionConfig) {
     sessions.delete(session.el)
     removePopStyle(session)
     session.states.forEach((state) => {
-      state.getSnapshot(state.options, false)
+      state.getSnapshot()
     })
     // Call done to remove DOM
     session.done()

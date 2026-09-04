@@ -2,8 +2,6 @@ import { Feature } from '@/features/feature'
 import type { MotionState } from '@/state/motion-state'
 import { addScaleCorrector, frame, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
-import { isDef } from '@vueuse/core'
-import type { Options } from '@/types'
 import { isHidden } from '@/utils/is-hidden'
 
 let hasLayoutUpdate = false
@@ -14,7 +12,6 @@ export class LayoutFeature extends Feature {
   constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
-    state.getSnapshot = this.getSnapshot.bind(this)
     state.didUpdate = this.didUpdate.bind(this)
   }
 
@@ -80,9 +77,14 @@ export class LayoutFeature extends Feature {
     }
   }
 
-  getSnapshot(newOptions: Options, isPresent?: boolean): void {
+  /**
+   * Capture a layout snapshot. Options are always refreshed by the caller
+   * before this runs (updateOptions → lifecycle hook), so the only remaining
+   * signal is presence: an exiting element is treated as not present.
+   */
+  getSnapshot(): void {
     const projection = this.state.visualElement.projection
-    const { drag, layoutDependency, layout, layoutId } = newOptions
+    const { drag, layoutDependency, layout, layoutId } = this.state.options
     if (!projection || (!layout && !layoutId && !drag)) {
       return
     }
@@ -95,25 +97,24 @@ export class LayoutFeature extends Feature {
     }
 
     hasLayoutUpdate = true
-    const prevProps = this.state.options
+    const isPresent = !this.state.isExiting
 
     /**
-     * If the drag or layoutDependency has changed, or the isPresent has changed, we need to update the snapshot
+     * If drag is enabled, no layoutDependency is set, or presence changed,
+     * we need to update the snapshot
      */
     if (
       drag
-      || prevProps.layoutDependency !== layoutDependency
       || layoutDependency === undefined
-      || (isDef(isPresent) && projection.isPresent !== isPresent)
+      || projection.isPresent !== isPresent
     ) {
       projection.willUpdate()
     }
 
     /**
-     * If the isPresent has changed, we need to update the projection
-     * and promote or relegate the projection accordingly
+     * If presence has changed, promote or relegate the projection accordingly
      */
-    if (isDef(isPresent) && isPresent !== projection.isPresent) {
+    if (isPresent !== projection.isPresent) {
       projection.isPresent = isPresent
       if (isPresent) {
         projection.promote()
