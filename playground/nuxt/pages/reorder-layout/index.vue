@@ -31,7 +31,7 @@ function add() {
 </script>
 
 <template>
-  <div class="mx-auto w-[480px] h-[360px] rounded-lg bg-white overflow-hidden shadow-[0_1px_1px_hsl(0deg_0%_0%_/_0.075),0_2px_2px_hsl(0deg_0%_0%_/_0.075),0_4px_4px_hsl(0deg_0%_0%_/_0.075),0_8px_8px_hsl(0deg_0%_0%_/_0.075),0_16px_16px_hsl(0deg_0%_0%_/_0.075)] flex flex-col">
+  <div class="mx-auto mt-10 w-[480px] h-[360px] rounded-lg bg-white overflow-hidden shadow-[0_1px_1px_hsl(0deg_0%_0%_/_0.075),0_2px_2px_hsl(0deg_0%_0%_/_0.075),0_4px_4px_hsl(0deg_0%_0%_/_0.075),0_8px_8px_hsl(0deg_0%_0%_/_0.075),0_16px_16px_hsl(0deg_0%_0%_/_0.075)] flex flex-col">
     <LayoutGroup>
       <nav>
         <ReorderGroup

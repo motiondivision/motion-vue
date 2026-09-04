@@ -226,7 +226,7 @@ const transition = { duration: 0.7, type: 'spring', bounce: 0.25 }
       </Motion>
     </div>
 
-    <div>
+    <div class="mx-auto max-w-3xl px-6 pt-40 pb-24">
       <Motion
         v-for="item in initialValues"
         :id="item.link.slice(1)"

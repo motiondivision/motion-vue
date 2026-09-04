@@ -17,10 +17,10 @@ useEventListener('keydown', (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <div class="h-screen w-screen">
+  <div class="min-h-[calc(100vh-73px)]">
     <!-- <MotionConfig> -->
     <LayoutGroup>
-      <div class="cards-wrapper">
+      <div class="cards-wrapper min-h-[calc(100vh-73px)]">
         <CardItem
           v-for="card in CARDS"
           :key="card.id"

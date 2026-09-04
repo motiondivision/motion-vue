@@ -22,11 +22,17 @@ function onMove() {
 </script>
 
 <template>
-  <div>
-    <button @click="onToggle">
+  <div class="mx-auto max-w-5xl px-6 py-10">
+    <button
+      class="rounded-md border border-white/10 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      @click="onToggle"
+    >
       toggle
     </button>
-    <button @click="onMove">
+    <button
+      class="rounded-md border border-white/10 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      @click="onMove"
+    >
       move
     </button>
     <AnimatePresence>

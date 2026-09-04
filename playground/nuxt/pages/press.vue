@@ -3,7 +3,7 @@ import { Motion } from 'motion-v'
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-tr from-[#7b2ff7] to-[#f107a3] p-8">
+  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-73px)] p-8">
     <Motion
       :animate="{
         backgroundColor: '#ffffff33',

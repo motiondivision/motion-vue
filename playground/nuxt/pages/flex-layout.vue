@@ -26,7 +26,7 @@ const spring = {
 </script>
 
 <template>
-  <div class="app h-screen w-screen">
+  <div class="app min-h-[calc(100vh-73px)]">
     <Motion
       :layout="true"
       class="switch"
@@ -49,8 +49,6 @@ const spring = {
 
 <style>
 .app {
-  background: linear-gradient(250deg, #7b2ff7, #f107a3);
-  background-repeat: no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;

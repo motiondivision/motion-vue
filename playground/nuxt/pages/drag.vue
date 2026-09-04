@@ -14,7 +14,7 @@ function handleClick() {
 </script>
 
 <template>
-  <div class="flex items-center justify-center h-screen">
+  <div class="flex items-center justify-center min-h-[calc(100vh-73px)]">
     <div
       ref="constraintsRef"
       class="w-[300px] h-[300px] bg-blue-300 rounded"

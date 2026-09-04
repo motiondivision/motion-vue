@@ -214,11 +214,10 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
 <style scoped>
 /* animations.dev Feedback 弹层样式——原样移植 */
 .feedback-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 73px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
 }
 
 .feedback-wrapper {

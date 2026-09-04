@@ -24,7 +24,7 @@ function removeItemById(id: any) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center py-10">
     <div class="flex flex-col items-center pb-[50px]">
       <label class="flex items-center my-5">
         <code class="font-mono">popLayout</code>

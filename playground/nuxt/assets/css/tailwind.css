@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    body {
+        @apply bg-[#0a0a0b] text-white;
+    }
+}
+
 @layer components {
     .primary-button {
         @apply px-4 py-1 ml-auto text-black bg-white font-semibold rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400;

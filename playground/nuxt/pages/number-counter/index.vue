@@ -63,7 +63,7 @@ const isVisible = ref(false)
 </script>
 
 <template>
-  <div class="flex flex-col justify-center items-center h-screen">
+  <div class="flex flex-col justify-center items-center min-h-[calc(100vh-73px)]">
     <LayoutGroup>
       <motion.div
         :style="container"

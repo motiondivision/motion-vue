@@ -7,7 +7,7 @@ const selectedTab = ref(tabs[0])
 </script>
 
 <template>
-  <div class="flex justify-center items-center h-screen">
+  <div class="flex justify-center items-center min-h-[calc(100vh-73px)]">
     <div class="window">
       <nav>
         <ul>

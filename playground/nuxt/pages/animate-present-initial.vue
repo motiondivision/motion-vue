@@ -19,20 +19,25 @@ async function handleClick() {
 </script>
 
 <template>
-  <button @click="handleClick">
-    <AnimatePresence
-      mode="popLayout"
-      :initial="false"
+  <div class="mx-auto max-w-5xl px-6 py-10">
+    <button
+      class="rounded-md border border-white/10 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      @click="handleClick"
     >
-      <Motion
-        :key="state"
-        class="bg-primary aspect-square rounded-2xl"
-        :initial="{ opacity: 0, y: 25 }"
-        :animate="{ opacity: 1, y: 0 }"
-        :exit="{ opacity: 0, y: -25 }"
+      <AnimatePresence
+        mode="popLayout"
+        :initial="false"
       >
-        {{ state }}
-      </Motion>
-    </AnimatePresence>
-  </button>
+        <Motion
+          :key="state"
+          class="bg-primary aspect-square rounded-2xl"
+          :initial="{ opacity: 0, y: 25 }"
+          :animate="{ opacity: 1, y: 0 }"
+          :exit="{ opacity: 0, y: -25 }"
+        >
+          {{ state }}
+        </Motion>
+      </AnimatePresence>
+    </button>
+  </div>
 </template>

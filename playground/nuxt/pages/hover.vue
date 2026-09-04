@@ -3,7 +3,7 @@ import { Motion } from 'motion-v'
 </script>
 
 <template>
-  <div class="flex flex-col space-y-8 items-center justify-center p-8 h-screen">
+  <div class="flex flex-col space-y-8 items-center justify-center p-8 min-h-[calc(100vh-73px)]">
     <!-- Basic Hover Animation -->
     <Motion
       :while-hover="{

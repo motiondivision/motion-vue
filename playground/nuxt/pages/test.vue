@@ -157,7 +157,8 @@ async function fetchMoreItems() {
 
 <style>
 .container {
-  padding: 140px 20px;
+  padding: 60px 20px 140px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   flex-direction: column;
