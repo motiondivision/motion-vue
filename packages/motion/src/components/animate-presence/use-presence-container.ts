@@ -1,17 +1,13 @@
 import { onMounted, onUnmounted } from 'vue'
-import { mountedStates } from '@/state'
-import { motionGlobalConfig } from '@/config'
 import type { MotionState } from '@/state'
+import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'
 import { useMotionConfig } from '@/components/motion-config/context'
 import { createExitSession } from './exit-session'
 import type { PresenceContext } from './presence'
 import { provideAnimatePresence } from './presence'
 
-let apId = 0
-
 export function usePresenceContainer(props: AnimatePresenceProps) {
-  const presenceId = String(apId++)
   const motionConfig = useMotionConfig()
 
   const sessions = createExitSession({
@@ -19,6 +15,13 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     getNonce: () => motionConfig.value.nonce,
     onAllComplete: () => props.onExitComplete?.(),
   })
+
+  // ===== Registry =====
+  // Motion states under this AnimatePresence are registered by ExitFeature
+  // (mount/unmount) via context. inject resolves to the nearest
+  // ancestor, so nested AnimatePresence instances scope correctly — no DOM
+  // attribute tagging or querySelectorAll discovery needed.
+  const registered = new Set<MotionState>()
 
   // ===== Provide Context =====
   // Pure data, never mutated after provide: `initial`/`custom` are getters,
@@ -31,7 +34,8 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     get custom() {
       return props.custom
     },
-    presenceId,
+    register: state => registered.add(state),
+    unregister: state => registered.delete(state),
   }
 
   provideAnimatePresence(presenceContext)
@@ -41,19 +45,14 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   })
 
   // ===== Discover motion states inside a container =====
+  // The leaving subtree is exactly the container's descendants — filter the
+  // registry by reference containment instead of querying the DOM.
   function findMotionStates(container: Element): MotionState[] {
     const states: MotionState[] = []
-    // Check container itself
-    const selfState = mountedStates.get(container)
-    if (selfState && container.getAttribute(motionGlobalConfig.motionAttribute) === presenceId) {
-      states.push(selfState)
-    }
-    // Query descendants scoped to this AnimatePresence
-    const elements = Array.from(container.querySelectorAll(`[${motionGlobalConfig.motionAttribute}="${presenceId}"]`))
-    for (const el of elements) {
-      const s = mountedStates.get(el)
-      if (s) {
-        states.push(s)
+    for (const state of registered) {
+      const el = state.element
+      if (el && (el === container || container.contains(el))) {
+        states.push(state)
       }
     }
     return states
@@ -65,7 +64,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     sessions.abort(el)
     const states = findMotionStates(el)
     states.forEach((state) => {
-      state.reenter()
+      state.getFeature<ExitFeature>('exit')?.reenter()
     })
     done()
   }

@@ -5,6 +5,7 @@ export type FeatureKey =
   | 'animation'
   | 'projection'
   | 'layout'
+  | 'exit'
   | 'hover'
   | 'press'
   | 'focus'
@@ -15,7 +16,11 @@ export type FeatureKey =
 export class Feature {
   static key: FeatureKey
 
-  isMount: boolean
+  /**
+   * Managed by MotionState — set after mount(), reset after unmount(),
+   * so a MotionState remount (KeepAlive, directive reuse) re-runs mount().
+   */
+  isMount: boolean = false
 
   state: MotionState
 
@@ -25,7 +30,11 @@ export class Feature {
 
   mount() {}
 
+  beforeUnmount() {}
+
   unmount() {}
 
   update() {}
+
+  getSnapshot(isPresent: boolean) {}
 }

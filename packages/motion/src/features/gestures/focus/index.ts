@@ -1,5 +1,5 @@
 import { pipe } from 'motion-utils'
-import { addDomEvent } from '@/events'
+import { addDomEvent } from 'motion-dom'
 import { Feature } from '@/features/feature'
 
 export class FocusGesture extends Feature {

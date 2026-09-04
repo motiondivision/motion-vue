@@ -79,7 +79,10 @@ export interface PanInfo {
   velocity: Point
 }
 
-export type PanHandler = (event: Event, info: PanInfo) => void
+// Handlers are registered via addPointerEvent and always receive pointer
+// events — aligned with the public pan prop types in gestures/pan/types.ts.
+// (Upstream motion-dom types this as Event, which is wider than reality.)
+export type PanHandler = (event: PointerEvent, info: PanInfo) => void
 interface PanSessionHandlers {
   onSessionStart: PanHandler
   onStart: PanHandler

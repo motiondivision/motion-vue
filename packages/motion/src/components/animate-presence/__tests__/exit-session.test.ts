@@ -8,14 +8,15 @@ function createFakeState() {
   const exitPromise = new Promise<void>((resolve) => {
     resolveExit = resolve
   })
+  const exit = vi.fn(() => exitPromise)
   const state = {
-    exit: vi.fn(() => exitPromise),
+    getFeature: vi.fn(() => ({ exit })),
     getSnapshot: vi.fn(),
     didUpdate: vi.fn(),
     unmount: vi.fn(),
     options: {},
   }
-  return { state: state as unknown as MotionState, resolveExit }
+  return { state: state as unknown as MotionState, resolveExit, exit }
 }
 
 function createConfig(overrides: Partial<ExitSessionConfig> = {}) {
@@ -37,7 +38,7 @@ afterEach(() => {
 })
 
 describe('createExitSession', () => {
-  it('starts exit on every tracked state and flushes the layout tree once', () => {
+  it('starts exit on every tracked state', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
@@ -47,11 +48,8 @@ describe('createExitSession', () => {
 
     sessions.track(el, [a.state, b.state], done)
 
-    expect(a.state.exit).toHaveBeenCalledWith(el)
-    expect(b.state.exit).toHaveBeenCalledWith(el)
-    // One tree-level flush per batch, via the first state only
-    expect(a.state.didUpdate).toHaveBeenCalledTimes(1)
-    expect(b.state.didUpdate).not.toHaveBeenCalled()
+    expect(a.exit).toHaveBeenCalledTimes(1)
+    expect(b.exit).toHaveBeenCalledTimes(1)
     expect(done).not.toHaveBeenCalled()
   })
 
@@ -90,7 +88,7 @@ describe('createExitSession', () => {
     expect(a.state.unmount).toHaveBeenCalledTimes(1)
   })
 
-  it('refreshes the layout tree instead of unmounting when the element stays connected', async () => {
+  it('does not unmount when the element stays connected', async () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
@@ -103,8 +101,6 @@ describe('createExitSession', () => {
     await flush()
 
     expect(a.state.unmount).not.toHaveBeenCalled()
-    // Once at track time, once at finalize
-    expect(a.state.didUpdate).toHaveBeenCalledTimes(2)
     document.body.removeChild(el)
   })
 

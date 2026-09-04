@@ -6,10 +6,10 @@ const props = defineProps<{
   value: MotionValue<T>
 }>()
 
-const instance = getCurrentInstance().proxy
+const instance = getCurrentInstance()?.proxy
 watchEffect((cleanup) => {
   const unSub = props.value.on('change', (value) => {
-    if (instance.$el) {
+    if (instance && instance.$el) {
       instance.$el.textContent = value
     }
   })

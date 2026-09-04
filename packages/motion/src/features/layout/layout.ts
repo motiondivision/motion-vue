@@ -1,36 +1,33 @@
 import { Feature } from '@/features/feature'
 import type { MotionState } from '@/state/motion-state'
-import { addScaleCorrector, frame, globalProjectionState } from 'motion-dom'
+import { type IProjectionNode, addScaleCorrector, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
-import { isDef } from '@vueuse/core'
-import type { Options } from '@/types'
 import { isHidden } from '@/utils/is-hidden'
+import { nextTick } from 'vue'
 
-let hasLayoutUpdate = false
 export class LayoutFeature extends Feature {
   static key = 'layout' as const
-  private hasMountSettled = false
 
   constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
-    state.getSnapshot = this.getSnapshot.bind(this)
-    state.didUpdate = this.didUpdate.bind(this)
   }
 
-  private updatePrevLead(projection: NonNullable<typeof this.state.visualElement.projection>) {
-    const stack = projection.getStack()
-    if (stack?.prevLead && !stack.prevLead.snapshot) {
-      stack.prevLead.willUpdate()
-      hasLayoutUpdate = true
+  private updatePrevLead(isPresent: boolean) {
+    const projection = this.state.visualElement.projection as IProjectionNode
+    if (projection.isPresent !== isPresent) {
+      projection.isPresent = isPresent
+      if (isPresent) {
+        !projection.isLead() && projection?.promote()
+      }
+      else {
+        projection.isLead() && projection?.relegate()
+      }
     }
   }
 
   didUpdate() {
-    if (!hasLayoutUpdate)
-      return
     if (this.state.options.layout || this.state.options.layoutId || this.state.options.drag) {
-      hasLayoutUpdate = false
       this.state.visualElement.projection?.root?.didUpdate()
     }
   }
@@ -43,25 +40,17 @@ export class LayoutFeature extends Feature {
       if (options.layoutId) {
         const isPresent = !isHidden(this.state.element as HTMLElement)
         projection.isPresent = isPresent
-        isPresent ? projection.promote() : projection.relegate()
-        this.updatePrevLead(projection)
+        if (isPresent) {
+          projection?.promote()
+        }
+        else {
+          projection?.relegate()
+        }
       }
       layoutGroup?.group?.add(projection)
       globalProjectionState.hasEverUpdated = true
     }
     this.didUpdate()
-
-    /**
-     * Allow one render frame for the projection tree and ancestor animations
-     * to settle before accepting layout snapshots. Vue mounts children before
-     * parents, so at this point the projection tree may lack the correct parent
-     * link, and ancestor elements may be mid-animation (e.g. scale/position),
-     * which would cause incorrect bounding rect measurements and spurious
-     * layout deltas.
-     */
-    frame.postRender(() => {
-      this.hasMountSettled = true
-    })
   }
 
   unmount() {
@@ -72,56 +61,44 @@ export class LayoutFeature extends Feature {
       if (layoutGroup?.group && (this.state.options.layout || this.state.options.layoutId)) {
         layoutGroup.group.remove(projection)
       }
-      // when layoutId is set, unMount will update the layout
-      if (this.state.options.layoutId) {
-        hasLayoutUpdate = true
-      }
-      this.didUpdate()
     }
   }
 
-  getSnapshot(newOptions: Options, isPresent?: boolean): void {
+  /**
+   * Capture a layout snapshot. Options are always refreshed by the caller
+   * before this runs (updateOptions → lifecycle hook), so the only remaining
+   * signal is presence: an exiting element is treated as not present.
+   */
+  getSnapshot(isPresent: boolean): void {
     const projection = this.state.visualElement.projection
-    const { drag, layoutDependency, layout, layoutId } = newOptions
+    const { layout, layoutId, drag, layoutDependency } = this.state.visualElement.props
+    const prevProps = this.state.visualElement.prevProps!
     if (!projection || (!layout && !layoutId && !drag)) {
       return
     }
 
     /**
-     * Skip snapshot capture until the mount has settled.
-     */
-    if (!this.hasMountSettled) {
-      return
-    }
-
-    hasLayoutUpdate = true
-    const prevProps = this.state.options
-
-    /**
-     * If the drag or layoutDependency has changed, or the isPresent has changed, we need to update the snapshot
+     * If drag is enabled, no layoutDependency is set, or presence changed,
+     * we need to update the snapshot
      */
     if (
       drag
       || prevProps.layoutDependency !== layoutDependency
-      || layoutDependency === undefined
-      || (isDef(isPresent) && projection.isPresent !== isPresent)
+      || layoutDependency === undefined // ← 没传 layoutDependency 时,每次重渲染都 willUpdate
+      || isPresent !== projection.isPresent
     ) {
       projection.willUpdate()
     }
 
     /**
-     * If the isPresent has changed, we need to update the projection
-     * and promote or relegate the projection accordingly
+     * If presence has changed, promote or relegate the projection accordingly
      */
-    if (isDef(isPresent) && isPresent !== projection.isPresent) {
-      projection.isPresent = isPresent
-      if (isPresent) {
-        projection.promote()
-        this.updatePrevLead(projection)
-      }
-      else {
-        projection.relegate()
-      }
+    if (layoutId) {
+      this.updatePrevLead(isPresent)
     }
+
+    nextTick(() => {
+      this.didUpdate()
+    })
   }
 }

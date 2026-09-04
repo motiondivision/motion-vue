@@ -1,15 +1,24 @@
 import type { MotionStateContext, Options } from '@/types'
 import { invariant } from 'hey-listen'
 import type { AnimationType, DOMKeyframesDefinition, VisualElement, VisualElementOptions } from 'motion-dom'
-import { frame, isVariantLabel } from 'motion-dom'
+import { isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveInitialValues } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
-import { lazyFeatures } from '@/features/lazy-features'
 import type { PresenceContext } from '@/components/animate-presence/presence'
-import { motionGlobalConfig } from '@/config'
 
 // Map to track mounted motion states by element
 export const mountedStates = new WeakMap<Element, MotionState>()
+
+export type VisualElementRenderer = (tag: string, options: VisualElementOptions<any, any>) => VisualElement<Element>
+
+/**
+ * The render + feature bundle a motion instance runs with — from the
+ * component's own feature bundle or resolved asynchronously by LazyMotion.
+ */
+export interface MotionBundle {
+  renderer?: VisualElementRenderer
+  features?: Array<typeof Feature>
+}
 
 /**
  * Core class that manages animation state and orchestrates animations.
@@ -21,13 +30,10 @@ export class MotionState {
   // Parent reference for handling component tree relationships
   public parent?: MotionState
 
-  // Whether the element is exiting
+  // Whether the element is exiting (driven by ExitFeature / setActive)
   public isExiting = false
-  // The AnimatePresence container this motion component belongs to
-  public presenceContainer: HTMLElement | null = null
   public options: Options & {
     presenceContext?: PresenceContext
-    features?: Array<typeof Feature>
   }
 
   // Track child components for proper lifecycle ordering
@@ -38,11 +44,14 @@ export class MotionState {
 
   // Feature instances managed by key
   private features = new Map<FeatureKey, Feature>()
+  // Feature constructors for this state only — set at construction,
+  // replaced later via setBundle() (e.g. LazyMotion async resolution)
+  private featureCtors: Array<typeof Feature> = []
 
-  // Visual element instance from Framer Motion (assigned by initVisualElement)
+  // Visual element instance from Framer Motion (created by setBundle via initVisualElement)
   public visualElement!: VisualElement<Element>
 
-  constructor(options: Options, parent?: MotionState) {
+  constructor(options: Options, parent?: MotionState, bundle: MotionBundle = {}) {
     this.options = options
     this.parent = parent
     // Add to parent's children set for lifecycle management
@@ -50,6 +59,9 @@ export class MotionState {
 
     this.latestValues = resolveInitialValues(options, this.context)
     this.type = isSVGElement(this.options.as as any) ? 'svg' : 'html'
+    // Create the visual element and features eagerly when a renderer is
+    // available — constructors run top-down, so parents exist before children
+    this.setBundle(bundle)
   }
 
   private _context: MotionStateContext | null = null
@@ -58,7 +70,7 @@ export class MotionState {
   get context() {
     if (!this._context) {
       const handler = {
-        get: (target: MotionStateContext, prop: keyof MotionStateContext) => {
+        get: (_target: MotionStateContext, prop: keyof MotionStateContext) => {
           const value = this.options[prop as keyof Options]
           if (isVariantLabel(value) || (prop === 'initial' && value === false)) {
             return value
@@ -73,25 +85,41 @@ export class MotionState {
   }
 
   /**
-   * Initialize features from options and global lazy features
-   * Features are stored by key to avoid duplicate instantiation
+   * Declare (or asynchronously resolve, e.g. LazyMotion) the render + feature
+   * bundle for this state, then sync — the visual element and feature
+   * instances are created lazily inside updateFeatures().
+   */
+  setBundle(bundle: MotionBundle) {
+    if (bundle.renderer)
+      this.initVisualElement(bundle.renderer)
+    if (bundle.features?.length)
+      this.featureCtors = bundle.features
+    this.updateFeatures()
+  }
+
+  /**
+   * Instantiate any missing features, then mount unmounted ones and update
+   * the rest. Feature constructors dereference the visual element, so this
+   * no-ops until setBundle() has created one. Feature mount is isMount-guarded,
+   * so this is safe to call repeatedly and from any lifecycle stage.
    */
   updateFeatures() {
     if (!this.visualElement)
       return
-    for (const FeatureCtor of lazyFeatures) {
-      if (!this.features.has(FeatureCtor.key)) {
-        this.features.set(FeatureCtor.key, new FeatureCtor(this))
+    for (const FeatureCtor of this.featureCtors) {
+      let feature = this.features.get(FeatureCtor.key)
+      if (!feature) {
+        feature = new FeatureCtor(this)
+        this.features.set(FeatureCtor.key, feature)
       }
-      const feature = this.features.get(FeatureCtor.key)!
-      if (this.isMounted()) {
-        if (!feature.isMount) {
-          feature.mount()
-          feature.isMount = true
-        }
-        else {
-          feature.update()
-        }
+      if (!this.isMounted())
+        continue
+      if (feature.isMount) {
+        feature.update()
+      }
+      else {
+        feature.mount()
+        feature.isMount = true
       }
     }
   }
@@ -114,31 +142,30 @@ export class MotionState {
     )
     mountedStates.set(element, this)
     this.element = element
-    const presenceId = this.options.presenceContext?.presenceId
-    if (presenceId !== undefined) {
-      element.setAttribute(motionGlobalConfig.motionAttribute, presenceId)
-    }
     this.visualElement?.mount(element)
     this.updateFeatures()
   }
 
-  // Called before unmounting, executes in child-to-parent order
+  // Called before unmounting, lets features capture pre-removal state
+  // (e.g. LayoutFeature's layout snapshot)
   beforeUnmount() {
-    this.getSnapshot(this.options, false)
+    this.getSnapshot(false)
   }
 
   unmount() {
     this.parent?.children?.delete(this)
     if (this.element)
       mountedStates.delete(this.element)
-    this.settleExit()
-    this.features.forEach(f => f.unmount?.())
+    this.features.forEach((f) => {
+      f.unmount()
+      f.isMount = false
+    })
     this.visualElement?.unmount()
   }
 
   // Called before updating, executes in parent-to-child order
   beforeUpdate() {
-    this.getSnapshot(this.options, undefined)
+    this.getSnapshot(!this.isExiting)
   }
 
   // Update motion state with new options
@@ -147,74 +174,9 @@ export class MotionState {
     this.didUpdate()
   }
 
-  // ===== Presence exit protocol =====
-  // Generation counter: bumped by exit() and reenter(). A completion carrying
-  // a stale generation is a silent no-op — this is how mid-exit reentry and
-  // re-entry-then-exit-again sequences stay consistent.
-  private exitGeneration = 0
-  private pendingExit?: { resolve: () => void }
-
-  /**
-   * Run the full exit sequence for AnimatePresence and resolve when this
-   * state's exit completes — including the layoutId projection handoff,
-   * which is signalled back via completeExitFromProjection().
-   */
-  exit(container: HTMLElement): Promise<void> {
-    const generation = ++this.exitGeneration
-    this.presenceContainer = container
-    this.isExiting = true
-
-    const completion = new Promise<void>((resolve) => {
-      this.pendingExit = { resolve }
-    })
-
-    const exitAnimation = this.visualElement?.animationState?.setActive('exit' as AnimationType, true)
-    if (exitAnimation) {
-      exitAnimation.then(() => {
-        if (generation !== this.exitGeneration)
-          return
-        this.isExiting = false
-        this.options?.layoutId
-          ? frame.postRender(() => this.tryCompleteExit(generation))
-          : this.tryCompleteExit(generation)
-      })
-    }
-    else {
-      this.isExiting = false
-      this.tryCompleteExit(generation)
-    }
-
-    this.getSnapshot(this.options, false)
-    return completion
-  }
-
-  /** Re-enter while an exit is in flight; the stale exit resolves silently. */
-  reenter() {
-    this.exitGeneration++
-    this.settleExit()
-    this.isExiting = false
-    this.setActive('exit', false)
-    this.getSnapshot(this.options, true)
-  }
-
-  /** ProjectionFeature notifies here when a layoutId exit handoff completes. */
-  completeExitFromProjection() {
-    this.tryCompleteExit(this.exitGeneration)
-  }
-
-  private tryCompleteExit(generation: number) {
-    if (generation !== this.exitGeneration || this.isExiting)
-      return
-    if (this.options?.layoutId
-      && this.visualElement.projection?.currentAnimation?.state === 'running') {
-      return
-    }
-    this.settleExit()
-  }
-
-  private settleExit() {
-    this.pendingExit?.resolve()
-    this.pendingExit = undefined
+  /** Access an installed feature by key, e.g. getFeature<ExitFeature>('exit') */
+  getFeature<T extends Feature>(key: FeatureKey): T | undefined {
+    return this.features.get(key) as T | undefined
   }
 
   // Set animation state active status and propagate to children
@@ -235,10 +197,10 @@ export class MotionState {
   }
 
   /**
-   * Create and attach a visual element using the given renderer.
-   * Shared by both the Motion component and v-motion directive.
+   * Create and attach the visual element using the given renderer.
+   * Called by setBundle(); no-ops once created.
    */
-  initVisualElement(renderer: (tag: string, options: VisualElementOptions<any, any>) => VisualElement<Element>) {
+  private initVisualElement(renderer: VisualElementRenderer) {
     if (this.visualElement)
       return
     this.visualElement = renderer(this.options.as as string, {
@@ -264,6 +226,9 @@ export class MotionState {
     }
   }
 
-  getSnapshot(options: Options, isPresent?: boolean) {}
+  getSnapshot(isPresent: boolean) {
+    this.features.get('layout')?.getSnapshot(isPresent)
+  }
+
   didUpdate() {}
 }

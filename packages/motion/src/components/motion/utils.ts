@@ -4,16 +4,17 @@ import { useMotionState } from './use-motion-state'
 import { MotionComponentProps } from './props'
 import type { MotionProps } from '@/components/motion/types'
 import type { FeatureBundle } from '@/features/dom-animation'
-import type { createVisualElement } from '@/state/create-visual-element'
+import type { MotionBundle } from '@/state/motion-state'
 import type { ComponentProps, MotionHTMLAttributes } from '@/types'
-import { updateLazyFeatures } from '@/features/lazy-features'
 
 type MotionCompProps = {
-  create: <T extends DefineComponent>(T, options?: MotionCreateOptions) => DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
+  create: {
+    <T extends DefineComponent>(component: T, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
+    (component: string, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'>>
+  }
 }
-export interface MotionCreateOptions {
+export interface MotionCreateOptions extends MotionBundle {
   forwardMotionProps?: boolean
-  renderer?: typeof createVisualElement
 }
 
 const componentMaxCache = new Map<any, Component>()
@@ -44,23 +45,23 @@ function handlePrimitiveAndSlot(asTag: string | any, allAttrs: any, slots: any) 
     if (!slots.default)
       return null
 
-    const childrens = renderSlotFragments(slots.default())
-    const firstNonCommentChildrenIndex = childrens.findIndex(child => child.type !== Comment)
+    const children = renderSlotFragments(slots.default())
+    const firstNonCommentIndex = children.findIndex(child => child.type !== Comment)
 
-    if (firstNonCommentChildrenIndex === -1)
-      return childrens
+    if (firstNonCommentIndex === -1)
+      return children
 
-    const firstNonCommentChildren = childrens[firstNonCommentChildrenIndex]
-    delete firstNonCommentChildren.props?.ref
+    const firstNonComment = children[firstNonCommentIndex]
+    delete firstNonComment.props?.ref
 
-    const mergedProps = firstNonCommentChildren.props
-      ? mergeProps(allAttrs, firstNonCommentChildren.props)
+    const mergedProps = firstNonComment.props
+      ? mergeProps(allAttrs, firstNonComment.props)
       : allAttrs
 
-    if (allAttrs.class && firstNonCommentChildren.props?.class)
-      delete firstNonCommentChildren.props.class
+    if (allAttrs.class && firstNonComment.props?.class)
+      delete firstNonComment.props.class
 
-    const cloned = cloneVNode(firstNonCommentChildren, mergedProps)
+    const cloned = cloneVNode(firstNonComment, mergedProps)
 
     // Handle onXXX event handlers
     for (const prop in mergedProps) {
@@ -70,11 +71,11 @@ function handlePrimitiveAndSlot(asTag: string | any, allAttrs: any, slots: any) 
       }
     }
 
-    if (childrens.length === 1)
+    if (children.length === 1)
       return cloned
 
-    childrens[firstNonCommentChildrenIndex] = cloned
-    return childrens
+    children[firstNonCommentIndex] = cloned
+    return children
   }
 
   return null
@@ -91,7 +92,7 @@ export function createMotionComponent(
   const isString = typeof component === 'string'
   const name = isString ? component : component.name || ''
   const componentCache = options.renderer ? componentMaxCache : componentMiniCache
-  if (isString && componentCache?.has(component)) {
+  if (isString && componentCache.has(component)) {
     return componentCache.get(component)
   }
 
@@ -103,7 +104,7 @@ export function createMotionComponent(
     },
     name: name ? `motion.${name}` : 'Motion',
     setup(props, { slots }) {
-      const { getProps, getAttrs, state } = useMotionState(props as any, options.renderer)
+      const { getProps, getAttrs, state } = useMotionState(props as any, options)
       /**
        * Vue reapplies all styles every render, include style properties and calculated initially styles get reapplied every render.
        * To prevent this, reapply the current motion state styles in vnode updated lifecycle
@@ -115,7 +116,7 @@ export function createMotionComponent(
           const { style } = getAttrs()
           if (style) {
             for (const [key, val] of Object.entries(style)) {
-              (el).style[key] = val
+              (el).style[key as any] = val
             }
           }
         }
@@ -144,7 +145,7 @@ export function createMotionComponent(
   })
 
   if (isString) {
-    componentCache?.set(component, motionComponent)
+    componentCache.set(component, motionComponent)
   }
 
   return motionComponent
@@ -157,20 +158,18 @@ type MotionNameSpace = {
 export function createMotionComponentWithFeatures(
   featureBundle?: FeatureBundle,
 ) {
-  const renderer = featureBundle?.renderer
-  updateLazyFeatures(featureBundle?.features || [])
   return new Proxy({} as unknown as MotionNameSpace, {
     get(_, prop) {
       if (prop === 'create') {
         return (component: any, options?: MotionCreateOptions) =>
           createMotionComponent(component, {
             ...options,
-            renderer,
+            ...featureBundle,
           })
       }
 
       return createMotionComponent(prop as string, {
-        renderer,
+        ...featureBundle,
       })
     },
   })

@@ -14,10 +14,9 @@
       "DOM.Iterable"
       // No `ScriptHost` because Vue 3 dropped support for IE
     ],
-    "baseUrl": ".",
     "rootDir": "./src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     // Set to empty to avoid accidental inclusion of unwanted types
     "types": ["node"],

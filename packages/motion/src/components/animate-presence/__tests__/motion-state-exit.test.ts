@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ExitFeature } from '@/features/exit/exit'
 import { MotionState } from '@/state/motion-state'
 import type { Options } from '@/types'
 
@@ -13,7 +14,9 @@ function createState(options: Partial<Options> = {}) {
     animationState: { setActive },
     unmount: vi.fn(),
   } as any
-  return { state, setActive, animationResolvers }
+  state.setBundle({ features: [ExitFeature] })
+  const exitFeature = state.getFeature<ExitFeature>('exit')!
+  return { state, exitFeature, setActive, animationResolvers }
 }
 
 async function flush() {
@@ -25,18 +28,16 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('motionState.exit(container)', () => {
+describe('exitFeature', () => {
   it('runs the exit sequence: activate exit, snapshot layout, resolve on completion', async () => {
-    const { state, setActive, animationResolvers } = createState()
+    const { state, exitFeature, setActive, animationResolvers } = createState()
     const getSnapshot = vi.spyOn(state, 'getSnapshot')
-    const container = document.createElement('div')
 
-    const completion = state.exit(container)
+    const completion = exitFeature.exit()
 
-    expect(state.presenceContainer).toBe(container)
     expect(state.isExiting).toBe(true)
     expect(setActive).toHaveBeenCalledWith('exit', true)
-    expect(getSnapshot).toHaveBeenCalledWith(state.options, false)
+    expect(getSnapshot).toHaveBeenCalledTimes(1)
 
     animationResolvers[0]()
     await completion
@@ -44,24 +45,25 @@ describe('motionState.exit(container)', () => {
   })
 
   it('resolves immediately when there is no animation state', async () => {
-    const state = new MotionState({ as: 'div' } as Options)
-    state.visualElement = { unmount: vi.fn() } as any
-    await state.exit(document.createElement('div'))
+    const { state, exitFeature } = createState()
+    ;(state.visualElement as any).animationState = undefined
+    await exitFeature.exit()
     expect(state.isExiting).toBe(false)
   })
 
   it('reenter settles the in-flight exit silently and deactivates exit', async () => {
-    const { state, setActive, animationResolvers } = createState()
+    const { state, exitFeature, setActive, animationResolvers } = createState()
     const getSnapshot = vi.spyOn(state, 'getSnapshot')
 
-    const completion = state.exit(document.createElement('div'))
-    state.reenter()
+    const completion = exitFeature.exit()
+    exitFeature.reenter()
 
     // Stale exit promise resolves without completing; exit state is cleared
     await completion
     expect(state.isExiting).toBe(false)
     expect(setActive).toHaveBeenLastCalledWith('exit', false)
-    expect(getSnapshot).toHaveBeenLastCalledWith(state.options, true)
+    // Exit and reenter each snapshot once
+    expect(getSnapshot).toHaveBeenCalledTimes(2)
 
     // The stale exit's animation settling later must not clobber state
     animationResolvers[0]()
@@ -70,13 +72,13 @@ describe('motionState.exit(container)', () => {
   })
 
   it('a second exit after reenter completes on its own terms', async () => {
-    const { state, animationResolvers } = createState()
+    const { state, exitFeature, animationResolvers } = createState()
 
-    const first = state.exit(document.createElement('div'))
-    state.reenter()
+    const first = exitFeature.exit()
+    exitFeature.reenter()
     await first
 
-    const second = state.exit(document.createElement('div'))
+    const second = exitFeature.exit()
     expect(state.isExiting).toBe(true)
 
     // Stale animation from the first exit settles: must not affect the second
@@ -92,20 +94,20 @@ describe('motionState.exit(container)', () => {
   })
 
   it('unmount settles a pending exit promise', async () => {
-    const { state } = createState()
-    const completion = state.exit(document.createElement('div'))
+    const { state, exitFeature } = createState()
+    const completion = exitFeature.exit()
     state.unmount()
     await completion
   })
 
   describe('layoutId handoff', () => {
     it('waits for the projection animation before resolving', async () => {
-      const { state, animationResolvers } = createState({ layoutId: 'shared' })
+      const { state, exitFeature, animationResolvers } = createState({ layoutId: 'shared' })
       const projection = { currentAnimation: { state: 'running' } }
       ;(state.visualElement as any).projection = projection
 
       let resolved = false
-      const completion = state.exit(document.createElement('div')).then(() => {
+      const completion = exitFeature.exit().then(() => {
         resolved = true
       })
 
@@ -116,21 +118,21 @@ describe('motionState.exit(container)', () => {
 
       // Projection signals completion through the state itself
       projection.currentAnimation.state = 'finished'
-      state.completeExitFromProjection()
+      exitFeature.completeExitFromProjection()
       await completion
       expect(resolved).toBe(true)
     })
 
     it('completeExitFromProjection is a no-op while the exit animation is still running', async () => {
-      const { state, animationResolvers } = createState({ layoutId: 'shared' })
+      const { state, exitFeature, animationResolvers } = createState({ layoutId: 'shared' })
       ;(state.visualElement as any).projection = { currentAnimation: { state: 'finished' } }
 
       let resolved = false
-      const completion = state.exit(document.createElement('div')).then(() => {
+      const completion = exitFeature.exit().then(() => {
         resolved = true
       })
 
-      state.completeExitFromProjection()
+      exitFeature.completeExitFromProjection()
       await flush()
       expect(resolved).toBe(false)
 

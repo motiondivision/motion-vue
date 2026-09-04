@@ -1,4 +1,5 @@
 import { AnimationFeature } from '@/features/animation/animation'
+import { ExitFeature } from '@/features/exit/exit'
 import { FocusGesture } from '@/features/gestures/focus'
 import { PressGesture } from '@/features/gestures/press'
 import { HoverGesture } from '@/features/gestures/hover'
@@ -15,6 +16,7 @@ export const domAnimation: FeatureBundle = {
   renderer: createVisualElement,
   features: [
     AnimationFeature,
+    ExitFeature,
     PressGesture,
     HoverGesture,
     InViewGesture,

@@ -156,7 +156,12 @@ export function createAnimationState(visualElement: VisualElement<any>): Animati
    *    what to animate those to.
    */
   function animateChanges(changedActiveType?: AnimationType) {
-    const { props } = visualElement
+    // visualElement props carry the user's raw whilePress prop alongside the
+    // mapped whileTap (see updateOptions/initVisualElement in MotionState),
+    // which MotionNodeOptions (whileTap-space) doesn't declare
+    const props = visualElement.props as typeof visualElement.props & {
+      whilePress?: (typeof visualElement.props)['whileTap']
+    }
     const context = getVariantContext(visualElement.parent) || {}
     /**
      * A list of animations that we'll build into as we iterate through the animation

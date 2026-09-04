@@ -1,5 +1,6 @@
 import { AnimationFeature } from '@/features/animation/animation'
 import type { FeatureBundle } from '@/features/dom-animation'
+import { ExitFeature } from '@/features/exit/exit'
 import { createVisualElement } from '@/state/create-visual-element'
 import { PressGesture } from '@/features/gestures/press'
 import { HoverGesture } from '@/features/gestures/hover'
@@ -14,6 +15,7 @@ export const domMax: FeatureBundle = {
   renderer: createVisualElement,
   features: [
     AnimationFeature,
+    ExitFeature,
     PressGesture,
     HoverGesture,
     InViewGesture,

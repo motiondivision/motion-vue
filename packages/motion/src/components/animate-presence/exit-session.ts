@@ -1,5 +1,6 @@
 import { frame } from 'framer-motion/dom'
 import type { MotionState } from '@/state'
+import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'
 
 export interface ExitSessionConfig {
@@ -87,10 +88,9 @@ export function createExitSession(config: ExitSessionConfig) {
     sessions.set(el, session)
     addPopStyle(session)
 
-    const completions = states.map(state => state.exit(el))
-    // One tree-level layout flush per exit batch: LayoutFeature gates the
-    // flush on a module-global flag, so a single didUpdate() serves every state.
-    states[0]?.didUpdate()
+    const completions = states.map(state =>
+      state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve(),
+    )
 
     Promise.all(completions).then(() => {
       if (!session.aborted)
@@ -111,7 +111,7 @@ export function createExitSession(config: ExitSessionConfig) {
     sessions.delete(session.el)
     removePopStyle(session)
     session.states.forEach((state) => {
-      state.getSnapshot(state.options, false)
+      state.getSnapshot(false)
     })
     // Call done to remove DOM
     session.done()
@@ -120,9 +120,6 @@ export function createExitSession(config: ExitSessionConfig) {
       session.states.forEach((state) => {
         state.unmount()
       })
-    }
-    else {
-      session.states[0]?.didUpdate()
     }
     config.onAllComplete()
   }

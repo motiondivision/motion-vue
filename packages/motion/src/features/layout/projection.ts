@@ -1,15 +1,17 @@
 import { Feature } from '@/features/feature'
+import type { ExitFeature } from '@/features/exit/exit'
 import type { IProjectionNode } from 'motion-dom'
 import { HTMLProjectionNode, addScaleCorrector } from 'motion-dom'
 import { getClosestProjectingNode } from '@/features/layout/utils'
 import { defaultScaleCorrector } from '@/features/layout/config'
 import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 import { isSSR } from '@/utils/is'
+import type { MotionState } from '@/state'
 
 export class ProjectionFeature extends Feature {
   static key = 'projection' as const
   private projection: IProjectionNode | undefined
-  constructor(state) {
+  constructor(state: MotionState) {
     super(state)
     addScaleCorrector(defaultScaleCorrector)
     if (!isSSR) {
@@ -26,7 +28,7 @@ export class ProjectionFeature extends Feature {
         : getClosestProjectingNode(this.state.visualElement.parent),
     )
     this.projection = this.state.visualElement.projection
-    this.projection.isPresent = true
+    this.projection!.isPresent = true
     this.setOptions()
   }
 
@@ -50,7 +52,7 @@ export class ProjectionFeature extends Feature {
           // is processing; a direct root.didUpdate() call here would be permanently lost
           // because the microtask batcher's allowKeepAlive=false skips follow-up batches.
           queueMicrotask(() => {
-            this.state.completeExitFromProjection()
+            this.state.getFeature<ExitFeature>('exit')?.completeExitFromProjection()
           })
         }
       },
