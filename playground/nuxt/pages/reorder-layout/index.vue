@@ -58,7 +58,7 @@ function add() {
           class="add-item flex items-center justify-center"
           :disabled="tabs.length === allIngredients.length"
           :initial="{ scale: 1 }"
-          :press="{ scale: 0.9 }"
+          :while-press="{ scale: 0.9 }"
           @click="add"
         >
           <AddIcon />
