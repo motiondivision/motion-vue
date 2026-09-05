@@ -161,6 +161,9 @@ export class MotionState {
       f.isMount = false
     })
     this.visualElement?.unmount()
+    // Truthful isMounted() for KeepAlive remounts — the element reference
+    // must not survive unmount.
+    this.element = null
   }
 
   // Called before updating, executes in parent-to-child order

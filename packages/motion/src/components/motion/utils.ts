@@ -9,8 +9,8 @@ import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
 type MotionCompProps = {
   create: {
-    <T extends DefineComponent>(component: T, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'> & ComponentProps<T>>
-    (component: string, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, unknown>, 'as' | 'asChild'>>
+    <T extends DefineComponent>(component: T, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, any>, 'as' | 'asChild'> & ComponentProps<T>>
+    (component: string, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, any>, 'as' | 'asChild'>>
   }
 }
 export interface MotionCreateOptions extends MotionBundle {
@@ -152,7 +152,7 @@ export function createMotionComponent(
 }
 
 type MotionNameSpace = {
-  [K in keyof IntrinsicElementAttributes]: DefineComponent<Omit<MotionProps<K, unknown>, 'as' | 'asChild' | 'motionConfig' | 'layoutGroup'> & MotionHTMLAttributes<K>, 'create'>
+  [K in keyof IntrinsicElementAttributes]: DefineComponent<Omit<MotionProps<K, any>, 'as' | 'asChild' | 'motionConfig' | 'layoutGroup'> & MotionHTMLAttributes<K>, 'create'>
 } & MotionCompProps
 
 export function createMotionComponentWithFeatures(
