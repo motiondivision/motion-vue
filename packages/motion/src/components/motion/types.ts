@@ -1,7 +1,7 @@
 import type { AsTag, ComponentProps, Options, SVGAttributesWithMotionValues, SetMotionValueType } from '@/types'
 import type { IntrinsicElementAttributes } from 'vue'
 
-export interface MotionProps<T extends AsTag = 'div', K = unknown> extends Omit<Options<K>, 'motionConfig' | 'layoutGroup'> {
+export interface MotionProps<T extends AsTag = 'div', K = any> extends Omit<Options<K>, 'motionConfig' | 'layoutGroup'> {
   as?: T
   asChild?: boolean
   whileDrag?: Options['whileDrag']
