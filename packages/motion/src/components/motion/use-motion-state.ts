@@ -8,7 +8,7 @@ import { createSVGStyles, createStyles } from '@/state/style'
 import type { MotionBundle } from '@/state/motion-state'
 import { isMotionValue } from 'framer-motion/dom'
 import { invariant, warning } from 'hey-listen'
-import { getCurrentInstance, onBeforeUnmount, onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
+import { getCurrentInstance, onActivated, onBeforeUnmount, onBeforeUpdate, onDeactivated, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 import { MotionState } from '@/state'
 import { resolveMotionProps } from '@/utils/resolve-motion-props'
 
@@ -120,21 +120,34 @@ export function useMotionState(
 
   const instance = getCurrentInstance()?.proxy
 
-  onMounted(() => {
+  function mountState() {
     const el = getMotionElement(instance?.$el)!
     state.mount(el)
-  })
+  }
 
   onBeforeUnmount(() => {
     state.updateOptions(getMotionProps())
     state.beforeUnmount()
   })
+  onMounted(mountState)
 
-  onUnmounted(() => {
+  // Shared by unmount and KeepAlive deactivation: an element still connected
+  // here is being held in the DOM by an AnimatePresence exit — its session's
+  // finalize owns the state unmount. Deactivation moves the DOM into a
+  // detached storage container (never connected), so the same guard applies.
+  function unmountIfDetached() {
     const el = getMotionElement(instance?.$el)
     if (!el?.isConnected) {
       state.unmount()
     }
+  }
+
+  onUnmounted(unmountIfDetached)
+  onDeactivated(unmountIfDetached)
+
+  onActivated(() => {
+    if (!state.isMounted())
+      mountState()
   })
 
   onBeforeUpdate(() => {
