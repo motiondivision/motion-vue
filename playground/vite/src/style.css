@@ -8,8 +8,7 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: light dark;
-    @apply text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-900;
+    color-scheme: dark;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -18,7 +17,7 @@
   }
 
   body {
-    @apply m-0 min-h-screen;
+    @apply m-0 min-h-screen bg-[#0a0a0b] text-white;
   }
 
   #app {
@@ -30,28 +29,21 @@
   .btn {
     @apply px-4 py-2 text-sm font-medium rounded-md
            transition-colors duration-200
-           focus:outline-none focus:ring-2 focus:ring-offset-2;
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0b];
   }
 
   .btn-primary {
-    @apply btn bg-primary-500 text-white hover:bg-primary-600
-           focus:ring-primary-500;
+    @apply btn bg-white text-black hover:bg-gray-300
+           focus:ring-white/50;
   }
 
   .btn-outline {
-    @apply btn border border-primary-500 text-primary-500
-           hover:bg-primary-50 dark:hover:bg-primary-900
-           focus:ring-primary-500;
+    @apply btn border border-white/20 text-white/80
+           hover:bg-white/10 hover:text-white
+           focus:ring-white/30;
   }
 
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6;
+    @apply bg-white/[0.03] border border-white/[0.08] rounded-xl p-6;
   }
 }
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-} 
