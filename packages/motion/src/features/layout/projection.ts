@@ -64,6 +64,16 @@ export class ProjectionFeature extends Feature {
   }
 
   mount() {
+    /**
+     * The root node's cached scroll offset may be stale after client-side
+     * navigation (mounts can run before scroll restoration). Refresh it so
+     * mount-time layoutId snapshots are computed against the real scroll.
+     */
+    const root = this.projection?.root
+    if (this.state.options.layoutId && root) {
+      root.scroll = undefined
+      root.updateScroll?.()
+    }
     this.projection?.mount(this.state.element)
   }
 }
