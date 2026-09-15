@@ -3,7 +3,6 @@ import type { MotionState } from '@/state/motion-state'
 import { type IProjectionNode, addScaleCorrector, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
 import { isHidden } from '@/utils/is-hidden'
-import { nextTick } from 'vue'
 
 export class LayoutFeature extends Feature {
   static key = 'layout' as const
@@ -97,8 +96,6 @@ export class LayoutFeature extends Feature {
       this.updatePrevLead(isPresent)
     }
 
-    nextTick(() => {
-      this.didUpdate()
-    })
+    this.didUpdate()
   }
 }
