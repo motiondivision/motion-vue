@@ -142,6 +142,8 @@ export class MotionState {
     )
     mountedStates.set(element, this)
     this.element = element
+    // @ts-expect-error — LayoutFeature's refreshRootScroll is not typed
+    this.features.get('layout')?.refreshRootScroll()
     this.visualElement?.mount(element)
     this.updateFeatures()
   }

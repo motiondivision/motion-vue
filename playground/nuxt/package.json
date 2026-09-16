@@ -15,7 +15,7 @@
     "motion-v": "workspace:*",
     "nuxt": "3.19.0",
     "reka-ui": "latest",
-    "vue": "latest",
+    "vue": "^3.5.30",
     "vue-router": "latest"
   },
   "devDependencies": {

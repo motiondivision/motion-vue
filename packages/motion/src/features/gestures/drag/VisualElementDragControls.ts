@@ -75,18 +75,10 @@ export class VisualElementDragControls {
      * Don't start dragging if this component is exiting
      */
     const onSessionStart = (event: PointerEvent) => {
-      // If snapToCursor is enabled, stop animations as new position values will be set
-      // Otherwise, pause animations to allow resumption if no drag begins
-      if (snapToCursor) {
-        this.stopAnimation()
-      }
-      else {
-        this.pauseAnimation()
-      }
-
       if (snapToCursor) {
         this.snapToCursor(extractEventInfo(event, 'page').point)
       }
+      this.stopAnimation()
     }
 
     const onStart = (event: PointerEvent, info: PanInfo) => {
@@ -199,12 +191,12 @@ export class VisualElementDragControls {
     const onSessionEnd = (event: PointerEvent, info: PanInfo) =>
       this.stop(event, info)
 
-    const resumeAnimation = () =>
-      eachAxis(
-        axis =>
-          this.getAnimationState(axis) === 'paused'
-          && this.getAxisMotionValue(axis).animation?.play(),
-      )
+    const resumeAnimation = () => {
+      const { dragSnapToOrigin: snap } = this.getProps()
+      if (snap || this.constraints) {
+        this.startAnimation({ x: 0, y: 0 })
+      }
+    }
 
     const { dragSnapToOrigin } = this.getProps()
 
@@ -460,14 +452,6 @@ export class VisualElementDragControls {
     if (!this.visualElement.projection?.isPresent)
       return
     eachAxis(axis => this.getAxisMotionValue(axis).stop())
-  }
-
-  private pauseAnimation() {
-    eachAxis(axis => this.getAxisMotionValue(axis).animation?.pause())
-  }
-
-  private getAnimationState(axis: DragDirection) {
-    return this.getAxisMotionValue(axis).animation?.state
   }
 
   /**
