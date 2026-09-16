@@ -59,11 +59,6 @@ export default defineNuxtModule<ModuleOptions>({
     presets: {},
   },
   setup(options, _nuxtApp) {
-    // Bundle motion-v into the Nuxt build so its `vue` import always
-    // resolves to the app's own Vue copy (avoids duplicate Vue instances
-    // breaking SSR when the library and app resolve different Vue versions)
-    _nuxtApp.options.build.transpile.push('motion-v')
-
     if (options.components) {
       components.forEach((component) => {
         addComponent({

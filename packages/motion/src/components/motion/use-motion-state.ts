@@ -46,7 +46,7 @@ export function useMotionState(
       : invariant(false, strictMessage)
   }
 
-  const attrs = useAttrs()
+  const attrs = useAttrs() as Record<string, any>
 
   function getProps() {
     return resolveMotionProps(props, {
