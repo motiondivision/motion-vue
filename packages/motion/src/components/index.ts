@@ -1,5 +1,6 @@
 export { Motion, motion, type MotionProps } from './motion'
 export * from './animate-presence'
+export * from './animate-view'
 export * from './motion-config'
 export * from './reorder'
 export { default as RowValue } from './RowValue.vue'
