@@ -32,7 +32,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
-    "bumpp": "bumpp package.json packages/*/package.json docs/package.json"
+    "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
+    "size:compare": "node scripts/size-compare.mjs"
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
