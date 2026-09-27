@@ -225,7 +225,9 @@ export class MotionState {
       },
       reducedMotionConfig: this.options.motionConfig?.reducedMotion,
     })
-    this.visualElement.parent?.addChild(this.visualElement)
+    // No parent.addChild() here — visualElement.mount() registers with the
+    // parent after `current` is assigned, so enteringChildren never holds
+    // unmounted children (#208: stagger sort crashes on them in Firefox).
     if (this.isMounted()) {
       this.visualElement.mount(this.element!)
     }
