@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>View Transition 崩溃二分定位（无 motion-v）</title>
+  <style>
+    body { font-family: system-ui; padding: 40px; background: #111; color: #eee; }
+    button { padding: 10px 24px; font-size: 14px; border-radius: 10px; border: none; cursor: pointer; margin: 0 12px 12px 0; display: block; }
+    #raw { background: #f66; }
+    #queued { background: #0af; }
+    #suppressNoWaapi { background: #fa0; }
+    #suppressFull { background: #c0f; }
+    #suppressCss { background: #0a6; }
+    #box { width: 100px; height: 100px; background: #0af; border-radius: 10px; margin-top: 10px; }
+    #log { margin-top: 16px; font-family: monospace; white-space: pre; }
+    p { color: #999; font-size: 13px; margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <h3>崩溃二分定位（不含任何库）。逐个按钮疯狂点 20~30 秒，记下哪个崩：</h3>
+  <button id="raw">1. 裸调（无队列）</button>
+  <button id="queued">2. 串行队列</button>
+  <button id="suppressNoWaapi">3. 串行 + root 抑制（只设 name=none，不动伪元素）</button>
+  <button id="suppressFull">4. 串行 + root 抑制（含伪元素 WAAPI 动画，= 崩溃版）</button>
+  <button id="suppressCss">5. 串行 + root 抑制（纯 CSS 样式表，= 修复版）</button>
+  <div id="box"></div>
+  <div id="log">等待点击…</div>
+
+  <script>
+    const log = document.getElementById('log')
+    const box = document.getElementById('box')
+    const counts = { raw: 0, queued: 0, suppressNoWaapi: 0, suppressFull: 0, suppressCss: 0 }
+    let nativeCalls = 0
+
+    function render(mode) {
+      log.textContent = `最近模式: ${mode}\n` +
+        Object.entries(counts).map(([k, v]) => `${k}: ${v} 次点击`).join('\n') +
+        `\n原生 transition 总数: ${nativeCalls}`
+    }
+
+    const toggleBox = () => {
+      box.style.display = box.style.display === 'none' ? '' : 'none'
+    }
+
+    // 1. 裸调
+    document.getElementById('raw').addEventListener('click', () => {
+      counts.raw++
+      nativeCalls++
+      document.startViewTransition(toggleBox)
+      render('raw')
+    })
+
+    // 串行队列基础设施
+    let running = false
+    const queue = []
+    let styleEl = null
+    function flush(afterUpdate) {
+      const batch = queue.splice(0)
+      if (!batch.length) { running = false; return }
+      running = true
+      nativeCalls++
+      const t = document.startViewTransition(() => {
+        for (const update of batch) update()
+        afterUpdate && afterUpdate()
+      })
+      t.finished.catch(() => {}).finally(() => {
+        document.documentElement.style.removeProperty('view-transition-name')
+        styleEl?.remove()
+        styleEl = null
+        flush(afterUpdate)
+      })
+    }
+    function enqueue(mode, afterUpdate) {
+      queue.push(toggleBox)
+      if (!running) flush(afterUpdate)
+      render(mode)
+    }
+
+    // 2. 纯串行
+    document.getElementById('queued').addEventListener('click', () => {
+      counts.queued++
+      enqueue('queued', null)
+    })
+
+    // 3. 串行 + name='none'（不动伪元素）
+    document.getElementById('suppressNoWaapi').addEventListener('click', () => {
+      counts.suppressNoWaapi++
+      enqueue('suppressNoWaapi', () => {
+        document.documentElement.style.setProperty('view-transition-name', 'none')
+      })
+    })
+
+    // 4. 串行 + 完整 suppressRootLayer（含伪元素 WAAPI）—— 崩溃版
+    document.getElementById('suppressFull').addEventListener('click', () => {
+      counts.suppressFull++
+      enqueue('suppressFull', () => {
+        const root = document.documentElement
+        root.style.setProperty('view-transition-name', 'none')
+        root.animate(
+          { opacity: [0, 0] },
+          { duration: 0, fill: 'forwards', pseudoElement: '::view-transition-group(root)' },
+        )
+        root.animate(
+          { width: [0, 0], height: [0, 0] },
+          { duration: 0, fill: 'forwards', pseudoElement: '::view-transition' },
+        )
+      })
+    })
+
+    // 5. 串行 + CSS 样式表抑制（修复版）—— transition 期间注入，结束移除，无 WAAPI
+    document.getElementById('suppressCss').addEventListener('click', () => {
+      counts.suppressCss++
+      enqueue('suppressCss', () => {
+        document.documentElement.style.setProperty('view-transition-name', 'none')
+        styleEl = document.createElement('style')
+        styleEl.textContent = `
+          ::view-transition-group(root) { display: none !important; }
+          ::view-transition { width: 0 !important; height: 0 !important; }
+        `
+        document.head.appendChild(styleEl)
+      })
+    })
+  </script>
+</body>
+</html>
