@@ -334,6 +334,29 @@ describe('animateView', () => {
     await transition.finished
   })
 
+  it('suppresses the root layer before startViewTransition captures the old snapshot', async () => {
+    // The browser captures the old snapshot when startViewTransition() is
+    // invoked — the update callback runs strictly after. Suppressing the root
+    // inside the callback leaves the root in the old snapshot, so it plays an
+    // old-only fade-out ghost instead of a hard cut.
+    let nameAtCapture = ''
+    ;(document as any).startViewTransition = (callback?: () => Promise<void>) => {
+      nameAtCapture = document.documentElement.style.getPropertyValue('view-transition-name')
+      const updateCallbackDone = Promise.resolve().then(() => callback?.())
+      return {
+        updateCallbackDone,
+        ready: updateCallbackDone.then(() => {}),
+        finished: updateCallbackDone.then(() => {}),
+        skipTransition: () => {},
+      }
+    }
+
+    const transition = startTransition(() => {}) as unknown as FakeViewTransition
+    await settle(transition)
+
+    expect(nameAtCapture).toBe('none')
+  })
+
   it('suppresses the root layer by default and restores it after finished', async () => {
     let resolveFinished!: () => void
     ;(document as any).startViewTransition = (callback?: () => Promise<void>) => {

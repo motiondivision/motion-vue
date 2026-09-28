@@ -100,15 +100,21 @@ function flushUpdateQueue(): ViewTransition | undefined {
     instance.applyLayerNames()
   }
 
+  /**
+   * Suppress the root *before* startViewTransition: the browser captures the
+   * old snapshot synchronously when the transition starts, so doing this in
+   * the update callback would leave the root in the old snapshot — an
+   * old-only layer that fades out as a full-page ghost instead of a hard cut.
+   */
+  if (!root) {
+    suppressRootLayer()
+  }
+
   const viewTransition = document.startViewTransition(async () => {
     for (const item of batch) {
       await item.update()
     }
     await nextTick()
-
-    if (!root) {
-      suppressRootLayer()
-    }
 
     /**
      * The DOM update has flushed, so every mount/update/unmount belonging
@@ -133,9 +139,9 @@ function flushUpdateQueue(): ViewTransition | undefined {
 /**
  * Exclude the document root from the transition, mirroring React
  * `<ViewTransition>`'s `cancelRootViewTransitionName`:
- * `view-transition-name: none` before the new snapshot skips the root, so
- * unnamed content changes (e.g. button text) hard-cut instead of
- * crossfading the whole page.
+ * `view-transition-name: none` before the transition starts skips the root
+ * in both snapshots, so unnamed content changes (e.g. button text) hard-cut
+ * instead of crossfading the whole page.
  *
  * Deliberately name-only: React's original also hides/zero-sizes the root
  * pseudo layers via WAAPI `fill: 'forwards'` animations, but those
