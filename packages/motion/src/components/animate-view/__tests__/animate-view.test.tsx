@@ -37,6 +37,26 @@ function installFakeViewTransition() {
   return transitions
 }
 
+/**
+ * Like installFakeViewTransition, but `finished` stays pending until the
+ * returned `finish()` is called — for tests that assert state mid-playback.
+ */
+function installManualViewTransition() {
+  let resolveFinished!: () => void
+  ;(document as any).startViewTransition = (callback?: () => Promise<void>) => {
+    const updateCallbackDone = Promise.resolve().then(() => callback?.())
+    return {
+      updateCallbackDone,
+      ready: updateCallbackDone.then(() => {}),
+      finished: new Promise<void>((resolve) => {
+        resolveFinished = resolve
+      }),
+      skipTransition: () => {},
+    }
+  }
+  return { finish: () => resolveFinished() }
+}
+
 async function settle(transition: FakeViewTransition | undefined) {
   if (!transition)
     return
@@ -47,13 +67,18 @@ async function settle(transition: FakeViewTransition | undefined) {
 
 describe('animateView', () => {
   const originalStartViewTransition = (document as any).startViewTransition
+  // jsdom has no WAAPI; the fake reports pseudoElement as honored
+  const overlayAnimation = {
+    cancel: vi.fn(),
+    effect: { pseudoElement: '::view-transition' },
+  }
+  let animateMock: Mock
 
   beforeEach(() => {
     mockAnimateViewLayers.mockClear()
-    // jsdom has no WAAPI; suppressRootLayer calls Element.animate
-    if (typeof document.documentElement.animate !== 'function') {
-      (document.documentElement as any).animate = vi.fn()
-    }
+    overlayAnimation.cancel.mockClear()
+    animateMock = vi.fn(() => overlayAnimation)
+    ;(document.documentElement as any).animate = animateMock
   })
 
   afterEach(() => {
@@ -357,30 +382,55 @@ describe('animateView', () => {
     expect(nameAtCapture).toBe('none')
   })
 
+  it('zero-sizes the pseudo overlay during the transition so clicks fall through, and cancels after finished', async () => {
+    const { finish } = installManualViewTransition()
+
+    const transition = startTransition(() => {}) as unknown as FakeViewTransition
+    await transition.updateCallbackDone
+
+    expect(animateMock).toHaveBeenCalledWith(
+      { width: [0, 0], height: [0, 0] },
+      expect.objectContaining({ fill: 'forwards', pseudoElement: '::view-transition' }),
+    )
+    expect(overlayAnimation.cancel).not.toHaveBeenCalled()
+
+    finish()
+    await transition.finished
+    await nextTick()
+
+    expect(overlayAnimation.cancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancels the overlay animation immediately when the pseudoElement option is not honored', async () => {
+    // without WAAPI pseudoElement support the animation would target the
+    // root element itself and collapse the page to 0x0
+    const unsupported = { cancel: vi.fn(), effect: { pseudoElement: undefined } }
+    animateMock.mockReturnValueOnce(unsupported as any)
+    installFakeViewTransition()
+
+    const transition = startTransition(() => {})
+    await settle(transition)
+
+    expect(unsupported.cancel).toHaveBeenCalledTimes(1)
+  })
+
   it('suppresses the root layer by default and restores it after finished', async () => {
-    let resolveFinished!: () => void
-    ;(document as any).startViewTransition = (callback?: () => Promise<void>) => {
-      const updateCallbackDone = Promise.resolve().then(() => callback?.())
-      return {
-        updateCallbackDone,
-        ready: updateCallbackDone.then(() => {}),
-        finished: new Promise<void>((resolve) => {
-          resolveFinished = resolve
-        }),
-        skipTransition: () => {},
-      }
-    }
+    const { finish } = installManualViewTransition()
 
     const transition = startTransition(() => {}) as unknown as FakeViewTransition
     await transition.updateCallbackDone
 
     const root = document.documentElement
     expect(root.style.getPropertyValue('view-transition-name')).toBe('none')
-    // name-only suppression: no WAAPI animations on pseudo-elements
-    // (they lingered and crashed the Chrome renderer — see repo history)
-    expect(root.animate).not.toHaveBeenCalled()
+    // name-only root suppression: the only WAAPI animation is the overlay
+    // zero-size — no opacity-hiding animations on root pseudo layers
+    expect(animateMock).toHaveBeenCalledTimes(1)
+    expect(animateMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ pseudoElement: '::view-transition' }),
+    )
 
-    resolveFinished()
+    finish()
     await transition.finished
     await nextTick()
 
@@ -394,6 +444,9 @@ describe('animateView', () => {
     await settle(transition)
 
     expect(document.documentElement.style.getPropertyValue('view-transition-name')).toBe('')
+    // pass-through only ships with root suppression: a captured root makes
+    // the whole page non-hit-testable per spec, so zero-sizing would be moot
+    expect(animateMock).not.toHaveBeenCalled()
   })
 
   it('cancels layer animations when the transition ends so they cannot revive under a reused name', async () => {
