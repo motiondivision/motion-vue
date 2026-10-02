@@ -111,6 +111,10 @@ function flushUpdateQueue(): ViewTransition | undefined {
   }
 
   const viewTransition = document.startViewTransition(async () => {
+    if (!root) {
+      zeroSizeOverlayPassThrough()
+    }
+
     for (const item of batch) {
       await item.update()
     }
@@ -136,17 +140,35 @@ function flushUpdateQueue(): ViewTransition | undefined {
   return viewTransition
 }
 
+let overlayPassThroughAnimation: Animation | null = null
+
 /**
- * Exclude the document root from the transition, mirroring React
- * `<ViewTransition>`'s `cancelRootViewTransitionName`:
- * `view-transition-name: none` before the transition starts skips the root
- * in both snapshots, so unnamed content changes (e.g. button text) hard-cut
- * instead of crossfading the whole page.
- *
- * Deliberately name-only: React's original also hides/zero-sizes the root
- * pseudo layers via WAAPI `fill: 'forwards'` animations, but those
- * animation objects linger pointing at destroyed pseudo-elements and crash
- * the Chrome renderer when later transitions rebuild the pseudo tree.
+ * Zero-size the `::view-transition` overlay so pointer events reach the live
+ * document during the transition; running animation groups keep their size
+ * and still block clicks over their snapshots. WAAPI scoped to this
+ * transition's pseudo tree, not a global stylesheet (React's technique).
+ * Must run inside the update callback: animations created before
+ * `startViewTransition()` never bind to the pseudo tree.
+ */
+function zeroSizeOverlayPassThrough(): void {
+  const animation = document.documentElement.animate(
+    { width: [0, 0], height: [0, 0] },
+    { duration: 0, fill: 'forwards', pseudoElement: '::view-transition' },
+  )
+  if (animation.effect?.pseudoElement !== '::view-transition') {
+    // Option ignored (no WAAPI pseudo support): it would animate the root
+    // element itself and collapse the page — back out.
+    animation.cancel()
+    return
+  }
+  overlayPassThroughAnimation = animation
+}
+
+/**
+ * Exclude the document root from the transition (React
+ * `cancelRootViewTransitionName` parity): `view-transition-name: none`
+ * before the transition starts skips the root in both snapshots, so unnamed
+ * content changes hard-cut instead of crossfading the whole page.
  */
 function suppressRootLayer(): void {
   const root = document.documentElement
@@ -156,15 +178,15 @@ function suppressRootLayer(): void {
   root.style.setProperty('view-transition-name', 'none')
 }
 
-/**
- * Undo `suppressRootLayer` once the transition has finished, restoring the
- * root's default participation in future transitions.
- */
+/** Undo `suppressRootLayer`/`zeroSizeOverlayPassThrough` after the transition. */
 function restoreRootLayer(): void {
   const root = document.documentElement
   if (root.style.getPropertyValue('view-transition-name') === 'none') {
     root.style.removeProperty('view-transition-name')
   }
+
+  overlayPassThroughAnimation?.cancel()
+  overlayPassThroughAnimation = null
 }
 
 /**
