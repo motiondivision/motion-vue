@@ -4,7 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import dts from 'vite-plugin-dts'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
-import pkg from './package.json'
+import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
   plugins: [
@@ -16,22 +16,22 @@ export default defineConfig({
       exclude: ['src/**/__tests__/**', 'src/**/story/**', 'src/**/*.story.vue'],
       afterBuild: async () => {
         // pnpm build:plugins
-        execSync('pnpm build:plugins', { stdio: 'inherit', cwd: path.resolve(__dirname, '../plugins') })
+        execSync('pnpm build:plugins', { stdio: 'inherit', cwd: path.resolve(import.meta.dirname, '../plugins') })
       },
     }),
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': path.resolve(import.meta.dirname, 'src'),
     },
   },
   build: {
     minify: false,
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
+      entry: path.resolve(import.meta.dirname, 'src/index.ts'),
       formats: ['es'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
