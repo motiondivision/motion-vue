@@ -12,7 +12,7 @@ export const MotionComponentProps = {
   'animate': { type: [String, Array, Object], default: undefined },
   'exit': { type: [String, Array, Object] },
   'variants': { type: Object },
-  'inherit': { type: Boolean },
+  'inherit': { type: Boolean, default: undefined },
   'style': { type: Object },
   'transformTemplate': { type: Function },
   'transition': { type: Object },

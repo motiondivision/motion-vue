@@ -52,6 +52,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
   as: 'ul',
+  inherit: undefined,
 })
 
 const itemLayouts = new Map<V, Box>()

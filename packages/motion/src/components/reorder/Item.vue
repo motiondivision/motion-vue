@@ -37,6 +37,7 @@ const props = withDefaults(defineProps<GroupItemProps<ElementType>>(), {
   as: 'li' as ElementType,
   initial: undefined,
   animate: undefined,
+  inherit: undefined,
   hover: undefined,
   inView: undefined,
   layoutId: undefined,
