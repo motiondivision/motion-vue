@@ -15,6 +15,7 @@
     "motion-v": "workspace:*"
   },
   "devDependencies": {
+    "typescript": "6.0.3",
     "unbuild": "^2.0.0",
     "unplugin-vue-components": "^0.28.0"
   }

@@ -116,7 +116,7 @@ export function createMotionComponent(
           const { style } = getAttrs()
           if (style) {
             for (const [key, val] of Object.entries(style)) {
-              (el).style[key as any] = val
+              (el.style as any)[key] = val
             }
           }
         }
