@@ -189,7 +189,9 @@ export class MotionState {
     if (name === 'exit' && isActive) {
       this.isExiting = true
     }
-    this.visualElement?.animationState?.setActive(name as AnimationType, isActive)
+    // motion-dom's animation state keys use 'whileTap'; Vue's public prop is 'whilePress'
+    const type = (name === 'whilePress' ? 'whileTap' : name) as AnimationType
+    this.visualElement?.animationState?.setActive(type, isActive)
       .then(() => {
         if (name === 'exit' && isActive) {
           this.isExiting = false

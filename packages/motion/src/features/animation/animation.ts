@@ -1,6 +1,5 @@
 import { Feature } from '@/features/feature'
-import { type AnimationState, isAnimationControls } from 'motion-dom'
-import { createAnimationState } from '@/state/animation-state'
+import { createAnimationState, isAnimationControls } from 'motion-dom'
 import type { MotionState } from '@/state/motion-state'
 import { isHidden } from '@/utils/is-hidden'
 
@@ -16,7 +15,7 @@ export class AnimationFeature extends Feature {
     super(state)
     // Create animation state with visualElement (aligned with motion-dom signature)
     const ve = state.visualElement
-    ve.animationState ||= createAnimationState(ve) as AnimationState
+    ve.animationState ||= createAnimationState(ve)
   }
 
   updateAnimationControlsSubscription() {
