@@ -15,11 +15,15 @@
       // No `ScriptHost` because Vue 3 dropped support for IE
     ],
     "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./src/*"]
     },
     // Set to empty to avoid accidental inclusion of unwanted types
     "types": ["node"],
+    // TS 6 defaults strict to true; this codebase was written non-strict
+    "strict": false,
     "outDir": "./dist/es"
   },
   "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.tsx"],

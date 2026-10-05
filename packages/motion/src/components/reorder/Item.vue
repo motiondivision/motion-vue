@@ -39,6 +39,9 @@ const props = withDefaults(defineProps<GroupItemProps<ElementType>>(), {
   animate: undefined,
   hover: undefined,
   inView: undefined,
+  // Same false-cast issue as Group (#276): on motion-dom v14,
+  // inherit === false cuts the item out of the variant tree
+  inherit: undefined,
   layoutId: undefined,
   layoutScroll: false,
   layoutRoot: false,

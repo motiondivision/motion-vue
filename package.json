@@ -59,13 +59,14 @@
     "lint-staged": "^15.2.9",
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.11.1",
-    "typescript": "^5.5.4",
+    "typescript": "^6.0.2",
     "vite": "^8.3.2",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.1.11"
   },
   "pnpm": {
     "overrides": {
+      "typescript": "6.0.3",
       "vue": "^3.5.30"
     }
   },

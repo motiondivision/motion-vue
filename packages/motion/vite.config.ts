@@ -5,6 +5,12 @@ import dts from 'vite-plugin-dts'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
 import pkg from './package.json' with { type: 'json' }
+import { registerTS } from 'vue/compiler-sfc'
+import ts from 'typescript'
+
+// plugin-vue doesn't register a TypeScript loader itself; SFC imported-type
+// resolution (defineProps<T> with extends) needs ts.sys for fs access
+registerTS(() => ts)
 
 export default defineConfig({
   plugins: [
