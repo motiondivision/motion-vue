@@ -91,17 +91,17 @@ importers:
         specifier: '>=10.0.0'
         version: 12.7.0(typescript@5.9.2)
       framer-motion:
-        specifier: ^13.3.0
-        version: 13.3.0
+        specifier: ~14.0.0
+        version: 14.0.0
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
       motion-dom:
-        specifier: ^13.3.0
-        version: 13.3.0
+        specifier: ~14.0.0
+        version: 14.0.0
       motion-utils:
-        specifier: ^13.3.0
-        version: 13.3.0
+        specifier: ~14.0.0
+        version: 14.0.0
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@5.9.2)
@@ -141,7 +141,7 @@ importers:
         version: link:../../packages/motion
       nuxt:
         specifier: 3.19.0
-        version: 3.19.0(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@netlify/blobs@9.1.2)(@types/node@24.3.0)(@vue/compiler-sfc@3.5.43)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.9.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.33.0)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(srvx@0.11.22)(terser@5.51.2)(typescript@5.9.2)(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(yaml@2.9.1)
+        version: 3.19.0(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@netlify/blobs@9.1.2)(@types/node@24.3.0)(@vue/compiler-sfc@3.5.43)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.9.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.33.0)(magicast@0.5.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(srvx@0.11.22)(terser@5.51.2)(typescript@5.9.2)(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(yaml@2.9.1)
       reka-ui:
         specifier: latest
         version: 2.10.5(vue@3.5.30(typescript@5.9.2))
@@ -154,7 +154,7 @@ importers:
     devDependencies:
       '@nuxtjs/tailwindcss':
         specifier: ^6.12.1
-        version: 6.12.1(magicast@0.3.5)(rollup@4.64.0)(ts-node@10.9.2(@types/node@24.3.0)(typescript@5.9.2))
+        version: 6.12.1(magicast@0.5.5)(rollup@4.64.0)(ts-node@10.9.2(@types/node@24.3.0)(typescript@5.9.2))
 
   playground/vite:
     dependencies:
@@ -4415,8 +4415,8 @@ packages:
   fraction.js@5.3.4:
     resolution: {integrity: sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ==}
 
-  framer-motion@13.3.0:
-    resolution: {integrity: sha512-nry9figMPgd/7tTy9zzGRsD+kJ9tjZ74sKJ3jFBa7j6DTBIM04T6eBgneFLXCB0151wychIxsiojPlcG4JxeoA==}
+  framer-motion@14.0.0:
+    resolution: {integrity: sha512-QAtHmybrDFSliyW1sexMtSQTQd+1jw2ajibEmzpuI4XdPVzQkn+dAzJMm2sW3pl9MJuSS4xN51djQ7huhlP/VA==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -5655,8 +5655,8 @@ packages:
   mocked-exports@0.1.1:
     resolution: {integrity: sha512-aF7yRQr/Q0O2/4pIXm6PZ5G+jAd7QS4Yu8m+WEeEHGnbo+7mE36CbLSDQiXYV8bVL3NfmdeqPJct0tUlnjVSnA==}
 
-  motion-dom@13.3.0:
-    resolution: {integrity: sha512-AmAnB6pHdZ1vHGzWzuzteG6Q3j1lHKeX/lbST6jGlgm0cjvLUgaCk1xhOuPMOy5SgovN6wnnUdwFrkcsus7Ftg==}
+  motion-dom@14.0.0:
+    resolution: {integrity: sha512-aU3ApXo1yTpeUi3JU+jbDk2TELjxPE3MbBMUP7nZHlARb6RweJK+ojmLjpuB0YsY6zhbBl1YWGo8LMsI1/Llqw==}
 
   motion-number-vue@1.0.5:
     resolution: {integrity: sha512-Cc4jX6ZNhwXDVVbqOu6MIDXOLnP7PmqkQHkRK/OL+kcHfASXfssorbiiZ46lff+NaJO5LVlNVkIldLNTWAEPFw==}
@@ -5669,8 +5669,8 @@ packages:
       motion-v: '>=0.11.0-beta.5'
       vue: ^3.5.30
 
-  motion-utils@13.3.0:
-    resolution: {integrity: sha512-sgSschQp7EseHInIlR7hBbMuvet3RA0bs28KPZAXJcGKGdxHGvh1ogpYDilY3bOMtl73EqPNmp75sAKHYPU5sg==}
+  motion-utils@14.0.0:
+    resolution: {integrity: sha512-jBsyjVxTTRZNeuvd/v+btVXr90LQkYl4HhRu9T2ARc+PMnvkmjsjRVeAg4Qm10b6TlTw+kykWI8gu/6LuvpLSQ==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -9604,11 +9604,11 @@ snapshots:
       number-flow: 0.4.1
       vue: 3.5.30(typescript@5.9.2)
 
-  '@nuxt/cli@3.37.0(@nuxt/schema@3.19.0)(cac@6.7.14)(magicast@0.3.5)':
+  '@nuxt/cli@3.37.0(@nuxt/schema@3.19.0)(cac@6.7.14)(magicast@0.5.5)':
     dependencies:
       '@bomb.sh/tab': 0.0.19(cac@6.7.14)(citty@0.2.2)
       '@clack/prompts': 1.8.1
-      c12: 3.3.4(magicast@0.3.5)
+      c12: 3.3.4(magicast@0.5.5)
       citty: 0.2.2
       confbox: 0.2.4
       consola: 3.4.2
@@ -9732,10 +9732,10 @@ snapshots:
       - rollup
       - supports-color
 
-  '@nuxt/kit@3.14.1592(magicast@0.3.5)(rollup@4.64.0)':
+  '@nuxt/kit@3.14.1592(magicast@0.5.5)(rollup@4.64.0)':
     dependencies:
-      '@nuxt/schema': 3.14.1592(magicast@0.3.5)(rollup@4.64.0)
-      c12: 2.0.1(magicast@0.3.5)
+      '@nuxt/schema': 3.14.1592(magicast@0.5.5)(rollup@4.64.0)
+      c12: 2.0.1(magicast@0.5.5)
       consola: 3.2.3
       defu: 6.1.4
       destr: 2.0.3
@@ -9759,9 +9759,9 @@ snapshots:
       - rollup
       - supports-color
 
-  '@nuxt/kit@3.19.0(magicast@0.3.5)':
+  '@nuxt/kit@3.19.0(magicast@0.5.5)':
     dependencies:
-      c12: 3.3.4(magicast@0.3.5)
+      c12: 3.3.4(magicast@0.5.5)
       consola: 3.4.2
       defu: 6.1.7
       destr: 2.0.5
@@ -9860,9 +9860,9 @@ snapshots:
       - rollup
       - supports-color
 
-  '@nuxt/schema@3.14.1592(magicast@0.3.5)(rollup@4.64.0)':
+  '@nuxt/schema@3.14.1592(magicast@0.5.5)(rollup@4.64.0)':
     dependencies:
-      c12: 2.0.1(magicast@0.3.5)
+      c12: 2.0.1(magicast@0.5.5)
       compatx: 0.1.8
       consola: 3.2.3
       defu: 6.1.4
@@ -9889,17 +9889,17 @@ snapshots:
       std-env: 3.10.0
       ufo: 1.6.1
 
-  '@nuxt/telemetry@2.9.1(@nuxt/kit@3.19.0(magicast@0.3.5))':
+  '@nuxt/telemetry@2.9.1(@nuxt/kit@3.19.0(magicast@0.5.5))':
     dependencies:
-      '@nuxt/kit': 3.19.0(magicast@0.3.5)
+      '@nuxt/kit': 3.19.0(magicast@0.5.5)
       citty: 0.2.2
       consola: 3.4.2
       rc9: 3.1.0
       std-env: 4.3.0
 
-  '@nuxt/vite-builder@3.19.0(@types/node@24.3.0)(eslint@9.9.1(jiti@2.7.0))(lightningcss@1.33.0)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(terser@5.51.2)(typescript@5.9.2)(vue@3.5.30(typescript@5.9.2))(yaml@2.9.1)':
+  '@nuxt/vite-builder@3.19.0(@types/node@24.3.0)(eslint@9.9.1(jiti@2.7.0))(lightningcss@1.33.0)(magicast@0.5.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(terser@5.51.2)(typescript@5.9.2)(vue@3.5.30(typescript@5.9.2))(yaml@2.9.1)':
     dependencies:
-      '@nuxt/kit': 3.19.0(magicast@0.3.5)
+      '@nuxt/kit': 3.19.0(magicast@0.5.5)
       '@rollup/plugin-replace': 6.0.3(rollup@4.64.0)
       '@vitejs/plugin-vue': 6.0.9(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.30(typescript@5.9.2))
       '@vitejs/plugin-vue-jsx': 5.1.6(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.30(typescript@5.9.2))
@@ -9957,9 +9957,9 @@ snapshots:
       - vue-tsc
       - yaml
 
-  '@nuxtjs/tailwindcss@6.12.1(magicast@0.3.5)(rollup@4.64.0)(ts-node@10.9.2(@types/node@24.3.0)(typescript@5.9.2))':
+  '@nuxtjs/tailwindcss@6.12.1(magicast@0.5.5)(rollup@4.64.0)(ts-node@10.9.2(@types/node@24.3.0)(typescript@5.9.2))':
     dependencies:
-      '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.64.0)
+      '@nuxt/kit': 3.14.1592(magicast@0.5.5)(rollup@4.64.0)
       autoprefixer: 10.4.20(postcss@8.4.49)
       consola: 3.2.3
       defu: 6.1.4
@@ -11645,6 +11645,23 @@ snapshots:
     optionalDependencies:
       magicast: 0.3.5
 
+  c12@2.0.1(magicast@0.5.5):
+    dependencies:
+      chokidar: 4.0.3
+      confbox: 0.1.8
+      defu: 6.1.4
+      dotenv: 16.4.5
+      giget: 1.2.3
+      jiti: 2.4.0
+      mlly: 1.7.3
+      ohash: 1.1.6
+      pathe: 1.1.2
+      perfect-debounce: 1.0.0
+      pkg-types: 1.2.1
+      rc9: 2.1.2
+    optionalDependencies:
+      magicast: 0.5.5
+
   c12@3.3.4(magicast@0.3.5):
     dependencies:
       chokidar: 5.0.0
@@ -13001,10 +13018,10 @@ snapshots:
 
   fraction.js@5.3.4: {}
 
-  framer-motion@13.3.0:
+  framer-motion@14.0.0:
     dependencies:
-      motion-dom: 13.3.0
-      motion-utils: 13.3.0
+      motion-dom: 14.0.0
+      motion-utils: 14.0.0
       tslib: 2.8.1
 
   fresh@0.5.2: {}
@@ -14280,9 +14297,9 @@ snapshots:
 
   mocked-exports@0.1.1: {}
 
-  motion-dom@13.3.0:
+  motion-dom@14.0.0:
     dependencies:
-      motion-utils: 13.3.0
+      motion-utils: 14.0.0
 
   motion-number-vue@1.0.5(vue@3.5.30(typescript@5.9.2)):
     dependencies:
@@ -14293,7 +14310,7 @@ snapshots:
       motion-v: link:packages/motion
       vue: 3.5.30(typescript@5.9.2)
 
-  motion-utils@13.3.0: {}
+  motion-utils@14.0.0: {}
 
   mri@1.2.0: {}
 
@@ -14536,18 +14553,18 @@ snapshots:
     dependencies:
       esm-env: 1.2.1
 
-  nuxt@3.19.0(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@netlify/blobs@9.1.2)(@types/node@24.3.0)(@vue/compiler-sfc@3.5.43)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.9.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.33.0)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(srvx@0.11.22)(terser@5.51.2)(typescript@5.9.2)(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(yaml@2.9.1):
+  nuxt@3.19.0(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@netlify/blobs@9.1.2)(@types/node@24.3.0)(@vue/compiler-sfc@3.5.43)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.9.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.33.0)(magicast@0.5.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(srvx@0.11.22)(terser@5.51.2)(typescript@5.9.2)(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(yaml@2.9.1):
     dependencies:
-      '@nuxt/cli': 3.37.0(@nuxt/schema@3.19.0)(cac@6.7.14)(magicast@0.3.5)
+      '@nuxt/cli': 3.37.0(@nuxt/schema@3.19.0)(cac@6.7.14)(magicast@0.5.5)
       '@nuxt/devalue': 2.0.2
       '@nuxt/devtools': 2.7.0(vite@7.3.6(@types/node@24.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.30(typescript@5.9.2))
-      '@nuxt/kit': 3.19.0(magicast@0.3.5)
+      '@nuxt/kit': 3.19.0(magicast@0.5.5)
       '@nuxt/schema': 3.19.0
-      '@nuxt/telemetry': 2.9.1(@nuxt/kit@3.19.0(magicast@0.3.5))
-      '@nuxt/vite-builder': 3.19.0(@types/node@24.3.0)(eslint@9.9.1(jiti@2.7.0))(lightningcss@1.33.0)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(terser@5.51.2)(typescript@5.9.2)(vue@3.5.30(typescript@5.9.2))(yaml@2.9.1)
+      '@nuxt/telemetry': 2.9.1(@nuxt/kit@3.19.0(magicast@0.5.5))
+      '@nuxt/vite-builder': 3.19.0(@types/node@24.3.0)(eslint@9.9.1(jiti@2.7.0))(lightningcss@1.33.0)(magicast@0.5.5)(optionator@0.9.4)(rolldown@1.2.12)(rollup@4.64.0)(terser@5.51.2)(typescript@5.9.2)(vue@3.5.30(typescript@5.9.2))(yaml@2.9.1)
       '@unhead/vue': 2.1.17(vue@3.5.30(typescript@5.9.2))
       '@vue/shared': 3.5.43
-      c12: 3.3.4(magicast@0.3.5)
+      c12: 3.3.4(magicast@0.5.5)
       chokidar: 4.0.3
       compatx: 0.2.0
       consola: 3.4.2

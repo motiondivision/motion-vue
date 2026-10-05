@@ -12,7 +12,9 @@ export const MotionComponentProps = {
   'animate': { type: [String, Array, Object], default: undefined },
   'exit': { type: [String, Array, Object] },
   'variants': { type: Object },
-  'inherit': { type: Boolean },
+  // Boolean props default to false in Vue, but v14 treats inherit === false
+  // as "cut the variant tree" — keep it undefined unless explicitly set
+  'inherit': { type: Boolean, default: undefined },
   'style': { type: Object },
   'transformTemplate': { type: Function },
   'transition': { type: Object },
