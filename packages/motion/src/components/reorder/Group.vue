@@ -50,8 +50,18 @@ defineOptions({
   inheritAttrs: false,
 })
 
+// Boolean-typed MotionProps are cast to false by Vue when absent and would
+// be spread onto the inner Motion by bindProps(), overriding Motion's own
+// defaults (e.g. initial: false makes items skip their initial animation).
+// Mirror Item.vue's defaults so absent props stay undefined (#276).
 const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
   as: 'ul',
+  initial: undefined,
+  inherit: undefined,
+  crossfade: true,
+  dragElastic: 0.5,
+  dragMomentum: true,
+  dragListener: true,
 })
 
 const itemLayouts = new Map<V, Box>()
