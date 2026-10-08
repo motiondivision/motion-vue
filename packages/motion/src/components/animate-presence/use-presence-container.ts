@@ -4,7 +4,7 @@ import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'
 import { useMotionConfig } from '@/components/motion-config/context'
 import { createExitSession } from './exit-session'
-import type { PresenceContext } from './presence'
+import type { PresenceContext, PresenceHandler } from './presence'
 import { provideAnimatePresence } from './presence'
 
 export function usePresenceContainer(props: AnimatePresenceProps) {
@@ -22,6 +22,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   // ancestor, so nested AnimatePresence instances scope correctly — no DOM
   // attribute tagging or querySelectorAll discovery needed.
   const registered = new Set<MotionState>()
+  const handlers = new Set<PresenceHandler>()
 
   // ===== Provide Context =====
   // Pure data, never mutated after provide: `initial`/`custom` are getters,
@@ -36,6 +37,8 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     },
     register: state => registered.add(state),
     unregister: state => registered.delete(state),
+    registerHandler: handler => handlers.add(handler),
+    unregisterHandler: handler => handlers.delete(handler),
   }
 
   provideAnimatePresence(presenceContext)
@@ -58,6 +61,16 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     return states
   }
 
+  function findHandlers(container: Element): PresenceHandler[] {
+    const found: PresenceHandler[] = []
+    for (const handler of handlers) {
+      const el = handler.element()
+      if (el && (el === container || container.contains(el)))
+        found.push(handler)
+    }
+    return found
+  }
+
   // ===== Transition Handlers =====
 
   function enter(el: HTMLElement, done: VoidFunction) {
@@ -73,15 +86,16 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     const container = el as HTMLElement
     // Discover all motion states inside this container at exit time
     const states = findMotionStates(container)
+    const exiting = findHandlers(container)
 
     // If no motion components, complete immediately
-    if (states.length === 0) {
+    if (states.length === 0 && exiting.length === 0) {
       done()
       props.onExitComplete?.()
       return
     }
 
-    sessions.track(container, states, done)
+    sessions.track(container, states, done, exiting)
   }
 
   onUnmounted(() => {

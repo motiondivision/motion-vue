@@ -11,6 +11,22 @@ export interface PresenceContext {
    */
   register?: (state: MotionState) => void
   unregister?: (state: MotionState) => void
+  /** Registry of `usePresence()` handlers under this AnimatePresence. */
+  registerHandler?: (handler: PresenceHandler) => void
+  unregisterHandler?: (handler: PresenceHandler) => void
+}
+
+/**
+ * A component's own exit, for components that animate out without a
+ * `motion` element's `exit` (see `usePresence`).
+ */
+export interface PresenceHandler {
+  /** The element whose removal waits for `onExit`. */
+  element: () => Element | null | undefined
+  /** Starts the exit. Removal waits for the returned promise. */
+  onExit: () => Promise<unknown> | void
+  /** The element came back while its exit was running. */
+  onEnter?: () => void
 }
 
 export const [injectAnimatePresence, provideAnimatePresence, animatePresenceInjectionKey] = createContext<PresenceContext>('AnimatePresenceContext')
