@@ -21,10 +21,16 @@ function createSVGRenderState(): SVGRenderState {
   }
 }
 
-export function createStyles(latestValues: Record<string, any>): Record<string, any> | null {
+export function createStyles(
+  latestValues: Record<string, any>,
+  transformTemplate?: Parameters<typeof buildHTMLStyles>[2],
+): Record<string, any> | null {
   const state = createHTMLRenderState()
-  buildHTMLStyles(state, latestValues)
+  buildHTMLStyles(state, latestValues, transformTemplate)
   const result: Record<string, any> = { ...state.style }
+  // A template can return no transform: Vue would still write `transform:;`.
+  if (result.transform === '')
+    delete result.transform
   for (const key in state.vars) {
     result[key] = state.vars[key]
   }
