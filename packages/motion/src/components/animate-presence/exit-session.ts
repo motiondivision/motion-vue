@@ -2,6 +2,7 @@ import { frame } from 'framer-motion/dom'
 import type { MotionState } from '@/state'
 import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'
+import type { PresenceHandler } from './presence'
 
 export interface ExitSessionConfig {
   // Read lazily at track time — mode/anchorX are reactive props
@@ -13,6 +14,7 @@ export interface ExitSessionConfig {
 interface ExitSession {
   el: HTMLElement
   states: MotionState[]
+  handlers: PresenceHandler[]
   done: VoidFunction
   aborted: boolean
   popStyle?: HTMLStyleElement
@@ -83,14 +85,16 @@ export function createExitSession(config: ExitSessionConfig) {
 
   // ===== Session lifecycle =====
 
-  function track(el: HTMLElement, states: MotionState[], done: VoidFunction) {
-    const session: ExitSession = { el, states, done, aborted: false }
+  function track(el: HTMLElement, states: MotionState[], done: VoidFunction, handlers: PresenceHandler[] = []) {
+    const session: ExitSession = { el, states, handlers, done, aborted: false }
     sessions.set(el, session)
     addPopStyle(session)
 
     const completions = states.map(state =>
       state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve(),
     )
+    for (const handler of handlers)
+      completions.push(Promise.resolve(handler.onExit()))
 
     Promise.all(completions).then(() => {
       if (!session.aborted)
@@ -105,6 +109,7 @@ export function createExitSession(config: ExitSessionConfig) {
     session.aborted = true
     sessions.delete(el)
     removePopStyle(session)
+    session.handlers.forEach(handler => handler.onEnter?.())
   }
 
   function finalize(session: ExitSession) {
