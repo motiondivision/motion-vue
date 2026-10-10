@@ -51,13 +51,16 @@ export function createExitSession(config: ExitSessionConfig) {
     // Use unique pop id for CSS selector
     const elementPopId = `pop-${popId++}`
     element.dataset.motionPopId = elementPopId
-    const style = document.createElement('style')
+    // Use the element's own document so this works when rendering into
+    // another window or iframe (e.g. via window.open()).
+    const doc = element.ownerDocument
+    const style = doc.createElement('style')
     const nonce = config.getNonce()
     if (nonce) {
       style.nonce = nonce
     }
     session.popStyle = style
-    document.head.appendChild(style)
+    doc.head.appendChild(style)
     if (style.sheet) {
       style.sheet.insertRule(`
     [data-motion-pop-id="${elementPopId}"] {
@@ -77,7 +80,7 @@ export function createExitSession(config: ExitSessionConfig) {
       return
     session.popStyle = undefined
     frame.render(() => {
-      document.head.removeChild(style)
+      style.parentNode?.removeChild(style)
     })
   }
 
