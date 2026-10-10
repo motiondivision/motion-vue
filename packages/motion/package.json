@@ -63,9 +63,9 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "framer-motion": "~14.0.0",
+    "framer-motion": "~14.1.0",
     "hey-listen": "^1.0.8",
-    "motion-dom": "~14.0.0",
-    "motion-utils": "~14.0.0"
+    "motion-dom": "~14.1.0",
+    "motion-utils": "~14.1.0"
   }
 }

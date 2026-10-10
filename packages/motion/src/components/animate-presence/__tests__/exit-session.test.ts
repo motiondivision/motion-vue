@@ -180,6 +180,30 @@ describe('createExitSession', () => {
       expect(style?.isConnected).toBe(false)
     })
 
+    it('injects the style into the element\'s own document', async () => {
+      const config = createConfig({ props: { mode: 'popLayout', anchorX: 'left' } })
+      const sessions = createExitSession(config)
+      const otherDoc = document.implementation.createHTMLDocument('other')
+      const el = otherDoc.createElement('div')
+      otherDoc.body.appendChild(el)
+      const a = createFakeState()
+
+      const headStyleCount = document.head.querySelectorAll('style').length
+      sessions.track(el, [a.state], vi.fn())
+
+      expect(el.dataset.motionPopId).toMatch(/^pop-\d+$/)
+      // jsdom only computes sheets for the main document, so assert on
+      // the style element itself rather than its cssRules
+      const style = otherDoc.head.querySelector('style')
+      expect(style).not.toBeNull()
+      expect(document.head.querySelectorAll('style').length).toBe(headStyleCount)
+
+      a.resolveExit()
+      await flush()
+      await new Promise(resolve => setTimeout(resolve, 50))
+      expect(style?.isConnected).toBe(false)
+    })
+
     it('does not inject styles in sync mode', () => {
       const config = createConfig()
       const sessions = createExitSession(config)
