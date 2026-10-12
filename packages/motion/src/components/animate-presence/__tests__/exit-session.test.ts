@@ -205,5 +205,22 @@ describe('createExitSession', () => {
         .some(s => s.sheet?.cssRules[0]?.cssText.includes('data-motion-pop-id'))
       expect(leftover).toBe(false)
     })
+
+    it('injects the pop style into the element\'s own document', () => {
+      const config = createConfig({ props: { mode: 'popLayout', anchorX: 'left' } })
+      const sessions = createExitSession(config)
+      const otherDoc = document.implementation.createHTMLDocument('pop')
+      const el = otherDoc.createElement('div')
+      otherDoc.body.appendChild(el)
+      const a = createFakeState()
+
+      sessions.track(el, [a.state], vi.fn())
+
+      const hasPopRule = (doc: Document) =>
+        Array.from(doc.head.querySelectorAll('style'))
+          .some(s => s.sheet?.cssRules[0]?.cssText.includes(el.dataset.motionPopId!))
+      expect(hasPopRule(otherDoc)).toBe(true)
+      expect(hasPopRule(document)).toBe(false)
+    })
   })
 })
