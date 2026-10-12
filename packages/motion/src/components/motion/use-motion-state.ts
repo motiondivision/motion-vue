@@ -112,7 +112,9 @@ export function useMotionState(
       })
     }
 
-    const style = createStyles(styleProps)
+    // Vue writes this on every patch, so it goes through transformTemplate
+    // like the frame-loop render does.
+    const style = createStyles(styleProps, props.transformTemplate)
     if (style)
       attrsProps.style = style
     return attrsProps
