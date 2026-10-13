@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Drag Scroll While Dragging', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/drag/drag-scroll-while-drag')
+    await page.goto('/drag/drag-scroll-while-drag', { waitUntil: 'domcontentloaded' })
   })
 
   test('element scroll: should keep element attached to cursor', async ({ page }) => {

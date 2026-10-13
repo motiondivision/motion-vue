@@ -9,7 +9,7 @@ import { expect, test } from '@playwright/test'
  */
 test.describe('dragSnapToOrigin', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/drag/drag-snap-to-origin')
+    await page.goto('/drag/drag-snap-to-origin', { waitUntil: 'domcontentloaded' })
   })
 
   test('should snap back to origin after drag', async ({ page }) => {

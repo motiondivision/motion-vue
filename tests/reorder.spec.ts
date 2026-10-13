@@ -24,7 +24,7 @@ async function dragItemTo(page: Page, testId: string, targetX: number, targetY: 
 
 test.describe('Reorder basic (axis auto-detected)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/reorder')
+    await page.goto('/reorder', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
   })
 
@@ -47,7 +47,7 @@ test.describe('Reorder basic (axis auto-detected)', () => {
 
 test.describe('Reorder axis auto-detection', () => {
   test('detects horizontal axis for a horizontal list', async ({ page }) => {
-    await page.goto('/reorder/auto-detect')
+    await page.goto('/reorder/auto-detect', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
 
     expect(await getOrder(page)).toBe('0,1,2,3,4,5')
@@ -65,7 +65,7 @@ test.describe('Reorder axis auto-detection', () => {
 
 test.describe('Reorder grid (axis="xy")', () => {
   test('reorders across lines in a wrapped grid', async ({ page }) => {
-    await page.goto('/reorder/grid')
+    await page.goto('/reorder/grid', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
 
     expect(await getOrder(page)).toBe('0,1,2,3,4,5')
@@ -88,7 +88,7 @@ test.describe('Reorder grid (axis="xy")', () => {
   })
 
   test('reorders within the same line', async ({ page }) => {
-    await page.goto('/reorder/grid')
+    await page.goto('/reorder/grid', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
 
     // Drag item 0 onto item 1's position (same row)
@@ -103,7 +103,7 @@ test.describe('Reorder grid (axis="xy")', () => {
 
 test.describe('Reorder RTL', () => {
   test('uses computed direction when inserting into another line', async ({ page }) => {
-    await page.goto('/reorder/rtl')
+    await page.goto('/reorder/rtl', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
 
     expect(await getOrder(page)).toBe('0,1,2,3,4,5')

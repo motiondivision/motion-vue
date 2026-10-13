@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test'
  */
 test.describe('Reorder page scroll', () => {
   test('scrolls the page when dragging near the viewport bottom edge', async ({ page }) => {
-    await page.goto('/reorder/page-scroll')
+    await page.goto('/reorder/page-scroll', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
 
     const initialScroll = await page.evaluate(() => window.scrollY)

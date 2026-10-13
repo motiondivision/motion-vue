@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Preset Directive', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/directive/preset')
+    await page.goto('/directive/preset', { waitUntil: 'domcontentloaded' })
   })
 
   test('v-fade-in applies initial opacity 0 and animates to 1', async ({ page }) => {

@@ -7,7 +7,7 @@ const pointerOptions = {
 }
 test.describe('Variant', () => {
   test('should animate opacity when variant changes', async ({ page }) => {
-    await page.goto('/dynamic-variant')
+    await page.goto('/dynamic-variant', { waitUntil: 'domcontentloaded' })
     const motionBtn = page.locator('[data-testid="motion-btn"]')
     // Initial: visible
     await expect(motionBtn).toHaveCSS('opacity', '1')
@@ -23,7 +23,7 @@ test.describe('Variant', () => {
   })
 
   test('should animate scale correctly on hover and press with variants', async ({ page }) => {
-    await page.goto('/gestures/hover')
+    await page.goto('/gestures/hover', { waitUntil: 'domcontentloaded' })
 
     // Wait for initial animation to complete
     await page.waitForTimeout(500)
