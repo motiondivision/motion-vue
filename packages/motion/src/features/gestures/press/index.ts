@@ -1,16 +1,7 @@
 import { Feature } from '@/features/feature'
 import type { Options } from '@/types'
+import { extractEventInfo } from '@/events/event-info'
 import { frame, press } from 'motion-dom'
-import type { EventInfo } from 'motion-dom'
-
-function extractEventInfo(event: PointerEvent): EventInfo {
-  return {
-    point: {
-      x: event.pageX,
-      y: event.pageY,
-    },
-  }
-}
 
 export class PressGesture extends Feature {
   static key = 'press' as const

@@ -1,10 +1,9 @@
 import { Feature } from '@/features/feature'
 import type { ExitFeature } from '@/features/exit/exit'
 import type { IProjectionNode } from 'motion-dom'
-import { HTMLProjectionNode, addScaleCorrector } from 'motion-dom'
+import { HTMLProjectionNode, addScaleCorrector, isHTMLElement } from 'motion-dom'
 import { getClosestProjectingNode } from '@/features/layout/utils'
 import { defaultScaleCorrector } from '@/features/layout/config'
-import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 import { isSSR } from '@/utils/is'
 import type { MotionState } from '@/state'
 

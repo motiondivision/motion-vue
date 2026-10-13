@@ -63,6 +63,36 @@ export class DragControls {
       )
     })
   }
+
+  /**
+   * Cancels a drag gesture.
+   *
+   * ```jsx
+   * dragControls.cancel()
+   * ```
+   *
+   * @public
+   */
+  cancel() {
+    this.componentControls.forEach((controls) => {
+      controls.cancel()
+    })
+  }
+
+  /**
+   * Stops a drag gesture.
+   *
+   * ```jsx
+   * dragControls.stop()
+   * ```
+   *
+   * @public
+   */
+  stop() {
+    this.componentControls.forEach((controls) => {
+      controls.stop()
+    })
+  }
 }
 
 const createDragControls = () => new DragControls()

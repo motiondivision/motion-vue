@@ -10,7 +10,7 @@ type PanEventHandler = (event: PointerEvent, info: PanInfo) => void
 function asyncHandler(handler?: PanEventHandler) {
   return (event: PointerEvent, info: PanInfo) => {
     if (handler) {
-      frame.postRender(() => handler(event, info))
+      frame.update(() => handler(event, info), false, true)
     }
   }
 }
@@ -43,10 +43,10 @@ export class PanGesture extends Feature {
         const { onPanStart } = this.state.options
         onPanStart && onPanStart(_, info)
       }),
-      onMove: (event, info) => {
+      onMove: asyncHandler((event, info) => {
         const { onPan } = this.state.options
         onPan && onPan(event, info)
-      },
+      }),
       onEnd: (event: PointerEvent, info: PanInfo) => {
         const { onPanEnd } = this.state.options
         delete this.session
@@ -63,10 +63,6 @@ export class PanGesture extends Feature {
       'pointerdown',
       this.onPointerDown.bind(this),
     )
-  }
-
-  update() {
-    // this.session && this.session.updateHandlers(this.createPanHandlers())
   }
 
   unmount() {

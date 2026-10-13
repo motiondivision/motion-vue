@@ -1,4 +1,4 @@
-import type { Point } from 'framer-motion'
+import type { Point } from 'motion-utils'
 
 /** @public */
 export interface EventInfo {
