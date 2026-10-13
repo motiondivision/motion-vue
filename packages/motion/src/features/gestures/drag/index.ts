@@ -1,5 +1,6 @@
 import { Feature } from '@/features/feature'
 import { VisualElementDragControls } from '@/features/gestures/drag/VisualElementDragControls'
+import type { DragControls } from '@/features/gestures/drag/use-drag-controls'
 import { noop } from 'motion-utils'
 
 export class DragGesture extends Feature {
@@ -9,6 +10,8 @@ export class DragGesture extends Feature {
 
   removeGroupControls: Function = noop
   removeListeners: Function = noop
+
+  private prevDragControls?: DragControls
 
   constructor(state) {
     super(state)
@@ -23,11 +26,31 @@ export class DragGesture extends Feature {
     if (dragControls) {
       this.removeGroupControls = dragControls.subscribe(this.controls)
     }
+    this.prevDragControls = dragControls
     this.removeListeners = this.controls.addListeners() || noop
+  }
+
+  update() {
+    const { dragControls } = this.state.options
+
+    if (dragControls !== this.prevDragControls) {
+      this.removeGroupControls()
+      this.removeGroupControls = dragControls
+        ? dragControls.subscribe(this.controls)
+        : noop
+      this.prevDragControls = dragControls
+    }
   }
 
   unmount() {
     this.removeGroupControls()
     this.removeListeners()
+    // A component may briefly unmount and remount while the drag is still
+    // active (KeepAlive, list reorder). If we're actively dragging, keep the
+    // pan session — it continues tracking via its window-level listeners and
+    // cleans up on pointerup. Otherwise end it so listeners don't leak.
+    if (!this.controls.isDragging) {
+      this.controls.endPanSession()
+    }
   }
 }

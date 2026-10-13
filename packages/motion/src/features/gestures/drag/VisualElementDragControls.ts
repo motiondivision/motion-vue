@@ -1,10 +1,7 @@
-import { addDomEvent, addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, measurePageBox, mixNumber, percent } from 'motion-dom'
+import { addDomEvent, addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, isElementTextInput, isHTMLElement, measurePageBox, mixNumber, percent, setDragLock } from 'motion-dom'
 import { addPointerEvent, extractEventInfo } from '@/events'
-import type { Lock } from '@/features/gestures/drag/lock'
-import { getGlobalLock } from '@/features/gestures/drag/lock'
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
 import { applyConstraints, calcOrigin, calcRelativeConstraints, calcViewportConstraints, defaultElastic, rebaseAxisConstraints, resolveDragElastic } from '@/features/gestures/drag/utils/constraints'
-import { isHTMLElement } from '@/features/gestures/drag/utils/is'
 import type { PanInfo } from '@/features/gestures/pan/PanSession'
 import { PanSession } from '@/features/gestures/pan/PanSession'
 import type { Options } from '@/types'
@@ -39,8 +36,7 @@ export class VisualElementDragControls {
 
   // This is a reference to the global drag gesture lock, ensuring only one component
   // can "capture" the drag of one or both axes.
-  // TODO: Look into moving this into pansession?
-  private openGlobalLock: Lock | null = null
+  private openGlobalLock: (() => void) | null = null
 
   isDragging = false
   private currentDirection: DragDirection | null = null
@@ -74,6 +70,9 @@ export class VisualElementDragControls {
     /**
      * Don't start dragging if this component is exiting
      */
+    if (this.state.isExiting)
+      return
+
     const onSessionStart = (event: PointerEvent) => {
       if (snapToCursor) {
         this.snapToCursor(extractEventInfo(event, 'page').point)
@@ -92,7 +91,7 @@ export class VisualElementDragControls {
         if (this.openGlobalLock)
           this.openGlobalLock()
 
-        this.openGlobalLock = getGlobalLock(drag)
+        this.openGlobalLock = setDragLock(drag)
 
         // If we don 't have the lock, don't start dragging
         if (!this.openGlobalLock)
@@ -239,8 +238,7 @@ export class VisualElementDragControls {
     if (projection) {
       projection.isAnimationBlocked = false
     }
-    this.panSession && this.panSession.end()
-    this.panSession = undefined
+    this.endPanSession()
 
     const { dragPropagation } = this.getProps()
     if (!dragPropagation && this.openGlobalLock) {
@@ -249,6 +247,17 @@ export class VisualElementDragControls {
     }
 
     this.state.setActive('whileDrag', false)
+  }
+
+  /**
+   * Clean up the pan session without modifying other drag state.
+   * Used during unmount to remove event listeners without affecting
+   * projection animations or drag locks.
+   * @internal
+   */
+  endPanSession() {
+    this.panSession && this.panSession.end()
+    this.panSession = undefined
   }
 
   private updateAxis(axis: DragDirection, _point: Point, offset?: Point) {
@@ -305,10 +314,13 @@ export class VisualElementDragControls {
 
     /**
      * If we're outputting to external MotionValues, we want to rebase the measured constraints
-     * from viewport-relative to component-relative.
+     * from viewport-relative to component-relative. This only applies to relative (non-element)
+     * constraints, as element-based constraints from calcViewportConstraints are already in the
+     * correct coordinate space for the motion value transform offset.
      */
     if (
       prevConstraints !== this.constraints
+      && !isHTMLElement(dragConstraints)
       && layout
       && this.constraints
       && !this.hasMutatedConstraints
@@ -345,6 +357,21 @@ export class VisualElementDragControls {
     // TODO
     if (!projection || !projection.layout)
       return false
+
+    /**
+     * Refresh the root scroll offset so the constraint's viewport box
+     * translates to correct page coordinates. The scroll captured at
+     * drag mount can be stale if the document was scrolled afterwards —
+     * e.g. via the browser restoring scroll on refresh, or an ancestor
+     * layout effect running after this element's mount (#2829).
+     *
+     * Clear the cached scroll first so `updateScroll` bypasses its
+     * per-animationId cache and re-reads the live value.
+     */
+    if (projection.root) {
+      projection.root.scroll = undefined
+      projection.root.updateScroll()
+    }
 
     const constraintsBox = measurePageBox(
       constraintsElement,
@@ -538,6 +565,12 @@ export class VisualElementDragControls {
       : 'none'
     projection.root && projection.root.updateScroll()
     projection.updateLayout()
+
+    /**
+     * Reset constraints so resolveConstraints() will recalculate them
+     * with the freshly measured layout rather than returning the cached value.
+     */
+    this.constraints = false
     this.resolveConstraints()
 
     /**
@@ -545,18 +578,30 @@ export class VisualElementDragControls {
      * within the new constraints.
      */
     eachAxis((axis) => {
-      if (!shouldDrag(axis, drag, null))
+      const axisValue = this.getAxisMotionValue(axis)
+
+      /**
+       * An element resting at its origin has no offset to preserve,
+       * and re-projecting 0 into the new constraints would move it.
+       */
+      if (!shouldDrag(axis, drag, null) || !axisValue.get())
         return
 
       /**
        * Calculate a new transform based on the previous box progress
        */
-      const axisValue = this.getAxisMotionValue(axis)
       const { min, max } = (this.constraints as ResolvedConstraints)[
         axis
       ] as Axis
       axisValue.set(mixNumber(min, max, boxProgress[axis]))
     })
+
+    /**
+     * Flush the updated transform to the DOM synchronously to prevent
+     * a visual flash at the element's CSS layout position (0,0) when
+     * the transform was stripped for measurement.
+     */
+    this.visualElement.render()
   }
 
   addListeners() {
@@ -573,7 +618,22 @@ export class VisualElementDragControls {
       'pointerdown',
       (event) => {
         const { drag, dragListener = true } = this.getProps()
-        drag && dragListener && this.start(event)
+        const target = event.target as Element
+
+        /**
+         * Only block drag if clicking on a text input child element
+         * (input, textarea, select, contenteditable) where users might
+         * want to select text or interact with the control.
+         *
+         * Buttons and links don't block drag since they don't have
+         * click-and-move actions of their own.
+         */
+        const isClickingTextInputChild
+                    = target !== element && isElementTextInput(target)
+
+        if (drag && dragListener && !isClickingTextInputChild) {
+          this.start(event)
+        }
       },
     )
 

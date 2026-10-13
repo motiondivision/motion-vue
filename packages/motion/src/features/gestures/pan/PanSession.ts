@@ -1,83 +1,12 @@
-import type { EventInfo } from 'motion-dom'
+import type { EventInfo, PanInfo } from 'motion-dom'
+import { cancelFrame, frame, frameData, isPrimaryPointer, time } from 'motion-dom'
 import type { Point, TransformPoint } from 'motion-utils'
-import { addPointerEvent, isPrimaryPointer } from '@/events'
+import { addPointerEvent } from '@/events'
 import { extractEventInfo } from '@/events/event-info'
-import { cancelFrame, distance2D, frame, frameData } from 'framer-motion/dom'
+import { distance2D } from 'framer-motion/dom'
 import { millisecondsToSeconds, pipe, secondsToMilliseconds } from 'motion-utils'
-/**
- * Passed in to pan event handlers like `onPan` the `PanInfo` object contains
- * information about the current state of the tap gesture such as its
- * `point`, `delta`, `offset` and `velocity`.
- *
- * ```jsx
- * <motion.div onPan={(event, info) => {
- *   console.log(info.point.x, info.point.y)
- * }} />
- * ```
- *
- * @public
- */
-export interface PanInfo {
-  /**
-   * Contains `x` and `y` values for the current pan position relative
-   * to the device or page.
-   *
-   * ```jsx
-   * function onPan(event, info) {
-   *   console.log(info.point.x, info.point.y)
-   * }
-   *
-   * <motion.div onPan={onPan} />
-   * ```
-   *
-   * @public
-   */
-  point: Point
-  /**
-   * Contains `x` and `y` values for the distance moved since
-   * the last event.
-   *
-   * ```jsx
-   * function onPan(event, info) {
-   *   console.log(info.delta.x, info.delta.y)
-   * }
-   *
-   * <motion.div onPan={onPan} />
-   * ```
-   *
-   * @public
-   */
-  delta: Point
-  /**
-   * Contains `x` and `y` values for the distance moved from
-   * the first pan event.
-   *
-   * ```jsx
-   * function onPan(event, info) {
-   *   console.log(info.offset.x, info.offset.y)
-   * }
-   *
-   * <motion.div onPan={onPan} />
-   * ```
-   *
-   * @public
-   */
-  offset: Point
-  /**
-   * Contains `x` and `y` values for the current velocity of the pointer, in px/ms.
-   *
-   * ```jsx
-   * function onPan(event, info) {
-   *   console.log(info.velocity.x, info.velocity.y)
-   * }
-   *
-   * <motion.div onPan={onPan} />
-   * ```
-   *
-   * @public
-   */
-  velocity: Point
-}
+
+export type { PanInfo }
 
 // Handlers are registered via addPointerEvent and always receive pointer
 // events — aligned with the public pan prop types in gestures/pan/types.ts.
@@ -95,7 +24,8 @@ interface PanSessionHandlers {
 interface PanSessionOptions {
   transformPagePoint?: TransformPoint
   contextWindow?: (Window & typeof globalThis) | null
-  dragSnapToOrigin?: boolean
+  dragSnapToOrigin?: boolean | 'x' | 'y'
+  distanceThreshold?: number
   element?: HTMLElement | null
 }
 
@@ -130,6 +60,19 @@ export class PanSession {
   private lastMoveEventInfo: EventInfo | null = null
 
   /**
+   * Raw (untransformed) event info, re-transformed each frame
+   * so transformPagePoint sees the current parent matrix.
+   * @internal
+   */
+  private lastRawMoveEventInfo: EventInfo | null = null
+
+  /**
+   * Whether a pointermove has arrived since the last updatePoint.
+   * @internal
+   */
+  private hasPendingMove?: boolean
+
+  /**
    * @internal
    */
   private transformPagePoint?: TransformPoint
@@ -145,11 +88,18 @@ export class PanSession {
   private removeListeners: Function
 
   /**
-   * For determining if an animation should resume after it is interupted
+   * For determining if an animation should resume after it is interrupted
    *
    * @internal
    */
-  private dragSnapToOrigin: boolean
+  private dragSnapToOrigin: boolean | 'x' | 'y'
+
+  /**
+   * The distance after which panning should start.
+   *
+   * @internal
+   */
+  private distanceThreshold: number
 
   /**
    * @internal
@@ -179,7 +129,7 @@ export class PanSession {
   constructor(
     event: PointerEvent,
     handlers: Partial<PanSessionHandlers>,
-        { transformPagePoint, contextWindow, dragSnapToOrigin = false, element }: PanSessionOptions = {},
+        { transformPagePoint, contextWindow, dragSnapToOrigin = false, distanceThreshold = 3, element }: PanSessionOptions = {},
   ) {
     // If we have more than one touch, don't start detecting this gesture
     if (!isPrimaryPointer(event))
@@ -188,6 +138,7 @@ export class PanSession {
     this.dragSnapToOrigin = dragSnapToOrigin
     this.handlers = handlers
     this.transformPagePoint = transformPagePoint
+    this.distanceThreshold = distanceThreshold
     this.contextWindow = contextWindow || window
 
     const info = extractEventInfo(event)
@@ -202,21 +153,28 @@ export class PanSession {
     onSessionStart
     && onSessionStart(event, getPanInfo(initialInfo, this.history))
 
+    // Listen in the capture phase so a descendant calling
+    // stopPropagation() (e.g. in its own pointerup handler) can't
+    // prevent the gesture from ending. See #2794.
+    const eventOptions = { passive: true, capture: true }
     this.removeListeners = pipe(
       addPointerEvent(
         this.contextWindow,
         'pointermove',
         this.handlePointerMove,
+        eventOptions,
       ),
       addPointerEvent(
         this.contextWindow,
         'pointerup',
         this.handlePointerUp,
+        eventOptions,
       ),
       addPointerEvent(
         this.contextWindow,
         'pointercancel',
         this.handlePointerUp,
+        eventOptions,
       ),
     )
 
@@ -226,24 +184,6 @@ export class PanSession {
     }
   }
 
-  /**
-   * Check if element has scrollable overflow
-   */
-  private isScrollable(node: Element): boolean {
-    const style = window.getComputedStyle(node)
-    return (
-      style.overflow === 'auto'
-      || style.overflow === 'scroll'
-      || style.overflowX === 'auto'
-      || style.overflowX === 'scroll'
-      || style.overflowY === 'auto'
-      || style.overflowY === 'scroll'
-    )
-  }
-
-  /**
-   * Start tracking scroll on ancestors and window.
-   */
   /**
    * Start tracking scroll on ancestors and window.
    */
@@ -348,22 +288,31 @@ export class PanSession {
   private updatePoint = () => {
     if (!(this.lastMoveEvent && this.lastMoveEventInfo))
       return
+    this.hasPendingMove = false
+
+    // Re-transform raw point through current transformPagePoint so
+    // animated parent transforms (e.g. rotation) are picked up each frame
+    if (this.lastRawMoveEventInfo) {
+      this.lastMoveEventInfo = transformPoint(
+        this.lastRawMoveEventInfo,
+        this.transformPagePoint,
+      )
+    }
 
     const info = getPanInfo(this.lastMoveEventInfo, this.history)
     const isPanStarted = this.startEvent !== null
 
-    // Only start panning if the offset is larger than 3 pixels. If we make it
-    // any larger than this we'll want to reset the pointer history
-    // on the first update to avoid visual snapping to the cursoe.
+    // Only start panning if the offset is larger than the threshold. If we
+    // make it any larger than this we'll want to reset the pointer history
+    // on the first update to avoid visual snapping to the cursor.
     const isDistancePastThreshold
-            = distance2D(info.offset, { x: 0, y: 0 }) >= 3
+            = distance2D(info.offset, { x: 0, y: 0 }) >= this.distanceThreshold
 
     if (!isPanStarted && !isDistancePastThreshold)
       return
 
     const { point } = info
-    const { timestamp } = frameData
-    this.history.push({ ...point, timestamp })
+    this.history.push({ ...point, timestamp: time.now() })
 
     const { onStart, onMove } = this.handlers
 
@@ -376,12 +325,17 @@ export class PanSession {
 
   private handlePointerMove = (event: PointerEvent, info: EventInfo) => {
     this.lastMoveEvent = event
+    this.lastRawMoveEventInfo = info
     this.lastMoveEventInfo = transformPoint(info, this.transformPagePoint)
+    this.hasPendingMove = true
     // Throttle mouse move event to once per frame
     frame.update(this.updatePoint, true)
   }
 
   private handlePointerUp = (event: PointerEvent, info: EventInfo) => {
+    // Browsers flush a coalesced pointermove immediately before
+    // pointerup, so the final move can still be waiting for a frame.
+    this.hasPendingMove && this.updatePoint()
     this.end()
 
     const { onEnd, onSessionEnd, resumeAnimation } = this.handlers
@@ -469,6 +423,22 @@ function getVelocity(history: TimestampedPoint[], timeDelta: number): Point {
 
   if (!timestampedPoint) {
     return { x: 0, y: 0 }
+  }
+
+  /**
+   * If the selected point is the pointer-down origin (history[0]),
+   * there are better movement points available, and the time gap
+   * is suspiciously large (>2x timeDelta), use the next point instead.
+   * This prevents stale pointer-down points from diluting velocity
+   * in hold-then-flick gestures.
+   */
+  if (
+    timestampedPoint === history[0]
+    && history.length > 2
+    && lastPoint.timestamp - timestampedPoint.timestamp
+    > secondsToMilliseconds(timeDelta) * 2
+  ) {
+    timestampedPoint = history[1]
   }
 
   const time = millisecondsToSeconds(
