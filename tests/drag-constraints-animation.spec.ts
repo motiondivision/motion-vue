@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test'
  */
 test.describe('Drag Constraints Animation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/drag/constraints-animation')
+    await page.goto('/drag/constraints-animation', { waitUntil: 'domcontentloaded' })
   })
 
   test('should not get stuck when clicked during constraint return', async ({ page }) => {

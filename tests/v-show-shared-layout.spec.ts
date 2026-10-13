@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('v-show Shared Layout Animation', () => {
   test('shared layout animation works with v-show toggle', async ({ page }) => {
-    await page.goto('/animate-presence/v-show-shared-layout')
+    await page.goto('/animate-presence/v-show-shared-layout', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const largeBox = page.locator('#large-box')
@@ -36,7 +36,7 @@ test.describe('v-show Shared Layout Animation', () => {
   })
 
   test('layout animation interpolates size during v-show transition', async ({ page }) => {
-    await page.goto('/animate-presence/v-show-shared-layout')
+    await page.goto('/animate-presence/v-show-shared-layout', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const largeBox = page.locator('#large-box')
@@ -58,7 +58,7 @@ test.describe('v-show Shared Layout Animation', () => {
   })
 
   test('nested shared layout works with v-show', async ({ page }) => {
-    await page.goto('/animate-presence/v-show-shared-layout')
+    await page.goto('/animate-presence/v-show-shared-layout', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const nestedLarge = page.locator('#nested-large')
@@ -85,7 +85,7 @@ test.describe('v-show Shared Layout Animation', () => {
   })
 
   test('multiple v-show toggles work correctly', async ({ page }) => {
-    await page.goto('/animate-presence/v-show-shared-layout')
+    await page.goto('/animate-presence/v-show-shared-layout', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const largeBox = page.locator('#large-box')
@@ -111,7 +111,7 @@ test.describe('v-show Shared Layout Animation', () => {
   })
 
   test('v-show elements remain in DOM', async ({ page }) => {
-    await page.goto('/animate-presence/v-show-shared-layout')
+    await page.goto('/animate-presence/v-show-shared-layout', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const largeBox = page.locator('#large-box')

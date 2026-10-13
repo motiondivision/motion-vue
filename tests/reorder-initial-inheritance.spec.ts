@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test'
  */
 test.describe('Reorder.Group prop defaults (#276)', () => {
   test('Reorder.Items inherit initial variant and play initial animation', async ({ page }) => {
-    await page.goto('/reorder-initial-inheritance')
+    await page.goto('/reorder-initial-inheritance', { waitUntil: 'domcontentloaded' })
 
     // Mid initial-animation (visible has duration 1s): the item must still be
     // animating in from hidden (opacity 0). With the bug it renders at

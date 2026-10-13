@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test'
  */
 test.describe('Reorder auto-scroll', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/reorder/auto-scroll')
+    await page.goto('/reorder/auto-scroll', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(200)
   })
 
@@ -162,7 +162,7 @@ test.describe('Reorder auto-scroll', () => {
  */
 test.describe('Reorder auto-scroll - Basic', () => {
   test('page should load with reorder components', async ({ page }) => {
-    await page.goto('/reorder/auto-scroll')
+    await page.goto('/reorder/auto-scroll', { waitUntil: 'domcontentloaded' })
 
     // Check if any elements with the reorder styling are visible
     const items = page.locator('.bg-white').or(page.locator('[class*="cursor-grab"]'))

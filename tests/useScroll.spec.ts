@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.describe('useScroll with VueInstance', () => {
   test.beforeEach(async ({ page }) => {
     // 导航到测试页面
-    await page.goto('/scroll-test')
+    await page.goto('/scroll-test', { waitUntil: 'domcontentloaded' })
   })
 
   test('should accept VueInstance as container', async ({ page }) => {
@@ -95,7 +95,7 @@ test.describe('useScroll with VueInstance', () => {
 
 test.describe('useScroll horizontal scroll (axis: x)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/scroll-horizontal')
+    await page.goto('/scroll-horizontal', { waitUntil: 'domcontentloaded' })
   })
 
   test('should track scrollX and scrollXProgress on horizontal scroll', async ({ page }) => {
@@ -120,7 +120,7 @@ test.describe('useScroll horizontal scroll (axis: x)', () => {
 
 test.describe('useScroll with ScrollOffset presets', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/scroll-presets')
+    await page.goto('/scroll-presets', { waitUntil: 'domcontentloaded' })
   })
 
   test('scrollYProgress changes as target scrolls through container', async ({ page }) => {
@@ -149,7 +149,7 @@ test.describe('useScroll with ScrollOffset presets', () => {
 
 test.describe('useScroll reactive options', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/scroll-reactive')
+    await page.goto('/scroll-reactive', { waitUntil: 'domcontentloaded' })
   })
 
   test('reactive getter re-subscribes when axis changes', async ({ page }) => {

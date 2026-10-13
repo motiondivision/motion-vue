@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('animateView', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/animate-view')
+    await page.goto('/animate-view', { waitUntil: 'domcontentloaded' })
   })
 
   test('plays exit and enter animations on toggle', async ({ page }) => {

@@ -17,7 +17,7 @@ test.describe('Variant inheritance', () => {
   }
 
   test('children inherit mount variant and animate with stagger order', async ({ page }) => {
-    await page.goto('/variant-inheritance')
+    await page.goto('/variant-inheritance', { waitUntil: 'domcontentloaded' })
 
     // Mid-animation: item-1 (no delay) should be ahead of item-4 (0.6s delay)
     await page.waitForTimeout(200)
@@ -32,7 +32,7 @@ test.describe('Variant inheritance', () => {
   })
 
   test('children follow parent variant label changes', async ({ page }) => {
-    await page.goto('/variant-inheritance')
+    await page.goto('/variant-inheritance', { waitUntil: 'domcontentloaded' })
 
     // Wait for mount animation to complete
     await expect(page.locator('[data-testid="item-1"]')).toHaveCSS('opacity', '1', { timeout: 3000 })

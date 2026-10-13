@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('AnimatePresence', () => {
   test('AnimatePresence test', async ({ page }) => {
-    await page.goto('/animate-presence')
+    await page.goto('/animate-presence', { waitUntil: 'domcontentloaded' })
 
     const toggle = await page.waitForSelector('#toggle')
 
@@ -22,7 +22,7 @@ test.describe('AnimatePresence', () => {
   })
 
   test('exit animations with multiple motion components', async ({ page }) => {
-    await page.goto('/animate-presence/multi-motion')
+    await page.goto('/animate-presence/multi-motion', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const motion1 = page.locator('#motion-1')
@@ -52,7 +52,7 @@ test.describe('AnimatePresence', () => {
   })
 
   test('exit animations with nested motion components', async ({ page }) => {
-    await page.goto('/animate-presence/nested-motion')
+    await page.goto('/animate-presence/nested-motion', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const parent = page.locator('#parent-motion')
@@ -85,7 +85,7 @@ test.describe('AnimatePresence', () => {
   })
 
   test('onExitComplete fires after all motion components exit', async ({ page }) => {
-    await page.goto('/animate-presence/multi-motion')
+    await page.goto('/animate-presence/multi-motion', { waitUntil: 'domcontentloaded' })
 
     const toggle = page.locator('#toggle')
     const exitStatus = page.locator('#exit-status')
@@ -106,7 +106,7 @@ test.describe('AnimatePresence', () => {
   })
 
   test('popLayout applies styles to direct child (div) not motion element (li)', async ({ page }) => {
-    await page.goto('/pop-layout')
+    await page.goto('/pop-layout', { waitUntil: 'domcontentloaded' })
 
     // Enable popLayout mode
     const checkbox = await page.locator('input[type="checkbox"]')
