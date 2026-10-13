@@ -156,6 +156,98 @@ describe('drag: dragControls prop swap', () => {
   })
 })
 
+describe('drag: DragControls public API', () => {
+  function renderControlled(props: Record<string, any> = {}) {
+    const controls = useDragControls()
+    const wrapper = render(Motion, {
+      props: {
+        drag: true,
+        dragListener: false,
+        dragControls: controls,
+        dragMomentum: false,
+        ...props,
+      },
+      attrs: { 'data-testid': 'box' },
+    })
+    return { controls, wrapper }
+  }
+
+  function startDrag(controls: ReturnType<typeof useDragControls>, options?: Record<string, any>) {
+    controls.start(new PointerEvent('pointerdown', { clientX: 0, clientY: 0, button: 0 }), options)
+  }
+
+  it('cancel() ends the drag without momentum or onDragEnd', async () => {
+    const onDragEnd = vi.fn()
+    const { controls, wrapper } = renderControlled({ onDragEnd })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    startDrag(controls)
+    pointerMove(50, 0)
+    await nextFrames(2)
+    expect(box.style.transform).toContain('50px')
+
+    controls.cancel()
+    pointerMove(100, 0)
+    await nextFrames(2)
+
+    expect(box.style.transform).toContain('50px')
+    expect(onDragEnd).not.toHaveBeenCalled()
+  })
+
+  it('stop() ends the drag and fires onDragEnd without pointer arguments', async () => {
+    const onDragEnd = vi.fn()
+    const { controls, wrapper } = renderControlled({ onDragEnd })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    startDrag(controls)
+    pointerMove(50, 0)
+    await nextFrames(2)
+    expect(box.style.transform).toContain('50px')
+
+    controls.stop()
+    await nextFrames(2)
+    pointerMove(100, 0)
+    await nextFrames(2)
+
+    expect(onDragEnd).toHaveBeenCalledTimes(1)
+    expect(box.style.transform).toContain('50px')
+  })
+
+  it('respects distanceThreshold before starting the drag', async () => {
+    const { controls, wrapper } = renderControlled()
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    startDrag(controls, { distanceThreshold: 50 })
+    pointerMove(10, 0)
+    await nextFrames(2)
+    expect(box.style.transform).toBe('')
+
+    pointerMove(60, 0)
+    await nextFrames(2)
+    expect(box.style.transform).toContain('60px')
+  })
+
+  it('dragSnapToOrigin="x" snaps only x back and leaves y', async () => {
+    const { controls, wrapper } = renderControlled({ dragSnapToOrigin: 'x' })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    startDrag(controls)
+    pointerMove(100, 80)
+    await nextFrames(2)
+    expect(box.style.transform).toContain('100px')
+
+    pointerUp(100, 80)
+    await nextFrames(10)
+
+    expect(box.style.transform).not.toContain('100px')
+    expect(box.style.transform).toContain('80px')
+  })
+})
+
 describe('drag: element constraints resolution', () => {
   it('does not double-rebase ref constraints (#2829 class)', async () => {
     rects.set('container', { left: 0, top: 0, width: 200, height: 200 })

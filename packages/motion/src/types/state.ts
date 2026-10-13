@@ -28,7 +28,7 @@ interface BoundingBox {
 }
 export interface DragOptions {
   constraints?: false | Partial<BoundingBox>
-  dragSnapToOrigin?: boolean
+  dragSnapToOrigin?: boolean | 'x' | 'y'
 }
 
 type TransformPropertiesWithoutTransition = Omit<TransformProperties, 'transition'>

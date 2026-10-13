@@ -1,7 +1,7 @@
 import type { DragControls } from '@/features/gestures/drag/use-drag-controls'
 import type { VariantType } from '@/types'
-import type { Axis, BoundingBox, DragElastic, InertiaOptions, PanInfo } from 'framer-motion'
-import type { VariantLabels } from 'motion-dom'
+import type { Axis, BoundingBox } from 'motion-utils'
+import type { DragElastic, InertiaOptions, PanInfo, VariantLabels } from 'motion-dom'
 
 export interface ResolvedConstraints {
   x: Partial<Axis>
@@ -120,8 +120,10 @@ export interface DragProps extends DragHandlers {
    * with `dragElastic={1}`, but when used together `dragConstraints` can define
    * a wider draggable area and `dragSnapToOrigin` will ensure the element
    * animates back to its origin on release.
+   *
+   * Pass `"x"` or `"y"` to only snap back on that axis.
    */
-  dragSnapToOrigin?: boolean
+  dragSnapToOrigin?: boolean | 'x' | 'y'
 
   /**
    * If `true`, this will lock dragging to the initially-detected direction. Defaults to `false`.
