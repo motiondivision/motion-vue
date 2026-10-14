@@ -70,7 +70,7 @@ function warning() {
 // Call immediately to fail during setup, not render
 warning()
 
-const { axis, registerItem, updateOrder, groupRef } = context!
+const { axis, registerItem, updateOrder, groupRef, hasReordered } = context!
 
 const attrs = useAttrs()
 function bindProps() {
@@ -119,6 +119,9 @@ function handleDrag(event: PointerEvent, gesturePoint: any) {
 }
 
 function handleDragEnd(event: PointerEvent, gesturePoint: any) {
+  // Drag-end fires a frame after release, so after the release's click
+  if (hasReordered)
+    hasReordered.value = false
   isDragging.value = false
   resetAutoScrollState()
   props.onDragEnd?.(event, gesturePoint)

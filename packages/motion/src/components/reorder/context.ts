@@ -8,6 +8,12 @@ export interface ReorderContextProps<T> {
   registerItem?: (item: T, layout: Box) => void
   updateOrder?: (item: T, offset: Point, velocity: Point) => void
 
+  /**
+   * Whether a reorder happened during the current press. The release that
+   * ends a reordering drag fires a click that isn't a real click (#2682).
+   */
+  hasReordered?: Ref<boolean>
+
   groupRef?: Ref<HTMLElement | null>
 }
 
