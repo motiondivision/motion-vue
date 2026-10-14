@@ -67,6 +67,8 @@ const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
 const itemLayouts = new Map<V, Box>()
 const detectedAxis = ref<ReorderAxis>('y')
 let isReordering = false
+// Set when a drag reorders; the release ending that drag isn't a click (#2682)
+const hasReordered = ref(false)
 
 const axis = computed<ReorderAxis>(() => props.axis || detectedAxis.value)
 
@@ -83,6 +85,7 @@ const groupRef = useDomRef()
 reorderContextProvider({
   groupRef,
   axis,
+  hasReordered,
   registerItem: (value: V, layout: Box) => {
     // Prune layouts for values no longer in the list (e.g. removed or
     // exiting with AnimatePresence)
@@ -120,6 +123,7 @@ reorderContextProvider({
     const newOrder = checkReorder(order, item, offset, velocity, axis.value, direction)
     if (order !== newOrder) {
       isReordering = true
+      hasReordered.value = true
       // Remap the reordered measured items onto their slots in values,
       // leaving unmeasured values in place
       const newValues = [...props.values]
@@ -133,6 +137,25 @@ reorderContextProvider({
 })
 
 const attrs = useAttrs()
+/**
+ * A release that ends a reordering drag isn't a click. Browsers only click an
+ * element holding both the press and release targets, so swallow it here,
+ * above every item (#2682). The flag is cleared when the drag ends — a frame
+ * after the release's click — or on the next press. Clicks with no pointer
+ * press behind them (detail 0, e.g. keyboard) are left alone.
+ */
+function handleClickCapture(event: MouseEvent) {
+  if (hasReordered.value && event.detail) {
+    hasReordered.value = false
+    event.stopPropagation()
+    event.preventDefault()
+  }
+}
+
+function handlePointerdownCapture() {
+  hasReordered.value = false
+}
+
 function bindProps() {
   const { axis, values, 'onUpdate:values': onUpdateValues, ...rest } = props
   return {
@@ -150,6 +173,8 @@ function bindProps() {
   <Motion
     v-bind="bindProps()"
     ref="groupRef"
+    @pointerdown.capture="handlePointerdownCapture"
+    @click.capture="handleClickCapture"
   >
     <slot />
     {{ warning() }}
