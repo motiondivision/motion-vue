@@ -1,6 +1,5 @@
 import { createContext } from '@/utils'
-import type { Box } from 'framer-motion'
-import type { Point } from 'motion-utils'
+import type { Box, Point } from 'motion-utils'
 import type { Ref } from 'vue'
 import type { ReorderAxis } from './types'
 

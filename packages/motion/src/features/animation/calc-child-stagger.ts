@@ -1,5 +1,4 @@
-import type { VisualElement } from 'framer-motion'
-import type { DynamicOption } from 'motion-dom'
+import type { DynamicOption, VisualElement } from 'motion-dom'
 
 export function calcChildStagger(
   children: Set<VisualElement>,

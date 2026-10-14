@@ -1,4 +1,4 @@
-import type { Box } from 'framer-motion'
+import type { Box } from 'motion-utils'
 
 export type ReorderAxis = 'x' | 'y' | 'xy'
 

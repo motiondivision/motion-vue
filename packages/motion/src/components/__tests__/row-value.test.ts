@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { motionValue } from 'framer-motion/dom'
+import { motionValue } from 'motion-dom'
 import RowValue from '../RowValue.vue'
 
 describe('row-value', () => {

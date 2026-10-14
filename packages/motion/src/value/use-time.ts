@@ -1,5 +1,5 @@
 import { useAnimationFrame } from '@/utils/use-animation-frame'
-import { motionValue } from 'framer-motion/dom'
+import { motionValue } from 'motion-dom'
 
 export function useTime() {
   const time = motionValue(0)
