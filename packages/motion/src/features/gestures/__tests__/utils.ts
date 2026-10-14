@@ -3,6 +3,11 @@ import { beforeAll } from 'vitest'
 /**
  * jsdom has no PointerEvent; MouseEvent covers the parts the gesture
  * layer reads (clientX/Y, pageX/Y, button, buttons).
+ *
+ * happy-dom (the actual test env via vitest's --dom flag) doesn't
+ * implement pageX/pageY on MouseEvent (always 0), while the gesture
+ * layer reads pageX/Y by default — define them from the init, falling
+ * back to clientX/Y (tests never scroll, so page === client).
  */
 class MockPointerEvent extends MouseEvent {
   pointerId: number
@@ -14,6 +19,10 @@ class MockPointerEvent extends MouseEvent {
     this.pointerId = init.pointerId ?? 1
     this.pointerType = init.pointerType ?? 'mouse'
     this.isPrimary = init.isPrimary ?? true
+    Object.defineProperties(this, {
+      pageX: { value: (init as any).pageX ?? init.clientX ?? 0 },
+      pageY: { value: (init as any).pageY ?? init.clientY ?? 0 },
+    })
   }
 }
 
