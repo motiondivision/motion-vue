@@ -1,5 +1,4 @@
-import type { DOMKeyframesDefinition, LegacyAnimationControls, MotionPath, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
-import type { animate } from 'framer-motion/dom'
+import type { AnimationPlaybackControlsWithThen, DOMKeyframesDefinition, LegacyAnimationControls, MotionPath, MotionValue, ResolvedValues, TransformProperties, VariantLabels } from 'motion-dom'
 import type { LayoutOptions } from '@/features/layout/types'
 import type { DragProps } from '@/features/gestures/drag/types'
 import type { PressProps } from '@/features/gestures/press/types'
@@ -12,7 +11,7 @@ import type { $Transition } from './framer-motion'
 import type { FocusProps } from '@/features/gestures/focus/types'
 import type { AsTag } from '@/types/common'
 
-type AnimationPlaybackControls = ReturnType<typeof animate>
+type AnimationPlaybackControls = AnimationPlaybackControlsWithThen
 export interface VariantType extends DOMKeyframesDefinition {
   transition?: Options['transition']
   attrX?: DOMKeyframesDefinition['x']

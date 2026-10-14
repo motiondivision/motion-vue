@@ -1,9 +1,7 @@
 import type { MaybeRef } from 'vue'
 import { toValue, watch } from 'vue'
-import { isMotionValue, motionValue } from 'framer-motion/dom'
-import type { MotionValue } from 'framer-motion/dom'
-import type { FollowValueOptions, SpringOptions } from 'motion-dom'
-import { attachFollow } from 'motion-dom'
+import { attachFollow, isMotionValue, motionValue } from 'motion-dom'
+import type { FollowValueOptions, MotionValue, SpringOptions } from 'motion-dom'
 
 type AnyResolvedKeyframe = string | number
 

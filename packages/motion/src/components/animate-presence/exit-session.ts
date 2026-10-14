@@ -1,4 +1,4 @@
-import { frame } from 'framer-motion/dom'
+import { frame } from 'motion-dom'
 import type { MotionState } from '@/state'
 import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'

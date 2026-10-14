@@ -1,4 +1,4 @@
-import type { MotionValue } from 'framer-motion/dom'
+import type { MotionValue } from 'motion-dom'
 import type { Options } from './state'
 import type { AriaAttributes, Events, IntrinsicElementAttributes, SVGAttributes } from 'vue'
 import type { ElementType } from '@/types/common'

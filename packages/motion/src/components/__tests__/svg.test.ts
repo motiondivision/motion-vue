@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/vue'
 import { Motion } from '@/components'
-import { motionValue } from 'framer-motion/dom'
+import { motionValue } from 'motion-dom'
 import { nextTick } from 'vue'
 import { delay } from '@/shared/test'
 

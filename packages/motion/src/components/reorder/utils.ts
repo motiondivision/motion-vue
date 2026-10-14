@@ -1,6 +1,6 @@
 import type { ItemData, ReorderAxis } from '@/components/reorder/types'
 import type { Axis, Box, Point } from 'motion-utils'
-import { isMotionValue, mixNumber, motionValue } from 'framer-motion/dom'
+import { isMotionValue, mixNumber, motionValue } from 'motion-dom'
 import { moveItem } from 'motion-utils'
 
 export function checkReorder<T>(
