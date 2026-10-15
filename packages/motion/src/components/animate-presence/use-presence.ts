@@ -6,10 +6,10 @@ import { injectAnimatePresence } from './presence'
  * Lets a component run its own exit when an `AnimatePresence` removes it,
  * for components that animate out without a `motion` element's `exit`.
  *
- * Removal waits for the promise `onExit` returns. Vue runs the component's
- * `onUnmounted` hooks before that, so teardown the exit needs (an engine,
- * listeners) should wait for the same promise. `onEnter` runs if the
- * element comes back while its exit is running.
+ * AnimatePresence keeps the component mounted until the promise `onExit`
+ * returns resolves, so teardown the exit needs (an engine, listeners) can
+ * wait for that promise or for `onUnmounted`, which runs right after.
+ * `onEnter` runs if the element comes back while its exit is running.
  *
  * Outside an `AnimatePresence` it does nothing.
  */
