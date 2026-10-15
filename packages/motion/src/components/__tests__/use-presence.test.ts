@@ -3,7 +3,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, onUnmounted, ref, vShow, withDirectives } from 'vue'
+import { defineComponent, h, nextTick, onUnmounted, ref } from 'vue'
 import { AnimatePresence, usePresence } from '@/components'
 
 /** A component with its own exit: a promise it resolves by hand. */
@@ -32,7 +32,7 @@ function render(child: ReturnType<typeof defineComponent>) {
 }
 
 describe('usePresence', () => {
-  it('keeps the element until its exit resolves', async () => {
+  it('keeps the component mounted until its exit resolves', async () => {
     const { Exiting, onExit, unmounted, finish } = createExiting()
     const { show, wrapper } = render(Exiting)
     await nextTick()
@@ -40,23 +40,22 @@ describe('usePresence', () => {
     show.value = false
     await nextTick()
     expect(onExit).toHaveBeenCalledTimes(1)
-    // Vue unmounts the component at once; the element waits for the exit.
-    expect(unmounted).toHaveBeenCalled()
+    // AnimatePresence owns removal: the component instance and its element
+    // both stay alive while the exit runs.
+    expect(unmounted).not.toHaveBeenCalled()
     expect(document.querySelector('.exiting')).not.toBeNull()
 
     finish()
     await new Promise(resolve => setTimeout(resolve, 0))
     await nextTick()
     expect(document.querySelector('.exiting')).toBeNull()
+    expect(unmounted).toHaveBeenCalled()
     wrapper.unmount()
   })
 
-  it('runs onEnter when a v-show element comes back mid-exit', async () => {
+  it('runs onEnter when the element comes back mid-exit', async () => {
     const { Exiting, onExit, onEnter } = createExiting()
-    const show = ref(true)
-    const wrapper = mount(defineComponent({
-      setup: () => () => h(AnimatePresence, null, () => withDirectives(h(Exiting), [[vShow, show.value]])),
-    }), { attachTo: document.body, global: { stubs: { Transition: false, TransitionGroup: false } } })
+    const { show, wrapper } = render(Exiting)
     await nextTick()
     show.value = false
     await nextTick()

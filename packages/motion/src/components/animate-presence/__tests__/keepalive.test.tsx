@@ -10,16 +10,6 @@ import { ExitFeature } from '@/features/exit/exit'
 import type { Options } from '@/types'
 import { delay } from '@/shared/test'
 
-// jsdom reports offsetParent === null for every element, which makes
-// AnimationFeature treat mounted elements as hidden and apply exit values.
-// Emulate the browser: connected elements have an offsetParent.
-Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
-  configurable: true,
-  get(this: HTMLElement) {
-    return this.isConnected ? document.body : null
-  },
-})
-
 const globalStubs = {
   stubs: {
     Transition: false,
@@ -61,7 +51,7 @@ function mountKeepAlive() {
 }
 
 describe('keepAlive presence', () => {
-  it('plays the exit animation in place before the element is moved to the storage container', async () => {
+  it('deactivation moves the panel to storage at once — exit animations do not play across KeepAlive switches', async () => {
     const { wrapper, PanelB } = mountKeepAlive()
     await nextTick()
     await delay(100)
@@ -72,11 +62,8 @@ describe('keepAlive presence', () => {
     wrapper.vm.current = PanelB
     await nextTick()
 
-    // Exit still running: the leaving element has not been detached yet
-    expect(elA.isConnected).toBe(true)
-
-    await delay(200)
-    // Exit completed: KeepAlive has moved it into the detached storage container
+    // AnimatePresence no longer relies on Vue transition hooks, so nothing
+    // defers KeepAlive's move into the storage container.
     expect(elA.isConnected).toBe(false)
 
     wrapper.unmount()
@@ -108,32 +95,28 @@ describe('keepAlive presence', () => {
     wrapper.unmount()
   })
 
-  it('re-registered states still intercept the exit on subsequent switches', async () => {
+  it('repeated switches keep re-registering the state cleanly', async () => {
     const { wrapper, PanelA, PanelB } = mountKeepAlive()
     await nextTick()
     await delay(100)
 
     const elA = wrapper.find('.panel').element as HTMLElement
+    const state = mountedStates.get(elA)!
 
     for (let i = 0; i < 3; i++) {
       wrapper.vm.current = PanelB
       await nextTick()
       await delay(200)
+      expect(elA.isConnected).toBe(false)
+      expect(state.isMounted()).toBe(false)
+
       wrapper.vm.current = PanelA
       await nextTick()
       await delay(200)
+      expect(elA.isConnected).toBe(true)
+      expect(state.isMounted()).toBe(true)
+      expect(elA.style.opacity).toBe('1')
     }
-
-    expect(elA.isConnected).toBe(true)
-    expect(elA.style.opacity).toBe('1')
-
-    // Fourth switch away: the exit session must still hold the element in
-    // place mid-exit — proof the remount re-registered with AnimatePresence
-    wrapper.vm.current = PanelB
-    await nextTick()
-    expect(elA.isConnected).toBe(true)
-    await delay(200)
-    expect(elA.isConnected).toBe(false)
 
     wrapper.unmount()
   })
@@ -224,8 +207,8 @@ describe('motionState unmount idempotency', () => {
     expect(state.isMounted()).toBe(false)
     expect(mountedStates.get(el)).toBeUndefined()
 
-    // A second unmount (exit-session finalize after the deactivated hook)
-    // must not resurrect or corrupt the state
+    // A second unmount (a presence-driven teardown racing the deactivated
+    // hook) must not resurrect or corrupt the state
     state.unmount()
     expect(state.isMounted()).toBe(false)
 

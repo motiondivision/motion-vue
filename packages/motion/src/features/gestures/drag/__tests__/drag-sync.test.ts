@@ -2,7 +2,7 @@ import type { MotionState } from '@/state'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/vue'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import { AnimatePresence, Motion } from '@/components'
 import { useDragControls } from '@/features/gestures/drag/use-drag-controls'
 import { rootProjectionNode } from 'motion-dom'
@@ -100,13 +100,16 @@ describe('drag: exiting element', () => {
   it('does not start a drag while the element is exiting', async () => {
     const show = ref(true)
     const wrapper = mount(defineComponent({
-      setup: () => () => h(AnimatePresence, null, () => withDirectives(h(Motion, {
-        'drag': true,
-        'dragMomentum': false,
-        'exit': { opacity: 0 },
-        'transition': { duration: 10 },
-        'data-testid': 'box',
-      }), [[vShow, show.value]])),
+      setup: () => () => h(AnimatePresence, null, () => show.value
+        ? h(Motion, {
+          'key': 'box',
+          'drag': true,
+          'dragMomentum': false,
+          'exit': { opacity: 0 },
+          'transition': { duration: 10 },
+          'data-testid': 'box',
+        })
+        : null),
     }), { attachTo: document.body, global: { stubs: { Transition: false, TransitionGroup: false } } })
     await nextTick()
     const box = document.querySelector('[data-testid="box"]') as HTMLElement
@@ -121,8 +124,8 @@ describe('drag: exiting element', () => {
     await nextTick()
     await nextFrames(2)
 
-    // v-show keeps the state mounted during exit; prove we're mid-exit,
-    // then try to drag.
+    // AnimatePresence keeps the state mounted during exit; prove we're
+    // mid-exit, then try to drag.
     expect(state.isExiting).toBe(true)
     pointerDown(box, 0, 0)
     pointerMove(100, 0)
