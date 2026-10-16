@@ -67,7 +67,8 @@
   "pnpm": {
     "overrides": {
       "typescript": "6.0.3",
-      "vue": "^3.5.30"
+      "vue": "^3.5.30",
+      "motion-v>vue": "3.6.0-rc.11"
     }
   },
   "simple-git-hooks": {

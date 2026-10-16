@@ -67,5 +67,10 @@
     "hey-listen": "^1.0.8",
     "motion-dom": "~14.3.0",
     "motion-utils": "~14.1.1"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "8.1.0",
+    "@vue/test-utils": "2.5.1",
+    "vue": "3.6.0-rc.11"
   }
 }
