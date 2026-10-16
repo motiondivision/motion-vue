@@ -93,7 +93,7 @@ export function createExitSession(config: ExitSessionConfig) {
     sessions.set(el, session)
     addPopStyle(session)
 
-    const completions = states.map(state =>
+    const completions: Promise<unknown>[] = states.map(state =>
       state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve(),
     )
     for (const handler of handlers)

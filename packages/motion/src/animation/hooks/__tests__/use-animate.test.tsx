@@ -50,3 +50,22 @@ describe('useAnimate skipAnimations', () => {
     expect(value.get()).toBeLessThan(100)
   })
 })
+
+describe('useAnimate scope ref', () => {
+  it('keeps a bare Element as-is when assigned to the scope ref (vapor-style template ref)', () => {
+    let scope!: ReturnType<typeof useAnimate>[0]
+    mount({
+      setup() {
+        const [s] = useAnimate()
+        scope = s
+        return () => h('div')
+      },
+    })
+
+    const el = document.createElement('div')
+    scope.value = el
+
+    expect(scope.value).toBe(el)
+    expect(scope.current).toBe(el)
+  })
+})

@@ -1,17 +1,17 @@
-import type { App, ComponentInternalInstance, ComputedRef, Directive, VNode } from 'vue'
+import type { App, ComponentInternalInstance, Directive, VNode } from 'vue'
 import type { Options } from '@/types'
 import type { FeatureBundle } from '@/features/dom-animation'
 import { domMax } from '@/features/dom-max'
 import { MotionState, mountedStates } from '@/state'
 import { createVisualElement as defaultRenderer } from '@/state/create-visual-element'
-import { createSVGStyles, createStyles } from '@/state/style'
-import { isSVGElement, resolveInitialValues } from '@/state/utils'
+import { resolveInitialValues } from '@/state/utils'
 import { warning } from 'hey-listen'
-import { layoutGroupInjectionKey, motionInjectionKey } from '@/components/context'
-import { animatePresenceInjectionKey } from '@/components/animate-presence/presence'
-import { defaultConfig, motionConfigInjectionKey } from '@/components/motion-config/context'
-import type { MotionConfigState } from '@/components/motion-config/types'
-import { resolveMotionProps } from '@/utils/resolve-motion-props'
+import {
+  applyInitialStyles,
+  buildMotionOptions,
+  computeStyles,
+  resolveTag as resolveElementTag,
+} from './shared'
 
 /**
  * Extract props from VNode and merge with binding value.
@@ -54,25 +54,9 @@ function resolveTag(el: Element): string
 function resolveTag(vnode: VNode): string
 function resolveTag(source: Element | VNode): string {
   if (typeof Element !== 'undefined' && source instanceof Element)
-    return source.tagName.toLowerCase()
+    return resolveElementTag(source)
   const vnode = source as VNode
   return typeof vnode.type === 'string' ? vnode.type : 'div'
-}
-
-/**
- * Compute CSS styles (and SVG attrs) from motion values.
- * Shared by SSR and client-side initial style application.
- */
-function computeStyles(
-  values: Record<string, any>,
-  tag: string,
-  styleProp?: Record<string, any>,
-): { styles: Record<string, any> | null, attrs?: Record<string, any> } {
-  if (isSVGElement(tag as any)) {
-    const { attrs, style } = createSVGStyles({ ...values }, tag, styleProp)
-    return { styles: createStyles(style), attrs }
-  }
-  return { styles: createStyles({ ...styleProp, ...values }) }
 }
 
 function resolveSSRStyles(options: Options): Record<string, string> | null {
@@ -82,16 +66,6 @@ function resolveSSRStyles(options: Options): Record<string, string> | null {
   if (Object.keys(latestValues).length === 0)
     return null
   return computeStyles(latestValues, options.as as string || 'div', options.style).styles
-}
-
-function applyInitialStyles(el: HTMLElement | SVGElement, state: MotionState) {
-  const { styles, attrs } = computeStyles(state.latestValues, resolveTag(el), state.options.style)
-  if (attrs) {
-    for (const key in attrs) el.setAttribute(key, String(attrs[key]))
-  }
-  if (styles) {
-    for (const key in styles) el.style[key as any] = styles[key]
-  }
 }
 
 function findComponentParent(vnode: VNode, root: ComponentInternalInstance): ComponentInternalInstance | null {
@@ -151,29 +125,6 @@ function resolveProvides(vnode: VNode, binding: any): Record<symbol, any> {
     ? findComponentParent(vnode, binding.instance!.$)?.provides
     // @ts-expect-error vnode.ctx.provides is not typed
     : vnode.ctx?.provides) ?? binding.instance!.$.provides
-}
-
-/**
- * Extract context values from the provides chain and build
- * a full options object matching useMotionState behavior.
- */
-function buildMotionOptions(
-  motionProps: Options,
-  provides: Record<symbol, any>,
-  tag: string,
-): { options: Options, parentState: MotionState | null } {
-  const parentState: MotionState | null = provides[motionInjectionKey as any] ?? null
-  const layoutGroup = provides[layoutGroupInjectionKey as any] ?? {}
-  const presenceContext = provides[animatePresenceInjectionKey as any] ?? {}
-  const configRef: ComputedRef<MotionConfigState> | null = provides[motionConfigInjectionKey as any] ?? null
-  const config = configRef?.value ?? defaultConfig
-  return {
-    parentState,
-    options: resolveMotionProps(
-      { ...motionProps, as: tag },
-      { layoutGroup, presenceContext, config },
-    ),
-  }
 }
 
 /**
