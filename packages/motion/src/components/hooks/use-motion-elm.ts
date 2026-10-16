@@ -1,5 +1,4 @@
 import { type MaybeComputedElementRef, unrefElement } from '@vueuse/core'
-import { getCurrentInstance, onMounted } from 'vue'
 
 /**
  * Get the actual motion element, skipping text and comment nodes
@@ -24,20 +23,4 @@ export function getMotionElement(el: HTMLElement | SVGElement | null): HTMLEleme
  */
 export function getElement(target: MaybeComputedElementRef) {
   return getMotionElement(unrefElement(target))
-}
-
-/**
- * Hook to get the motion element of current component instance
- * @returns Function that returns the motion element
- */
-export function useMotionElm() {
-  const instance = getCurrentInstance().proxy
-  const motionElement = {
-    value: null as HTMLElement | SVGElement | null,
-  }
-  onMounted(() => {
-    motionElement.value = getMotionElement(instance.$el)
-  })
-
-  return motionElement
 }
