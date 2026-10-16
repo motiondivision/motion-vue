@@ -57,14 +57,15 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - `custom` prop is synced eagerly inside the `exit()` hook (not via a Vue watcher) because Vue's `@leave` fires synchronously during patching — a `flush: 'pre'` watcher is not guaranteed to have run when `v-if` and `custom` change in the same tick
    - `presenceContext` is passed to `visualElement` both at init (`initVisualElement`) and on updates (`updateOptions`) so exit variant functions receive the correct `custom` value
 
-8. **v-motion Directive** (`packages/motion/src/`)
+8. **v-motion Directive** (`packages/motion/src/directive/`)
    - Full-featured directive alternative to the `<motion>` component — no wrapper element required
-   - Exports: `vMotion` (domMax bundle), `createMotionDirective(bundle?)`, `createPresetDirective(defaults)`, `MotionPlugin`
+   - Two forms: `vMotion` (object directive for VDOM apps) and `vMotionVapor` (function directive for Vapor apps), plus `createMotionDirective(bundle?)` / `createVaporMotionDirective(bundle?)` factories, `createPresetDirective(defaults)`, `MotionPlugin`
    - Supports all animation, gesture, layout, and exit props identical to `<motion>`
    - **Key limitation**: does not support parent-child variant propagation (no Vue provide/inject context)
    - Two syntax styles: props syntax (`v-motion :animate="..."`) and binding value syntax (`v-motion="{ animate: ... }"`) — props win on conflict
+   - The vapor form only supports the binding value syntax (Vapor directives receive no vnode), mounts via a post-flush watcher, and has no presence/exit animations, MotionConfig/LayoutGroup context, or SSR styles (Vapor exposes no component instance tree)
    - Preset directives created via `createPresetDirective` can be overridden per-use via binding value
-   - Registered globally via `MotionPlugin` (supports `presets` option) or Nuxt module (`motionV.directives: true`)
+   - Registered globally via `MotionPlugin` (supports `presets` option) or Nuxt module (`motionV.directives: true`); the vapor form is registered manually: `app.directive('motion', vMotionVapor)`
 
 ## Context System
 
