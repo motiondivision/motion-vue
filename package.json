@@ -34,7 +34,8 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
-    "size:compare": "node scripts/size-compare.mjs"
+    "size:compare": "node scripts/size-compare.mjs",
+    "play:vapor": "pnpm --filter @motion-vue/playground-vapor dev"
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
@@ -71,7 +72,8 @@
     "overrides": {
       "typescript": "6.0.3",
       "vue": "^3.5.30",
-      "motion-v>vue": "3.6.0-rc.11"
+      "motion-v>vue": "3.6.0-rc.11",
+      "@motion-vue/playground-vapor>vue": "3.6.0-rc.11"
     }
   },
   "simple-git-hooks": {
