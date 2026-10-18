@@ -16,7 +16,7 @@ export interface DemoEntry {
 }
 
 export const demos: DemoEntry[] = [
-  // —— Supported ——
+  // —— Supported (both paths) ——
   {
     id: 'initial-animate',
     title: 'Initial → Animate',
@@ -93,43 +93,49 @@ export const demos: DemoEntry[] = [
     load: () => import('./demos/motion-component.vue'),
   },
 
-  // —— Unsupported ——
+  // —— Supported (component path only; directive cannot) ——
   {
     id: 'parent-child-variants',
     title: '父子 Variant 传播',
     titleEn: 'Parent-child variants',
-    status: 'unsupported',
-    api: 'directive',
-    summary: 'vapor 指令无法走组件树 provide/inject，子元素不会继承父 variant。',
-    detail: '限制主要在指令路径。vdom 的 <Motion> 树（含 vaporInterop 下的组件树）才支持 variant 传播；本 playground 不伪造该能力。',
+    status: 'supported',
+    api: 'component',
+    summary: '组件路径：父 <Motion> variant + staggerChildren 可传给子节点。指令路径无组件树，无法传播。',
+    detail: 'v-motion 在 vapor 下没有 provide/inject，子元素不会继承父 variant。请用本页的 <Motion> 树演示。',
+    load: () => import('./demos/parent-child-variants.vue'),
   },
   {
     id: 'animate-presence',
     title: 'AnimatePresence / exit / usePresence',
     titleEn: 'Presence & exit',
     status: 'unsupported',
-    api: 'directive',
-    summary: '指令路径没有 presence context，无法做退场动画。',
-    detail: 'AnimatePresence 依赖 vdom 组件树与 provide/inject。vapor 指令无 instance tree。Motion + AnimatePresence 经 interop 理论上可走组件树，但本 vapor playground 未将其标为已支持，请用 playground/vite 验证完整行为。',
+    api: 'component',
+    summary: 'Tried · broken：vapor 父级 v-if + AnimatePresence 下 exit 立即卸除，动画不播放。指令同样无 presence。',
+    detail: '已在 createVaporApp + vaporInteropPlugin 下实测：隐藏后 DOM 约 1 帧内移除，:exit / usePresence 无法挂起。请用 playground/vite（vdom）验证完整 Presence。',
+    load: () => import('./demos/animate-presence.vue'),
   },
   {
     id: 'layout-group',
     title: 'LayoutGroup / layoutId 共享布局',
     titleEn: 'Shared layout context',
-    status: 'unsupported',
-    api: 'directive',
-    summary: 'LayoutGroup 与 layoutId 跨节点协调依赖 context，vapor 指令不可用。',
-    detail: '指令路径不支持。组件路径（LayoutGroup + Motion）依赖 vdom context；本 playground 不演示也不声称 vapor 下已支持。',
+    status: 'supported',
+    api: 'component',
+    summary: '组件路径：layoutId 共享元素与 LayoutGroup 协调可用。指令无法参与 layout context。',
+    detail: '本页含 tab underline、layoutId 共享盒子、LayoutGroup + layout 展开。',
+    load: () => import('./demos/layout-group.vue'),
   },
   {
     id: 'motion-config',
     title: 'MotionConfig 继承',
     titleEn: 'MotionConfig',
-    status: 'unsupported',
-    api: 'directive',
-    summary: '全局/局部 MotionConfig 无法通过 vapor 指令树向下传递。',
-    detail: '指令路径不支持。组件树内 MotionConfig 继承仍属 vdom/context 能力。',
+    status: 'supported',
+    api: 'component',
+    summary: '组件路径：MotionConfig 的 reducedMotion / transition 可向下继承。指令读不到 config context。',
+    detail: '切换 reducedMotion always/never，观察子 <Motion> 是否跳过动画。',
+    load: () => import('./demos/motion-config.vue'),
   },
+
+  // —— Unsupported (directive-only stubs) ——
   {
     id: 'ssr-styles',
     title: 'SSR 指令样式 (getSSRProps)',
@@ -151,6 +157,10 @@ export const demos: DemoEntry[] = [
 ]
 
 export const supportedDemos = demos.filter(d => d.status === 'supported')
+/** Dual-path (v-motion + Motion) supported demos. */
+export const supportedBothDemos = supportedDemos.filter(d => !d.api || d.api === 'both')
+/** Component-path context features that the directive cannot do. */
+export const supportedComponentDemos = supportedDemos.filter(d => d.api === 'component')
 export const unsupportedDemos = demos.filter(d => d.status === 'unsupported')
 
 export function findDemo(id: string | null | undefined) {

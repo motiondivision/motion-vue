@@ -6,7 +6,8 @@ import {
   apiLabel,
   demos,
   findDemo,
-  supportedDemos,
+  supportedBothDemos,
+  supportedComponentDemos,
   unsupportedDemos,
 } from './catalog'
 
@@ -23,22 +24,25 @@ const pathFilter = ref<'all' | ApiPath>('all')
 
 const current = computed(() => findDemo(currentId.value))
 
-const filteredSupported = computed(() => {
+function matchesPathFilter(d: DemoEntry) {
   if (pathFilter.value === 'all')
-    return supportedDemos
-  return supportedDemos.filter(d => !d.api || d.api === 'both' || d.api === pathFilter.value)
-})
+    return true
+  if (!d.api || d.api === 'both')
+    return true
+  return d.api === pathFilter.value
+}
 
-const filteredUnsupported = computed(() => {
-  if (pathFilter.value === 'all')
-    return unsupportedDemos
-  // Show unsupported that apply to the selected path, or to both/unspecified.
-  return unsupportedDemos.filter((d) => {
-    if (!d.api || d.api === 'both')
-      return true
-    return d.api === pathFilter.value
-  })
-})
+const filteredSupportedBoth = computed(() =>
+  supportedBothDemos.filter(matchesPathFilter),
+)
+
+const filteredSupportedComponent = computed(() =>
+  supportedComponentDemos.filter(matchesPathFilter),
+)
+
+const filteredUnsupported = computed(() =>
+  unsupportedDemos.filter(matchesPathFilter),
+)
 
 async function loadDemo(entry: DemoEntry | undefined) {
   DemoComp.value = null
@@ -124,8 +128,9 @@ onMounted(() => {
             基于 Vue 3.6 <code style="color:#d8b4fe">createVaporApp</code> +
             <code style="color:#d8b4fe">MotionPlugin</code> +
             <code style="color:#d8b4fe">vaporInteropPlugin</code>。
-            支持区同时演示 <strong>v-motion</strong> 与 <strong>&lt;Motion&gt;</strong>；
-            不支持区标明限制主要在指令还是组件路径（不伪造不可用特性）。
+            <strong>双路径</strong>演示 v-motion 与 &lt;Motion&gt;；
+            <strong>组件路径</strong>覆盖指令做不到的 context 特性（Variants / Presence / Layout / Config）；
+            指令专属限制仍标为不支持（不伪造）。
           </p>
           <div class="note">
             运行：<code>pnpm play:vapor</code>
@@ -164,11 +169,49 @@ onMounted(() => {
 
         <section class="section">
           <h2 class="section-title">
-            支持 Supported · {{ filteredSupported.length }}
+            双路径支持 Supported · {{ filteredSupportedBoth.length }}
           </h2>
           <div class="grid">
             <button
-              v-for="demo in filteredSupported"
+              v-for="demo in filteredSupportedBoth"
+              :key="demo.id"
+              type="button"
+              class="card"
+              @click="openDemo(demo)"
+            >
+              <div class="card-top">
+                <div>
+                  <h3>{{ demo.title }}</h3>
+                  <p class="en">
+                    {{ demo.titleEn }}
+                  </p>
+                </div>
+                <div class="badge-stack">
+                  <span
+                    v-if="demo.api"
+                    class="badge path"
+                    :class="demo.api"
+                  >{{ apiLabel(demo.api) }}</span>
+                  <span class="badge ok">Supported</span>
+                </div>
+              </div>
+              <p class="summary">
+                {{ demo.summary }}
+              </p>
+            </button>
+          </div>
+        </section>
+
+        <section
+          v-if="filteredSupportedComponent.length"
+          class="section"
+        >
+          <h2 class="section-title">
+            组件路径支持 · 指令不可 · {{ filteredSupportedComponent.length }}
+          </h2>
+          <div class="grid">
+            <button
+              v-for="demo in filteredSupportedComponent"
               :key="demo.id"
               type="button"
               class="card"
@@ -199,7 +242,7 @@ onMounted(() => {
 
         <section class="section">
           <h2 class="section-title">
-            不支持 Unsupported · {{ filteredUnsupported.length }}
+            指令不支持 Unsupported · {{ filteredUnsupported.length }}
           </h2>
           <div class="grid">
             <button
@@ -327,11 +370,28 @@ onMounted(() => {
             {{ current.detail }}
           </p>
           <p>
-            本 playground <strong>不会</strong>伪造该能力。限制标注为
-            <strong>v-motion</strong> 的条目主要针对指令路径；
-            <code>&lt;Motion&gt;</code> + context（AnimatePresence / LayoutGroup 等）
-            请用现有 <code>playground/vite</code>（vdom）验证完整行为。
+            本 playground <strong>不会</strong>伪造该能力。
+            标注为 <strong>v-motion</strong> 的条目仅针对指令路径限制；
+            标注 tried/broken 的组件条目表示已在 vapor+interop 下实测失败。
+            可用的 context 能力见上方 <strong>组件路径支持</strong> 区。
           </p>
+        </div>
+
+        <!-- Attempted / broken demos still mount so the failure is visible -->
+        <div
+          v-if="current.status === 'unsupported' && current.load"
+          style="margin-top: 1.25rem"
+        >
+          <p
+            v-if="loadError"
+            class="lead"
+          >
+            加载失败：{{ loadError }}
+          </p>
+          <component
+            :is="DemoComp"
+            v-else-if="DemoComp"
+          />
         </div>
       </div>
     </main>
