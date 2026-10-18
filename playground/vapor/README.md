@@ -22,27 +22,31 @@ pnpm --filter @motion-vue/playground-vapor dev
 
 ## 支持（Supported）
 
-| 能力 | 说明 |
-| --- | --- |
-| `v-motion` initial → animate | 绑定值语法 |
-| 响应式绑定更新 | 绑定对象变化驱动动画 |
-| 卸载 cleanup | 指令返回的 cleanup → `MotionState.unmount` |
-| whileHover / whilePress | 元素级手势，无需 context |
-| 基础 drag | 无 LayoutGroup / 外部约束 context |
-| spring / transition | 写在绑定值中 |
-| MotionPlugin presets | 如 `v-fade-in`（vapor 下同样注册函数指令） |
-| `<Motion>` + `vaporInteropPlugin` | 推荐组件路径 |
+支持区每条能力都尽量同时给出 **v-motion** 与 **`<Motion>`** 演示（页内成对面板 + 目录路径筛选）。
+
+| 能力 | v-motion | `<Motion>` | 说明 |
+| --- | --- | --- | --- |
+| initial → animate | ✓ | ✓ | 绑定值 / props |
+| 响应式绑定更新 | ✓ | ✓ | 目标值变化驱动动画 |
+| 卸载 cleanup | ✓ | ✓ | cleanup / 组件卸载 → `MotionState.unmount` |
+| whileHover / whilePress | ✓ | ✓ | 元素级手势，无需 context |
+| 基础 drag | ✓ | ✓ | 无 LayoutGroup / 外部约束 context |
+| spring / transition | ✓ | ✓ | 写在绑定值或 `:transition` |
+| MotionPlugin presets | ✓（指令） | 等价 props | presets 只注册指令；组件用相同 initial/animate 对照 |
+| 路径总览 | ✓ | ✓ | 同屏对照入口 |
 
 ## 不支持（Unsupported）
 
-| 能力 | 原因（简要） |
-| --- | --- |
-| 父子 variant 传播 | vapor 指令无组件树 provide/inject |
-| AnimatePresence / exit / usePresence | 无 presence context |
-| LayoutGroup / layoutId 共享布局 | 依赖 LayoutGroup context |
-| MotionConfig 继承 | 无 config context 桥接 |
-| SSR 指令样式 (`getSSRProps`) | vapor 函数指令无 SSR hooks |
-| 本地 `import { vMotion }` + `withVaporDirectives` | 公开 `vMotion` 是 **vdom 对象**指令；请用 `MotionPlugin` |
+下列条目**主要限制指令路径**；组件 + context（AnimatePresence / LayoutGroup 等）请用 `playground/vite` 验证。本 playground **不**伪造未验证能力。
+
+| 能力 | 主要受限路径 | 原因（简要） |
+| --- | --- | --- |
+| 父子 variant 传播 | v-motion | vapor 指令无组件树 provide/inject |
+| AnimatePresence / exit / usePresence | v-motion | 无 presence context；组件树需另验证 |
+| LayoutGroup / layoutId 共享布局 | v-motion | 依赖 LayoutGroup context |
+| MotionConfig 继承 | v-motion | 无 config context 桥接 |
+| SSR 指令样式 (`getSSRProps`) | v-motion | vapor 函数指令无 SSR hooks |
+| 本地 `import { vMotion }` + `withVaporDirectives` | v-motion | 公开 `vMotion` 是 **vdom 对象**指令；请用 `MotionPlugin` |
 
 完整说明见 `docs/agents/architecture.md`（v-motion / vapor 小节）与
 `packages/motion/src/directive/vapor.ts` 顶部注释。

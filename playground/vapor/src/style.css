@@ -371,3 +371,106 @@ a.card:hover {
 .matrix tr:last-child td {
   border-bottom: 0;
 }
+
+.path-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0.65rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.path-heading:first-of-type {
+  margin-top: 0.25rem;
+}
+
+.path-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.path-chip.directive {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.path-chip.component {
+  color: #d8b4fe;
+  background: rgba(123, 47, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.badge-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.badge.path {
+  border: 1px solid transparent;
+}
+
+.badge.path.both {
+  color: #e9d5ff;
+  background: rgba(123, 47, 247, 0.16);
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.badge.path.directive {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.badge.path.component {
+  color: #d8b4fe;
+  background: rgba(123, 47, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-right: 0.25rem;
+}
+
+.filter-btn {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8125rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: rgba(123, 47, 247, 0.25);
+  border-color: rgba(168, 85, 247, 0.55);
+  color: #fff;
+}
