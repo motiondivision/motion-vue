@@ -37,7 +37,7 @@ export default defineConfig({
         test: {
           name: 'vdom',
           include: ['src/**/*.test.{ts,tsx}'],
-          exclude: ['src/**/v-motion-vapor.test.ts'],
+          exclude: ['src/**/*-vapor.test.ts'],
         },
       },
       {
@@ -54,7 +54,7 @@ export default defineConfig({
         },
         test: {
           name: 'vapor',
-          include: ['src/**/v-motion-vapor.test.ts'],
+          include: ['src/**/*-vapor.test.ts'],
           server: {
             deps: {
               inline: ['vue', /^@vue\//],

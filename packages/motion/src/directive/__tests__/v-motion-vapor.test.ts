@@ -2,24 +2,45 @@ import { describe, expect, it, vi } from 'vitest'
 import { createVaporApp, defineVaporComponent, nextTick, ref, template, withVaporDirectives } from 'vue'
 import { mountedStates } from '@/state'
 import { delay } from '@/shared/test'
-import { vMotionVapor } from '../vapor'
+import { MotionPlugin } from '@/directive'
 import type { VaporMotionDirective } from '../vapor'
 
-function mountVapor(options: () => Record<string, any>, directive: VaporMotionDirective = vMotionVapor) {
+/**
+ * Public vapor path: MotionPlugin on createVaporApp registers the function
+ * directive. No separate createVaporMotionDirective / vMotionVapor export.
+ */
+function resolveVaporMotionDirective(): VaporMotionDirective {
+  const probe = createVaporApp(() => document.createElement('div'))
+  probe.use(MotionPlugin)
+  const dir = probe._context.directives.motion as VaporMotionDirective | undefined
+  if (!dir || typeof dir !== 'function')
+    throw new Error('MotionPlugin did not register a vapor function directive')
+  return dir
+}
+
+function mountVapor(options: () => Record<string, any>) {
+  const dir = resolveVaporMotionDirective()
   const t0 = template('<div data-testid="box">hello</div>', 1)
   const App = defineVaporComponent(() => {
     const n0 = t0() as HTMLElement
-    withVaporDirectives(n0, [[directive, options]])
+    withVaporDirectives(n0, [[dir, options]])
     return n0
   })
   const container = document.createElement('div')
   document.body.appendChild(container)
   const app = createVaporApp(App)
+  app.use(MotionPlugin)
   app.mount(container)
   return { app, el: container.querySelector('[data-testid="box"]') as HTMLElement }
 }
 
-describe('v-motion vapor directive', () => {
+describe('v-motion via MotionPlugin under vapor', () => {
+  it('motionPlugin registers a function directive on vapor apps', () => {
+    const app = createVaporApp(() => document.createElement('div'))
+    app.use(MotionPlugin)
+    expect(typeof app._context.directives.motion).toBe('function')
+  })
+
   it('applies initial styles to element', async () => {
     const { app, el } = mountVapor(() => ({ initial: { opacity: 0.5, y: 20 } }))
     await nextTick()

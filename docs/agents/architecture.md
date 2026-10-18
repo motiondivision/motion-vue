@@ -59,13 +59,14 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
 
 8. **v-motion Directive** (`packages/motion/src/directive/`)
    - Full-featured directive alternative to the `<motion>` component — no wrapper element required
-   - Two forms: `vMotion` (object directive for VDOM apps) and `vMotionVapor` (function directive for Vapor apps), plus `createMotionDirective(bundle?)` / `createVaporMotionDirective(bundle?)` factories, `createPresetDirective(defaults)`, `MotionPlugin`
-   - Supports all animation, gesture, layout, and exit props identical to `<motion>`
-   - **Key limitation**: does not support parent-child variant propagation (no Vue provide/inject context)
-   - Two syntax styles: props syntax (`v-motion :animate="..."`) and binding value syntax (`v-motion="{ animate: ... }"`) — props win on conflict
-   - The vapor form only supports the binding value syntax (Vapor directives receive no vnode), mounts via a post-flush watcher, and has no presence/exit animations, MotionConfig/LayoutGroup context, or SSR styles (Vapor exposes no component instance tree)
-   - Preset directives created via `createPresetDirective` can be overridden per-use via binding value
-   - Registered globally via `MotionPlugin` (supports `presets` option) or Nuxt module (`motionV.directives: true`); the vapor form is registered manually: `app.directive('motion', vMotionVapor)`
+   - Public API: `vMotion`, `createMotionDirective(bundle?)`, `createPresetDirective(defaults)`, `MotionPlugin` — one surface for vdom and vapor
+   - Vue’s vapor directive shape is a function `(el, value?) => cleanup`, while vdom uses an object with lifecycle hooks. Those shapes are mutually exclusive at the call site (`withDirectives` rewrites functions; vapor rejects objects), so a single export value cannot be both. `MotionPlugin` dispatches internally: on `createVaporApp` (`app.vapor`) it registers the private vapor function; on `createApp` it registers the vdom object (`vMotion`)
+   - Supports all animation, gesture, layout, and exit props identical to `<motion>` (vdom). Vapor binding-value syntax only (no vnode props / provide-inject walk)
+   - **Key limitation (vdom directive)**: does not support parent-child variant propagation via Vue provide/inject the same way `<Motion>` does through its component tree walk caveats
+   - Two syntax styles on vdom: props syntax (`v-motion :animate="..."`) and binding value syntax (`v-motion="{ animate: ... }"`) — props win on conflict
+   - **Vapor limitations** (honest, directive path): no parent-child variants, no presence/exit, no MotionConfig/LayoutGroup context, no SSR styles — vapor exposes no component instance tree to bridge provides for directives. For richer context, use `<Motion>` inside a vapor app with Vue’s `vaporInteropPlugin` (Motion remains a vdom `defineComponent`; interop mounts it — covered by `motion-vapor.test.ts`)
+   - Preset directives via `createPresetDirective` (vdom) or `MotionPlugin` presets (vapor-aware)
+   - Registered globally via `MotionPlugin` or Nuxt module (`motionV.directives: true` → `vueApp.use(MotionPlugin)`)
 
 ## Context System
 

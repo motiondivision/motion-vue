@@ -12,6 +12,11 @@ import {
   computeStyles,
   resolveTag as resolveElementTag,
 } from './shared'
+import { createVaporMotionDirective } from './vapor'
+
+function isVaporApp(app: App): boolean {
+  return !!(app as App & { vapor?: boolean }).vapor
+}
 
 /**
  * Extract props from VNode and merge with binding value.
@@ -249,6 +254,10 @@ export interface MotionPluginType {
 /**
  * Vue plugin for global v-motion directive registration.
  *
+ * On `createVaporApp` (`app.vapor === true`), registers the vapor-shaped
+ * directive function so `v-motion` works without a separate public factory.
+ * On normal `createApp`, registers the vdom object directive.
+ *
  * @example
  * ```ts
  * import { MotionPlugin } from 'motion-v'
@@ -264,10 +273,19 @@ export interface MotionPluginType {
  */
 export const MotionPlugin: MotionPluginType = {
   install(app: App, options) {
-    app.directive('motion', vMotion)
+    const vapor = isVaporApp(app)
+    app.directive(
+      'motion',
+      vapor ? createVaporMotionDirective(domMax) : vMotion,
+    )
     if (options?.presets) {
       for (const [name, preset] of Object.entries(options.presets)) {
-        app.directive(name, createPresetDirective(preset))
+        app.directive(
+          name,
+          vapor
+            ? createVaporMotionDirective(domMax, preset)
+            : createPresetDirective(preset),
+        )
       }
     }
   },
