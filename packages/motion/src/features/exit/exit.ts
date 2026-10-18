@@ -111,11 +111,11 @@ export class ExitFeature extends Feature {
    * pairing keeps the registry exact (KeepAlive remounts re-register).
    */
   mount() {
-    this.state.options.presenceContext?.register?.(this.state)
+    this.state.options.presenceContext?.registerMotion?.(this.state)
   }
 
   unmount() {
-    this.state.options.presenceContext?.unregister?.(this.state)
+    this.state.options.presenceContext?.unregisterMotion?.(this.state)
     this.settleExit()
   }
 }
