@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AnimatePresence, LayoutGroup, Motion } from 'motion-v'
+import DemoPage from '@/components/DemoPage.vue'
+import DemoStage from '@/components/DemoStage.vue'
 
 const page = ref<'a' | 'b'>('a')
 const show = ref(true)
 const items = ref([1, 2, 3])
+
+const panel = {
+  a: { title: 'Panel A', caption: 'The incoming child waits.' },
+  b: { title: 'Panel B', caption: 'Only then does it enter.' },
+}
 
 function switchPage() {
   page.value = page.value === 'a' ? 'b' : 'a'
@@ -20,92 +27,88 @@ function resetItems() {
 </script>
 
 <template>
-  <div class="container mx-auto max-w-4xl px-6 py-12">
-    <h1 class="text-4xl font-bold text-center mb-12 text-gray-900">
-      AnimatePresence mode=wait + list layout
-    </h1>
-
-    <section class="mb-16 flex flex-col items-center gap-6">
-      <h2 class="text-2xl font-bold">
-        mode="wait" page switch
+  <DemoPage
+    eyebrow="AnimatePresence"
+    title="Wait mode and interruption"
+    description="Wait mode holds the incoming child until the outgoing one finishes. Re-enter mid-exit cancels the departure instead of remounting."
+  >
+    <section class="mb-12">
+      <h2 class="mb-3 text-sm font-medium text-white/70">
+        Page switch
       </h2>
-      <button
-        id="switch-page"
-        class="btn btn-primary"
-        @click="switchPage"
-      >
-        Switch ({{ page }})
-      </button>
-      <div
-        id="wait-stage"
-        class="relative w-full max-w-md h-[160px] border border-dashed border-gray-400"
-      >
-        <AnimatePresence mode="wait">
-          <Motion
-            v-if="page === 'a'"
-            id="panel-a"
-            key="a"
-            :initial="{ opacity: 0, x: -40 }"
-            :animate="{ opacity: 1, x: 0 }"
-            :exit="{ opacity: 0, x: 40 }"
-            :transition="{ duration: 0.35 }"
-            class="absolute inset-4 flex items-center justify-center rounded-xl bg-violet-500 text-white text-2xl font-bold"
-          >
-            Panel A
-          </Motion>
-          <Motion
-            v-else
-            id="panel-b"
-            key="b"
-            :initial="{ opacity: 0, x: -40 }"
-            :animate="{ opacity: 1, x: 0 }"
-            :exit="{ opacity: 0, x: 40 }"
-            :transition="{ duration: 0.35 }"
-            class="absolute inset-4 flex items-center justify-center rounded-xl bg-sky-500 text-white text-2xl font-bold"
-          >
-            Panel B
-          </Motion>
-        </AnimatePresence>
+      <div class="mb-4">
+        <button
+          id="switch-page"
+          class="btn btn-primary"
+          @click="switchPage"
+        >
+          Switch to {{ page === 'a' ? 'B' : 'A' }}
+        </button>
       </div>
+      <DemoStage min-height="200px">
+        <div
+          id="wait-stage"
+          class="relative h-[150px] w-full max-w-sm"
+        >
+          <AnimatePresence mode="wait">
+            <Motion
+              :id="`panel-${page}`"
+              :key="page"
+              :initial="{ opacity: 0, y: 12 }"
+              :animate="{ opacity: 1, y: 0 }"
+              :exit="{ opacity: 0, y: -12 }"
+              :transition="{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }"
+              class="absolute inset-0 flex flex-col justify-center rounded-xl border border-white/10 bg-white/[0.06] px-6"
+            >
+              <span class="text-lg font-medium text-white">{{ panel[page].title }}</span>
+              <span class="mt-1 text-sm text-white/45">{{ panel[page].caption }}</span>
+            </Motion>
+          </AnimatePresence>
+        </div>
+      </DemoStage>
     </section>
 
-    <section class="mb-16 flex flex-col items-center gap-6">
-      <h2 class="text-2xl font-bold">
-        Interrupt / re-enter mid-exit
+    <section class="mb-12">
+      <h2 class="mb-3 text-sm font-medium text-white/70">
+        Interrupt mid-exit
       </h2>
-      <button
-        id="toggle-show"
-        class="btn btn-primary"
-        @click="show = !show"
-      >
-        {{ show ? 'Hide' : 'Show' }}
-      </button>
-      <div
-        id="interrupt-stage"
-        class="relative w-full max-w-md h-[120px]"
-      >
-        <AnimatePresence>
-          <Motion
-            v-if="show"
-            id="interrupt-item"
-            key="interrupt"
-            :initial="{ opacity: 0 }"
-            :animate="{ opacity: 1 }"
-            :exit="{ opacity: 0 }"
-            :transition="{ duration: 0.6 }"
-            class="absolute inset-4 flex items-center justify-center rounded-xl bg-emerald-500 text-white text-xl font-bold"
-          >
-            Interruptible
-          </Motion>
-        </AnimatePresence>
+      <div class="mb-4">
+        <button
+          id="toggle-show"
+          class="btn btn-primary"
+          @click="show = !show"
+        >
+          {{ show ? 'Hide' : 'Show' }}
+        </button>
       </div>
+      <DemoStage min-height="160px">
+        <div
+          id="interrupt-stage"
+          class="relative h-[110px] w-full max-w-sm"
+        >
+          <AnimatePresence>
+            <Motion
+              v-if="show"
+              id="interrupt-item"
+              key="interrupt"
+              :initial="{ opacity: 0, scale: 0.97 }"
+              :animate="{ opacity: 1, scale: 1 }"
+              :exit="{ opacity: 0, scale: 0.97 }"
+              :transition="{ duration: 0.6, ease: 'easeInOut' }"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border border-violet-300/20 bg-violet-400/10 text-sm text-violet-100"
+            >
+              Toggle again while this is leaving
+            </Motion>
+          </AnimatePresence>
+        </div>
+      </DemoStage>
     </section>
 
-    <section class="flex flex-col items-center gap-6">
-      <h2 class="text-2xl font-bold">
-        List remove with layout siblings
+    <section>
+      <h2 class="mb-3 text-sm font-medium text-white/70">
+        List removal with layout siblings
       </h2>
-      <div class="flex gap-3">
+      <div class="mb-4 flex flex-wrap gap-2">
         <button
           id="remove-first"
           class="btn btn-primary"
@@ -115,35 +118,38 @@ function resetItems() {
         </button>
         <button
           id="reset-items"
-          class="btn"
+          class="btn btn-outline"
           @click="resetItems"
         >
           Reset
         </button>
       </div>
-      <LayoutGroup>
-        <ul
-          id="layout-list"
-          class="flex flex-col gap-3 w-[280px] list-none p-0 m-0"
-        >
-          <AnimatePresence>
-            <Motion
-              v-for="id in items"
-              :id="`list-item-${id}`"
-              :key="id"
-              layout
-              as="li"
-              :initial="{ opacity: 0, scale: 0.9 }"
-              :animate="{ opacity: 1, scale: 1 }"
-              :exit="{ opacity: 0, scale: 0.8 }"
-              :transition="{ duration: 0.45 }"
-              class="h-16 rounded-2xl bg-pink-500 text-white font-bold flex items-center justify-center"
-            >
-              {{ id }}
-            </Motion>
-          </AnimatePresence>
-        </ul>
-      </LayoutGroup>
+      <DemoStage>
+        <LayoutGroup>
+          <ul
+            id="layout-list"
+            class="m-0 flex w-[280px] list-none flex-col gap-3 p-0"
+          >
+            <AnimatePresence>
+              <Motion
+                v-for="id in items"
+                :id="`list-item-${id}`"
+                :key="id"
+                layout
+                as="li"
+                :initial="{ opacity: 0, scale: 0.96 }"
+                :animate="{ opacity: 1, scale: 1 }"
+                :exit="{ opacity: 0, scale: 0.94 }"
+                :transition="{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }"
+                class="flex h-14 items-center justify-between rounded-xl border border-white/10 bg-white/[0.06] px-5 text-sm text-white/75"
+              >
+                <span>Item {{ id }}</span>
+                <span class="font-mono text-[11px] text-white/30">0{{ id }}</span>
+              </Motion>
+            </AnimatePresence>
+          </ul>
+        </LayoutGroup>
+      </DemoStage>
     </section>
-  </div>
+  </DemoPage>
 </template>

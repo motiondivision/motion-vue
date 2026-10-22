@@ -25,10 +25,8 @@ test.describe('v-show Shared Layout Animation', () => {
     // Small box should be hidden
     await expect(smallBox).toBeHidden()
 
-    // Wait for animation to complete
-    await page.waitForTimeout(400)
-
-    // Verify large box is at expected position (left side)
+    // Verify large box settles at its own geometry on the left side
+    await expect.poll(async () => (await largeBox.boundingBox())?.width, { timeout: 4000 }).toBe(200)
     const largeBoxBounds = await largeBox.boundingBox()
     expect(largeBoxBounds).not.toBeNull()
     expect(largeBoxBounds!.width).toBe(200)
@@ -44,17 +42,9 @@ test.describe('v-show Shared Layout Animation', () => {
     // Toggle to show large box
     await toggle.click()
 
-    // Wait a bit for animation to be in progress
-    await page.waitForTimeout(100)
-
-    // Get current transform during animation
-    const transform = await largeBox.evaluate((el) => {
-      return window.getComputedStyle(el).transform
-    })
-
-    // During shared layout animation, transform should be applied
-    // (either a scale or translate transform for FLIP animation)
-    expect(transform).not.toBe('none')
+    // During the shared layout animation a FLIP transform is applied
+    await expect.poll(() => largeBox.evaluate(el => window.getComputedStyle(el).transform), { timeout: 4000 })
+      .not.toBe('none')
   })
 
   test('nested shared layout works with v-show', async ({ page }) => {
@@ -77,11 +67,30 @@ test.describe('v-show Shared Layout Animation', () => {
 
     // Toggle back
     await toggle.click()
-    await page.waitForTimeout(400)
 
     // Nested small should be visible again
     await expect(nestedSmall).toBeVisible()
     await expect(nestedLarge).toBeHidden()
+  })
+
+  test('rapid v-show toggles converge to the correct state', async ({ page }) => {
+    await page.goto('/animate-presence/v-show-shared-layout', { waitUntil: 'domcontentloaded' })
+
+    const toggle = page.locator('#toggle')
+    const largeBox = page.locator('#large-box')
+    const smallBox = page.locator('#small-box')
+    await expect(smallBox).toBeVisible()
+
+    // Nine clicks with no wait: leaves and enters overlap continuously.
+    for (let i = 0; i < 9; i++)
+      await toggle.click({ delay: 0 })
+
+    await expect(largeBox).toBeVisible({ timeout: 4000 })
+    await expect(smallBox).toBeHidden({ timeout: 4000 })
+
+    await toggle.click()
+    await expect(smallBox).toBeVisible({ timeout: 4000 })
+    await expect(largeBox).toBeHidden({ timeout: 4000 })
   })
 
   test('multiple v-show toggles work correctly', async ({ page }) => {
@@ -90,20 +99,26 @@ test.describe('v-show Shared Layout Animation', () => {
     const toggle = page.locator('#toggle')
     const largeBox = page.locator('#large-box')
     const smallBox = page.locator('#small-box')
+    await expect(smallBox).toBeVisible()
 
-    // Perform multiple rapid toggles
+    // Wait for each step to settle instead of sleeping a fixed interval.
     for (let i = 0; i < 3; i++) {
       await toggle.click()
-      await page.waitForTimeout(400)
+      if (i % 2 === 0) {
+        await expect(largeBox).toBeVisible()
+        await expect(smallBox).toBeHidden()
+      }
+      else {
+        await expect(smallBox).toBeVisible()
+        await expect(largeBox).toBeHidden()
+      }
     }
 
-    // After 3 toggles (odd number), large box should be visible
+    // After 3 toggles (odd number), large box should be visible.
     await expect(largeBox).toBeVisible()
     await expect(smallBox).toBeHidden()
 
-    // Toggle once more
     await toggle.click()
-    await page.waitForTimeout(400)
 
     // Now small box should be visible
     await expect(smallBox).toBeVisible()
@@ -118,6 +133,7 @@ test.describe('v-show Shared Layout Animation', () => {
     const smallBox = page.locator('#small-box')
 
     // Both elements should exist in DOM
+    await expect(page.locator('#toggle')).toBeVisible()
     const largeBoxExists = await largeBox.count()
     const smallBoxExists = await smallBox.count()
     expect(largeBoxExists).toBe(1)
@@ -125,7 +141,7 @@ test.describe('v-show Shared Layout Animation', () => {
 
     // Toggle
     await toggle.click()
-    await page.waitForTimeout(400)
+    await expect(largeBox).toBeVisible()
 
     // Both should still exist in DOM (v-show doesn't remove elements)
     const largeBoxExistsAfter = await largeBox.count()

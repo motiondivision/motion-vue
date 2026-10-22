@@ -1,81 +1,76 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AnimatePresence, Motion } from 'motion-v'
+import DemoPage from '@/components/DemoPage.vue'
+import DemoStage from '@/components/DemoStage.vue'
 
 const count = ref(0)
 const items = ref([0])
 const popLayout = ref(false)
-function removeItem<T>(arr: T[], item: T) {
-  const index = arr.indexOf(item)
-  if (index > -1)
-    arr.splice(index, 1)
-}
 
 function addItem() {
   count.value++
   items.value = [...items.value, count.value]
 }
 
-function removeItemById(id: any) {
-  const newItems = [...items.value]
-  removeItem(newItems, id)
-  items.value = newItems
+function removeItemById(id: number) {
+  items.value = items.value.filter(item => item !== id)
 }
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
-    <div class="flex flex-col items-center pb-[50px]">
-      <label class="flex items-center my-5">
-        <code class="font-mono">popLayout</code>
-        <input
-          v-model="popLayout"
-          type="checkbox"
-          class="accent-pink-500"
-        >
-      </label>
+  <DemoPage
+    eyebrow="AnimatePresence"
+    title="popLayout mode"
+    description="The exiting row is pulled out of flow with absolute positioning, so its siblings close the gap immediately while it animates away."
+  >
+    <div class="mb-4 flex flex-wrap items-center gap-4">
       <Motion
         as="button"
         :initial="{ scale: 1 }"
-        :while-press="{ scale: 0.95 }"
-        class="w-[150px] px-6 py-4 text-lg font-bold text-white bg-pink-500 rounded-full cursor-pointer"
+        :while-press="{ scale: 0.96 }"
+        class="btn btn-primary"
         @click="addItem"
       >
         Add item
       </Motion>
-    </div>
-    <AnimatePresence
-      class="flex flex-col w-[300px] h-[300px] gap-5 p-0 list-none"
-      :mode="popLayout ? 'popLayout' : 'wait'"
-      as="ul"
-      data-pop-id="122"
-    >
-      <div
-        v-for="id in items"
-        :key="id"
-      >
-        <Motion
 
-          :data-key="items.length"
-          as="li"
-          :animate="{ scale: 1, opacity: 1 }"
-          :exit="{
-            scale: 0.8,
-            opacity: 0,
-          }"
-          :transition="{
-            type: 'spring',
-          }"
-          :layout="true"
-          class="block h-20 flex-[0_0_80px] bg-pink-500 rounded-[20px] p-0 m-0 list-none"
-          @click="removeItemById(id)"
+      <label class="flex cursor-pointer items-center gap-2 text-sm text-white/60">
+        <input
+          v-model="popLayout"
+          type="checkbox"
+          class="h-4 w-4 cursor-pointer appearance-none rounded border border-white/20 bg-white/[0.06] transition-colors checked:border-violet-300/50 checked:bg-violet-400/70"
         >
-          {{ id }}
-        </Motion>
-      </div>
-    </AnimatePresence>
-  </div>
-</template>
+        <span class="font-mono text-xs">popLayout</span>
+      </label>
+    </div>
 
-  <style>
-  </style>
+    <DemoStage min-height="320px">
+      <AnimatePresence
+        :mode="popLayout ? 'popLayout' : 'sync'"
+        as="ul"
+        class="m-0 flex w-full max-w-sm list-none flex-col gap-3 p-0"
+        data-pop-id="122"
+      >
+        <div
+          v-for="id in items"
+          :key="id"
+        >
+          <Motion
+            as="li"
+            :initial="{ scale: 0.96, opacity: 0 }"
+            :animate="{ scale: 1, opacity: 1 }"
+            :exit="{ scale: 0.96, opacity: 0 }"
+            :transition="{ type: 'spring', stiffness: 300, damping: 30 }"
+            :layout="true"
+            class="flex h-20 cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-white/[0.06] px-5 text-sm text-white/75"
+            @click="removeItemById(id)"
+          >
+            <span>Item {{ id }}</span>
+            <span class="font-mono text-[11px] text-white/30">click to remove</span>
+          </Motion>
+        </div>
+      </AnimatePresence>
+    </DemoStage>
+  </DemoPage>
+</template>

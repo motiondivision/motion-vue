@@ -1,28 +1,32 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AnimatePresence, Motion } from 'motion-v'
+import DemoPage from '@/components/DemoPage.vue'
+import DemoStage from '@/components/DemoStage.vue'
 
 const showLarge = ref(false)
 </script>
 
 <template>
-  <div class="container mx-auto max-w-4xl px-6 py-12">
-    <h1 class="text-4xl font-bold text-center mb-12 text-gray-900">
-      v-if Shared Layout Animation Test
-    </h1>
-
-    <div class="flex flex-col items-center gap-8">
+  <DemoPage
+    eyebrow="AnimatePresence"
+    title="Shared layout across v-if"
+    description="Both states carry the same layoutId. AnimatePresence keeps the outgoing element measurable long enough for the shared layout handoff."
+  >
+    <div class="mb-4">
       <button
         id="toggle"
         class="btn btn-primary"
         @click="showLarge = !showLarge"
       >
-        {{ showLarge ? 'Show Small' : 'Show Large' }}
+        {{ showLarge ? 'Show small' : 'Show large' }}
       </button>
+    </div>
 
+    <DemoStage min-height="320px">
       <div
         id="stage"
-        class="relative w-full h-[300px]"
+        class="relative h-[260px] w-full"
       >
         <AnimatePresence>
           <Motion
@@ -33,8 +37,8 @@ const showLarge = ref(false)
             :initial="{ opacity: 0 }"
             :animate="{ opacity: 1 }"
             :exit="{ opacity: 0 }"
-            :transition="{ duration: 0.4 }"
-            class="absolute top-0 right-0 w-[100px] h-[100px] bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+            :transition="{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }"
+            class="absolute right-4 top-4 flex h-[100px] w-[100px] items-end rounded-lg border border-white/10 bg-white/[0.07] p-3 text-xs text-white/60"
           >
             Small
           </Motion>
@@ -46,13 +50,13 @@ const showLarge = ref(false)
             :initial="{ opacity: 0 }"
             :animate="{ opacity: 1 }"
             :exit="{ opacity: 0 }"
-            :transition="{ duration: 0.4 }"
-            class="absolute top-0 left-0 w-[200px] h-[200px] bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold"
+            :transition="{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }"
+            class="absolute left-4 top-4 flex h-[200px] w-[200px] items-end rounded-xl border border-violet-300/20 bg-violet-400/10 p-4 text-sm text-violet-100"
           >
-            Large Box
+            Large
           </Motion>
         </AnimatePresence>
       </div>
-    </div>
-  </div>
+    </DemoStage>
+  </DemoPage>
 </template>

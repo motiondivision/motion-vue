@@ -8,7 +8,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AnimatePresence: typeof import('motion-v')['AnimatePresence']
+    DemoPage: typeof import('./src/components/DemoPage.vue')['default']
+    DemoStage: typeof import('./src/components/DemoStage.vue')['default']
+    PresenceToast: typeof import('./src/components/PresenceToast.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StatusPill: typeof import('./src/components/StatusPill.vue')['default']
   }
 }

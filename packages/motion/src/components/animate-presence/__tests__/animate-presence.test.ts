@@ -15,7 +15,12 @@ function mountPresence(
   const show = ref(true)
   const wrapper = mount(defineComponent({
     setup: () => () => h(AnimatePresence, props, () => children(show)),
-  }), { attachTo: document.body })
+  }), {
+    attachTo: document.body,
+    // PresenceChild wraps its child in Vue's Transition; the test utils stub
+    // it by default, which would hide the transition hooks under test.
+    global: { stubs: { Transition: false } },
+  })
   return { show, wrapper }
 }
 
@@ -142,6 +147,25 @@ describe('animate-presence integration', () => {
     await delay(150)
     await nextTick()
     expect(document.querySelector('[data-motion-pop-id]')).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('warns when wait mode renders multiple children', async () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { wrapper } = mountPresence(
+      () => [
+        h(Motion, { key: 'a' }),
+        h(Motion, { key: 'b' }),
+      ],
+      { mode: 'wait' },
+    )
+    await nextTick()
+    expect(
+      spy.mock.calls.flat().some(
+        message => typeof message === 'string' && message.includes('mode is set to "wait"'),
+      ),
+    ).toBe(true)
+    spy.mockRestore()
     wrapper.unmount()
   })
 })

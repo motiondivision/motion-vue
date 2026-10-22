@@ -1,5 +1,6 @@
 import type { PropType, VNode } from 'vue'
-import { defineComponent, getCurrentInstance, watch } from 'vue'
+import { Transition, defineComponent, getCurrentInstance, h, onUnmounted, watch } from 'vue'
+import type { IProjectionNode } from 'motion-dom'
 import type { MotionState } from '@/state'
 import type { ExitFeature } from '@/features/exit/exit'
 import { useMotionConfig } from '@/components/motion-config/context'
@@ -15,6 +16,12 @@ import { addPopStyle, removePopStyle } from './pop-layout'
  * motion exit and every registered presence id settles — the child subtree
  * stays fully mounted until then, because AnimatePresence only drops it from
  * the render list after this callback.
+ *
+ * The child is also wrapped in Vue's `Transition` so its `vnode.transition`
+ * exists. That is what lets `v-show` defer `display: none` and lets KeepAlive
+ * defer moving a deactivated subtree into its storage container. Both feed
+ * the same exit protocol as a `v-if` removal, which the presence core drives
+ * by itself.
  */
 export const PresenceChild = defineComponent({
   name: 'PresenceChild',
@@ -37,7 +44,11 @@ export const PresenceChild = defineComponent({
     // ExitFeature's own generation guard for exit → reenter → exit-again.
     let generation = 0
     let motionsDone = true
+    let exitActive = false
     let exitFinished = false
+    /** Release callback of the Transition leave currently in flight. */
+    let pendingLeaveDone: VoidFunction | undefined
+    let leaveElement: HTMLElement | undefined
     let popStyle: HTMLStyleElement | undefined
 
     function allPresenceComplete() {
@@ -52,13 +63,31 @@ export const PresenceChild = defineComponent({
       if (exitFinished)
         return
       exitFinished = true
-      removePopStyle(popStyle)
-      popStyle = undefined
+      exitActive = false
+      // Keep the pop style until the whole batch commits. Dropping it here
+      // would put this element back in flow while siblings are still exiting,
+      // shoving them down for a frame before the render set collapses.
+      const done = pendingLeaveDone
+      pendingLeaveDone = undefined
+      // Release the transition first: Vue applies the actual removal from
+      // this callback (display: none for v-show, the storage move for
+      // KeepAlive). Only then can we tell whether the element survived.
+      done?.()
+      if (leaveElement && !leaveElement.isConnected)
+        states.forEach(state => state.unmount())
+      leaveElement = undefined
       props.onExitComplete()
     }
 
+    function releasePopStyle() {
+      removePopStyle(popStyle)
+      popStyle = undefined
+    }
+
+    onUnmounted(releasePopStyle)
+
     function maybeFinish() {
-      if (props.isPresent || !motionsDone || !allPresenceComplete())
+      if (!exitActive || !motionsDone || !allPresenceComplete())
         return
       finish()
     }
@@ -100,15 +129,20 @@ export const PresenceChild = defineComponent({
       presenceChildren.forEach((_, key) => presenceChildren.set(key, false))
     }
 
-    function exit() {
+    function exit(el?: HTMLElement) {
+      if (exitActive)
+        return
       const gen = ++generation
+      exitActive = true
       exitFinished = false
-      const el = rootElement()
-      if (el) {
-        popStyle = addPopStyle(el, {
+      leaveElement = el ?? rootElement() ?? undefined
+      if (leaveElement) {
+        const projection = [...states][0]?.visualElement?.projection as IProjectionNode | undefined
+        popStyle = addPopStyle(leaveElement, {
           mode: props.mode,
           anchorX: props.anchorX,
           getNonce: () => motionConfig.value.nonce,
+          root: projection?.root,
         })
       }
 
@@ -143,19 +177,50 @@ export const PresenceChild = defineComponent({
 
     function reenter() {
       generation++
+      exitActive = false
       exitFinished = false
       motionsDone = true
-      removePopStyle(popStyle)
-      popStyle = undefined
+      pendingLeaveDone = undefined
+      leaveElement = undefined
+      releasePopStyle()
       resetPresenceChildren()
       for (const state of states)
         state.getFeature<ExitFeature>('exit')?.reenter()
+    }
+
+    /**
+     * `v-show` hide and KeepAlive deactivation both arrive here through the
+     * Transition wrapper. The core drives `v-if` exits directly instead.
+     */
+    function transitionLeave(el: Element, done: VoidFunction) {
+      // The core already settled a `v-if` exit and is dropping the vnode now;
+      // this leave only needs to release the element.
+      if (exitFinished) {
+        done()
+        return
+      }
+      pendingLeaveDone = done
+      exit(el as HTMLElement)
+    }
+
+    /** `v-show` show and KeepAlive activation reverse an in-flight exit. */
+    function transitionEnter(_el: Element, done: VoidFunction) {
+      // Only a present entry may cancel. When the core is removing the key,
+      // the element is still rendered and a v-show flip must not abort the
+      // exit the core is waiting on.
+      if (props.isPresent)
+        reenter()
+      done()
     }
 
     watch(() => props.isPresent, (isPresent) => {
       isPresent ? reenter() : exit()
     })
 
-    return () => props.child
+    return () => h(Transition, {
+      css: false,
+      onEnter: transitionEnter,
+      onLeave: transitionLeave,
+    }, () => props.child)
   },
 })

@@ -15,20 +15,24 @@ function onDragEnd() {
 </script>
 
 <template>
-  <div class="container mx-auto max-w-4xl px-6 py-12">
-    <h1 class="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">
-      Drag Animations
-    </h1>
-
-    <div class="flex flex-col items-center gap-8">
-      <p class="text-lg text-center text-gray-600 dark:text-gray-400">
-        Drag the box within the container
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Drag
       </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Drag within bounds
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        The tile scales while you drag and stays inside the dashed area.
+      </p>
+    </header>
 
+    <div class="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d0d0f]">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(80%_100%_at_50%_0%,rgba(123,47,247,0.10),transparent_70%)]" />
       <div
         ref="dragConstraints"
-        class="relative w-full h-[400px] bg-gray-100 dark:bg-gray-800 rounded-lg
-               border-2 border-dashed border-gray-300 dark:border-gray-700"
+        class="relative m-4 h-[380px] rounded-xl border border-dashed border-white/15"
       >
         <Motion
           drag
@@ -39,9 +43,9 @@ function onDragEnd() {
             stiffness: 400,
             damping: 20,
           }"
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                 w-32 h-32 bg-primary-500 rounded-lg shadow-lg
-                 cursor-move"
+          class="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2
+                 cursor-move bg-gradient-to-br from-violet-400/40 to-violet-500/20
+                 ring-1 ring-inset ring-violet-200/30"
           @drag-start="onDragStart"
           @drag-end="onDragEnd"
         />

@@ -46,4 +46,15 @@
   .card {
     @apply bg-white/[0.03] border border-white/[0.08] rounded-xl p-6;
   }
+
+  /* Shared surface for demo objects: a neutral tile that reads as draggable
+     or hoverable without competing with the motion itself. */
+  .tile {
+    @apply bg-white/[0.06] border border-white/10 rounded-xl
+           text-sm text-white/75;
+  }
+  .tile-accent {
+    @apply bg-violet-400/10 border border-violet-300/20 rounded-xl
+           text-sm text-violet-100;
+  }
 }

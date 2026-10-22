@@ -6,17 +6,23 @@ const items = ref(Array.from({ length: 30 }, (_, i) => i))
 </script>
 
 <template>
-  <div class="p-8">
-    <h1 class="text-2xl font-bold mb-4">
-      Reorder Page Scroll (no overflow container)
-    </h1>
-    <p class="text-sm text-gray-600 mb-4">
-      The list is taller than the viewport and the page itself scrolls.
-      Drag an item to the bottom edge of the window to scroll the page.
-    </p>
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Reorder
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Page-level auto-scroll
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        There is no overflow container. Drag an item to the bottom edge of the
+        window and the page itself scrolls.
+      </p>
+    </header>
+
     <p
       data-testid="order"
-      class="mb-4 text-sm text-gray-500"
+      class="mb-4 font-mono text-xs text-white/35"
     >
       {{ items.join(',') }}
     </p>
@@ -24,14 +30,14 @@ const items = ref(Array.from({ length: 30 }, (_, i) => i))
     <Reorder.Group
       v-model:values="items"
       axis="y"
-      class="space-y-2 w-64"
+      class="w-64 space-y-2"
     >
       <Reorder.Item
         v-for="item in items"
         :key="item"
         :value="item"
         :data-testid="`p-${item}`"
-        class="bg-white p-4 rounded shadow-sm border cursor-grab active:cursor-grabbing"
+        class="tile cursor-grab rounded-lg px-4 py-3 active:cursor-grabbing"
         style="list-style: none;"
       >
         Item {{ item }}

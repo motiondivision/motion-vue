@@ -8,14 +8,23 @@ const items = ref([0, 1, 2, 3, 4, 5])
 <template>
   <div
     dir="rtl"
-    class="p-8"
+    class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14"
   >
-    <h1 class="text-2xl font-bold mb-4">
-      Reorder RTL Grid (axis="xy")
-    </h1>
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Reorder
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Right-to-left grid
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        Item order follows the computed direction of the container.
+      </p>
+    </header>
+
     <p
       data-testid="order"
-      class="mb-4 text-sm text-gray-500"
+      class="mb-4 font-mono text-xs text-white/35"
     >
       {{ items.join(',') }}
     </p>
@@ -31,7 +40,7 @@ const items = ref([0, 1, 2, 3, 4, 5])
         :key="item"
         :value="item"
         :data-testid="`r-${item}`"
-        class="bg-white rounded shadow-sm border cursor-grab active:cursor-grabbing flex items-center justify-center font-medium"
+        class="tile flex cursor-grab items-center justify-center font-medium active:cursor-grabbing"
         style="list-style: none; width: 120px; height: 80px;"
       >
         {{ item }}

@@ -51,7 +51,7 @@ function mountKeepAlive() {
 }
 
 describe('keepAlive presence', () => {
-  it('deactivation moves the panel to storage at once — exit animations do not play across KeepAlive switches', async () => {
+  it('plays the exit animation in place before KeepAlive moves the panel to storage', async () => {
     const { wrapper, PanelB } = mountKeepAlive()
     await nextTick()
     await delay(100)
@@ -62,8 +62,11 @@ describe('keepAlive presence', () => {
     wrapper.vm.current = PanelB
     await nextTick()
 
-    // AnimatePresence no longer relies on Vue transition hooks, so nothing
-    // defers KeepAlive's move into the storage container.
+    // Transition hooks on the presence child defer KeepAlive's storage move
+    // until the exit settles.
+    expect(elA.isConnected).toBe(true)
+
+    await delay(200)
     expect(elA.isConnected).toBe(false)
 
     wrapper.unmount()

@@ -1,5 +1,6 @@
 import type { PropType, VNode } from 'vue'
 import { Comment, Fragment, Text, defineComponent, h, onMounted, shallowRef, watch } from 'vue'
+import { warning } from 'hey-listen'
 import type { PresenceEntry, PresenceMode } from './core/presence-core'
 import { createPresenceCore } from './core/presence-core'
 import { PresenceChild } from './presence-child'
@@ -27,6 +28,10 @@ function flatten(children: VNode[], out: VNode[] = []): VNode[] {
  * completed. Component instances therefore stay alive for the whole exit
  * animation; `onUnmounted` runs when the exit commits, not when `v-if`
  * flips.
+ *
+ * Each child also gets a Transition wrapper (in PresenceChild), which is
+ * what makes `v-show` and KeepAlive deferrals work: both read
+ * `vnode.transition`, and both feed the same exit protocol.
  */
 export const AnimatePresence = defineComponent({
   name: 'AnimatePresence',
@@ -68,6 +73,17 @@ export const AnimatePresence = defineComponent({
     })
 
     return () => {
+      if (
+        process.env.NODE_ENV !== 'production'
+        && props.mode === 'wait'
+        && rendered.value.length > 1
+      ) {
+        warning(
+          false,
+          'You\'re attempting to animate multiple children within AnimatePresence, but its mode is set to "wait". This will lead to odd visual behaviour.',
+        )
+      }
+
       const children = rendered.value.map(entry =>
         h(PresenceChild, {
           key: entry.key,
@@ -77,7 +93,13 @@ export const AnimatePresence = defineComponent({
           custom: props.custom,
           mode: props.mode,
           anchorX: props.anchorX,
-          onExitComplete: () => core.completeExit(entry.key),
+          onExitComplete: () => {
+            core.completeExit(entry.key)
+            // A v-show exit never leaves the core's render set, so the core
+            // cannot report it. v-if exits surface through the core instead.
+            if (entry.isPresent)
+              props.onExitComplete?.()
+          },
         }),
       )
       return props.as ? h(props.as, attrs, children) : h(Fragment, children)

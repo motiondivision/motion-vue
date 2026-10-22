@@ -6,13 +6,22 @@ const items = ref([0, 1, 2, 3, 4, 5])
 </script>
 
 <template>
-  <div class="p-8">
-    <h1 class="text-2xl font-bold mb-4">
-      Reorder Auto-Detect (horizontal, no axis prop)
-    </h1>
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Reorder
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Auto-detected axis
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        No axis prop. The layout picks horizontal from the row of items.
+      </p>
+    </header>
+
     <p
       data-testid="order"
-      class="mb-4 text-sm text-gray-500"
+      class="mb-4 font-mono text-xs text-white/35"
     >
       {{ items.join(',') }}
     </p>
@@ -26,7 +35,7 @@ const items = ref([0, 1, 2, 3, 4, 5])
         :key="item"
         :value="item"
         :data-testid="`h-${item}`"
-        class="bg-white rounded shadow-sm border cursor-grab active:cursor-grabbing flex items-center justify-center font-medium"
+        class="tile flex cursor-grab items-center justify-center font-medium active:cursor-grabbing"
         style="list-style: none; width: 80px; height: 80px;"
       >
         {{ item }}

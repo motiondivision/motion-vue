@@ -36,6 +36,10 @@ routes.push({
   component: () => import('../views/[...404].vue'),
 })
 
+// The home page is the hub users keep coming back to. Remember its offset so
+// returning from a demo lands where they left off, while demos open at the top.
+let homeScrollY = 0
+
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -45,4 +49,16 @@ export const router = createRouter({
       component: () => import('../views/scroll-test/index.vue'),
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition)
+      return savedPosition
+    if (to.path === '/')
+      return { top: homeScrollY }
+    return { top: 0 }
+  },
+})
+
+router.beforeEach((to, from) => {
+  if (from.path === '/')
+    homeScrollY = window.scrollY
 })

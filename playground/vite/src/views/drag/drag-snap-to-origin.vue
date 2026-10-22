@@ -17,66 +17,56 @@ function onDragEnd() {
 </script>
 
 <template>
-  <div class="p-8">
-    <div class="space-y-8">
-      <div class="border p-4 rounded">
-        <h1 class="text-2xl font-bold mb-4">
-          dragSnapToOrigin Test
-        </h1>
-        <p class="text-sm text-gray-600 mb-4">
-          Test that elements with dragSnapToOrigin properly snap back to origin,
-          and that clicking during the snap-back animation doesn't interrupt it.
-        </p>
-      </div>
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Drag
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Snap back to origin
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        Release the tile anywhere and it animates back to (0,0). Clicking
+        mid-flight must not interrupt it.
+      </p>
+    </header>
 
-      <!-- Test: dragSnapToOrigin basic behavior -->
-      <div class="border p-4 rounded">
-        <h2 class="text-lg font-semibold mb-2">
-          Test: dragSnapToOrigin
-        </h2>
-        <p class="text-sm text-gray-600 mb-4">
-          Drag the box anywhere and release. It should snap back to origin (0,0).
-          Clicking during the snap-back animation should not interrupt it.
-        </p>
-
-        <div
-          ref="containerRef"
-          class="relative bg-gray-100 rounded"
-          style="width: 400px; height: 300px;"
-        >
-          <motion.div
-            :drag="true"
-            :drag-snap-to-origin="true"
-            :initial="{ x: 0, y: 0 }"
-            class="absolute w-20 h-20 bg-blue-500 rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center text-white font-bold select-none"
-            style="top: 0; left: 0;"
-            data-testid="snap-to-origin-box"
-            :while-drag="{ scale: 1.1 }"
-            @drag-start="onDragStart"
-            @drag-end="onDragEnd"
-          >
-            Snap
-          </motion.div>
-        </div>
-
-        <div class="mt-4 text-sm text-gray-600">
-          <p>Drag count: {{ dragCount }}</p>
-          <p>Snap back count: {{ snapBackCount }}</p>
-        </div>
-
-        <div class="mt-4 text-sm">
-          <h3 class="font-semibold mb-2">
-            Expected behavior:
-          </h3>
-          <ul class="list-disc list-inside space-y-1">
-            <li>✅ Drag box anywhere and release</li>
-            <li>✅ Box should smoothly animate back to (0,0)</li>
-            <li>✅ Click box during snap-back animation</li>
-            <li>✅ Animation should continue uninterrupted</li>
-            <li>✅ Box should still reach (0,0)</li>
-          </ul>
-        </div>
-      </div>
+    <div class="mb-4 flex flex-wrap gap-2">
+      <span class="tile rounded-full px-3 py-1 font-mono text-[11px] text-white/50">
+        drags: {{ dragCount }}
+      </span>
+      <span class="tile rounded-full px-3 py-1 font-mono text-[11px] text-white/50">
+        releases: {{ snapBackCount }}
+      </span>
     </div>
+
+    <div
+      ref="containerRef"
+      class="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d0d0f]"
+      style="width: 400px; height: 300px;"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(80%_100%_at_50%_0%,rgba(123,47,247,0.10),transparent_70%)]" />
+      <motion.div
+        :drag="true"
+        :drag-snap-to-origin="true"
+        :initial="{ x: 0, y: 0 }"
+        class="absolute flex h-20 w-20 cursor-grab select-none items-center justify-center rounded-lg
+               bg-gradient-to-br from-violet-400/40 to-violet-500/20 text-xs text-violet-100
+               ring-1 ring-inset ring-violet-200/30 active:cursor-grabbing"
+        style="top: 0; left: 0;"
+        data-testid="snap-to-origin-box"
+        :while-drag="{ scale: 1.1 }"
+        @drag-start="onDragStart"
+        @drag-end="onDragEnd"
+      >
+        Snap
+      </motion.div>
+    </div>
+
+    <ul class="mt-4 list-disc space-y-1 pl-5 text-sm text-white/40">
+      <li>Drag the tile anywhere and release</li>
+      <li>It animates back to its origin</li>
+      <li>Click during the return; it keeps going</li>
+    </ul>
   </div>
 </template>

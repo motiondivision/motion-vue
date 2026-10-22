@@ -50,12 +50,13 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Supports layout groups for coordinated animations via `LayoutGroup` component
 
 7. **AnimatePresence** (`packages/motion/src/components/animate-presence/`)
-   - Manages exit animations for components being removed from the DOM
-   - Wraps Vue's `Transition`/`TransitionGroup` components
-   - Provides presence context to child motion components
-   - Handles popLayout feature to prevent layout shift during exit animations
-   - `custom` prop is synced eagerly inside the `exit()` hook (not via a Vue watcher) because Vue's `@leave` fires synchronously during patching — a `flush: 'pre'` watcher is not guaranteed to have run when `v-if` and `custom` change in the same tick
-   - `presenceContext` is passed to `visualElement` both at init (`initVisualElement`) and on updates (`updateOptions`) so exit variant functions receive the correct `custom` value
+   - Manages exit animations and child removal itself, not through Vue's `Transition`
+   - `core/presence-core.ts` diffs slot keys and keeps vanished children rendered as the same frozen VNode object, so Vue's `n1 === n2` patch bailout leaves the subtree untouched until every exit settles; only then are they dropped and the component instance unmounts
+   - `presence-child.ts` wraps each child in Vue's `Transition` (`:css="false"`). The wrapper exists so `vnode.transition` is set, which is what lets `v-show` defer `display: none` and lets KeepAlive defer its storage move. Both paths feed the same `ExitFeature` protocol as `v-if` removal
+   - `v-if` removal is core-driven: the leave Vue fires when the core finally drops the vnode is released immediately by a settled guard
+   - `usePresence` / `useIsPresent` / `usePresenceData` follow React's tuple API; inside AnimatePresence `safeToRemove` is always exposed
+   - `presenceContext.custom` reaches exit variant functions through `MotionState` (init and `updateOptions`)
+   - popLayout pulls the exiting element out of flow with an injected stylesheet keyed by `data-motion-pop-id`
 
 8. **v-motion Directive** (`packages/motion/src/directive/`)
    - Full-featured directive alternative to the `<motion>` component — no wrapper element required
