@@ -1,5 +1,5 @@
-import type { PropType, VNode } from 'vue'
-import { Transition, defineComponent, getCurrentInstance, h, onUnmounted, watch } from 'vue'
+import type { PropType, TransitionState, VNode } from 'vue'
+import { defineComponent, getCurrentInstance, onUnmounted, resolveTransitionHooks, setTransitionHooks, watch } from 'vue'
 import type { IProjectionNode } from 'motion-dom'
 import type { MotionState } from '@/state'
 import type { ExitFeature } from '@/features/exit/exit'
@@ -17,11 +17,16 @@ import { addPopStyle, removePopStyle } from './pop-layout'
  * stays fully mounted until then, because AnimatePresence only drops it from
  * the render list after this callback.
  *
- * The child is also wrapped in Vue's `Transition` so its `vnode.transition`
- * exists. That is what lets `v-show` defer `display: none` and lets KeepAlive
- * defer moving a deactivated subtree into its storage container. Both feed
- * the same exit protocol as a `v-if` removal, which the presence core drives
- * by itself.
+ * The child vnode carries transition hooks so `v-show` defers `display: none`
+ * and KeepAlive defers moving a deactivated subtree into its storage
+ * container. Both feed the same exit protocol as a `v-if` removal, which the
+ * presence core drives by itself.
+ *
+ * The hooks are set on the vnode directly rather than through Vue's
+ * `Transition` component: all that component does is write these same hooks,
+ * and mounting one instance per child costs roughly 40% of mount time in long
+ * lists. `TransitionGroup` takes the same approach — one shared
+ * `TransitionState`, hooks resolved per keyed child.
  */
 export const PresenceChild = defineComponent({
   name: 'PresenceChild',
@@ -33,6 +38,8 @@ export const PresenceChild = defineComponent({
     mode: { type: String as PropType<PresenceMode>, required: true },
     anchorX: { type: String as PropType<'left' | 'right'>, required: true },
     onExitComplete: { type: Function as PropType<() => void>, required: true },
+    /** Shared across every child of one AnimatePresence, as TransitionGroup does. */
+    transitionState: { type: Object as PropType<TransitionState>, required: true },
   },
   setup(props) {
     const motionConfig = useMotionConfig()
@@ -217,10 +224,19 @@ export const PresenceChild = defineComponent({
       isPresent ? reenter() : exit()
     })
 
-    return () => h(Transition, {
-      css: false,
-      onEnter: transitionEnter,
-      onLeave: transitionLeave,
-    }, () => props.child)
+    return () => {
+      // Deliberately reuses the caller's vnode object. An exiting child is
+      // rendered from the core's frozen vnode, and returning that same object
+      // is what lets Vue's `n1 === n2` bailout skip patching the subtree.
+      // Cloning here would defeat it and re-render the exiting component.
+      const child = props.child
+      setTransitionHooks(child, resolveTransitionHooks(
+        child,
+        { onEnter: transitionEnter, onLeave: transitionLeave },
+        props.transitionState,
+        instance!,
+      ))
+      return child
+    }
   },
 })

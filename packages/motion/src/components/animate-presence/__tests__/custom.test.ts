@@ -72,10 +72,12 @@ describe('animatePresence custom', () => {
         ? h(Motion, {
           key: 'page',
           custom: 'element',
-          exit: (custom: any) => {
+          // Target resolvers are accepted at runtime; the prop type only
+          // declares the variant-label form.
+          exit: ((custom: any) => {
             seen.push(custom)
             return { opacity: 0 }
-          },
+          }) as any,
           transition: { duration: 0.05 },
         })
         : null),

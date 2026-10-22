@@ -1,5 +1,5 @@
 import type { PropType, VNode } from 'vue'
-import { Comment, Fragment, Text, defineComponent, h, onMounted, shallowRef, watch } from 'vue'
+import { Comment, Fragment, Text, defineComponent, h, onMounted, shallowRef, useTransitionState, watch } from 'vue'
 import { warning } from 'hey-listen'
 import type { PresenceEntry, PresenceMode } from './core/presence-core'
 import { createPresenceCore } from './core/presence-core'
@@ -48,6 +48,10 @@ export const AnimatePresence = defineComponent({
     const rendered = shallowRef<ReadonlyArray<PresenceEntry<VNode>>>([])
     let hasMounted = false
 
+    // One transition state for the whole container, shared by every child's
+    // vnode hooks — the same arrangement Vue's TransitionGroup uses.
+    const transitionState = useTransitionState()
+
     const core = createPresenceCore<VNode>({
       getMode: () => props.mode,
       onRenderSetChange: entries => (rendered.value = [...entries]),
@@ -93,6 +97,7 @@ export const AnimatePresence = defineComponent({
           custom: props.custom,
           mode: props.mode,
           anchorX: props.anchorX,
+          transitionState,
           onExitComplete: () => {
             core.completeExit(entry.key)
             // A v-show exit never leaves the core's render set, so the core

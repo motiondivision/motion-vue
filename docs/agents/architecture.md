@@ -52,7 +52,9 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
 7. **AnimatePresence** (`packages/motion/src/components/animate-presence/`)
    - Manages exit animations and child removal itself, not through Vue's `Transition`
    - `core/presence-core.ts` diffs slot keys and keeps vanished children rendered as the same frozen VNode object, so Vue's `n1 === n2` patch bailout leaves the subtree untouched until every exit settles; only then are they dropped and the component instance unmounts
-   - `presence-child.ts` wraps each child in Vue's `Transition` (`:css="false"`). The wrapper exists so `vnode.transition` is set, which is what lets `v-show` defer `display: none` and lets KeepAlive defer its storage move. Both paths feed the same `ExitFeature` protocol as `v-if` removal
+   - `presence-child.ts` sets transition hooks on the child vnode directly rather than wrapping it in Vue's `Transition` component. Hooks are what let `v-show` defer `display: none` and KeepAlive defer its storage move, and both feed the same `ExitFeature` protocol as `v-if` removal. All `Transition` does is write these hooks, so its per-child component instance was pure overhead (~40% of mount time on long lists); `TransitionGroup` uses the same shared-state approach
+   - The child vnode is returned by reference, never cloned — an exiting child is rendered from the core's frozen vnode, and identity is what makes Vue's `n1 === n2` bailout skip the subtree
+   - One `useTransitionState()` per AnimatePresence is shared by every child's hooks
    - `v-if` removal is core-driven: the leave Vue fires when the core finally drops the vnode is released immediately by a settled guard
    - `usePresence` / `useIsPresent` / `usePresenceData` follow React's tuple API; inside AnimatePresence `safeToRemove` is always exposed
    - `presenceContext.custom` reaches exit variant functions through `MotionState` (init and `updateOptions`)
