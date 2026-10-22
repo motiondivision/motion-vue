@@ -133,3 +133,48 @@ describe('exiting child content', () => {
     wrapper.unmount()
   })
 })
+
+describe('as-child with v-show', () => {
+  /**
+   * `<Motion as-child><div v-show>` puts the directive on the child vnode that
+   * `asChild` unwraps. While an exit is frozen the vnode is rebuilt every
+   * render, which leaves the directive reading a stale `value`, so the flip
+   * back never reaches `beforeEnter` and the element stays hidden. Dropping the
+   * freeze when the exit finishes is what keeps the toggle working.
+   */
+  it('shows the element again after a completed exit', async () => {
+    const visible = ref(true)
+    const wrapper = mount(defineComponent({
+      components: { AnimatePresence, Motion },
+      setup: () => ({ visible }),
+      template: `
+        <AnimatePresence>
+          <Motion
+            as-child
+            :animate="{ opacity: 1 }"
+            :exit="{ opacity: 0 }"
+            :transition="{ duration: 0.05 }"
+          >
+            <div v-show="visible" class="rect">x</div>
+          </Motion>
+        </AnimatePresence>`,
+    }), { attachTo: document.body, global: { stubs: { Transition: false } } })
+    await nextTick()
+    await delay(60)
+
+    const el = document.querySelector('.rect') as HTMLElement
+    expect(el.style.display).not.toBe('none')
+
+    visible.value = false
+    await nextTick()
+    await delay(150)
+    expect(el.style.display).toBe('none')
+
+    visible.value = true
+    await nextTick()
+    await delay(150)
+    expect(el.style.display).not.toBe('none')
+
+    wrapper.unmount()
+  })
+})

@@ -57,6 +57,14 @@ export const PresenceChild = defineComponent({
     let pendingLeaveDone: VoidFunction | undefined
     let leaveElement: HTMLElement | undefined
     let popStyle: HTMLStyleElement | undefined
+    /**
+     * What the child's slot resolved to on its last present render, and the
+     * snapshot replayed while it exits. See the note above `resolveSlot` for
+     * why both exist.
+     */
+    let presentChildren: VNode['children'] | undefined
+    let frozenChildren: VNode['children'] | undefined
+
     function allPresenceComplete() {
       for (const isComplete of presenceChildren.values()) {
         if (!isComplete)
@@ -82,6 +90,11 @@ export const PresenceChild = defineComponent({
       if (leaveElement && !leaveElement.isConnected)
         states.forEach(state => state.unmount())
       leaveElement = undefined
+      // The exit is over, so the freeze has served its purpose. Dropping it
+      // here is what lets a `v-show` element pick up the flip back to visible:
+      // while frozen the vnode is rebuilt each render, which leaves the
+      // directive reading a stale `value` and Vue skips `beforeEnter`.
+      frozenChildren = undefined
       props.onExitComplete()
     }
 
@@ -136,7 +149,7 @@ export const PresenceChild = defineComponent({
     }
 
     /**
-     * The child's resolved children as of its last present render.
+     * Resolve the child's slot to plain children.
      *
      * Slot children are lazy functions, so a frozen vnode alone is not enough:
      * Vue calls the slot again on every patch and the closure reads whatever
@@ -151,9 +164,6 @@ export const PresenceChild = defineComponent({
      * `n1 === n2` bailout skip the whole patch, including directive updates,
      * leaving `v-show` stuck on its old binding.
      */
-    let presentChildren: VNode['children'] | undefined
-    let frozenChildren: VNode['children'] | undefined
-
     function resolveSlot(children: VNode['children']): VNode['children'] | undefined {
       // Component children are already resolved vnodes, and array/text
       // children are static — only a slot function re-reads parent state.
