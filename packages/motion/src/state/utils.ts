@@ -47,7 +47,9 @@ export function resolveInitialValues(
     ? context?.initial
     : options.initial
   const sources = initial === false ? ['initial', 'animate'] : ['initial']
-  const custom = options.custom ?? (options as any).presenceContext?.custom
+  // Initial variants resolve with the element's own custom only. AnimatePresence's
+  // custom is an exit-time concern in React too, so it must not leak in here.
+  const custom = options.custom
   return sources.reduce<Record<string, any>>((acc, variant) => {
     return {
       ...acc,

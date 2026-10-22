@@ -16,6 +16,9 @@ import { delay } from '@/shared/test'
  * while diffing (with presence custom) and once while driving the animation
  * (with the element's own custom, `undefined` when absent). Both behaviours
  * match React; they are pinned here so neither drifts.
+ *
+ * An `initial` variant function is the one place presence custom must not
+ * reach: React resolves it with the element's own custom only.
  */
 function mountPresence(
   children: (show: any) => any,
@@ -86,6 +89,33 @@ describe('animatePresence custom', () => {
 
     expect(seen[0]).toBe('presence')
     expect(seen).toContain('element')
+    wrapper.unmount()
+  })
+
+  it('resolves initial variants with the element custom only', async () => {
+    const seen: any[] = []
+    const wrapper = mount(defineComponent({
+      setup: () => () => h(AnimatePresence, { custom: 'presence' }, () => h(Motion, {
+        variants: {
+          enter: (custom: any) => {
+            seen.push(custom)
+            return { opacity: 1 }
+          },
+        },
+        initial: 'enter',
+        animate: 'enter',
+      })),
+    }), {
+      attachTo: document.body,
+      global: { stubs: { Transition: false } },
+    })
+    await nextTick()
+    await delay(100)
+
+    // React's makeLatestValues resolves the initial variant without a custom
+    // argument, so an element with none sees undefined rather than the
+    // presence custom.
+    expect(seen.every(custom => custom === undefined)).toBe(true)
     wrapper.unmount()
   })
 })
