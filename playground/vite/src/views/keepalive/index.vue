@@ -44,7 +44,10 @@ const current4 = shallowRef(SharedA)
       >
         <KeepAlive>
           <AnimatePresence mode="wait">
-            <component :is="current1" />
+            <component
+              :is="current1"
+              :key="current1 === PanelA ? 'panel-a' : 'panel-b'"
+            />
           </AnimatePresence>
         </KeepAlive>
       </DemoStage>
@@ -94,7 +97,10 @@ const current4 = shallowRef(SharedA)
       >
         <KeepAlive>
           <AnimatePresence mode="wait">
-            <component :is="current3" />
+            <component
+              :is="current3"
+              :key="current3 === DirectiveA ? 'directive-a' : 'directive-b'"
+            />
           </AnimatePresence>
         </KeepAlive>
       </DemoStage>
