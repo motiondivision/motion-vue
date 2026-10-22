@@ -1,5 +1,5 @@
 import type { PropType, TransitionState, VNode } from 'vue'
-import { defineComponent, getCurrentInstance, onUnmounted, resolveTransitionHooks, setTransitionHooks, watch } from 'vue'
+import { createVNode, defineComponent, getCurrentInstance, onUnmounted, resolveTransitionHooks, setTransitionHooks, watch } from 'vue'
 import type { IProjectionNode } from 'motion-dom'
 import type { MotionState } from '@/state'
 import type { ExitFeature } from '@/features/exit/exit'
@@ -57,7 +57,6 @@ export const PresenceChild = defineComponent({
     let pendingLeaveDone: VoidFunction | undefined
     let leaveElement: HTMLElement | undefined
     let popStyle: HTMLStyleElement | undefined
-
     function allPresenceComplete() {
       for (const isComplete of presenceChildren.values()) {
         if (!isComplete)
@@ -136,12 +135,41 @@ export const PresenceChild = defineComponent({
       presenceChildren.forEach((_, key) => presenceChildren.set(key, false))
     }
 
+    /**
+     * The child's resolved children as of its last present render.
+     *
+     * Slot children are lazy functions, so a frozen vnode alone is not enough:
+     * Vue calls the slot again on every patch and the closure reads whatever
+     * the parent's state is *now*. React keeps the element it rendered, so an
+     * exiting child shows the content it had when it started leaving — this is
+     * the equivalent.
+     *
+     * The snapshot is taken on every present render rather than inside
+     * `exit()`: `isPresent` flips in a pre-flush watcher, by which point
+     * `props.child` already carries the new content. Only the children are
+     * frozen, not the vnode — reusing the vnode object would make Vue's
+     * `n1 === n2` bailout skip the whole patch, including directive updates,
+     * leaving `v-show` stuck on its old binding.
+     */
+    let presentChildren: VNode['children'] | undefined
+    let frozenChildren: VNode['children'] | undefined
+
+    function resolveSlot(children: VNode['children']): VNode['children'] | undefined {
+      // Component children are already resolved vnodes, and array/text
+      // children are static — only a slot function re-reads parent state.
+      if (!children || typeof children !== 'object' || Array.isArray(children) || typeof (children as any).default !== 'function')
+        return undefined
+      return (children as any).default()
+    }
+
     function exit(el?: HTMLElement) {
       if (exitActive)
         return
       const gen = ++generation
       exitActive = true
       exitFinished = false
+      // Fall back to resolving now if the child never rendered while present.
+      frozenChildren ??= presentChildren ?? resolveSlot(props.child.children)
       leaveElement = el ?? rootElement() ?? undefined
       if (leaveElement) {
         const projection = [...states][0]?.visualElement?.projection as IProjectionNode | undefined
@@ -187,6 +215,8 @@ export const PresenceChild = defineComponent({
       exitActive = false
       exitFinished = false
       motionsDone = true
+      // The child is present again, so it must track parent state once more.
+      frozenChildren = undefined
       pendingLeaveDone = undefined
       leaveElement = undefined
       releasePopStyle()
@@ -210,13 +240,23 @@ export const PresenceChild = defineComponent({
       exit(el as HTMLElement)
     }
 
-    /** `v-show` show and KeepAlive activation reverse an in-flight exit. */
-    function transitionEnter(_el: Element, done: VoidFunction) {
+    /**
+     * `v-show` show and KeepAlive activation reverse an in-flight exit.
+     *
+     * This runs from `beforeEnter` rather than `onEnter`: Vue's enter hook
+     * bails out when `leavingVNodes[key] === vnode`, which is exactly the case
+     * here — we reuse one vnode object across renders. `beforeEnter` is not
+     * gated that way, so it is the only place a reversal is observable.
+     */
+    function transitionBeforeEnter(_el: Element) {
       // Only a present entry may cancel. When the core is removing the key,
       // the element is still rendered and a v-show flip must not abort the
       // exit the core is waiting on.
-      if (props.isPresent)
+      if (props.isPresent && (exitActive || exitFinished))
         reenter()
+    }
+
+    function transitionEnter(_el: Element, done: VoidFunction) {
       done()
     }
 
@@ -225,14 +265,46 @@ export const PresenceChild = defineComponent({
     })
 
     return () => {
-      // Deliberately reuses the caller's vnode object. An exiting child is
-      // rendered from the core's frozen vnode, and returning that same object
-      // is what lets Vue's `n1 === n2` bailout skip patching the subtree.
-      // Cloning here would defeat it and re-render the exiting component.
-      const child = props.child
+      const current = props.child
+      if (frozenChildren === undefined) {
+        // Present: remember what this render's slot resolves to, so an exit
+        // starting later can replay this content instead of the parent's
+        // state at exit time. Rendering the vnode by reference keeps Vue's
+        // `n1 === n2` bailout available for untouched subtrees.
+        presentChildren = resolveSlot(current.children) ?? current.children
+        setTransitionHooks(current, resolveTransitionHooks(
+          current,
+          { onBeforeEnter: transitionBeforeEnter, onEnter: transitionEnter, onLeave: transitionLeave },
+          props.transitionState,
+          instance!,
+        ))
+        return current
+      }
+
+      // Exiting: rebuild the vnode so props and directives stay live, but swap
+      // in the children captured above. The slot function is what would
+      // otherwise re-read the parent's state.
+      //
+      // cloneVNode copies the source's children verbatim — `children` in its
+      // extra props only lands in `props` — and the shape flag has to follow
+      // the new children form, so the vnode is rebuilt instead.
+      const child = createVNode(
+        current.type as any,
+        current.props,
+        frozenChildren as any,
+      )
+      child.key = current.key
+      child.ref = current.ref
+      child.scopeId = current.scopeId
+      child.slotScopeIds = current.slotScopeIds
+      child.patchFlag = current.patchFlag
+      child.dynamicProps = current.dynamicProps
+      // Directives carry the `v-show` binding. Dropping them here would leave
+      // the exiting element unable to see the flip back to visible.
+      child.dirs = current.dirs
       setTransitionHooks(child, resolveTransitionHooks(
         child,
-        { onEnter: transitionEnter, onLeave: transitionLeave },
+        { onBeforeEnter: transitionBeforeEnter, onEnter: transitionEnter, onLeave: transitionLeave },
         props.transitionState,
         instance!,
       ))
