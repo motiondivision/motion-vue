@@ -5,6 +5,12 @@ import { ref } from 'vue'
 // via MotionPlugin presets in main.ts — no imports needed.
 
 const show = ref(true)
+const exits = ref(0)
+
+const shown = ref(true)
+
+const page = ref(0)
+const pages = ['First', 'Second', 'Third']
 </script>
 
 <template>
@@ -65,24 +71,83 @@ const show = ref(true)
       </section>
     </div>
 
-    <!-- 5. Toggle preset element -->
+    <!-- 5. Toggle preset element (v-if exit) -->
     <section>
-      <h2>Toggle</h2>
+      <h2>Toggle · v-if exit</h2>
+      <p>The element stays mounted while its exit runs, then unmounts</p>
       <button
         data-testid="toggle-btn"
         @click="show = !show"
       >
         {{ show ? 'Hide' : 'Show' }}
       </button>
+      <span
+        class="counter"
+        data-testid="exit-count"
+      >exits completed: {{ exits }}</span>
       <div style="height: 120px; position: relative">
-        <div
-          v-if="show"
-          v-fade-in
-          data-testid="toggle-target"
-          class="box"
+        <AnimatePresence @exit-complete="exits++">
+          <div
+            v-if="show"
+            v-fade-in
+            data-testid="toggle-target"
+            class="box"
+          >
+            Toggle me
+          </div>
+        </AnimatePresence>
+      </div>
+    </section>
+
+    <!-- 6. v-show exit -->
+    <section>
+      <h2>Toggle · v-show exit</h2>
+      <p>display: none is deferred until the exit animation settles</p>
+      <button
+        data-testid="show-btn"
+        @click="shown = !shown"
+      >
+        {{ shown ? 'Hide' : 'Show' }}
+      </button>
+      <div style="height: 120px; position: relative">
+        <AnimatePresence>
+          <div
+            v-show="shown"
+            v-fade-in
+            data-testid="show-target"
+            class="box"
+          >
+            v-show me
+          </div>
+        </AnimatePresence>
+      </div>
+    </section>
+
+    <!-- 7. Keyed swap in wait mode -->
+    <section>
+      <h2>Wait mode · keyed swap</h2>
+      <p>The outgoing page finishes its exit before the next one enters</p>
+      <div class="controls">
+        <button
+          v-for="(label, index) in pages"
+          :key="label"
+          :data-testid="`wait-tab-${index}`"
+          @click="page = index"
         >
-          Toggle me
-        </div>
+          {{ label }}
+        </button>
+      </div>
+      <div style="height: 120px; position: relative">
+        <AnimatePresence mode="wait">
+          <div
+            :key="page"
+            v-fade-in
+            :data-testid="`wait-page-${page}`"
+            class="box"
+          >
+            {{ pages[page] }}
+          </div>
+        </AnimatePresence>
       </div>
     </section>
   </div>
@@ -134,6 +199,18 @@ section {
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.counter {
+  margin-left: 0.75rem;
+  font-size: 0.8rem;
+  color: #888;
 }
 
 button {
