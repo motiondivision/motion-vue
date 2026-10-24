@@ -42,7 +42,7 @@ Subsystem internals live in [docs/agents/architecture.md](docs/agents/architectu
    - If playground doesn't reflect changes, ensure you ran `pnpm build`
    - Plugin builds happen automatically after motion build via `afterBuild` hook
    - Watch mode available with `pnpm dev` for iterative development
-   - If exit variant functions do not receive the `custom` value: ensure `presenceContext` is threaded through `initVisualElement` and `updateOptions` in `MotionState`, and that `custom` is synced eagerly at the start of the `exit()` hook in `usePresenceContainer`
+   - If exit variant functions do not receive the `custom` value: ensure `presenceContext` is threaded through `initVisualElement` and `updateOptions` in `MotionState`. The `custom` getter lives on the context `PresenceChild` provides.
 
 ## Agent skills
 

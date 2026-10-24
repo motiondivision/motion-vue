@@ -1,4 +1,5 @@
-export { default as AnimatePresence } from './AnimatePresence.vue'
+export { AnimatePresence } from './animate-presence'
 export type { AnimatePresenceProps } from './types'
-export { usePresence } from './use-presence'
-export type { PresenceHandler } from './presence'
+export { usePresence, useIsPresent } from './use-presence'
+export type { SafeToRemove } from './use-presence'
+export { usePresenceData } from './use-presence-data'

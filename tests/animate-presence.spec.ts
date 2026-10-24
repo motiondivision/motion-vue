@@ -4,21 +4,28 @@ test.describe('AnimatePresence', () => {
   test('AnimatePresence test', async ({ page }) => {
     await page.goto('/animate-presence', { waitUntil: 'domcontentloaded' })
 
-    const toggle = await page.waitForSelector('#toggle')
+    const toggle = page.locator('#toggle')
+    const item = page.locator('#animate-presence-item')
+    await expect(item).toBeVisible()
 
-    await toggle.click()
-
-    const animatePresenceItem = await page.waitForSelector('#animate-presence-item')
-
-    await expect(animatePresenceItem).toBeDefined()
-
+    // Hide: the item stays mounted while it exits.
     await toggle.click()
     await page.waitForTimeout(100)
-    const opacity = await animatePresenceItem?.evaluate(el => window.getComputedStyle(el).opacity)
+
+    const opacity = await item.evaluate(el => window.getComputedStyle(el).opacity)
     expect(+opacity).toBeLessThan(1)
-    expect(await animatePresenceItem.isVisible()).toBe(true)
+    expect(await item.isVisible()).toBe(true)
+
     await page.waitForTimeout(400)
-    expect(await animatePresenceItem.isVisible()).toBe(false)
+    expect(await item.isVisible()).toBe(false)
+
+    // Show: it enters with an animation again.
+    await toggle.click()
+    await expect(item).toBeVisible()
+    await expect.poll(() => item.evaluate(el => Number.parseFloat(window.getComputedStyle(el).opacity)), { timeout: 1500 })
+      .toBeLessThan(1)
+    await expect.poll(() => item.evaluate(el => window.getComputedStyle(el).opacity), { timeout: 1500 })
+      .toBe('1')
   })
 
   test('exit animations with multiple motion components', async ({ page }) => {
@@ -36,14 +43,10 @@ test.describe('AnimatePresence', () => {
 
     // Trigger exit
     await toggle.click()
-    await page.waitForTimeout(100)
 
     // All should be animating (still visible but with reduced opacity)
-    const opacity1 = await motion1.evaluate(el => window.getComputedStyle(el).opacity)
-    expect(+opacity1).toBeLessThan(1)
-
-    // Wait for all animations to complete
-    await page.waitForTimeout(600)
+    await expect.poll(() => motion1.evaluate(el => Number.parseFloat(window.getComputedStyle(el).opacity)), { timeout: 1500 })
+      .toBeLessThan(1)
 
     // All should be removed from DOM
     await expect(motion1).not.toBeVisible()
@@ -68,14 +71,10 @@ test.describe('AnimatePresence', () => {
 
     // Trigger exit
     await toggle.click()
-    await page.waitForTimeout(100)
 
     // Parent should be animating exit
-    const parentOpacity = await parent.evaluate(el => window.getComputedStyle(el).opacity)
-    expect(+parentOpacity).toBeLessThan(1)
-
-    // Wait for all animations to complete
-    await page.waitForTimeout(500)
+    await expect.poll(() => parent.evaluate(el => Number.parseFloat(window.getComputedStyle(el).opacity)), { timeout: 1500 })
+      .toBeLessThan(1)
 
     // All should be removed
     await expect(parent).not.toBeVisible()
@@ -103,6 +102,129 @@ test.describe('AnimatePresence', () => {
     // After all animations complete, onExitComplete should fire
     await page.waitForTimeout(600)
     await expect(exitStatus).toHaveText('exited')
+  })
+
+  test('v-show keeps the element in flow until the exit animation completes', async ({ page }) => {
+    await page.goto('/animate-presence/v-show', { waitUntil: 'domcontentloaded' })
+
+    const item = page.locator('#v-show-item')
+    await expect(item).toBeVisible()
+
+    await page.locator('#toggle').click()
+    await page.waitForTimeout(100)
+
+    // Still in flow while the exit runs, and already fading.
+    await expect(item).toHaveCSS('display', 'block')
+    const opacity = await item.evaluate(el => window.getComputedStyle(el).opacity)
+    expect(+opacity).toBeLessThan(1)
+
+    await page.waitForTimeout(600)
+    await expect(item).toHaveCSS('display', 'none')
+    await expect(page.locator('#exit-count')).toHaveText('1')
+
+    // Showing again restores the same element.
+    await page.locator('#toggle').click()
+    await page.waitForTimeout(500)
+    await expect(item).toHaveCSS('display', 'block')
+    await expect(item).toBeVisible()
+  })
+
+  test('sync mode removes one item without hiding siblings', async ({ page }) => {
+    await page.goto('/pop-layout', { waitUntil: 'domcontentloaded' })
+
+    const addButton = page.locator('button:has-text("Add item")')
+    await addButton.click()
+    await addButton.click()
+    const items = page.locator('ul div')
+    await expect(items).toHaveCount(3)
+    // Let the enter animations settle before removing.
+    await expect.poll(() => items.nth(2).locator('li').evaluate(el => getComputedStyle(el).opacity)).toBe('1')
+
+    await items.first().click()
+    // Sibling stays visible throughout the exit (wait mode would hide it).
+    await page.waitForTimeout(150)
+    await expect(items.nth(1)).toBeVisible()
+    await expect(items.nth(2)).toBeVisible()
+
+    await expect(items).toHaveCount(2, { timeout: 5000 })
+  })
+
+  test('popLayout animates siblings to their new positions', async ({ page }) => {
+    await page.goto('/pop-layout', { waitUntil: 'domcontentloaded' })
+
+    const addButton = page.locator('button:has-text("Add item")')
+    await addButton.click()
+    await addButton.click()
+    const rows = page.locator('ul > div li')
+    await expect(rows).toHaveCount(3)
+    await expect.poll(() => rows.nth(2).evaluate(el => getComputedStyle(el).opacity)).toBe('1')
+
+    await page.locator('input[type="checkbox"]').check()
+    await page.waitForTimeout(150)
+
+    // Measure from the stage, which does not reflow with the list.
+    const siblingOffset = () => page.evaluate(() => {
+      const stage = document.querySelector('ul')!.closest('.relative.overflow-hidden') as HTMLElement
+      const li = document.querySelectorAll('ul > div li')[1] as HTMLElement
+      return {
+        top: Math.round(li.getBoundingClientRect().top - stage.getBoundingClientRect().top),
+        transform: getComputedStyle(li).transform,
+      }
+    })
+    const before = await siblingOffset()
+
+    await page.locator('ul > div li').first().dispatchEvent('click')
+
+    // The sibling must travel into place, not jump: a FLIP transform is
+    // applied and the element is still short of its final position.
+    const mid = await siblingOffset()
+    expect(mid.transform).not.toBe('none')
+    expect(mid.top).toBeGreaterThan(before.top - 92)
+
+    await expect(rows).toHaveCount(2, { timeout: 4000 })
+    await expect.poll(async () => (await siblingOffset()).transform, { timeout: 4000 }).toBe('none')
+  })
+
+  test('popLayout keeps siblings stable when a second item exits mid-flight', async ({ page }) => {
+    await page.goto('/pop-layout', { waitUntil: 'domcontentloaded' })
+
+    const addButton = page.locator('button:has-text("Add item")')
+    await addButton.click()
+    await addButton.click()
+    await addButton.click()
+    await expect(page.locator('ul > div')).toHaveCount(4)
+    await expect.poll(() => page.locator('ul > div li').nth(3).evaluate(el => getComputedStyle(el).opacity)).toBe('1')
+
+    await page.locator('input[type="checkbox"]').check()
+    await page.waitForTimeout(150)
+
+    const siblingTop = () => page.evaluate(() => {
+      const stage = document.querySelector('ul')!.closest('.relative.overflow-hidden') as HTMLElement
+      const li = [...document.querySelectorAll('ul > div li')]
+        .find(el => el.textContent?.includes('Item 3')) as HTMLElement
+      return Math.round(li.getBoundingClientRect().top - stage.getBoundingClientRect().top)
+    })
+
+    await page.locator('ul > div li', { hasText: 'Item 0' }).dispatchEvent('click')
+    await page.waitForTimeout(120)
+    await page.locator('ul > div li', { hasText: 'Item 1' }).dispatchEvent('click')
+
+    // The surviving sibling must settle monotonically. A pop style dropped
+    // when the first exit finished would put that element back in flow and
+    // shove this one down again mid-flight.
+    const samples: number[] = []
+    for (let i = 0; i < 24; i++) {
+      await page.waitForTimeout(30)
+      const top = await siblingTop().catch(() => null)
+      if (top !== null)
+        samples.push(top)
+    }
+    const maxJumpBack = samples.reduce(
+      (worst, top, i) => (i === 0 ? worst : Math.max(worst, top - samples[i - 1])),
+      0,
+    )
+    expect(maxJumpBack).toBeLessThan(4)
+    await expect(page.locator('ul > div')).toHaveCount(2, { timeout: 4000 })
   })
 
   test('popLayout applies styles to direct child (div) not motion element (li)', async ({ page }) => {

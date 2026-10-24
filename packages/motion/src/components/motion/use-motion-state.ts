@@ -4,6 +4,7 @@ import { useLazyMotionContext } from '@/components/lazy-motion/context'
 import { useMotionConfig } from '@/components/motion-config'
 import type { MotionProps } from '@/components/motion/types'
 import { injectAnimatePresence } from '@/components/animate-presence/presence'
+import { watchPresenceExit } from '@/components/animate-presence/watch-exit'
 import { createSVGStyles, createStyles } from '@/state/style'
 import type { MotionBundle } from '@/state/motion-state'
 import { isMotionValue } from 'motion-dom'
@@ -68,6 +69,8 @@ export function useMotionState(
     bundle,
   )
   provideMotion(state)
+
+  watchPresenceExit(state, presenceContext)
 
   // Watch for lazy-loaded features (for m component with LazyMotion)
   watch(lazyMotionContext.features, (bundle) => {

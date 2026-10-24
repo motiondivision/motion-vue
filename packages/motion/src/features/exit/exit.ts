@@ -1,6 +1,8 @@
 import type { AnimationType } from 'motion-dom'
 import { frame } from 'motion-dom'
 import { Feature } from '@/features/feature'
+import type { PresenceContext } from '@/components/animate-presence/presence'
+import { createPresenceId } from '@/components/animate-presence/presence'
 
 /**
  * Owns the AnimatePresence exit protocol for a motion state: run the exit
@@ -25,7 +27,20 @@ export class ExitFeature extends Feature {
    */
   private exitGeneration = 0
   private pendingExit?: { resolve: () => void }
+  /** This state's presence id, so completion reports reach the right entry. */
+  private presenceId?: string | number
+  /**
+   * The context this state registered with, captured at mount. Completion must
+   * be reported to this exact object: `options.presenceContext` is re-resolved
+   * from the vnode tree on every update, and for the v-motion directive that
+   * lookup can fail mid-exit (the exiting vnode is replayed by reference and
+   * no longer sits where the tree walk expects it), silently degrading to `{}`
+   * — reporting through current options would then drop the completion and the
+   * element would stay in the DOM forever.
+   */
+  private presenceContext?: PresenceContext
 
+  private unregister?: () => void
   /**
    * Run the full exit sequence for AnimatePresence and resolve when this
    * state's exit completes — including the layoutId projection handoff,
@@ -98,6 +113,13 @@ export class ExitFeature extends Feature {
       return
     }
     this.settleExit()
+    this.reportExitComplete()
+    // The exit animation was what kept this state mounted while Vue skipped
+    // the unmount: v-show hides in place and KeepAlive moves a deactivated
+    // subtree into a detached container. Once the animation is over, a state
+    // whose element left the document is no longer mounted, and a later
+    // reactivation has to replay the mount path.
+    this.state.unmountIfDetached()
   }
 
   private settleExit() {
@@ -106,16 +128,31 @@ export class ExitFeature extends Feature {
   }
 
   /**
-   * Register with the nearest AnimatePresence for exit discovery — only
-   * states carrying the exit feature are discoverable, and mount/unmount
-   * pairing keeps the registry exact (KeepAlive remounts re-register).
+   * Report completion to the PresenceChild this state registered with. This is
+   * the only exit completion path: a state with no presence id either sits
+   * outside an AnimatePresence or has already unregistered, and neither should
+   * hold the render set open.
    */
+  private reportExitComplete() {
+    if (this.presenceId === undefined)
+      return
+    this.presenceContext?.onExitComplete?.(this.presenceId)
+  }
+
   mount() {
-    this.state.options.presenceContext?.register?.(this.state)
+    const presenceContext = this.state.options.presenceContext
+    if (!presenceContext?.register)
+      return
+    this.presenceContext = presenceContext
+    this.presenceId = createPresenceId()
+    this.unregister = presenceContext.register(this.presenceId, this.state)
   }
 
   unmount() {
-    this.state.options.presenceContext?.unregister?.(this.state)
+    this.unregister?.()
+    this.unregister = undefined
+    this.presenceId = undefined
+    this.presenceContext = undefined
     this.settleExit()
   }
 }

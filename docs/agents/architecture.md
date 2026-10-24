@@ -50,21 +50,27 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Supports layout groups for coordinated animations via `LayoutGroup` component
 
 7. **AnimatePresence** (`packages/motion/src/components/animate-presence/`)
-   - Manages exit animations for components being removed from the DOM
-   - Wraps Vue's `Transition`/`TransitionGroup` components
-   - Provides presence context to child motion components
-   - Handles popLayout feature to prevent layout shift during exit animations
-   - `custom` prop is synced eagerly inside the `exit()` hook (not via a Vue watcher) because Vue's `@leave` fires synchronously during patching — a `flush: 'pre'` watcher is not guaranteed to have run when `v-if` and `custom` change in the same tick
-   - `presenceContext` is passed to `visualElement` both at init (`initVisualElement`) and on updates (`updateOptions`) so exit variant functions receive the correct `custom` value
+   - Manages exit animations and child removal itself, not through Vue's `Transition`
+   - `core/presence-core.ts` diffs slot keys and keeps vanished children rendered as the same frozen VNode object, so Vue's `n1 === n2` patch bailout leaves the subtree untouched until every exit settles; only then are they dropped and the component instance unmounts
+   - `presence-child.ts` sets transition hooks on the child vnode directly rather than wrapping it in Vue's `Transition` component. Hooks are what let `v-show` defer `display: none` and KeepAlive defer its storage move, and both feed the same `ExitFeature` protocol as `v-if` removal. All `Transition` does is write these hooks, so its per-child component instance was pure overhead (~40% of mount time on long lists); `TransitionGroup` uses the same shared-state approach
+   - An exiting child keeps the content it had when the exit started, matching React (which retains the element it rendered). Present renders snapshot what the slot resolves to, because Vue slots are lazy: reusing the vnode alone still lets the slot closure read the parent's *current* state on the next patch. On exit the vnode is rebuilt with the frozen children; the rebuild must copy `dirs` (that is where the `v-show` binding lives) or the element never sees the flip back to visible
+   - The vnode is returned by reference while present — identity is what makes Vue's `n1 === n2` bailout skip the subtree
+   - One `useTransitionState()` per AnimatePresence is shared by every child's hooks
+   - `v-if` removal is core-driven: the leave Vue fires when the core finally drops the vnode is released immediately by a settled guard
+   - `usePresence` / `useIsPresent` / `usePresenceData` follow React's tuple API; inside AnimatePresence `safeToRemove` is always exposed
+   - `presenceContext.custom` reaches exit variant functions through `MotionState` (init and `updateOptions`)
+   - popLayout pulls the exiting element out of flow with an injected stylesheet keyed by `data-motion-pop-id`
 
-8. **v-motion Directive** (`packages/motion/src/`)
+8. **v-motion Directive** (`packages/motion/src/directive/`)
    - Full-featured directive alternative to the `<motion>` component — no wrapper element required
-   - Exports: `vMotion` (domMax bundle), `createMotionDirective(bundle?)`, `createPresetDirective(defaults)`, `MotionPlugin`
-   - Supports all animation, gesture, layout, and exit props identical to `<motion>`
-   - **Key limitation**: does not support parent-child variant propagation (no Vue provide/inject context)
-   - Two syntax styles: props syntax (`v-motion :animate="..."`) and binding value syntax (`v-motion="{ animate: ... }"`) — props win on conflict
-   - Preset directives created via `createPresetDirective` can be overridden per-use via binding value
-   - Registered globally via `MotionPlugin` (supports `presets` option) or Nuxt module (`motionV.directives: true`)
+   - Public API: `vMotion`, `createMotionDirective(bundle?)`, `createPresetDirective(defaults)`, `MotionPlugin` — one surface for vdom and vapor
+   - Vue’s vapor directive shape is a function `(el, value?) => cleanup`, while vdom uses an object with lifecycle hooks. Those shapes are mutually exclusive at the call site (`withDirectives` rewrites functions; vapor rejects objects), so a single export value cannot be both. `MotionPlugin` dispatches internally: on `createVaporApp` (`app.vapor`) it registers the private vapor function; on `createApp` it registers the vdom object (`vMotion`)
+   - Supports all animation, gesture, layout, and exit props identical to `<motion>` (vdom). Vapor binding-value syntax only (no vnode props / provide-inject walk)
+   - **Key limitation (vdom directive)**: does not support parent-child variant propagation via Vue provide/inject the same way `<Motion>` does through its component tree walk caveats
+   - Two syntax styles on vdom: props syntax (`v-motion :animate="..."`) and binding value syntax (`v-motion="{ animate: ... }"`) — props win on conflict
+   - **Vapor limitations** (honest, directive path): no parent-child variants, no presence/exit, no MotionConfig/LayoutGroup context, no SSR styles — vapor exposes no component instance tree to bridge provides for directives. For richer context, use `<Motion>` inside a vapor app with Vue’s `vaporInteropPlugin` (Motion remains a vdom `defineComponent`; interop mounts it — covered by `motion-vapor.test.ts`)
+   - Preset directives via `createPresetDirective` (vdom) or `MotionPlugin` presets (vapor-aware)
+   - Registered globally via `MotionPlugin` or Nuxt module (`motionV.directives: true` → `vueApp.use(MotionPlugin)`)
 
 ## Context System
 

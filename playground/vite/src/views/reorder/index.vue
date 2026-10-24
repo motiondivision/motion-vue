@@ -6,27 +6,36 @@ const items = ref([0, 1, 2, 3, 4, 5])
 </script>
 
 <template>
-  <div class="p-8">
-    <h1 class="text-2xl font-bold mb-4">
-      Reorder Basic (axis auto-detected)
-    </h1>
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Reorder
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Vertical list
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        The axis is detected from the container. Drag a row to move it.
+      </p>
+    </header>
+
     <p
       data-testid="order"
-      class="mb-4 text-sm text-gray-500"
+      class="mb-4 font-mono text-xs text-white/35"
     >
       {{ items.join(',') }}
     </p>
 
     <Reorder.Group
       v-model:values="items"
-      class="space-y-2 w-64"
+      class="w-64 space-y-2"
     >
       <Reorder.Item
         v-for="item in items"
         :key="item"
         :value="item"
         :data-testid="`item-${item}`"
-        class="bg-white p-4 rounded shadow-sm border cursor-grab active:cursor-grabbing"
+        class="tile cursor-grab rounded-lg px-4 py-3 active:cursor-grabbing"
         style="list-style: none;"
       >
         Item {{ item }}

@@ -29,11 +29,13 @@
     "lint-staged": "lint-staged",
     "pub:release": "pnpm --filter motion-v pub:release",
     "test:e2e": "playwright test",
+    "test:e2e:tester": "e2e run",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "bumpp": "bumpp package.json packages/*/package.json docs/package.json",
-    "size:compare": "node scripts/size-compare.mjs"
+    "size:compare": "node scripts/size-compare.mjs",
+    "play:vapor": "pnpm --filter @motion-vue/playground-vapor dev"
   },
   "dependencies": {
     "@vueuse/core": "^10.0.0",
@@ -44,6 +46,7 @@
     "@antfu/eslint-config": "^2.27.3",
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@e2e-dev/web": "^0.15.1",
     "@playwright/test": "^1.51.0",
     "@testing-library/vue": "^8.1.0",
     "@types/node": "^22.13.9",
@@ -53,6 +56,7 @@
     "@vue/test-utils": "^2.4.5",
     "@vue/tsconfig": "^0.5.1",
     "bumpp": "^9.8.1",
+    "e2e": "^0.21.1",
     "eslint": "^9.9.1",
     "happy-dom": "^16.0.1",
     "jsdom": "^24.0.0",
@@ -67,7 +71,9 @@
   "pnpm": {
     "overrides": {
       "typescript": "6.0.3",
-      "vue": "^3.5.30"
+      "vue": "^3.5.30",
+      "motion-v>vue": "3.6.0-rc.11",
+      "@motion-vue/playground-vapor>vue": "3.6.0-rc.11"
     }
   },
   "simple-git-hooks": {

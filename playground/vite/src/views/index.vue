@@ -44,6 +44,9 @@ const dirKeys = new Set(
 )
 
 function groupKeyOf(path: string) {
+  // popLayout is an AnimatePresence mode; keep it with the presence demos.
+  if (path === '/pop-layout')
+    return 'animate-presence'
   const first = path.split('/').filter(Boolean)[0]
   if (first.startsWith('scroll'))
     return 'scroll'
@@ -52,7 +55,27 @@ function groupKeyOf(path: string) {
   return 'misc'
 }
 
+// Route names that humanize badly keep an explicit label.
+const DISPLAY_NAMES: Record<string, string> = {
+  '/animate-presence': 'Basic exit',
+  '/animate-presence/custom': 'custom exit',
+  '/animate-presence/group-animatepresence': 'LayoutGroup',
+  '/animate-presence/list': 'Keyed list',
+  '/animate-presence/mode-wait': 'Wait mode',
+  '/animate-presence/multi-motion': 'Multiple exits',
+  '/animate-presence/nested-motion': 'Nested motion',
+  '/animate-presence/use-presence': 'usePresence',
+  '/animate-presence/v-if-shared-layout': 'v-if shared layout',
+  '/animate-presence/v-show': 'v-show',
+  '/animate-presence/v-show-shared-layout': 'v-show shared layout',
+  '/animate-presence/variants': 'Exit variants',
+  '/pop-layout': 'popLayout',
+  '/keepalive': 'KeepAlive',
+}
+
 function humanize(path: string, groupKey: string) {
+  if (DISPLAY_NAMES[path])
+    return DISPLAY_NAMES[path]
   let name = path.split('/').filter(Boolean).join('-')
   if (name.startsWith(`${groupKey}-`))
     name = name.slice(groupKey.length + 1)

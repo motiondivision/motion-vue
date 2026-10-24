@@ -14,76 +14,69 @@ function onDragEnd() {
 </script>
 
 <template>
-  <div class="p-8">
-    <div class="space-y-8">
-      <div class="border p-4 rounded">
-        <h1 class="text-2xl font-bold mb-4">
-          Scroll While Drag Test
-        </h1>
-        <p class="text-sm text-gray-600 mb-4">
-          Drag the box and try scrolling. The box should stay attached to the cursor.
-        </p>
-      </div>
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Drag
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Scroll while dragging
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        Scroll the container or the window mid-drag. The tile must stay under
+        the cursor.
+      </p>
+    </header>
 
-      <!-- Test: Scrollable container with draggable element -->
-      <div class="border p-4 rounded">
-        <h2 class="text-lg font-semibold mb-2">
-          Element Scroll
-        </h2>
-        <p class="text-sm text-gray-600 mb-4">
-          Drag the red box and scroll the container using mouse wheel or trackpad.
-          The box should stay attached to your cursor.
-        </p>
-
-        <div
-          ref="containerRef"
-          class="relative bg-gray-100 rounded overflow-scroll"
-          style="width: 400px; height: 300px;"
-        >
-          <motion.div
-            :drag="true"
-            :drag-elastic="0"
-            :drag-momentum="false"
-            class="absolute w-20 h-20 bg-red-500 rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center text-white font-bold select-none"
-            style="top: 100px; left: 100px;"
-            data-testid="draggable-in-scrollable"
-            @drag-start="onDragStart"
-            @drag-end="onDragEnd"
-          >
-            Drag
-          </motion.div>
-
-          <!-- Content to make container scrollable -->
-          <div
-            class="absolute"
-            style="top: 800px; left: 100px; width: 200px; height: 100px; background: #ccc;"
-          >
-            Scroll target
-          </div>
-        </div>
-      </div>
-
-      <!-- Test: Window scroll -->
-      <div class="border p-4 rounded">
-        <h2 class="text-lg font-semibold mb-2">
-          Window Scroll
-        </h2>
-        <p class="text-sm text-gray-600 mb-4">
-          Drag the blue box and scroll the window. The box should stay attached to your cursor.
-        </p>
-
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-medium text-white/70">
+        Container scroll
+      </h2>
+      <div
+        ref="containerRef"
+        class="relative overflow-scroll rounded-2xl border border-white/[0.08] bg-[#0d0d0f]"
+        style="width: 400px; height: 300px;"
+      >
         <motion.div
           :drag="true"
-          :initial="{ x: 0, y: 0 }"
-          class="w-20 h-20 bg-blue-500 rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center text-white font-bold select-none"
-          data-testid="draggable-window-scroll"
+          :drag-elastic="0"
+          :drag-momentum="false"
+          class="absolute flex h-20 w-20 cursor-grab select-none items-center justify-center rounded-lg
+                 bg-gradient-to-br from-violet-400/40 to-violet-500/20 text-xs text-violet-100
+                 ring-1 ring-inset ring-violet-200/30 active:cursor-grabbing"
+          style="top: 100px; left: 100px;"
+          data-testid="draggable-in-scrollable"
+          @drag-start="onDragStart"
+          @drag-end="onDragEnd"
         >
           Drag
         </motion.div>
 
-        <!-- Spacer to enable window scroll -->
-        <div style="height: 1000px;" />
+        <div
+          class="absolute rounded-lg border border-white/10 bg-white/[0.04] p-3 text-xs text-white/40"
+          style="top: 800px; left: 100px; width: 200px; height: 100px;"
+        >
+          Scroll target
+        </div>
       </div>
-    </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-sm font-medium text-white/70">
+        Window scroll
+      </h2>
+      <motion.div
+        :drag="true"
+        :initial="{ x: 0, y: 0 }"
+        class="flex h-20 w-20 cursor-grab select-none items-center justify-center rounded-lg
+               bg-white/[0.08] text-xs text-white/70 ring-1 ring-inset ring-white/15
+               active:cursor-grabbing"
+        data-testid="draggable-window-scroll"
+      >
+        Drag
+      </motion.div>
+
+      <div style="height: 1000px;" />
+    </section>
   </div>
 </template>

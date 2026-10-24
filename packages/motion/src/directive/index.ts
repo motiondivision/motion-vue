@@ -1,17 +1,23 @@
-import type { App, ComponentInternalInstance, ComputedRef, Directive, VNode } from 'vue'
+import type { App, ComponentInternalInstance, Directive, VNode, WatchStopHandle } from 'vue'
 import type { Options } from '@/types'
 import type { FeatureBundle } from '@/features/dom-animation'
 import { domMax } from '@/features/dom-max'
 import { MotionState, mountedStates } from '@/state'
+import { watchPresenceExit } from '@/components/animate-presence/watch-exit'
 import { createVisualElement as defaultRenderer } from '@/state/create-visual-element'
-import { createSVGStyles, createStyles } from '@/state/style'
-import { isSVGElement, resolveInitialValues } from '@/state/utils'
+import { resolveInitialValues } from '@/state/utils'
 import { warning } from 'hey-listen'
-import { layoutGroupInjectionKey, motionInjectionKey } from '@/components/context'
-import { animatePresenceInjectionKey } from '@/components/animate-presence/presence'
-import { defaultConfig, motionConfigInjectionKey } from '@/components/motion-config/context'
-import type { MotionConfigState } from '@/components/motion-config/types'
-import { resolveMotionProps } from '@/utils/resolve-motion-props'
+import {
+  applyInitialStyles,
+  buildMotionOptions,
+  computeStyles,
+  resolveTag as resolveElementTag,
+} from './shared'
+import { createVaporMotionDirective } from './vapor'
+
+function isVaporApp(app: App): boolean {
+  return !!(app as App & { vapor?: boolean }).vapor
+}
 
 /**
  * Extract props from VNode and merge with binding value.
@@ -54,25 +60,9 @@ function resolveTag(el: Element): string
 function resolveTag(vnode: VNode): string
 function resolveTag(source: Element | VNode): string {
   if (typeof Element !== 'undefined' && source instanceof Element)
-    return source.tagName.toLowerCase()
+    return resolveElementTag(source)
   const vnode = source as VNode
   return typeof vnode.type === 'string' ? vnode.type : 'div'
-}
-
-/**
- * Compute CSS styles (and SVG attrs) from motion values.
- * Shared by SSR and client-side initial style application.
- */
-function computeStyles(
-  values: Record<string, any>,
-  tag: string,
-  styleProp?: Record<string, any>,
-): { styles: Record<string, any> | null, attrs?: Record<string, any> } {
-  if (isSVGElement(tag as any)) {
-    const { attrs, style } = createSVGStyles({ ...values }, tag, styleProp)
-    return { styles: createStyles(style), attrs }
-  }
-  return { styles: createStyles({ ...styleProp, ...values }) }
 }
 
 function resolveSSRStyles(options: Options): Record<string, string> | null {
@@ -82,16 +72,6 @@ function resolveSSRStyles(options: Options): Record<string, string> | null {
   if (Object.keys(latestValues).length === 0)
     return null
   return computeStyles(latestValues, options.as as string || 'div', options.style).styles
-}
-
-function applyInitialStyles(el: HTMLElement | SVGElement, state: MotionState) {
-  const { styles, attrs } = computeStyles(state.latestValues, resolveTag(el), state.options.style)
-  if (attrs) {
-    for (const key in attrs) el.setAttribute(key, String(attrs[key]))
-  }
-  if (styles) {
-    for (const key in styles) el.style[key as any] = styles[key]
-  }
 }
 
 function findComponentParent(vnode: VNode, root: ComponentInternalInstance): ComponentInternalInstance | null {
@@ -154,29 +134,6 @@ function resolveProvides(vnode: VNode, binding: any): Record<symbol, any> {
 }
 
 /**
- * Extract context values from the provides chain and build
- * a full options object matching useMotionState behavior.
- */
-function buildMotionOptions(
-  motionProps: Options,
-  provides: Record<symbol, any>,
-  tag: string,
-): { options: Options, parentState: MotionState | null } {
-  const parentState: MotionState | null = provides[motionInjectionKey as any] ?? null
-  const layoutGroup = provides[layoutGroupInjectionKey as any] ?? {}
-  const presenceContext = provides[animatePresenceInjectionKey as any] ?? {}
-  const configRef: ComputedRef<MotionConfigState> | null = provides[motionConfigInjectionKey as any] ?? null
-  const config = configRef?.value ?? defaultConfig
-  return {
-    parentState,
-    options: resolveMotionProps(
-      { ...motionProps, as: tag },
-      { layoutGroup, presenceContext, config },
-    ),
-  }
-}
-
-/**
  * Create a v-motion directive with the given feature bundle.
  * If no bundle is provided, defaults to domMax (all features).
  *
@@ -205,6 +162,13 @@ export function createMotionDirective(
     return buildMotionOptions(motionProps, provides, resolveTag(el))
   }
 
+  /**
+   * The directive creates its MotionState directly, so it has to install the
+   * presence exit watcher itself: without it a `v-motion` element inside an
+   * AnimatePresence unmounts immediately and its exit never runs.
+   */
+  const stopExitWatchers = new WeakMap<Element, WatchStopHandle>()
+
   return {
     created(el, binding, vnode) {
       const { options, parentState } = resolveStateOptions(el, binding, vnode)
@@ -218,6 +182,12 @@ export function createMotionDirective(
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
       state.mount(el)
+      // Installed here rather than in `created`: `watch` needs an active
+      // component instance to register its effect, and `created` runs before
+      // the directive has one.
+      const stop = watchPresenceExit(state, state.options.presenceContext ?? {})
+      if (stop)
+        stopExitWatchers.set(el, stop)
     },
 
     beforeUpdate(el, binding, vnode) {
@@ -245,6 +215,8 @@ export function createMotionDirective(
     },
 
     unmounted(el) {
+      stopExitWatchers.get(el)?.()
+      stopExitWatchers.delete(el)
       const state = mountedStates.get(el)
       if (!state)
         return
@@ -298,6 +270,10 @@ export interface MotionPluginType {
 /**
  * Vue plugin for global v-motion directive registration.
  *
+ * On `createVaporApp` (`app.vapor === true`), registers the vapor-shaped
+ * directive function so `v-motion` works without a separate public factory.
+ * On normal `createApp`, registers the vdom object directive.
+ *
  * @example
  * ```ts
  * import { MotionPlugin } from 'motion-v'
@@ -313,10 +289,19 @@ export interface MotionPluginType {
  */
 export const MotionPlugin: MotionPluginType = {
   install(app: App, options) {
-    app.directive('motion', vMotion)
+    const vapor = isVaporApp(app)
+    app.directive(
+      'motion',
+      vapor ? createVaporMotionDirective(domMax) : vMotion,
+    )
     if (options?.presets) {
       for (const [name, preset] of Object.entries(options.presets)) {
-        app.directive(name, createPresetDirective(preset))
+        app.directive(
+          name,
+          vapor
+            ? createVaporMotionDirective(domMax, preset)
+            : createPresetDirective(preset),
+        )
       }
     }
   },

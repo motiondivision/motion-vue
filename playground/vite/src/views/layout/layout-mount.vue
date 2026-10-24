@@ -6,38 +6,47 @@ const show = ref(false)
 </script>
 
 <template>
-  <div style="padding: 40px;">
+  <div class="mx-auto w-full max-w-3xl px-6 pb-24 pt-14">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+        Layout
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+        Mount inside a scaling parent
+      </h1>
+      <p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/50">
+        The outer element scales in from 0. The inner layout element must not
+        play a layout animation when it mounts.
+      </p>
+    </header>
+
     <button
       id="toggle"
+      class="btn btn-primary mb-4"
       @click="show = !show"
     >
       Toggle
     </button>
 
-    <!--
-      Test: layout element mounting inside a scaling container.
-      The outer motion.div animates scale from 0 to 1.
-      The inner motion.div has `layout` prop.
-      On mount, the inner element should NOT perform a layout animation
-      (no translate/scale transforms from projection system).
-    -->
-    <AnimatePresence>
-      <motion.div
-        v-if="show"
-        id="container"
-        :initial="{ scale: 0, opacity: 0 }"
-        :animate="{ scale: 1, opacity: 1 }"
-        :exit="{ scale: 0, opacity: 0 }"
-        :transition="{ duration: 0.3 }"
-        style="padding: 20px; background: #eee; margin-top: 20px;"
-      >
+    <div class="relative min-h-[200px] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d0d0f] p-6">
+      <AnimatePresence>
         <motion.div
-          id="layout-child"
-          layout
-          :initial="false"
-          style="width: 100px; height: 100px; background: #4ff0b7;"
-        />
-      </motion.div>
-    </AnimatePresence>
+          v-if="show"
+          id="container"
+          :initial="{ scale: 0, opacity: 0 }"
+          :animate="{ scale: 1, opacity: 1 }"
+          :exit="{ scale: 0, opacity: 0 }"
+          :transition="{ duration: 0.3 }"
+          class="w-fit rounded-xl border border-white/10 bg-white/[0.05] p-5"
+        >
+          <motion.div
+            id="layout-child"
+            layout
+            :initial="false"
+            class="h-[100px] w-[100px] rounded-lg bg-emerald-300/30"
+          />
+        </motion.div>
+      </AnimatePresence>
+    </div>
   </div>
 </template>

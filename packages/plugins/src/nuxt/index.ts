@@ -82,29 +82,40 @@ export default defineNuxtModule<ModuleOptions>({
     const needsPlugin = options.directives || presetEntries.length > 0
 
     if (needsPlugin) {
-      const presetLines = presetEntries.map(([name, preset]) =>
-        `  nuxtApp.vueApp.directive(${JSON.stringify(name)}, createPresetDirective(${JSON.stringify(preset)}))`,
-      )
-
-      const imports = ['createPresetDirective']
+      // Prefer MotionPlugin when registering v-motion so createVaporApp
+      // (app.vapor) gets the vapor-shaped directive automatically.
       if (options.directives) {
-        imports.unshift('vMotion')
-      }
-
-      const directiveLine = options.directives
-        ? `  nuxtApp.vueApp.directive('motion', vMotion)\n`
-        : ''
-
-      addPluginTemplate({
-        filename: 'motion-v-directives.mjs',
-        getContents: () => `\
+        const presetsOption = presetEntries.length
+          ? `, { presets: ${JSON.stringify(Object.fromEntries(presetEntries))} }`
+          : ''
+        addPluginTemplate({
+          filename: 'motion-v-directives.mjs',
+          getContents: () => `\
 import { defineNuxtPlugin } from '#imports'
-import { ${imports.join(', ')} } from 'motion-v'
+import { MotionPlugin } from 'motion-v'
 
 export default defineNuxtPlugin((nuxtApp) => {
-${directiveLine}${presetLines.join('\n')}${presetLines.length ? '\n' : ''}})
+  nuxtApp.vueApp.use(MotionPlugin${presetsOption})
+})
 `,
-      })
+        })
+      }
+      else {
+        const presetLines = presetEntries.map(([name, preset]) =>
+          `  nuxtApp.vueApp.directive(${JSON.stringify(name)}, createPresetDirective(${JSON.stringify(preset)}))`,
+        )
+        addPluginTemplate({
+          filename: 'motion-v-directives.mjs',
+          getContents: () => `\
+import { defineNuxtPlugin } from '#imports'
+import { createPresetDirective } from 'motion-v'
+
+export default defineNuxtPlugin((nuxtApp) => {
+${presetLines.join('\n')}
+})
+`,
+        })
+      }
 
       // Generate type declarations for globally registered directives
       const typeLines: string[] = []

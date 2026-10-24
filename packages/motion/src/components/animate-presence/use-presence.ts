@@ -1,34 +1,79 @@
-import { onMounted, onUnmounted, onUpdated } from 'vue'
-import type { PresenceHandler } from './presence'
-import { injectAnimatePresence } from './presence'
+import type { ComputedRef, Ref } from 'vue'
+import { computed, onMounted, onUnmounted, readonly, ref } from 'vue'
+import type { PresenceContext } from './presence'
+import { createPresenceId, injectAnimatePresence } from './presence'
+
+export type SafeToRemove = () => void
 
 /**
- * Lets a component run its own exit when an `AnimatePresence` removes it,
- * for components that animate out without a `motion` element's `exit`.
+ * When a component is the child of `AnimatePresence`, it can use `usePresence`
+ * to access information about whether it's still present in the tree.
  *
- * Removal waits for the promise `onExit` returns. Vue runs the component's
- * `onUnmounted` hooks before that, so teardown the exit needs (an engine,
- * listeners) should wait for the same promise. `onEnter` runs if the
- * element comes back while its exit is running.
+ * ```ts
+ * import { usePresence } from 'motion-v'
  *
- * Outside an `AnimatePresence` it does nothing.
+ * const [isPresent, safeToRemove] = usePresence()
+ *
+ * watch(isPresent, (present) => {
+ *   if (!present && safeToRemove)
+ *     setTimeout(safeToRemove, 1000)
+ * })
+ * ```
+ *
+ * If `isPresent` is `false`, it means that a component has been removed from
+ * the tree, but `AnimatePresence` won't really remove it until `safeToRemove`
+ * has been called.
+ *
+ * Outside an `AnimatePresence`, returns `[ref(true), null]` (always present).
+ *
+ * @param subscribe - When `false`, does not register as an exit waiter
+ *   (mirrors React's `usePresence(false)`).
+ * @public
  */
-export function usePresence(handler: PresenceHandler) {
-  const presence = injectAnimatePresence({})
-  if (!presence.registerHandler)
-    return
-  // Template refs are cleared before the leave starts, so the element is
-  // read while mounted and kept.
-  let element: Element | null | undefined
-  const read = () => {
-    element = handler.element() ?? element
-  }
-  const registered: PresenceHandler = { ...handler, element: () => element }
+export function usePresence(
+  subscribe: boolean = true,
+): [Readonly<Ref<boolean>>, SafeToRemove | null] {
+  const context = injectAnimatePresence(null)
+
+  if (context === null)
+    return [readonly(ref(true)), null]
+
+  const id = createPresenceId()
+  let unregister: (() => void) | undefined
+
   onMounted(() => {
-    read()
-    presence.registerHandler!(registered)
+    if (subscribe)
+      unregister = context.register?.(id)
   })
-  onUpdated(read)
-  // `exit` captures the handler while the subtree unmounts, before this.
-  onUnmounted(() => presence.unregisterHandler!(registered))
+  onUnmounted(() => {
+    unregister?.()
+    unregister = undefined
+  })
+
+  const isPresent = computed(() => isPresentContext(context))
+
+  const safeToRemove: SafeToRemove = () => {
+    if (subscribe)
+      context.onExitComplete?.(id)
+  }
+
+  // Inside AnimatePresence always expose safeToRemove (React only returns it
+  // while exiting; Vue needs a stable function because the tuple is not
+  // recreated on each render).
+  return [isPresent, context.onExitComplete ? safeToRemove : null]
+}
+
+/**
+ * Similar to `usePresence`, except `useIsPresent` simply returns whether or
+ * not the component is present. There is no `safeToRemove` function.
+ *
+ * @public
+ */
+export function useIsPresent(): ComputedRef<boolean> {
+  const context = injectAnimatePresence(null)
+  return computed(() => isPresentContext(context))
+}
+
+export function isPresentContext(context: PresenceContext | null): boolean {
+  return context === null ? true : !!context.isPresent
 }

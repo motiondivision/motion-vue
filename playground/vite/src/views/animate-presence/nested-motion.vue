@@ -1,75 +1,75 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AnimatePresence, motion } from 'motion-v'
+import DemoPage from '@/components/DemoPage.vue'
+import DemoStage from '@/components/DemoStage.vue'
 
 const show = ref(true)
 </script>
 
 <template>
-  <div class="container mx-auto max-w-4xl px-6 py-12">
-    <h1 class="text-4xl font-bold text-center mb-12 text-gray-900">
-      Nested Motion Components Test
-    </h1>
+  <DemoPage
+    eyebrow="AnimatePresence"
+    title="Nested motion children"
+    description="A presence child fans in every motion element in its subtree, not just the direct child. Nested elements keep their own exit timing."
+  >
+    <button
+      id="toggle"
+      class="btn btn-primary mb-4"
+      @click="show = !show"
+    >
+      {{ show ? 'Hide group' : 'Show group' }}
+    </button>
 
-    <div class="flex flex-col items-center gap-8">
-      <button
-        id="toggle"
-        class="btn btn-primary"
-        @click="show = !show"
-      >
-        {{ show ? 'Hide' : 'Show' }}
-      </button>
+    <DemoStage>
+      <AnimatePresence>
+        <motion.div
+          v-if="show"
+          id="parent-motion"
+          :initial="{ opacity: 0, scale: 0.96 }"
+          :animate="{ opacity: 1, scale: 1 }"
+          :exit="{ opacity: 0, scale: 0.96 }"
+          :transition="{ duration: 0.28 }"
+          class="w-full max-w-sm rounded-xl border border-white/10 bg-white/[0.05] p-5"
+        >
+          <h2 class="text-sm font-medium text-white">
+            Account
+          </h2>
 
-      <div class="w-full max-w-md">
-        <AnimatePresence>
           <motion.div
-            v-if="show"
-            id="parent-motion"
-            :initial="{ opacity: 0, scale: 0.9 }"
-            :animate="{ opacity: 1, scale: 1 }"
-            :exit="{ opacity: 0, scale: 0.9 }"
-            :transition="{ duration: 0.3 }"
-            class="bg-gray-100 rounded-lg p-6 space-y-4"
+            id="child-motion-1"
+            :initial="{ opacity: 0, y: 16 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :exit="{ opacity: 0, y: -16 }"
+            :transition="{ duration: 0.22, delay: 0.06 }"
+            class="mt-4 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/70"
           >
-            <h2 class="text-xl font-semibold">
-              Parent Motion
-            </h2>
+            Profile
+          </motion.div>
+
+          <motion.div
+            id="child-motion-2"
+            :initial="{ opacity: 0, y: 16 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :exit="{ opacity: 0, y: -16 }"
+            :transition="{ duration: 0.22, delay: 0.12 }"
+            class="mt-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/70"
+          >
+            Security
 
             <motion.div
-              id="child-motion-1"
-              :initial="{ opacity: 0, y: 20 }"
-              :animate="{ opacity: 1, y: 0 }"
-              :exit="{ opacity: 0, y: -20 }"
-              :transition="{ duration: 0.2, delay: 0.1 }"
-              class="bg-blue-500 text-white rounded p-3"
+              id="grandchild-motion"
+              :initial="{ opacity: 0 }"
+              :animate="{ opacity: 1 }"
+              :exit="{ opacity: 0 }"
+              :transition="{ duration: 0.18, delay: 0.08 }"
+              class="mt-2 rounded-md border border-violet-300/20 bg-violet-400/10 px-3 py-2 text-xs text-violet-200"
             >
-              Child Motion 1
-            </motion.div>
-
-            <motion.div
-              id="child-motion-2"
-              :initial="{ opacity: 0, y: 20 }"
-              :animate="{ opacity: 1, y: 0 }"
-              :exit="{ opacity: 0, y: -20 }"
-              :transition="{ duration: 0.2, delay: 0.2 }"
-              class="bg-green-500 text-white rounded p-3"
-            >
-              Child Motion 2
-
-              <motion.div
-                id="grandchild-motion"
-                :initial="{ opacity: 0 }"
-                :animate="{ opacity: 1 }"
-                :exit="{ opacity: 0 }"
-                :transition="{ duration: 0.15, delay: 0.1 }"
-                class="mt-2 bg-green-700 rounded p-2 text-sm"
-              >
-                Grandchild Motion
-              </motion.div>
+              Two-factor authentication
             </motion.div>
           </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
-  </div>
+        </motion.div>
+      </AnimatePresence>
+    </DemoStage>
+  </DemoPage>
 </template>
