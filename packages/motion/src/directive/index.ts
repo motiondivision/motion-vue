@@ -1,8 +1,9 @@
-import type { App, ComponentInternalInstance, Directive, VNode } from 'vue'
+import type { App, ComponentInternalInstance, Directive, VNode, WatchStopHandle } from 'vue'
 import type { Options } from '@/types'
 import type { FeatureBundle } from '@/features/dom-animation'
 import { domMax } from '@/features/dom-max'
 import { MotionState, mountedStates } from '@/state'
+import { watchPresenceExit } from '@/components/animate-presence/watch-exit'
 import { createVisualElement as defaultRenderer } from '@/state/create-visual-element'
 import { resolveInitialValues } from '@/state/utils'
 import { warning } from 'hey-listen'
@@ -161,6 +162,13 @@ export function createMotionDirective(
     return buildMotionOptions(motionProps, provides, resolveTag(el))
   }
 
+  /**
+   * The directive creates its MotionState directly, so it has to install the
+   * presence exit watcher itself: without it a `v-motion` element inside an
+   * AnimatePresence unmounts immediately and its exit never runs.
+   */
+  const stopExitWatchers = new WeakMap<Element, WatchStopHandle>()
+
   return {
     created(el, binding, vnode) {
       const { options, parentState } = resolveStateOptions(el, binding, vnode)
@@ -174,6 +182,12 @@ export function createMotionDirective(
       cleanVNodeProps(el, vnode.props)
       applyInitialStyles(el, state)
       state.mount(el)
+      // Installed here rather than in `created`: `watch` needs an active
+      // component instance to register its effect, and `created` runs before
+      // the directive has one.
+      const stop = watchPresenceExit(state, state.options.presenceContext ?? {})
+      if (stop)
+        stopExitWatchers.set(el, stop)
     },
 
     beforeUpdate(el, binding, vnode) {
@@ -201,6 +215,8 @@ export function createMotionDirective(
     },
 
     unmounted(el) {
+      stopExitWatchers.get(el)?.()
+      stopExitWatchers.delete(el)
       const state = mountedStates.get(el)
       if (!state)
         return

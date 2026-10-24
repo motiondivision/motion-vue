@@ -204,6 +204,23 @@ export class MotionState {
   }
 
   /**
+   * Drop the mounted element when the framework did not unmount it itself.
+   *
+   * `v-show` hides an element in place and KeepAlive moves a deactivated
+   * subtree into a detached storage container; in both cases Vue never calls
+   * unmount, so nothing would clear `element` and `isMounted()` would stay
+   * true forever (a later reactivation then skips the remount path). A state
+   * that no longer owns a connected element is not mounted, whichever way it
+   * left the document.
+   *
+   * Called once an exit settles, and from the unmount/deactivate hooks.
+   */
+  unmountIfDetached() {
+    if (this.element && !this.element.isConnected)
+      this.unmount()
+  }
+
+  /**
    * Create and attach the visual element using the given renderer.
    * Called by setBundle(); no-ops once created.
    */

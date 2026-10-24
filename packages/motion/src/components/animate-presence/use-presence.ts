@@ -1,11 +1,9 @@
 import type { ComputedRef, Ref } from 'vue'
 import { computed, onMounted, onUnmounted, readonly, ref } from 'vue'
 import type { PresenceContext } from './presence'
-import { injectAnimatePresence } from './presence'
+import { createPresenceId, injectAnimatePresence } from './presence'
 
 export type SafeToRemove = () => void
-
-let nextPresenceId = 0
 
 /**
  * When a component is the child of `AnimatePresence`, it can use `usePresence`
@@ -40,7 +38,7 @@ export function usePresence(
   if (context === null)
     return [readonly(ref(true)), null]
 
-  const id = ++nextPresenceId
+  const id = createPresenceId()
   let unregister: (() => void) | undefined
 
   onMounted(() => {

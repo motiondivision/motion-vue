@@ -93,6 +93,25 @@ describe('presence-core', () => {
     expect(rendered()).toEqual(['a:true', 'b:true'])
   })
 
+  /**
+   * Upstream inserts at the old index, so an exiting key lands where the index
+   * shift puts it once the new list also inserts or reorders keys. Pinned here
+   * so the placement stays traceable to upstream rather than drifting.
+   */
+  it('places an exiting key at its old index even when the list also inserts', () => {
+    const { core, rendered } = setup()
+    core.syncChildren(kids('a', 'b', 'c'))
+    core.syncChildren(kids('x', 'a', 'c'))
+    expect(rendered()).toEqual(['x:true', 'b:false', 'a:true', 'c:true'])
+  })
+
+  it('appends exiting keys that have no remaining neighbour', () => {
+    const { core, rendered } = setup()
+    core.syncChildren(kids('a', 'b', 'c'))
+    core.syncChildren(kids('a', 'b'))
+    expect(rendered()).toEqual(['a:true', 'b:true', 'c:false'])
+  })
+
   it('popLayout schedules like sync (pop styling lives in the adapter)', () => {
     const { core, rendered } = setup('popLayout')
     core.syncChildren(kids('a', 'b'))

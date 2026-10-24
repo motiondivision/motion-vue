@@ -1,8 +1,5 @@
 import type { PropType, TransitionState, VNode } from 'vue'
-import { createVNode, defineComponent, getCurrentInstance, onUnmounted, resolveTransitionHooks, setTransitionHooks, watch } from 'vue'
-import type { IProjectionNode } from 'motion-dom'
-import type { MotionState } from '@/state'
-import type { ExitFeature } from '@/features/exit/exit'
+import { computed, createVNode, defineComponent, getCurrentInstance, onUnmounted, ref, resolveTransitionHooks, setTransitionHooks, watch } from 'vue'
 import { useMotionConfig } from '@/components/motion-config/context'
 import type { PresenceMode } from './core/presence-core'
 import { provideAnimatePresence } from './presence'
@@ -44,13 +41,16 @@ export const PresenceChild = defineComponent({
   setup(props) {
     const motionConfig = useMotionConfig()
     const instance = getCurrentInstance()
-    const states = new Set<MotionState>()
+    /**
+     * Raised for the whole duration of an exit, however it started. `v-if` is
+     * already visible through `props.isPresent`; `v-show` and KeepAlive are
+     * not, so this carries them into the same signal every subscriber watches.
+     */
+    const exitSignal = ref(false)
+    /** Reactive mirror of `props.isPresent && !exitSignal`, which `watch` can track. */
+    const isPresentState = computed(() => props.isPresent && !exitSignal.value)
     /** React-style presence subscribers: id → exit complete. */
     const presenceChildren = new Map<string | number, boolean>()
-    // Bumped by exit and reenter; a stale completion then no-ops, mirroring
-    // ExitFeature's own generation guard for exit → reenter → exit-again.
-    let generation = 0
-    let motionsDone = true
     let exitActive = false
     let exitFinished = false
     /** Release callback of the Transition leave currently in flight. */
@@ -87,8 +87,6 @@ export const PresenceChild = defineComponent({
       // this callback (display: none for v-show, the storage move for
       // KeepAlive). Only then can we tell whether the element survived.
       done?.()
-      if (leaveElement && !leaveElement.isConnected)
-        states.forEach(state => state.unmount())
       leaveElement = undefined
       // The exit is over, so the freeze has served its purpose. Dropping it
       // here is what lets a `v-show` element pick up the flip back to visible:
@@ -106,7 +104,7 @@ export const PresenceChild = defineComponent({
     onUnmounted(releasePopStyle)
 
     function maybeFinish() {
-      if (!exitActive || !motionsDone || !allPresenceComplete())
+      if (!exitActive || !allPresenceComplete())
         return
       finish()
     }
@@ -119,10 +117,8 @@ export const PresenceChild = defineComponent({
         return props.custom
       },
       get isPresent() {
-        return props.isPresent
+        return isPresentState.value
       },
-      registerMotion: state => states.add(state),
-      unregisterMotion: state => states.delete(state),
       register: (childId) => {
         presenceChildren.set(childId, false)
         return () => {
@@ -175,64 +171,43 @@ export const PresenceChild = defineComponent({
     function exit(el?: HTMLElement) {
       if (exitActive)
         return
-      const gen = ++generation
       exitActive = true
       exitFinished = false
+      exitSignal.value = true
       // Fall back to resolving now if the child never rendered while present.
       frozenChildren ??= presentChildren ?? resolveSlot(props.child.children)
       leaveElement = el ?? rootElement() ?? undefined
       if (leaveElement) {
-        const projection = [...states][0]?.visualElement?.projection as IProjectionNode | undefined
         popStyle = addPopStyle(leaveElement, {
           mode: props.mode,
           anchorX: props.anchorX,
           getNonce: () => motionConfig.value.nonce,
-          root: projection?.root,
         })
       }
 
       // Mirror React PresenceChild: every isPresent flip resets completions.
       resetPresenceChildren()
 
-      const completions: Promise<unknown>[] = []
-      for (const state of states)
-        completions.push(state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve())
-
-      // No motion elements and no presence subscribers: nothing to wait for.
-      if (completions.length === 0 && presenceChildren.size === 0) {
-        motionsDone = true
+      // Nothing registered: no motion element and no hook subscriber, so
+      // there is nothing to wait for.
+      if (presenceChildren.size === 0) {
         finish()
         return
       }
 
-      if (completions.length === 0) {
-        motionsDone = true
-        maybeFinish()
-        return
-      }
-
-      motionsDone = false
-      Promise.all(completions).then(() => {
-        if (gen !== generation)
-          return
-        motionsDone = true
-        maybeFinish()
-      })
+      maybeFinish()
     }
 
     function reenter() {
-      generation++
       exitActive = false
       exitFinished = false
-      motionsDone = true
+      exitSignal.value = false
       // The child is present again, so it must track parent state once more.
       frozenChildren = undefined
       pendingLeaveDone = undefined
       leaveElement = undefined
       releasePopStyle()
       resetPresenceChildren()
-      for (const state of states)
-        state.getFeature<ExitFeature>('exit')?.reenter()
     }
 
     /**

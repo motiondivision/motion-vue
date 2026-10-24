@@ -1,5 +1,4 @@
 import { frame } from 'motion-dom'
-import type { IProjectionNode } from 'motion-dom'
 import type { PresenceMode } from './core/presence-core'
 
 let popId = 0
@@ -8,23 +7,6 @@ export interface PopLayoutOptions {
   mode: PresenceMode
   anchorX: 'left' | 'right'
   getNonce: () => string | undefined
-  /**
-   * The exiting element's projection root. Vue has no equivalent of React's
-   * `getSnapshotBeforeUpdate`, and this stylesheet is injected before the
-   * siblings' own update hooks run. Snapshotting their positions first is what
-   * gives their FLIP animation a delta to work from.
-   */
-  root?: IProjectionNode
-}
-
-/**
- * Record every layout node's current position. `willUpdate` is idempotent, so
- * a sibling's own later snapshot keeps this measurement.
- */
-function snapshotLayoutTree(root: IProjectionNode | undefined) {
-  if (!root)
-    return
-  root.nodes?.forEach((node: IProjectionNode) => node.willUpdate(false))
 }
 
 /**
@@ -35,9 +17,6 @@ function snapshotLayoutTree(root: IProjectionNode | undefined) {
 export function addPopStyle(el: HTMLElement, options: PopLayoutOptions): HTMLStyleElement | undefined {
   if (options.mode !== 'popLayout')
     return undefined
-
-  snapshotLayoutTree(options.root)
-
   const parent = el.offsetParent
   const parentWidth = parent instanceof HTMLElement ? parent.offsetWidth || 0 : 0
   const size = {
