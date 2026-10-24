@@ -1,6 +1,7 @@
 import type { PropType, TransitionState, VNode } from 'vue'
 import { computed, createVNode, defineComponent, getCurrentInstance, onUnmounted, ref, resolveTransitionHooks, setTransitionHooks, watch } from 'vue'
 import { useMotionConfig } from '@/components/motion-config/context'
+import type { MotionState } from '@/state'
 import type { PresenceMode } from './core/presence-core'
 import { provideAnimatePresence } from './presence'
 import { addPopStyle, removePopStyle } from './pop-layout'
@@ -37,6 +38,8 @@ export const PresenceChild = defineComponent({
     onExitComplete: { type: Function as PropType<() => void>, required: true },
     /** Shared across every child of one AnimatePresence, as TransitionGroup does. */
     transitionState: { type: Object as PropType<TransitionState>, required: true },
+    /** Every motion state registered under the AnimatePresence, shared across children. */
+    motionStates: { type: Object as PropType<Set<MotionState>>, required: true },
   },
   setup(props) {
     const motionConfig = useMotionConfig()
@@ -119,10 +122,14 @@ export const PresenceChild = defineComponent({
       get isPresent() {
         return isPresentState.value
       },
-      register: (childId) => {
+      register: (childId, state) => {
         presenceChildren.set(childId, false)
+        if (state)
+          props.motionStates.add(state)
         return () => {
           presenceChildren.delete(childId)
+          if (state)
+            props.motionStates.delete(state)
           maybeFinish()
         }
       },
@@ -178,6 +185,17 @@ export const PresenceChild = defineComponent({
       frozenChildren ??= presentChildren ?? resolveSlot(props.child.children)
       leaveElement = el ?? rootElement() ?? undefined
       if (leaveElement) {
+        // The pop style reflows the siblings the moment it lands, before
+        // their own update hooks could measure them. Snapshot every
+        // registered layout child first so each FLIP starts from its
+        // pre-pop position — willUpdate is idempotent, so a state's own
+        // later snapshot keeps this measurement.
+        if (props.mode === 'popLayout') {
+          for (const state of props.motionStates) {
+            if (state.options.layout || state.options.layoutId)
+              state.getSnapshot(true)
+          }
+        }
         popStyle = addPopStyle(leaveElement, {
           mode: props.mode,
           anchorX: props.anchorX,

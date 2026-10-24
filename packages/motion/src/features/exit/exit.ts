@@ -145,7 +145,7 @@ export class ExitFeature extends Feature {
       return
     this.presenceContext = presenceContext
     this.presenceId = createPresenceId()
-    this.unregister = presenceContext.register(this.presenceId)
+    this.unregister = presenceContext.register(this.presenceId, this.state)
   }
 
   unmount() {

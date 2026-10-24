@@ -1,6 +1,7 @@
 import type { PropType, VNode } from 'vue'
 import { Comment, Fragment, Text, defineComponent, h, onMounted, shallowRef, useTransitionState, watch } from 'vue'
 import { warning } from 'hey-listen'
+import type { MotionState } from '@/state'
 import type { PresenceEntry, PresenceMode } from './core/presence-core'
 import { createPresenceCore } from './core/presence-core'
 import { PresenceChild } from './presence-child'
@@ -52,6 +53,15 @@ export const AnimatePresence = defineComponent({
     // vnode hooks — the same arrangement Vue's TransitionGroup uses.
     const transitionState = useTransitionState()
 
+    /**
+     * Every motion state registered under this AnimatePresence, across all
+     * children. A popLayout exit pulls its element out of flow synchronously,
+     * reflowing the siblings before their own update hooks could measure
+     * them — so the exit snapshots this whole set first, giving each layout
+     * animation a pre-pop position to start from.
+     */
+    const motionStates = new Set<MotionState>()
+
     const core = createPresenceCore<VNode>({
       getMode: () => props.mode,
       onRenderSetChange: entries => (rendered.value = [...entries]),
@@ -98,6 +108,7 @@ export const AnimatePresence = defineComponent({
           mode: props.mode,
           anchorX: props.anchorX,
           transitionState,
+          motionStates,
           onExitComplete: () => {
             core.completeExit(entry.key)
             // A v-show exit never leaves the core's render set, so the core

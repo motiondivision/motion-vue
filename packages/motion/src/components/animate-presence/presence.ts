@@ -1,4 +1,5 @@
 import { createContext } from '@/utils'
+import type { MotionState } from '@/state'
 
 /**
  * Per-child presence context provided by `PresenceChild`.
@@ -16,9 +17,12 @@ export interface PresenceContext {
   isPresent?: boolean
   /**
    * Register a presence subscriber (React `usePresence` / motion exit ids).
-   * Returns an unregister function.
+   * Returns an unregister function. Motion elements pass their MotionState,
+   * which PresenceChild collects into a set shared across every child of the
+   * AnimatePresence — a popLayout exit snapshots all of them before the pop
+   * style reflows the tree.
    */
-  register?: (id: string | number) => () => void
+  register?: (id: string | number, state?: MotionState) => () => void
   /** Mark a registered subscriber's exit as complete. */
   onExitComplete?: (id: string | number) => void
 }
