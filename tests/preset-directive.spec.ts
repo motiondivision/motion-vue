@@ -55,4 +55,63 @@ test.describe('Preset Directive', () => {
     const elAgain = page.locator('[data-testid="toggle-target"]')
     await expect(elAgain).toBeVisible()
   })
+
+  test('v-if exit keeps the element mounted until the animation settles', async ({ page }) => {
+    const el = page.locator('[data-testid="toggle-target"]')
+    await expect(el).toBeVisible()
+    await page.waitForTimeout(600)
+
+    await page.click('[data-testid="toggle-btn"]')
+    // The exit fade runs for 0.5s: mid-exit the element must still be
+    // attached and the container must not have completed yet.
+    await page.waitForTimeout(150)
+    await expect(el).toBeAttached()
+    await expect(page.locator('[data-testid="exit-count"]')).toHaveText('exits completed: 0')
+
+    // Once the exit settles the element is removed and the counter bumps.
+    await expect(el).not.toBeAttached({ timeout: 2000 })
+    await expect(page.locator('[data-testid="exit-count"]')).toHaveText('exits completed: 1')
+  })
+
+  test('v-show defers display:none until the exit settles', async ({ page }) => {
+    const el = page.locator('[data-testid="show-target"]')
+    await expect(el).toBeVisible()
+    await page.waitForTimeout(600)
+
+    await page.click('[data-testid="show-btn"]')
+    // Mid-exit: still displayed, still attached.
+    await page.waitForTimeout(150)
+    await expect(el).toBeAttached()
+    expect(await el.evaluate(e => e.style.display)).not.toBe('none')
+
+    // After the exit settles the element hides but stays mounted.
+    await page.waitForTimeout(600)
+    expect(await el.evaluate(e => e.style.display)).toBe('none')
+    await expect(el).toBeAttached()
+
+    // Showing again brings it back.
+    await page.click('[data-testid="show-btn"]')
+    await page.waitForTimeout(600)
+    expect(await el.evaluate(e => e.style.display)).not.toBe('none')
+    await expect(el).toHaveCSS('opacity', '1')
+  })
+
+  test('wait mode swaps keyed pages through the directive exit', async ({ page }) => {
+    const first = page.locator('[data-testid="wait-page-0"]')
+    await expect(first).toBeVisible()
+    await page.waitForTimeout(600)
+
+    await page.click('[data-testid="wait-tab-1"]')
+    // The outgoing page exits first; the incoming page is held back.
+    await page.waitForTimeout(150)
+    await expect(first).toBeAttached()
+    await expect(page.locator('[data-testid="wait-page-1"]')).not.toBeAttached()
+
+    // Once the exit settles, the swap commits.
+    await expect(first).not.toBeAttached({ timeout: 2000 })
+    const second = page.locator('[data-testid="wait-page-1"]')
+    await expect(second).toBeVisible()
+    await page.waitForTimeout(600)
+    await expect(second).toHaveCSS('opacity', '1')
+  })
 })
