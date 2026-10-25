@@ -4,9 +4,10 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-import { AnimatePresence, Motion } from '@/components'
+import { AnimatePresence, Motion, usePresence } from '@/components'
 import { mountedStates } from '@/state/motion-state'
 import { delay } from '@/shared/test'
+import ExitIdentity from './fixtures/exit-identity.vue'
 
 /**
  * An exiting child must keep showing the content it had when it started
@@ -175,6 +176,44 @@ describe('as-child with v-show', () => {
     await delay(150)
     expect(el.style.display).not.toBe('none')
 
+    wrapper.unmount()
+  })
+
+  it('keeps the template ref and scoped style on an exiting child that remounts its root', async () => {
+    let safeToRemove!: () => void
+    const Box = defineComponent({
+      setup() {
+        const [isPresent, remove] = usePresence()
+        safeToRemove = remove!
+        // Swapping the root tag on exit forces a mount mid-exit, which is when
+        // the scope attribute is read from the component's vnode.
+        return () => h(isPresent.value ? 'div' : 'section', 'box')
+      },
+    })
+    const wrapper = mount(ExitIdentity, { props: { item: Box }, attachTo: document.body })
+    await nextTick()
+    // `box` has no setup binding, so it compiles to a string ref owned by the
+    // fixture and resolved through `$refs`.
+    const vm = wrapper.vm as unknown as { show: boolean, $refs: { box?: { $el: Element } | null } }
+    const scopeAttr = Array.from(document.querySelector('.box')!.attributes)
+      .map(attr => attr.name)
+      .find(name => name.startsWith('data-v-'))
+    expect(scopeAttr).toBeTruthy()
+
+    vm.show = false
+    await nextTick()
+    await nextTick()
+
+    const el = document.querySelector('.box')!
+    expect(el.tagName).toBe('SECTION')
+    expect(el.hasAttribute(scopeAttr!)).toBe(true)
+    expect(vm.$refs.box?.$el).toBe(el)
+
+    safeToRemove()
+    await nextTick()
+    await nextTick()
+    expect(document.querySelector('.box')).toBeNull()
+    expect(vm.$refs.box).toBeNull()
     wrapper.unmount()
   })
 })
