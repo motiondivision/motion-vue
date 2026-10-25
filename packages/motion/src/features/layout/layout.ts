@@ -41,6 +41,13 @@ export class LayoutFeature extends Feature {
         projection.isPresent = isPresent
         if (isPresent) {
           projection?.promote()
+          // Taking over from an existing lead is a layout change, but the
+          // root only processes it inside an update. React is already in one
+          // here because the parent re-render made the old lead call
+          // willUpdate; Vue never re-renders an untouched old lead, so open
+          // the update from the new one or the handoff is dropped.
+          if (projection?.resumeFrom)
+            projection.willUpdate()
         }
         else {
           projection?.relegate()
