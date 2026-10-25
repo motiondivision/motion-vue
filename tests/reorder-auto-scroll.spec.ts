@@ -26,7 +26,10 @@ test.describe('Reorder auto-scroll', () => {
     const containerBox = await container.boundingBox()
     expect(containerBox).not.toBeNull()
 
-    const nearBottom = containerBox!.y + containerBox!.height
+    // Inside the 50px edge zone and inside the viewport: the container sits
+    // low enough that a point past its bottom edge falls below the 720px
+    // viewport, and Linux WebKit never delivers that pointer move.
+    const nearBottom = containerBox!.y + containerBox!.height - 10
 
     // Start dragging item 0
     await item0.hover()
@@ -38,7 +41,7 @@ test.describe('Reorder auto-scroll', () => {
     await page.waitForTimeout(50)
 
     // Move near bottom edge to trigger auto-scroll
-    await page.mouse.move(50, nearBottom + 100)
+    await page.mouse.move(50, nearBottom)
     await page.waitForTimeout(300)
 
     // Check that container has scrolled down
