@@ -94,4 +94,42 @@ describe('animate-presence v-show', () => {
 
     wrapper.unmount()
   })
+
+  it('removes the element on v-if after an earlier v-show exit settled', async () => {
+    const show = ref(true)
+    const visible = ref(true)
+    const onExitComplete = vi.fn()
+    const wrapper = mount(defineComponent({
+      components: { AnimatePresence, Motion },
+      setup: () => ({ show, visible, onExitComplete }),
+      template: `
+        <AnimatePresence :on-exit-complete="onExitComplete">
+          <Motion
+            v-if="show"
+            v-show="visible"
+            key="a"
+            data-testid="box"
+            :animate="{ opacity: 1 }"
+            :exit="{ opacity: 0 }"
+            :transition="{ duration: 0.01 }"
+          >box</Motion>
+        </AnimatePresence>
+      `,
+    }), { attachTo: document.body })
+    await nextTick()
+    await delay(50)
+
+    visible.value = false
+    await nextTick()
+    await delay(100)
+    expect(onExitComplete).toHaveBeenCalledTimes(1)
+
+    show.value = false
+    await nextTick()
+    await delay(100)
+    await nextTick()
+    expect(document.querySelector('[data-testid="box"]')).toBeNull()
+    expect(onExitComplete).toHaveBeenCalledTimes(2)
+    wrapper.unmount()
+  })
 })
