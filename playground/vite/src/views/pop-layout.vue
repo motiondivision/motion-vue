@@ -50,7 +50,6 @@ function removeItemById(id: number) {
         :mode="popLayout ? 'popLayout' : 'sync'"
         as="ul"
         class="m-0 flex w-full max-w-sm list-none flex-col gap-3 p-0"
-        data-pop-id="122"
       >
         <div
           v-for="id in items"
