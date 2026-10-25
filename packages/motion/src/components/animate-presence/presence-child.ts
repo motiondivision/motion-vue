@@ -22,17 +22,18 @@ function resolveSlot(children: VNode['children']): VNode['children'] | undefined
  * cloneVNode copies the source's children verbatim — `children` in its extra
  * props only lands in `props` — and the shape flag has to follow the new
  * children form, so the vnode is rebuilt instead.
+ *
+ * createVNode stamps `ref` and `scopeId` from whatever is rendering now, which
+ * is PresenceChild, not the template that owns the child. The ref would then
+ * be cleared on PresenceChild at unmount, leaving the owner's `$refs` pointing
+ * at a dead instance, and a root mounted mid-exit would lose the owner's
+ * scoped-style attribute. Directives are attached after creation and carry the
+ * `v-show` binding.
  */
 function withChildren(vnode: VNode, children: VNode['children']): VNode {
   const child = createVNode(vnode.type as any, vnode.props, children as any)
-  child.key = vnode.key
   child.ref = vnode.ref
   child.scopeId = vnode.scopeId
-  child.slotScopeIds = vnode.slotScopeIds
-  child.patchFlag = vnode.patchFlag
-  child.dynamicProps = vnode.dynamicProps
-  // Directives carry the `v-show` binding. Dropping them here would leave
-  // the exiting element unable to see the flip back to visible.
   child.dirs = vnode.dirs
   return child
 }
