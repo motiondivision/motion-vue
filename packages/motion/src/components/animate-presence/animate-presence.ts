@@ -1,8 +1,8 @@
 import type { PropType, VNode } from 'vue'
-import { Comment, Fragment, Text, defineComponent, h, onMounted, shallowRef, useTransitionState, watch } from 'vue'
+import { Comment, Fragment, Text, defineComponent, h, onMounted, shallowRef, useTransitionState } from 'vue'
 import { warning } from 'hey-listen'
 import type { MotionState } from '@/state'
-import type { PresenceEntry, PresenceMode } from './core/presence-core'
+import type { PresenceMode } from './core/presence-core'
 import { createPresenceCore } from './core/presence-core'
 import { PresenceChild } from './presence-child'
 
@@ -23,14 +23,13 @@ function flatten(children: VNode[], out: VNode[] = []): VNode[] {
 
 /**
  * Manages child removal itself rather than delegating to Vue's Transition:
- * the presence core diffs slot keys, keeps vanished children rendered
- * (frozen — Vue's `n1 === n2` patch bailout leaves the subtree untouched),
- * and only drops them from the render list once every registered exit has
- * completed. Component instances therefore stay alive for the whole exit
- * animation; `onUnmounted` runs when the exit commits, not when `v-if`
- * flips.
+ * every render diffs the slot's keys through the presence core, which keeps
+ * vanished children rendered with the vnode they last had, and only drops
+ * them from the render list once every registered exit has completed.
+ * Component instances therefore stay alive for the whole exit animation;
+ * `onUnmounted` runs when the exit commits, not when `v-if` flips.
  *
- * Each child also gets a Transition wrapper (in PresenceChild), which is
+ * PresenceChild also sets transition hooks on each child vnode, which is
  * what makes `v-show` and KeepAlive deferrals work: both read
  * `vnode.transition`, and both feed the same exit protocol.
  */
@@ -46,7 +45,8 @@ export const AnimatePresence = defineComponent({
     anchorX: { type: String as PropType<'left' | 'right'>, default: 'left' },
   },
   setup(props, { slots, attrs }) {
-    const rendered = shallowRef<ReadonlyArray<PresenceEntry<VNode>>>([])
+    /** Bumped when an exit commits, the one render-set change made outside render. */
+    const exitCommits = shallowRef(0)
     let hasMounted = false
 
     // One transition state for the whole container, shared by every child's
@@ -64,33 +64,32 @@ export const AnimatePresence = defineComponent({
 
     const core = createPresenceCore<VNode>({
       getMode: () => props.mode,
-      onRenderSetChange: entries => (rendered.value = [...entries]),
-      onExitComplete: () => props.onExitComplete?.(),
-    })
-
-    // The slot function's reactive reads are tracked by this watcher, so a
-    // `v-if` flip re-diffs even though the slot is never invoked in render.
-    watch(
-      () => slots.default?.() ?? [],
-      (children) => {
-        const entries = flatten(children as VNode[]).map((vnode, index) => ({
-          key: vnode.key ?? `ap_${index}`,
-          child: vnode,
-        }))
-        core.syncChildren(entries)
+      onExitComplete: () => {
+        exitCommits.value++
+        props.onExitComplete?.()
       },
-      { immediate: true },
-    )
+    })
 
     onMounted(() => {
       hasMounted = true
     })
 
     return () => {
+      // Diff in render, as React does: the slot is only guaranteed to be
+      // current here. Vue swaps in a new slot function when the parent
+      // re-renders, and a slot that closes over plain values (scoped-slot
+      // props, render-function locals) has no reactive read to watch.
+      void exitCommits.value
+      core.syncChildren(flatten(slots.default?.() ?? []).map((vnode, index) => ({
+        key: vnode.key ?? `ap_${index}`,
+        child: vnode,
+      })))
+      const rendered = core.getRendered()
+
       if (
         process.env.NODE_ENV !== 'production'
         && props.mode === 'wait'
-        && rendered.value.length > 1
+        && rendered.length > 1
       ) {
         warning(
           false,
@@ -98,7 +97,7 @@ export const AnimatePresence = defineComponent({
         )
       }
 
-      const children = rendered.value.map(entry =>
+      const children = rendered.map(entry =>
         h(PresenceChild, {
           key: entry.key,
           child: entry.child,
@@ -110,11 +109,12 @@ export const AnimatePresence = defineComponent({
           transitionState,
           motionStates,
           onExitComplete: () => {
-            core.completeExit(entry.key)
-            // A v-show exit never leaves the core's render set, so the core
-            // cannot report it. v-if exits surface through the core instead.
+            // A v-show or KeepAlive exit leaves the key in the render set, so
+            // the core is not waiting on it and must not hear about it.
             if (entry.isPresent)
               props.onExitComplete?.()
+            else
+              core.completeExit(entry.key)
           },
         }),
       )

@@ -3,7 +3,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, onUnmounted, ref } from 'vue'
+import { computed, defineComponent, h, nextTick, onUnmounted, ref, shallowRef } from 'vue'
 import { AnimatePresence, Motion } from '@/components'
 import { mountedStates } from '@/state/motion-state'
 import { delay } from '@/shared/test'
@@ -166,6 +166,89 @@ describe('animate-presence integration', () => {
       ),
     ).toBe(true)
     spy.mockRestore()
+    wrapper.unmount()
+  })
+
+  it('picks up children from scoped-slot props when the provider re-renders', async () => {
+    const items = ref([1, 2])
+    const Provider = defineComponent({
+      setup(_, { slots }) {
+        const list = computed(() => items.value.slice())
+        return () => slots.default?.({ list: list.value })
+      },
+    })
+    const wrapper = mount(defineComponent({
+      components: { AnimatePresence, Provider },
+      template: `
+        <Provider v-slot="{ list }">
+          <AnimatePresence>
+            <p v-for="i in list" :key="i" class="item">{{ i }}</p>
+          </AnimatePresence>
+        </Provider>
+      `,
+    }), { attachTo: document.body })
+    await nextTick()
+    expect(wrapper.findAll('.item').length).toBe(2)
+
+    items.value = [1, 2, 3]
+    await nextTick()
+    await nextTick()
+    expect(wrapper.findAll('.item').length).toBe(3)
+    wrapper.unmount()
+  })
+
+  it('swaps pages under a RouterView-shaped slot in wait mode', async () => {
+    const PageA = defineComponent({ render: () => h('p', 'A') })
+    const PageB = defineComponent({ render: () => h('p', 'B') })
+    // vue-router hands the slot a fresh Component vnode and a plain route object.
+    const currentRoute = shallowRef<{ path: string, component: any }>({ path: '/', component: PageA })
+    const RouterView = defineComponent({
+      setup(_, { slots }) {
+        return () => slots.default?.({ Component: h(currentRoute.value.component), route: currentRoute.value })
+      },
+    })
+    const wrapper = mount(defineComponent({
+      components: { AnimatePresence, RouterView },
+      template: `
+        <RouterView v-slot="{ Component, route }">
+          <AnimatePresence mode="wait">
+            <component :is="Component" :key="route.path" />
+          </AnimatePresence>
+        </RouterView>
+      `,
+    }), { attachTo: document.body })
+    await nextTick()
+    expect(wrapper.text()).toBe('A')
+
+    currentRoute.value = { path: '/b', component: PageB }
+    await nextTick()
+    await delay(50)
+    await nextTick()
+    expect(wrapper.text()).toBe('B')
+    wrapper.unmount()
+  })
+
+  it('updates render-function children that close over plain values, without slot warnings', async () => {
+    const items = ref([1, 2])
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const wrapper = mount(defineComponent({
+      setup() {
+        return () => {
+          const list = items.value.slice()
+          return h(AnimatePresence, null, {
+            default: () => list.map(i => h('p', { key: i, class: 'item' }, String(i))),
+          })
+        }
+      },
+    }), { attachTo: document.body })
+    await nextTick()
+
+    items.value = [1, 2, 3]
+    await nextTick()
+    await nextTick()
+    expect(wrapper.findAll('.item').length).toBe(3)
+    expect(warn.mock.calls.some(call => String(call[0]).includes('outside of the render function'))).toBe(false)
+    warn.mockRestore()
     wrapper.unmount()
   })
 })

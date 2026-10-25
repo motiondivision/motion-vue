@@ -13,8 +13,11 @@
  * two never disagree, but they are kept apart to stay comparable line by line.
  *
  * The core tracks keys only: `C` is an opaque child handle (VNode for the
- * vdom adapter, a block factory for vapor). Renderers receive the merged
- * render set via `onRenderSetChange` and own everything DOM.
+ * vdom adapter, a block factory for vapor). Renderers sync from their render
+ * pass, read the merged set back through `getRendered`, and own everything
+ * DOM. The core is not reactive: an exit commit is the only change that
+ * happens outside a render, and `onExitComplete` is the renderer's cue to
+ * render again.
  */
 
 export type PresenceKey = string | number | symbol
@@ -33,7 +36,6 @@ export interface PresenceEntry<C> extends PresenceChildInput<C> {
 export interface PresenceCoreConfig<C> {
   /** Read at every sync — mode is a reactive prop in both adapters. */
   getMode: () => PresenceMode
-  onRenderSetChange: (entries: ReadonlyArray<PresenceEntry<C>>) => void
   /** Fires when the last exiting key completes and the render set commits. */
   onExitComplete?: () => void
 }
@@ -105,19 +107,19 @@ export function createPresenceCore<C>(config: PresenceCoreConfig<C>): PresenceCo
     renderedChildren = config.getMode() === 'wait' && exitingChildren.length
       ? exitingChildren
       : nextChildren
-
-    config.onRenderSetChange(renderedChildren)
   }
 
   function completeExit(key: PresenceKey) {
-    if (exitingComponents.has(key))
+    // A completion for a key the core is not waiting on is stale: the child
+    // re-entered before its exit settled, which drops the key from
+    // exitComplete in syncChildren. Ignore it without recording it as
+    // processed — otherwise the key would sit in exitingComponents forever
+    // and its next exit would be dropped at the guard above, hanging the
+    // batch.
+    if (exitingComponents.has(key) || !exitComplete.has(key))
       return
     exitingComponents.add(key)
-
-    if (exitComplete.has(key))
-      exitComplete.set(key, true)
-    else
-      return
+    exitComplete.set(key, true)
 
     let isEveryExitComplete = true
     exitComplete.forEach((isExitComplete) => {
@@ -129,7 +131,6 @@ export function createPresenceCore<C>(config: PresenceCoreConfig<C>): PresenceCo
       renderedChildren = pendingPresentChildren
       exitComplete.clear()
       exitingComponents.clear()
-      config.onRenderSetChange(renderedChildren)
       config.onExitComplete?.()
     }
   }

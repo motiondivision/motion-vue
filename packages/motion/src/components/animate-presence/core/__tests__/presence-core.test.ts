@@ -3,15 +3,13 @@ import type { PresenceMode } from '../presence-core'
 import { createPresenceCore } from '../presence-core'
 
 function setup(mode: PresenceMode = 'sync') {
-  const onRenderSetChange = vi.fn()
   const onExitComplete = vi.fn()
   const core = createPresenceCore<string>({
     getMode: () => mode,
-    onRenderSetChange,
     onExitComplete,
   })
   const rendered = () => core.getRendered().map(e => `${String(e.key)}:${e.isPresent}`)
-  return { core, rendered, onRenderSetChange, onExitComplete }
+  return { core, rendered, onExitComplete }
 }
 
 const kids = (...keys: string[]) => keys.map(key => ({ key, child: `child-${key}` }))
@@ -64,6 +62,20 @@ describe('presence-core', () => {
     core.completeExit('zzz')
     expect(rendered()).toEqual(['a:true'])
     expect(onExitComplete).not.toHaveBeenCalled()
+  })
+
+  it('a stale completion does not block the key\'s next exit from committing', () => {
+    const { core, rendered, onExitComplete } = setup()
+    core.syncChildren(kids('a'))
+    core.syncChildren(kids())
+    core.syncChildren(kids('a'))
+    // The first exit's completion arrives after the re-entry dropped the key
+    // from the wait set: stale, and it must not mark the key as processed.
+    core.completeExit('a')
+    core.syncChildren(kids())
+    core.completeExit('a')
+    expect(rendered()).toEqual([])
+    expect(onExitComplete).toHaveBeenCalledTimes(1)
   })
 
   it('does not duplicate an exiting entry when a mid-exit sync still omits the key', () => {
