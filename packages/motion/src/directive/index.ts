@@ -262,9 +262,16 @@ export interface MotionPluginOptions {
   presets?: Record<string, Options>
 }
 
-/** Structural type for app.use(MotionPlugin, options) — avoids Vue version mismatch on Plugin<> */
+/**
+ * Structural type for app.use(MotionPlugin, options) — avoids Vue version
+ * mismatch on Plugin<>. The app parameter is deliberately `any`: this
+ * package's declarations resolve their vue imports against the package's own
+ * installed vue (an RC for vapor tests), so any App-typed parameter would be
+ * a *different* App interface than the consumer's and fail assignability
+ * outright whenever the two installs diverge.
+ */
 export interface MotionPluginType {
-  install: (app: App, options?: MotionPluginOptions) => void
+  install: (app: any, options?: MotionPluginOptions) => void
 }
 
 /**
@@ -290,17 +297,19 @@ export interface MotionPluginType {
 export const MotionPlugin: MotionPluginType = {
   install(app: App, options) {
     const vapor = isVaporApp(app)
+    // The vapor directive has a different call signature than the vdom
+    // Directive type; both are registered the same way at runtime.
     app.directive(
       'motion',
-      vapor ? createVaporMotionDirective(domMax) : vMotion,
+      (vapor ? createVaporMotionDirective(domMax) : vMotion) as Directive,
     )
     if (options?.presets) {
       for (const [name, preset] of Object.entries(options.presets)) {
         app.directive(
           name,
-          vapor
+          (vapor
             ? createVaporMotionDirective(domMax, preset)
-            : createPresetDirective(preset),
+            : createPresetDirective(preset)) as Directive,
         )
       }
     }
