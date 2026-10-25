@@ -8,7 +8,10 @@ on:
       - 'packages/motion/**'
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.51 has no install-deps recipe for ubuntu-latest
+    # (26.04) and exits 0 without installing anything, so webkit cannot
+    # launch. Move with the Playwright version.
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       deployments: write
@@ -57,7 +60,12 @@ jobs:
 
       - name: Install playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: npx playwright install
+
+      # System deps (e.g. libwayland-server for webkit) are not covered by the
+      # browser cache and must be installed on every run.
+      - name: Install playwright system dependencies
+        run: npx playwright install-deps
 
       - name: Run tests
         run: pnpm test:e2e
