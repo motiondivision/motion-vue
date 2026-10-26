@@ -7,6 +7,12 @@ export interface ReorderContextProps<T> {
   axis?: Ref<ReorderAxis>
   registerItem?: (item: T, layout: Box) => void
   updateOrder?: (item: T, offset: Point, velocity: Point) => void
+  onKeyDown?: (
+    event: KeyboardEvent,
+    item: T,
+    from: T[] | undefined,
+    grab: (element: Element, from?: T[]) => void,
+  ) => void
 
   /**
    * Whether a reorder happened during the current press. The release that

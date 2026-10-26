@@ -2,9 +2,10 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
-import { computed, ref, toRefs, useAttrs } from 'vue'
+import { computed, ref, shallowRef, toRefs, useAttrs } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
+import { mountedStates } from '@/state'
 import { invariant } from 'hey-listen'
 import type { ElementType } from '@/types'
 import { autoScrollIfNeeded, resetAutoScrollState } from './auto-scroll'
@@ -70,13 +71,40 @@ function warning() {
 // Call immediately to fail during setup, not render
 warning()
 
-const { axis, registerItem, updateOrder, groupRef, hasReordered } = context!
-
+const { axis, registerItem, updateOrder, groupRef, hasReordered, onKeyDown: reorderKeyDown } = context!
+const grabbedFrom = shallowRef<V[]>()
 const attrs = useAttrs()
+
+function callUserHandler(handler: unknown, event: Event) {
+  if (Array.isArray(handler))
+    handler.forEach(callback => callback(event))
+  else if (typeof handler === 'function')
+    handler(event)
+}
+
+function grab(element: Element, from?: V[]) {
+  grabbedFrom.value = from
+  isDragging.value = Boolean(from)
+  mountedStates.get(element)?.setActive('whileDrag', Boolean(from))
+}
+
+function handleKeyDown(event: KeyboardEvent) {
+  callUserHandler(attrs.onKeyDown, event)
+  reorderKeyDown?.(event, props.value as V, grabbedFrom.value, grab)
+}
+
+function handleBlur(event: FocusEvent) {
+  callUserHandler(attrs.onBlur, event)
+  if (grabbedFrom.value)
+    grab(event.currentTarget as Element)
+}
+
 function bindProps() {
   const { value, onDragStart, onDragEnd, onDrag, ...rest } = props
+  const { onKeyDown, onBlur, ...restAttrs } = attrs
   return {
-    ...attrs,
+    tabIndex: 0,
+    ...restAttrs,
     ...rest,
     style: {
       ...style.value,
@@ -140,6 +168,8 @@ function handleDragStart(event: PointerEvent, gesturePoint: any) {
     @drag="handleDrag"
     @drag-end="handleDragEnd"
     @drag-start="handleDragStart"
+    @keydown="handleKeyDown"
+    @blur="handleBlur"
     @layout-measure="(measured) => {
       registerItem?.(value, measured)
     }"

@@ -43,6 +43,28 @@ test.describe('Reorder basic (axis auto-detected)', () => {
     await page.waitForTimeout(300)
     expect(await getOrder(page)).toBe('1,0,2,3,4,5')
   })
+
+  test('supports keyboard grab, move, drop, and Escape', async ({ page }) => {
+    const item = page.locator('[data-testid="item-0"]')
+    await expect(item).toHaveAttribute('tabindex', '0')
+    await item.focus()
+
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowDown')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('Escape')
+    await expect.poll(() => getOrder(page)).toBe('0,1,2,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowDown')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowDown')
+    expect(await getOrder(page)).toBe('1,0,2,3,4,5')
+  })
 })
 
 test.describe('Reorder axis auto-detection', () => {
