@@ -29,6 +29,12 @@ export class ProjectionFeature extends Feature {
     this.projection = this.state.visualElement.projection
     this.projection!.isPresent = true
     this.setOptions()
+
+    const lead = this.projection!.getStack()?.lead
+    if (lead && !this.projection!.root!.isUpdateBlocked()) {
+      lead.willUpdate()
+      lead.scheduleCheckAfterUnmount()
+    }
   }
 
   setOptions() {

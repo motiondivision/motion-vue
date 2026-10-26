@@ -1,11 +1,12 @@
 import { Feature } from '@/features/feature'
 import type { MotionState } from '@/state/motion-state'
-import { type IProjectionNode, addScaleCorrector, globalProjectionState } from 'motion-dom'
+import { type IProjectionNode, type NodeGroup, addScaleCorrector, globalProjectionState } from 'motion-dom'
 import { defaultScaleCorrector } from './config'
 import { isHidden } from '@/utils/is-hidden'
 
 export class LayoutFeature extends Feature {
   static key = 'layout' as const
+  private registeredGroup: NodeGroup | undefined
 
   constructor(state: MotionState) {
     super(state)
@@ -25,6 +26,24 @@ export class LayoutFeature extends Feature {
     }
   }
 
+  private updateLayoutGroup() {
+    const { layout, layoutId, layoutGroup } = this.state.options
+    if (layout || layoutId)
+      globalProjectionState.hasEverUpdated = true
+
+    const nextGroup = layout || layoutId ? layoutGroup?.group : undefined
+    if (nextGroup === this.registeredGroup)
+      return
+
+    const projection = this.state.visualElement.projection
+    if (projection)
+      this.registeredGroup?.remove(projection)
+
+    this.registeredGroup = nextGroup
+    if (projection)
+      this.registeredGroup?.add(projection)
+  }
+
   didUpdate() {
     if (this.state.options.layout || this.state.options.layoutId || this.state.options.drag) {
       this.state.visualElement.projection?.root?.didUpdate()
@@ -33,7 +52,6 @@ export class LayoutFeature extends Feature {
 
   mount() {
     const options = this.state.options
-    const layoutGroup = this.state.options.layoutGroup
     if (options.layout || options.layoutId) {
       const projection = this.state.visualElement.projection
       if (options.layoutId) {
@@ -46,21 +64,20 @@ export class LayoutFeature extends Feature {
           projection?.relegate()
         }
       }
-      layoutGroup?.group?.add(projection)
-      globalProjectionState.hasEverUpdated = true
     }
+    this.updateLayoutGroup()
     this.didUpdate()
   }
 
-  unmount() {
-    const layoutGroup = this.state.options.layoutGroup
-    const projection = this.state.visualElement.projection
+  update() {
+    this.updateLayoutGroup()
+  }
 
-    if (projection) {
-      if (layoutGroup?.group && (this.state.options.layout || this.state.options.layoutId)) {
-        layoutGroup.group.remove(projection)
-      }
-    }
+  unmount() {
+    const projection = this.state.visualElement.projection
+    if (projection)
+      this.registeredGroup?.remove(projection)
+    this.registeredGroup = undefined
   }
 
   /**
@@ -70,6 +87,7 @@ export class LayoutFeature extends Feature {
    */
   getSnapshot(isPresent: boolean): void {
     const projection = this.state.visualElement.projection
+    this.updateLayoutGroup()
     const { layout, layoutId, drag, layoutDependency } = this.state.visualElement.props
     const prevProps = this.state.visualElement.prevProps!
     if (!projection || (!layout && !layoutId && !drag)) {
