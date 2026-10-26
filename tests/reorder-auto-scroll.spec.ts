@@ -39,11 +39,9 @@ test.describe('Reorder auto-scroll', () => {
 
     // Move near bottom edge to trigger auto-scroll
     await page.mouse.move(50, nearBottom + 100)
-    await page.waitForTimeout(300)
 
     // Check that container has scrolled down
-    const afterScroll = await container.evaluate(el => el.scrollTop)
-    expect(afterScroll).toBeGreaterThan(0)
+    await expect.poll(() => container.evaluate(el => el.scrollTop)).toBeGreaterThan(0)
 
     // Release mouse
     await page.mouse.up()
@@ -68,6 +66,7 @@ test.describe('Reorder auto-scroll', () => {
 
     // Start dragging
     await item8.hover()
+    const scrollBeforeDrag = await container.evaluate(el => el.scrollTop)
     await page.mouse.down()
     await page.waitForTimeout(50)
 
@@ -78,11 +77,9 @@ test.describe('Reorder auto-scroll', () => {
     // Move towards top edge (negative Y coordinate relative to viewport)
     // This should trigger upward auto-scroll
     await page.mouse.move(50, -100)
-    await page.waitForTimeout(300)
 
     // Check that container has scrolled up
-    const afterScroll = await container.evaluate(el => el.scrollTop)
-    expect(afterScroll).toBeLessThan(200)
+    await expect.poll(() => container.evaluate(el => el.scrollTop)).toBeLessThan(scrollBeforeDrag)
 
     // Release mouse
     await page.mouse.up()
