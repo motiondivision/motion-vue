@@ -120,7 +120,7 @@ reorderContextProvider({
   groupRef,
   axis,
   hasReordered,
-  onKeyDown: (event, item: V, from, grab) => {
+  onKeyDown: (event, item: V, orderBeforeGrab, setKeyboardGrab) => {
     const { key, currentTarget } = event
     if (
       event.defaultPrevented
@@ -137,16 +137,16 @@ reorderContextProvider({
     const isX = keyIndex % 2
     if (key === ' ') {
       if (!event.repeat)
-        grab(currentTarget as Element, from ? undefined : [...props.values])
+        setKeyboardGrab(currentTarget as Element, orderBeforeGrab ? undefined : [...props.values])
     }
-    else if (!from) {
+    else if (!orderBeforeGrab) {
       return
     }
     else if (key === 'Escape') {
-      const kept = from.flatMap(value => order.filter(data => data.value === value))
-      commit(order.map(data => from.includes(data.value) ? kept.shift()! : data), item)
+      const kept = orderBeforeGrab.flatMap(value => order.filter(data => data.value === value))
+      commit(order.map(data => orderBeforeGrab.includes(data.value) ? kept.shift()! : data), item)
       restoreFocus(currentTarget as Element)
-      grab(currentTarget as Element)
+      setKeyboardGrab(currentTarget as Element)
     }
     else if (keyIndex < 0 || (axis.value !== 'xy' && axis.value !== (isX ? 'x' : 'y'))) {
       return

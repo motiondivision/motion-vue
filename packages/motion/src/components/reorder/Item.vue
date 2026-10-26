@@ -72,7 +72,7 @@ function warning() {
 warning()
 
 const { axis, registerItem, updateOrder, groupRef, hasReordered, onKeyDown: reorderKeyDown } = context!
-const grabbedFrom = shallowRef<V[]>()
+const orderBeforeGrab = shallowRef<V[]>()
 const attrs = useAttrs()
 
 function callUserHandler(handler: unknown, event: Event) {
@@ -82,21 +82,21 @@ function callUserHandler(handler: unknown, event: Event) {
     handler(event)
 }
 
-function grab(element: Element, from?: V[]) {
-  grabbedFrom.value = from
-  isDragging.value = Boolean(from)
-  mountedStates.get(element)?.setActive('whileDrag', Boolean(from))
+function setKeyboardGrab(element: Element, order?: V[]) {
+  orderBeforeGrab.value = order
+  isDragging.value = Boolean(order)
+  mountedStates.get(element)?.setActive('whileDrag', Boolean(order))
 }
 
 function handleKeyDown(event: KeyboardEvent) {
   callUserHandler(attrs.onKeyDown, event)
-  reorderKeyDown?.(event, props.value as V, grabbedFrom.value, grab)
+  reorderKeyDown?.(event, props.value as V, orderBeforeGrab.value, setKeyboardGrab)
 }
 
 function handleBlur(event: FocusEvent) {
   callUserHandler(attrs.onBlur, event)
-  if (grabbedFrom.value)
-    grab(event.currentTarget as Element)
+  if (orderBeforeGrab.value)
+    setKeyboardGrab(event.currentTarget as Element)
 }
 
 function bindProps() {

@@ -10,8 +10,8 @@ export interface ReorderContextProps<T> {
   onKeyDown?: (
     event: KeyboardEvent,
     item: T,
-    from: T[] | undefined,
-    grab: (element: Element, from?: T[]) => void,
+    orderBeforeGrab: T[] | undefined,
+    setKeyboardGrab: (element: Element, orderBeforeGrab?: T[]) => void,
   ) => void
 
   /**
