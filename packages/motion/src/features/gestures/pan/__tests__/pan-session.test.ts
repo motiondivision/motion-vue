@@ -8,6 +8,7 @@ afterEach(() => {
   // End any session a failing assertion left stranded so it can't hold the
   // global drag lock into the next test.
   pointerUp(0, 0)
+  Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 })
 })
 
 describe('pan session reliability (upstream sync)', () => {
@@ -58,6 +59,34 @@ describe('pan session reliability (upstream sync)', () => {
     await nextFrames(2)
 
     expect(points.at(-1)).toBe(100)
+  })
+
+  it('settles window scroll before storing the next pointer point', async () => {
+    const points: number[] = []
+    const wrapper = render(Motion, {
+      props: {
+        drag: true,
+        dragMomentum: false,
+        onDrag: (_e: PointerEvent, info: { point: { y: number } }) => points.push(info.point.y),
+      },
+      attrs: { 'data-testid': 'box' },
+    })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(0, 10)
+    await nextFrames(2)
+
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 100 })
+    pointerMove(0, 120)
+    await nextFrames(2)
+    expect(points.at(-1)).toBe(120)
+
+    window.dispatchEvent(new Event('scroll'))
+    await nextFrames(2)
+
+    expect(points.at(-1)).toBe(120)
   })
 
   it('measures flick velocity from the flick, not the pointer-down point', async () => {
