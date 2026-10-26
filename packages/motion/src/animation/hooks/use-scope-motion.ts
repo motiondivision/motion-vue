@@ -1,5 +1,6 @@
 import type { MotionScope, ScopeOptions, ScopeSetup } from 'motion-dom'
 import type { MaybeComputedElementRef, MaybeRefOrGetter } from '@vueuse/core'
+import type { ShallowRef } from 'vue'
 import { unrefElement } from '@vueuse/core'
 import { scopeMotion } from 'motion-dom'
 import { shallowRef, toValue, watchEffect } from 'vue'
@@ -10,7 +11,7 @@ export function useScopeMotion(
   domRef: MaybeComputedElementRef,
   setup: ScopeSetup,
   options?: MaybeRefOrGetter<UseScopeMotionOptions>,
-) {
+): ShallowRef<MotionScope | null> {
   const scope = shallowRef<MotionScope | null>(null)
 
   watchEffect((onCleanup) => {

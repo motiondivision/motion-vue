@@ -133,17 +133,10 @@ export class VisualElementDragControls {
       eachAxis((axis) => {
         let current = this.getAxisMotionValue(axis).get() || 0
 
-        /**
-         * If the MotionValue is a CSS variable, resolve it so it can be
-         * converted to px below.
-         */
         if (isCSSVariableToken(current)) {
           current = getVariableValue(current, this.visualElement.current) || 0
         }
 
-        /**
-         * If the MotionValue is a px or percentage value convert to px
-         */
         if (px.test(current)) {
           current = parseFloat(current)
         }
