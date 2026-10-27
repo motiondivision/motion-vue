@@ -1,7 +1,7 @@
 import { addDomEvent, addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, getVariableValue, isCSSVariableToken, isElementTextInput, isHTMLElement, measurePageBox, mixNumber, percent, px, resize, setDragLock } from 'motion-dom'
 import { addPointerEvent } from '@/events'
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
-import { applyConstraints, calcOrigin, calcRelativeConstraints, calcViewportConstraints, defaultElastic, rebaseAxisConstraints, resolveDragElastic } from '@/features/gestures/drag/utils/constraints'
+import { applyConstraints, calcOrigin, calcRelativeConstraints, calcViewportConstraints, defaultElastic, rebaseAxisConstraints, resolveDragElastic, snapToNearestConstraint } from '@/features/gestures/drag/utils/constraints'
 import type { PanInfo } from '@/features/gestures/pan/PanSession'
 import { PanSession } from '@/features/gestures/pan/PanSession'
 import type { Options } from '@/types'
@@ -451,6 +451,7 @@ export class VisualElementDragControls {
       dragElastic,
       dragTransition,
       dragSnapToOrigin,
+      dragSnapToConstraints,
       onDragTransitionEnd,
     } = this.getProps()
 
@@ -463,12 +464,22 @@ export class VisualElementDragControls {
 
       let transition = (constraints && constraints[axis]) || {}
 
-      if (
-        dragSnapToOrigin === true
-        || (dragSnapToOrigin as unknown) === axis
-      ) {
+      const snapsToOrigin
+        = dragSnapToOrigin === true || (dragSnapToOrigin as unknown) === axis
+
+      if (snapsToOrigin) {
         transition = { min: 0, max: 0 }
       }
+
+      /**
+       * Origin snapping wins over constraint snapping. The nearest edge is
+       * measured from the release position.
+       */
+      const snapEdge
+        = !snapsToOrigin
+        && (dragSnapToConstraints === true || (dragSnapToConstraints as unknown) === axis)
+          ? snapToNearestConstraint(this.getAxisMotionValue(axis).get() || 0, transition)
+          : undefined
 
       /**
        * Overdamp the boundary spring if `dragElastic` is disabled. There's still a frame
@@ -490,6 +501,9 @@ export class VisualElementDragControls {
         ...dragTransition,
         ...transition,
       }
+
+      if (snapEdge !== undefined)
+        inertia.modifyTarget = () => snapEdge
 
       // If we're not animating on an externally-provided `MotionValue` we can use the
       // component's animation controls which will handle interactions with whileHover (etc),
