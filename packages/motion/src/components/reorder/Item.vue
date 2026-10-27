@@ -2,7 +2,7 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
-import { computed, ref, shallowRef, toRefs, useAttrs } from 'vue'
+import { computed, nextTick, ref, shallowRef, toRefs, useAttrs } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
 import { mountedStates } from '@/state'
@@ -95,8 +95,16 @@ function handleKeyDown(event: KeyboardEvent) {
 
 function handleBlur(event: FocusEvent) {
   callUserHandler(attrs.onBlur, event)
-  if (orderBeforeGrab.value)
-    setKeyboardGrab(event.currentTarget as Element)
+  if (!orderBeforeGrab.value)
+    return
+
+  const element = event.currentTarget as HTMLElement
+  // A keyed reorder can briefly blur the item before restoreFocus runs.
+  // Only drop when focus remains elsewhere after that restoration.
+  nextTick(() => {
+    if (orderBeforeGrab.value && element.ownerDocument.activeElement !== element)
+      setKeyboardGrab(element)
+  })
 }
 
 function bindProps() {
