@@ -43,6 +43,47 @@ test.describe('Reorder basic (axis auto-detected)', () => {
     await page.waitForTimeout(300)
     expect(await getOrder(page)).toBe('1,0,2,3,4,5')
   })
+
+  test('supports keyboard grab, move, drop, and Escape', async ({ page }) => {
+    const item = page.locator('[data-testid="item-0"]')
+    await expect(item).toHaveAttribute('tabindex', '0')
+    await item.focus()
+
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowDown')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('Escape')
+    await expect.poll(() => getOrder(page)).toBe('0,1,2,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowDown')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowDown')
+    expect(await getOrder(page)).toBe('1,0,2,3,4,5')
+  })
+
+  test('keeps keyboard grab after moving toward the start', async ({ page }) => {
+    const item = page.locator('[data-testid="item-2"]')
+    await item.focus()
+
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowUp')
+    await expect.poll(() => getOrder(page)).toBe('0,2,1,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('ArrowUp')
+    await expect.poll(() => getOrder(page)).toBe('2,0,1,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('ArrowDown')
+    await expect.poll(() => getOrder(page)).toBe('0,2,1,3,4,5')
+    await page.keyboard.press('Escape')
+    await expect.poll(() => getOrder(page)).toBe('0,1,2,3,4,5')
+  })
 })
 
 test.describe('Reorder axis auto-detection', () => {
@@ -60,6 +101,46 @@ test.describe('Reorder axis auto-detection', () => {
 
     expect(await getOrder(page)).toBe('1,0,2,3,4,5')
     await page.mouse.up()
+  })
+
+  test('keeps keyboard grab after moving toward the start horizontally', async ({ page }) => {
+    await page.goto('/reorder/auto-detect', { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(200)
+
+    const item = page.locator('[data-testid="h-2"]')
+    await item.focus()
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowLeft')
+    await expect.poll(() => getOrder(page)).toBe('0,2,1,3,4,5')
+
+    await page.keyboard.press('ArrowLeft')
+    await expect.poll(() => getOrder(page)).toBe('2,0,1,3,4,5')
+    await expect(item).toBeFocused()
+
+    await page.keyboard.press('ArrowRight')
+    await expect.poll(() => getOrder(page)).toBe('0,2,1,3,4,5')
+    await page.keyboard.press('Escape')
+    await expect.poll(() => getOrder(page)).toBe('0,1,2,3,4,5')
+  })
+
+  test('preserves focus-visible after moving to the end and back', async ({ page }) => {
+    await page.goto('/reorder/auto-detect', { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(200)
+
+    const item = page.locator('[data-testid="h-1"]')
+    await item.focus()
+    await page.keyboard.press('Space')
+    for (let index = 0; index < 4; index++)
+      await page.keyboard.press('ArrowRight')
+
+    await expect.poll(() => getOrder(page)).toBe('0,2,3,4,5,1')
+    await expect(item).toBeFocused()
+    expect(await item.evaluate(element => element.matches(':focus-visible'))).toBe(true)
+
+    await page.keyboard.press('ArrowLeft')
+    await expect.poll(() => getOrder(page)).toBe('0,2,3,4,1,5')
+    await expect(item).toBeFocused()
+    expect(await item.evaluate(element => element.matches(':focus-visible'))).toBe(true)
   })
 })
 

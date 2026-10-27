@@ -248,6 +248,133 @@ describe('drag: DragControls public API', () => {
   })
 })
 
+describe('drag: upstream 14.6 parity', () => {
+  it('resolves a CSS variable origin before applying the pointer offset', async () => {
+    const wrapper = render(Motion, {
+      props: {
+        drag: true,
+        dragMomentum: false,
+        initial: { x: 'var(--drag-x)' },
+      },
+      attrs: {
+        'data-testid': 'box',
+        'style': { '--drag-x': '40px' },
+      },
+    })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(20, 0)
+    await nextFrames(2)
+
+    expect(box.style.transform).toContain('translateX(60px)')
+  })
+
+  it('parses a px origin before applying the pointer offset', async () => {
+    const wrapper = render(Motion, {
+      props: {
+        drag: true,
+        dragMomentum: false,
+        initial: { x: '40px' },
+      },
+      attrs: { 'data-testid': 'box' },
+    })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(20, 0)
+    await nextFrames(2)
+
+    expect(box.style.transform).toContain('translateX(60px)')
+  })
+
+  it('applies the move that sets direction lock', async () => {
+    const onDirectionLock = vi.fn()
+    const wrapper = render(Motion, {
+      props: {
+        drag: true,
+        dragDirectionLock: true,
+        dragMomentum: false,
+        onDirectionLock,
+      },
+      attrs: { 'data-testid': 'box' },
+    })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(5, 0)
+    await nextFrames(2)
+    expect(box.style.transform).toBe('')
+
+    pointerMove(20, 0)
+    pointerUp(20, 0)
+    await nextFrames(2)
+
+    expect(onDirectionLock).toHaveBeenCalledWith('x')
+    expect(box.style.transform).toContain('translateX(20px)')
+  })
+
+  it('compensates layout updates only on axes dragged by the gesture', async () => {
+    const wrapper = render(Motion, {
+      props: {
+        drag: 'x',
+        dragMomentum: false,
+        initial: { x: 0, y: 30 },
+      },
+      attrs: { 'data-testid': 'box' },
+    })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(50, 0)
+    await nextFrames(2)
+
+    const { projection } = getState(box).visualElement
+    projection!.notifyListeners('didUpdate', {
+      delta: { x: { translate: 10 }, y: { translate: 20 } },
+      hasLayoutChanged: true,
+    })
+
+    expect(box.style.transform).toContain('translateX(60px)')
+    expect(box.style.transform).toContain('translateY(30px)')
+  })
+
+  it('releases the previous drag axes when drag is disabled mid-gesture', async () => {
+    const onDragEnd = vi.fn()
+    const props = {
+      drag: 'x' as const,
+      dragSnapToOrigin: true,
+      dragMomentum: false,
+      initial: { x: 0, y: 40 },
+      onDragEnd,
+    }
+    const wrapper = render(Motion, {
+      props,
+      attrs: { 'data-testid': 'box' },
+    })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(100, 0)
+    await nextFrames(2)
+    expect(box.style.transform).toContain('translateX(100px)')
+
+    await wrapper.rerender({ ...props, drag: false })
+    await nextTick()
+    await nextFrames(10)
+
+    expect(onDragEnd).toHaveBeenCalledTimes(1)
+    await vi.waitFor(() => {
+      expect(box.style.transform).toBe('translateY(40px)')
+    }, { timeout: 2000 })
+  })
+})
+
 describe('drag: element constraints resolution', () => {
   it('does not double-rebase ref constraints (#2829 class)', async () => {
     rects.set('container', { left: 0, top: 0, width: 200, height: 200 })

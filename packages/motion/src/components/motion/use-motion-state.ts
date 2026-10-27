@@ -6,7 +6,7 @@ import type { MotionProps } from '@/components/motion/types'
 import { injectAnimatePresence } from '@/components/animate-presence/presence'
 import { createSVGStyles, createStyles } from '@/state/style'
 import type { MotionBundle } from '@/state/motion-state'
-import { isMotionValue } from 'motion-dom'
+import { isMotionValue, rootProjectionNode } from 'motion-dom'
 import { invariant, warning } from 'hey-listen'
 import { getCurrentInstance, onActivated, onBeforeUnmount, onBeforeUpdate, onDeactivated, onMounted, onUnmounted, onUpdated, ref, useAttrs, watch } from 'vue'
 import { MotionState } from '@/state'
@@ -62,8 +62,17 @@ export function useMotionState(
     }
   }
 
+  const initialProps = getMotionProps()
+  if (
+    props.initial
+    && initialProps.layoutId
+    && rootProjectionNode.current?.sharedNodes.get(initialProps.layoutId)?.lead
+  ) {
+    initialProps.initial = false
+  }
+
   const state = new MotionState(
-    getMotionProps(),
+    initialProps,
     parentState!,
     bundle,
   )

@@ -97,7 +97,7 @@ describe('arc() interpolateProjection geometry', () => {
 describe('transition.path integration', () => {
   it('exports arc() returning a MotionPath with both hooks', () => {
     const path = arc()
-    expect(typeof path.animateVisualElement).toBe('function')
+    expect(typeof path.animateValues).toBe('function')
     expect(typeof path.interpolateProjection).toBe('function')
   })
 
@@ -124,6 +124,26 @@ describe('transition.path integration', () => {
     // target passed to the hook should carry the x/y the path will claim
     const target = animateVisualElement.mock.calls[0][1]
     expect(target).toMatchObject({ x: 200, y: 100 })
+  })
+
+  it('routes transition.path through animateValues for DOM elements', async () => {
+    const animateValues = vi.fn()
+    const spyPath: MotionPath = {
+      animateValues,
+      interpolateProjection: () => undefined,
+    }
+
+    render(Motion, {
+      props: {
+        animate: { x: 200, y: 100 },
+        transition: { path: spyPath, duration: 0 },
+      },
+    })
+    await nextTick()
+    await delay(30)
+
+    expect(animateValues).toHaveBeenCalled()
+    expect(animateValues.mock.calls[0][1]).toMatchObject({ x: 200, y: 100 })
   })
 
   it('real arc() drives x/y to the target on completion', async () => {

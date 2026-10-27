@@ -2,9 +2,10 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
-import { computed, ref, toRefs, useAttrs } from 'vue'
+import { computed, nextTick, ref, shallowRef, toRefs, useAttrs } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
+import { mountedStates } from '@/state'
 import { invariant } from 'hey-listen'
 import type { ElementType } from '@/types'
 import { autoScrollIfNeeded, resetAutoScrollState } from './auto-scroll'
@@ -70,13 +71,48 @@ function warning() {
 // Call immediately to fail during setup, not render
 warning()
 
-const { axis, registerItem, updateOrder, groupRef, hasReordered } = context!
-
+const { axis, registerItem, updateOrder, groupRef, hasReordered, onKeyDown: reorderKeyDown } = context!
+const orderBeforeGrab = shallowRef<V[]>()
 const attrs = useAttrs()
+
+function callUserHandler(handler: unknown, event: Event) {
+  if (Array.isArray(handler))
+    handler.forEach(callback => callback(event))
+  else if (typeof handler === 'function')
+    handler(event)
+}
+
+function setKeyboardGrab(element: Element, order?: V[]) {
+  orderBeforeGrab.value = order
+  isDragging.value = Boolean(order)
+  mountedStates.get(element)?.setActive('whileDrag', Boolean(order))
+}
+
+function handleKeyDown(event: KeyboardEvent) {
+  callUserHandler(attrs.onKeyDown, event)
+  reorderKeyDown?.(event, props.value as V, orderBeforeGrab.value, setKeyboardGrab)
+}
+
+function handleBlur(event: FocusEvent) {
+  callUserHandler(attrs.onBlur, event)
+  if (!orderBeforeGrab.value)
+    return
+
+  const element = event.currentTarget as HTMLElement
+  // A keyed reorder can briefly blur the item before restoreFocus runs.
+  // Only drop when focus remains elsewhere after that restoration.
+  nextTick(() => {
+    if (orderBeforeGrab.value && element.ownerDocument.activeElement !== element)
+      setKeyboardGrab(element)
+  })
+}
+
 function bindProps() {
   const { value, onDragStart, onDragEnd, onDrag, ...rest } = props
+  const { onKeyDown, onBlur, ...restAttrs } = attrs
   return {
-    ...attrs,
+    tabIndex: 0,
+    ...restAttrs,
     ...rest,
     style: {
       ...style.value,
@@ -140,6 +176,8 @@ function handleDragStart(event: PointerEvent, gesturePoint: any) {
     @drag="handleDrag"
     @drag-end="handleDragEnd"
     @drag-start="handleDragStart"
+    @keydown="handleKeyDown"
+    @blur="handleBlur"
     @layout-measure="(measured) => {
       registerItem?.(value, measured)
     }"

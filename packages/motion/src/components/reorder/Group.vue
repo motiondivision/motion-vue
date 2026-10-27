@@ -5,7 +5,8 @@ import type { ReorderAxis } from './types'
 import type { AsTag } from '@/types'
 import type { Box, Point } from 'motion-utils'
 import { invariant } from 'hey-listen'
-import { computed, onUpdated, ref, useAttrs } from 'vue'
+import { computed, nextTick, onUpdated, ref, useAttrs } from 'vue'
+import { moveItem } from 'motion-utils'
 import { reorderContextProvider } from './context'
 import { checkReorder, detectAxis } from './utils'
 import { useDomRef } from '@/utils'
@@ -26,11 +27,13 @@ export interface GroupProps<T extends AsTag, K, V> extends
   /**
    * A callback to fire with the new value order. Use `v-model`
    * to keep the values state in sync automatically.
+   * The second argument is the value that moved. The callback fires for
+   * each step of a drag, not only when the drag ends.
    *
    * @public
    */
   // eslint-disable-next-line vue/prop-name-casing
-  'onUpdate:values'?: (newOrder: V[]) => void
+  'onUpdate:values'?: (newOrder: V[], moved: V) => void
   /**
    * The latest values state.
    *
@@ -82,10 +85,82 @@ onUpdated(() => {
 
 const groupRef = useDomRef()
 
+function getOrder() {
+  return props.values.flatMap((value) => {
+    const layout = itemLayouts.get(value)
+    return layout ? [{ value, layout }] : []
+  })
+}
+
+function isRTL() {
+  const element = groupRef.value
+  return element?.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl'
+}
+
+function commit(newOrder: ReturnType<typeof getOrder>, moved: V) {
+  let i = 0
+  const newValues = props.values.map(value =>
+    itemLayouts.has(value) ? newOrder[i++].value : value,
+  )
+  if (newValues.some((value, index) => value !== props.values[index]))
+    props['onUpdate:values']?.(newValues, moved)
+}
+
+function restoreFocus(element: Element) {
+  const document = element.ownerDocument
+  if (document.activeElement !== element)
+    return
+  nextTick(() => {
+    if (element.isConnected && document.activeElement !== element)
+      (element as HTMLElement).focus()
+  })
+}
+
 reorderContextProvider({
   groupRef,
   axis,
   hasReordered,
+  onKeyDown: (event, item: V, orderBeforeGrab, setKeyboardGrab) => {
+    const { key, currentTarget } = event
+    if (
+      event.defaultPrevented
+      || event.target !== currentTarget
+      || event.altKey
+      || event.ctrlKey
+      || event.metaKey
+    ) {
+      return
+    }
+
+    const order = getOrder()
+    const keyIndex = ['ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].indexOf(key)
+    const isX = keyIndex % 2
+    if (key === ' ') {
+      if (!event.repeat)
+        setKeyboardGrab(currentTarget as Element, orderBeforeGrab ? undefined : [...props.values])
+    }
+    else if (!orderBeforeGrab) {
+      return
+    }
+    else if (key === 'Escape') {
+      const kept = orderBeforeGrab.flatMap(value => order.filter(data => data.value === value))
+      commit(order.map(data => orderBeforeGrab.includes(data.value) ? kept.shift()! : data), item)
+      restoreFocus(currentTarget as Element)
+      setKeyboardGrab(currentTarget as Element)
+    }
+    else if (keyIndex < 0 || (axis.value !== 'xy' && axis.value !== (isX ? 'x' : 'y'))) {
+      return
+    }
+    else {
+      const index = order.findIndex(({ value }) => value === item)
+      const target = index + ((keyIndex > 1) !== Boolean(isX && isRTL()) ? 1 : -1)
+      if (index > -1 && order[target]) {
+        commit(moveItem(order, index, target), item)
+        restoreFocus(currentTarget as Element)
+      }
+    }
+    event.preventDefault()
+  },
   registerItem: (value: V, layout: Box) => {
     // Prune layouts for values no longer in the list (e.g. removed or
     // exiting with AnimatePresence)
@@ -108,30 +183,19 @@ reorderContextProvider({
     if (isReordering)
       return
 
-    // Build the order from the latest values so unmeasured items (e.g.
-    // entering/exiting with AnimatePresence) keep their positions
-    const order = props.values.flatMap((value) => {
-      const layout = itemLayouts.get(value)
-      return layout ? [{ value, layout }] : []
-    })
-
-    const element = groupRef.value
-    const direction = element?.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl'
-      ? 'rtl' as const
-      : 'ltr' as const
-
-    const newOrder = checkReorder(order, item, offset, velocity, axis.value, direction)
+    const order = getOrder()
+    const newOrder = checkReorder(
+      order,
+      item,
+      offset,
+      velocity,
+      axis.value,
+      isRTL() ? 'rtl' : 'ltr',
+    )
     if (order !== newOrder) {
       isReordering = true
       hasReordered.value = true
-      // Remap the reordered measured items onto their slots in values,
-      // leaving unmeasured values in place
-      const newValues = [...props.values]
-      const measuredIndexes = order.map(({ value }) => props.values.indexOf(value))
-      newOrder.forEach(({ value }, index) => {
-        newValues[measuredIndexes[index]] = value
-      })
-      props['onUpdate:values']?.(newValues)
+      commit(newOrder, item)
     }
   },
 })

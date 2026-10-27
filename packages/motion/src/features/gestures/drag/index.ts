@@ -2,6 +2,7 @@ import { Feature } from '@/features/feature'
 import { VisualElementDragControls } from '@/features/gestures/drag/VisualElementDragControls'
 import type { DragControls } from '@/features/gestures/drag/use-drag-controls'
 import { noop } from 'motion-utils'
+import type { Options } from '@/types'
 
 export class DragGesture extends Feature {
   static key = 'drag' as const
@@ -12,6 +13,7 @@ export class DragGesture extends Feature {
   removeListeners: Function = noop
 
   private prevDragControls?: DragControls
+  private prevDrag: Options['drag']
 
   constructor(state) {
     super(state)
@@ -21,17 +23,18 @@ export class DragGesture extends Feature {
   mount() {
     // If we've been provided a DragControls for manual control over the drag gesture,
     // subscribe this component to it on mount.
-    const { dragControls } = this.state.options
+    const { dragControls, drag } = this.state.options
 
     if (dragControls) {
       this.removeGroupControls = dragControls.subscribe(this.controls)
     }
     this.prevDragControls = dragControls
+    this.prevDrag = drag
     this.removeListeners = this.controls.addListeners() || noop
   }
 
   update() {
-    const { dragControls } = this.state.options
+    const { dragControls, drag } = this.state.options
 
     if (dragControls !== this.prevDragControls) {
       this.removeGroupControls()
@@ -40,6 +43,10 @@ export class DragGesture extends Feature {
         : noop
       this.prevDragControls = dragControls
     }
+
+    if (this.prevDrag && !drag)
+      this.controls.stop(undefined, undefined, this.prevDrag)
+    this.prevDrag = drag
   }
 
   unmount() {

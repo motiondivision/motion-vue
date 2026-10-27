@@ -13,11 +13,17 @@ export function useInView(
   options?: MaybeRef<UseInViewOptions>,
 ) {
   const isInView = ref(false)
+  let observedElement: Element | null | undefined
 
   watchEffect((onCleanup) => {
     const realOptions = (unref(options) || {}) as UseInViewOptions
     const { once } = realOptions
     const el = unrefElement(domRef)
+    if (el !== observedElement) {
+      observedElement = el
+      if (!once)
+        isInView.value = false
+    }
     if (!el || (once && isInView.value)) {
       return
     }

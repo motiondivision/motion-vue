@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { frameData } from 'motion-dom'
 import { autoScrollIfNeeded, resetAutoScrollState } from '../auto-scroll'
 
 function mockRect(
@@ -33,6 +34,7 @@ describe('autoScrollIfNeeded', () => {
   let scrollBySpy: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
+    frameData.delta = 1000 / 60
     scrollBySpy = vi.fn()
     Object.defineProperty(window, 'scrollBy', { value: scrollBySpy, configurable: true, writable: true })
     setWindowScroll(0, 0)
@@ -109,6 +111,48 @@ describe('autoScrollIfNeeded', () => {
     const afterReset = container.scrollTop
     autoScrollIfNeeded(group, 480, 'y', 0)
     expect(container.scrollTop).toBe(afterReset)
+  })
+
+  it('caps scroll speed when the pointer passes either edge', () => {
+    const { container, group } = createScrollableContainer()
+
+    autoScrollIfNeeded(group, 600, 'y', 5)
+    expect(container.scrollTop).toBe(25)
+
+    container.scrollTop = 25
+    autoScrollIfNeeded(group, -100, 'y', -5)
+    expect(container.scrollTop).toBe(0)
+  })
+
+  it('keeps scroll distance stable across frame rates', () => {
+    const { container, group } = createScrollableContainer()
+    mockScrollProps(container, { scrollHeight: 100_000 })
+
+    function scrollForOneSecond(fps: number) {
+      resetAutoScrollState()
+      container.scrollTop = 0
+      frameData.delta = 1000 / fps
+      for (let i = 0; i < fps; i++)
+        autoScrollIfNeeded(group, 490, 'y', 5)
+      return container.scrollTop
+    }
+
+    const at60 = scrollForOneSecond(60)
+    expect(at60).toBeCloseTo(960)
+    expect(scrollForOneSecond(120)).toBeCloseTo(at60)
+    expect(scrollForOneSecond(30)).toBeCloseTo(at60)
+    expect(scrollForOneSecond(240)).toBeCloseTo(at60)
+  })
+
+  it('does not double the frame distance across mid-frame updates', () => {
+    const { container, group } = createScrollableContainer()
+
+    frameData.delta = 4
+    autoScrollIfNeeded(group, 600, 'y', 5)
+    frameData.delta = 1000 / 60 - 4
+    autoScrollIfNeeded(group, 600, 'y', 5)
+
+    expect(container.scrollTop).toBeCloseTo(25)
   })
 
   describe('document scroll', () => {

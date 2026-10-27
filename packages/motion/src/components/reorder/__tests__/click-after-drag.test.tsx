@@ -37,8 +37,8 @@ describe('reorder: click after drag', () => {
       setup() {
         return () => h(Reorder.Group as any, {
           'values': items.value,
-          'onUpdate:values': (newOrder: string[]) => {
-            handlers.onUpdateValues(newOrder)
+          'onUpdate:values': (newOrder: string[], moved: string) => {
+            handlers.onUpdateValues(newOrder, moved)
             items.value = newOrder
           },
           'axis': 'y',
@@ -82,7 +82,7 @@ describe('reorder: click after drag', () => {
     element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }))
   }
 
-  it.each(['a', 'a-child'])("doesn't click %s on the release that ends a reordering drag", async (target) => {
+  it.each(['a', 'a-child'])('doesn\'t click %s on the release that ends a reordering drag', async (target) => {
     const { onUpdateValues, onGroupClick, onItemClick, onChildClick, getByTestId } = setup()
 
     // Press where the click will land, so it's a descendant of the press
@@ -92,7 +92,7 @@ describe('reorder: click after drag', () => {
     pointerMove(50, 100)
     await nextFrames(2)
     pointerUp(50, 100)
-    expect(onUpdateValues).toHaveBeenCalledWith(['b', 'a'])
+    expect(onUpdateValues).toHaveBeenCalledWith(['b', 'a'], 'a')
 
     click(getByTestId(target))
     expect(onItemClick).not.toHaveBeenCalled()

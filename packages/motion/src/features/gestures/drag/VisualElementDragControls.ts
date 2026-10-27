@@ -1,4 +1,4 @@
-import { addDomEvent, addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, isElementTextInput, isHTMLElement, measurePageBox, mixNumber, percent, resize, setDragLock } from 'motion-dom'
+import { addDomEvent, addValueToWillChange, animateMotionValue, calcLength, convertBoundingBoxToBox, convertBoxToBoundingBox, createBox, eachAxis, frame, getVariableValue, isCSSVariableToken, isElementTextInput, isHTMLElement, measurePageBox, mixNumber, percent, px, resize, setDragLock } from 'motion-dom'
 import { addPointerEvent } from '@/events'
 import type { ResolvedConstraints } from '@/features/gestures/drag/types'
 import { applyConstraints, calcOrigin, calcRelativeConstraints, calcViewportConstraints, defaultElastic, rebaseAxisConstraints, resolveDragElastic } from '@/features/gestures/drag/utils/constraints'
@@ -133,10 +133,14 @@ export class VisualElementDragControls {
       eachAxis((axis) => {
         let current = this.getAxisMotionValue(axis).get() || 0
 
-        /**
-         * If the MotionValue is a percentage value convert to px
-         */
-        if (percent.test(current)) {
+        if (isCSSVariableToken(current)) {
+          current = getVariableValue(current, this.visualElement.current) || 0
+        }
+
+        if (px.test(current)) {
+          current = parseFloat(current)
+        }
+        else if (percent.test(current)) {
           const { projection } = this.visualElement
 
           if (projection && projection.layout) {
@@ -181,12 +185,10 @@ export class VisualElementDragControls {
       if (dragDirectionLock && this.currentDirection === null) {
         this.currentDirection = getCurrentDirection(offset)
 
-        // If we've successfully set a direction, notify listener
-        if (this.currentDirection !== null) {
-          onDirectionLock && onDirectionLock(this.currentDirection)
-        }
+        if (this.currentDirection === null)
+          return
 
-        return
+        onDirectionLock && onDirectionLock(this.currentDirection)
       }
       // Update each point with the latest position
       this.updateAxis('x', info.point, offset)
@@ -250,7 +252,7 @@ export class VisualElementDragControls {
   /**
    * @internal
    */
-  stop(event?: PointerEvent, panInfo?: PanInfo) {
+  stop(event?: PointerEvent, panInfo?: PanInfo, dragAxes?: Options['drag']) {
     const finalEvent = event || this.latestPointerEvent
     const finalPanInfo = panInfo || this.latestPanInfo
 
@@ -260,7 +262,7 @@ export class VisualElementDragControls {
       return
 
     const { velocity } = finalPanInfo
-    this.startAnimation(velocity)
+    this.startAnimation(velocity, dragAxes)
 
     const { onDragEnd } = this.getProps()
     if (onDragEnd) {
@@ -442,7 +444,7 @@ export class VisualElementDragControls {
     return measuredConstraints
   }
 
-  private startAnimation(velocity: Point) {
+  private startAnimation(velocity: Point, dragAxes?: Options['drag']) {
     const {
       drag,
       dragMomentum,
@@ -455,7 +457,7 @@ export class VisualElementDragControls {
     const constraints: Partial<ResolvedConstraints> = this.constraints || {}
 
     const momentumAnimations = eachAxis((axis) => {
-      if (!shouldDrag(axis, drag, this.currentDirection)) {
+      if (!shouldDrag(axis, dragAxes || drag, this.currentDirection)) {
         return
       }
 
@@ -734,6 +736,9 @@ export class VisualElementDragControls {
       (({ delta, hasLayoutChanged }: LayoutUpdateData) => {
         if (this.isDragging && hasLayoutChanged) {
           eachAxis((axis) => {
+            if (!shouldDrag(axis, this.getProps().drag, this.currentDirection))
+              return
+
             const motionValue = this.getAxisMotionValue(axis)
             if (!motionValue)
               return
