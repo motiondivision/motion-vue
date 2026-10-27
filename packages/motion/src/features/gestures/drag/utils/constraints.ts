@@ -32,11 +32,6 @@ export function applyConstraints(
 
 export const defaultElastic = 0.35
 
-/**
- * Pick the constraint edge nearest to the release position. A one-sided range
- * has a single edge. Ties resolve to `max`, matching motion-dom's own boundary
- * lookup. Returns `undefined` when the axis has no edges to snap to.
- */
 export function snapToNearestConstraint(
   value: number,
   { min, max }: Partial<Axis>,
@@ -45,6 +40,7 @@ export function snapToNearestConstraint(
     return max
   if (max === undefined)
     return min
+  // A tie picks max, matching motion-dom's boundary lookup.
   return Math.abs(min - value) < Math.abs(max - value) ? min : max
 }
 

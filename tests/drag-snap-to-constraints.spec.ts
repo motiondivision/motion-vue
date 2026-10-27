@@ -17,7 +17,6 @@ test.describe('dragSnapToConstraints', () => {
     const startX = before!.x + before!.width / 2
     const startY = before!.y + before!.height / 2
 
-    // Move right, still nearer the right edge than the left one.
     await page.mouse.move(startX, startY)
     await page.mouse.down()
     await page.mouse.move(startX + 130, startY, { steps: 20 })

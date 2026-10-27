@@ -471,10 +471,7 @@ export class VisualElementDragControls {
         transition = { min: 0, max: 0 }
       }
 
-      /**
-       * Origin snapping wins over constraint snapping. The nearest edge is
-       * measured from the release position.
-       */
+      // Picked from the release position, not the momentum-projected target.
       const snapEdge
         = !snapsToOrigin
         && (dragSnapToConstraints === true || (dragSnapToConstraints as unknown) === axis)

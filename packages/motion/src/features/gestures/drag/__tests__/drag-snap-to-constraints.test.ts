@@ -45,7 +45,6 @@ describe('drag: dragSnapToConstraints', () => {
             'dragConstraints': containerEl.value,
             'dragElastic': 0,
             'dragMomentum': false,
-            // Keep the release animation short enough to settle inside a test.
             'dragTransition': { timeConstant: 100 },
             'data-testid': 'box',
             ...props,
@@ -73,7 +72,6 @@ describe('drag: dragSnapToConstraints', () => {
     await nextTick()
     const box = wrapper.getByTestId('box')
 
-    // 100 sits nearer 140 than -10.
     pointerDown(box, 0, 0)
     pointerMove(100, 0)
     pointerUp(100, 0)
@@ -144,7 +142,6 @@ describe('drag: dragSnapToConstraints', () => {
     await nextTick()
     const box = wrapper.getByTestId('box')
 
-    // Push 200px past the max edge.
     pointerDown(box, 0, 0)
     pointerMove(340, 0)
     await nextFrames(2)
