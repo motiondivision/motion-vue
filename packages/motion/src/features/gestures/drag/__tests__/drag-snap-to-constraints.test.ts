@@ -152,6 +152,22 @@ describe('drag: dragSnapToConstraints', () => {
     }, { timeout: 3000 })
   })
 
+  it('overrides a user dragTransition.modifyTarget', async () => {
+    const modifyTarget = vi.fn(() => 0)
+    const wrapper = setup({ dragSnapToConstraints: true, dragTransition: { timeConstant: 100, modifyTarget } })
+    await nextTick()
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 0, 0)
+    pointerMove(100, 0)
+    pointerUp(100, 0)
+
+    await vi.waitFor(() => {
+      expect(box.style.transform).toContain('translateX(140px)')
+    }, { timeout: 3000 })
+    expect(modifyTarget).not.toHaveBeenCalled()
+  })
+
   it('keeps the chosen edge when a click interrupts the snap', async () => {
     const wrapper = setup({ dragSnapToConstraints: true })
     await nextTick()
