@@ -5,6 +5,9 @@ node_modules
 dist
 build
 
+# Local treemaps from `pnpm measure` (rollup-plugin-visualizer)
+packages/motion/size-stats/
+
 # Logs
 logs
 *.log
