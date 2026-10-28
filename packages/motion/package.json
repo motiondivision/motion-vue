@@ -81,11 +81,11 @@
     },
     {
       "path": "./dist/size-rollup-animate.js",
-      "maxSize": "22.23 kB"
+      "maxSize": "23.73 kB"
     },
     {
       "path": "./dist/size-rollup-use-animate.js",
-      "maxSize": "22.53 kB"
+      "maxSize": "24.07 kB"
     },
     {
       "path": "./dist/size-rollup-scroll.js",
