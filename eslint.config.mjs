@@ -41,6 +41,12 @@ export default antfu(
     },
   },
   {
+    files: ['packages/motion/vite.size.config.mjs', 'packages/motion/scripts/bundlesize.mjs'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['*.story.vue'],
     rules: {
       'no-console': 'off',
