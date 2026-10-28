@@ -32,6 +32,18 @@ export function applyConstraints(
 
 export const defaultElastic = 0.35
 
+export function snapToNearestConstraint(
+  value: number,
+  { min, max }: Partial<Axis>,
+): number | undefined {
+  if (min === undefined)
+    return max
+  if (max === undefined)
+    return min
+  // A tie picks max, matching motion-dom's boundary lookup.
+  return Math.abs(min - value) < Math.abs(max - value) ? min : max
+}
+
 /**
  * Calculate constraints in terms of the viewport when
  * defined relatively to the measured bounding box.
