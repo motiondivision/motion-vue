@@ -81,11 +81,11 @@
     },
     {
       "path": "./dist/size-rollup-animate.js",
-      "maxSize": "22.23 kB"
+      "maxSize": "23.73 kB"
     },
     {
       "path": "./dist/size-rollup-use-animate.js",
-      "maxSize": "22.53 kB"
+      "maxSize": "24.07 kB"
     },
     {
       "path": "./dist/size-rollup-scroll.js",
@@ -105,9 +105,9 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "framer-motion": "~14.6.0",
+    "framer-motion": "~14.7.1",
     "hey-listen": "^1.0.8",
-    "motion-dom": "~14.6.0",
-    "motion-utils": "~14.6.0"
+    "motion-dom": "~14.7.1",
+    "motion-utils": "~14.7.0"
   }
 }
