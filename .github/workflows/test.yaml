@@ -47,9 +47,12 @@ jobs:
       
       - name: Build Motion
         run: pnpm build
-        
+
       - name: Run tests
         run: pnpm test
+
+      - name: Check bundle size
+        run: pnpm size
 
 
       # - name: Build Docs
