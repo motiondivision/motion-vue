@@ -1,13 +1,7 @@
 import { createContext } from '@/utils'
 import type { Box, Point } from 'motion-utils'
-import type { Component, Ref } from 'vue'
+import type { Ref } from 'vue'
 import type { ReorderAxis } from './types'
-
-/**
- * `motion` and `m` are Proxies: indexing them by a tag returns the real
- * component Vue can render. The group and its items index the same one.
- */
-export type MotionNameSpace = Record<string, Component>
 
 export interface ReorderContextProps<T> {
   axis?: Ref<ReorderAxis>
@@ -27,12 +21,6 @@ export interface ReorderContextProps<T> {
   hasReordered?: Ref<boolean>
 
   groupRef?: Ref<HTMLElement | null>
-
-  /**
-   * `Motion` outside LazyMotion, `m` inside it. Items resolve their own tag
-   * from it, so a group inside LazyMotion doesn't pull the full feature bundle.
-   */
-  namespace: MotionNameSpace
 }
 
 export const [useReorderContext, reorderContextProvider] = createContext<ReorderContextProps<any>>('ReorderContext')
