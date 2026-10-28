@@ -48,16 +48,58 @@
   "files": [
     "./LICENSE",
     "./README.md",
-    "./dist"
+    "./dist",
+    "!dist/size-rollup-*.js"
   ],
   "scripts": {
     "dev": "vite build --watch",
     "prebuild": "cp ../../README.md ./README.md || true",
     "build": "rimraf dist && vite build",
+    "measure": "node ./vite.size.config.mjs",
+    "size": "node ./scripts/bundlesize.mjs",
+    "prepack": "pnpm build && pnpm measure && pnpm size",
     "test": "vitest --dom",
     "coverage": "vitest run --coverage",
     "pub:release": "pnpm publish --access public"
   },
+  "bundlesize": [
+    {
+      "path": "./dist/size-rollup-motion.js",
+      "maxSize": "43.37 kB"
+    },
+    {
+      "path": "./dist/size-rollup-m.js",
+      "maxSize": "5.32 kB"
+    },
+    {
+      "path": "./dist/size-rollup-m-dom-animation.js",
+      "maxSize": "29.39 kB"
+    },
+    {
+      "path": "./dist/size-rollup-m-dom-max.js",
+      "maxSize": "43.50 kB"
+    },
+    {
+      "path": "./dist/size-rollup-animate.js",
+      "maxSize": "22.23 kB"
+    },
+    {
+      "path": "./dist/size-rollup-use-animate.js",
+      "maxSize": "22.53 kB"
+    },
+    {
+      "path": "./dist/size-rollup-scroll.js",
+      "maxSize": "3.81 kB"
+    },
+    {
+      "path": "./dist/size-rollup-use-scroll.js",
+      "maxSize": "5.48 kB"
+    },
+    {
+      "path": "./dist/size-rollup-waapi-animate.js",
+      "maxSize": "3.18 kB"
+    }
+  ],
   "peerDependencies": {
     "@vueuse/core": ">=10.0.0",
     "vue": ">=3.0.0"
