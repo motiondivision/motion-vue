@@ -1,6 +1,9 @@
 <script lang="ts">
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
+import { m } from '@/components/motion/m'
+import { useLazyMotionContext } from '@/components/lazy-motion/context'
+import type { MotionNameSpace } from './context'
 import type { ReorderAxis } from './types'
 import type { AsTag } from '@/types'
 import type { Box, Point } from 'motion-utils'
@@ -75,6 +78,17 @@ const hasReordered = ref(false)
 
 const axis = computed<ReorderAxis>(() => props.axis || detectedAxis.value)
 
+// `m` is a Proxy Vue cannot render, so the component below is resolved from
+// the tag. It carries no feature bundle and takes the features LazyMotion
+// provides. Outside LazyMotion, `m` has none, so render Motion, which is
+// already a real component and reads `as` itself.
+const lazyMotion = useLazyMotionContext(null)
+const namespace = (lazyMotion ? m : Motion) as unknown as MotionNameSpace
+const motionComponent = computed(() => lazyMotion
+  ? namespace[props.as as string]
+  : Motion,
+)
+
 function warning() {
   invariant(Boolean(props.values), 'Reorder.Group must be provided a values prop')
 }
@@ -118,6 +132,7 @@ function restoreFocus(element: Element) {
 
 reorderContextProvider({
   groupRef,
+  namespace,
   axis,
   hasReordered,
   onKeyDown: (event, item: V, orderBeforeGrab, setKeyboardGrab) => {
@@ -221,10 +236,13 @@ function handlePointerdownCapture() {
 }
 
 function bindProps() {
-  const { axis, values, 'onUpdate:values': onUpdateValues, ...rest } = props
+  // Inside LazyMotion the resolved component's tag is already `as`, so
+  // spreading it would make that component render another element and drop
+  // this slot. Motion reads `as` itself.
+  const { as, axis, values, 'onUpdate:values': onUpdateValues, ...rest } = props
   return {
     ...attrs,
-    ...rest,
+    ...(lazyMotion ? rest : { ...rest, as }),
     style: {
       overflowAnchor: 'none',
       ...(rest.style as Record<string, any>),
@@ -234,7 +252,8 @@ function bindProps() {
 </script>
 
 <template>
-  <Motion
+  <component
+    :is="lazyMotion ? motionComponent : Motion"
     v-bind="bindProps()"
     ref="groupRef"
     @pointerdown.capture="handlePointerdownCapture"
@@ -242,5 +261,5 @@ function bindProps() {
   >
     <slot />
     {{ warning() }}
-  </Motion>
+  </component>
 </template>

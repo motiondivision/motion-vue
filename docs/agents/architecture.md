@@ -37,7 +37,7 @@ Motion components are built on top of Framer Motion's core, with Vue-specific ad
    - Manages animation sequencing and orchestration across components
 
 5. **Scroll Tracking** (`packages/motion/src/value/use-scroll.ts`)
-   - `useScroll(options?)` composable returns `{ scrollX, scrollY, scrollXProgress, scrollYProgress }` as motion values
+   - `useScroll(options?)` composable returns `{ scrollX, scrollY, scrollXProgress, scrollYProgress, scrollXLength, scrollYLength }` as motion values. The length values are the maximum scroll offset of each axis
    - `container` and `target` options accept `MaybeComputedElementRef` (supports Vue component instances via `getElement`)
    - `axis` and `offset` options accept `MaybeRefOrGetter` (resolved with `toValue`, supports both refs and getter functions)
    - Uses `watchEffect` with `flush: 'post'` to reactively re-subscribe when reactive options change

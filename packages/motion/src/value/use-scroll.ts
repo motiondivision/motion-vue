@@ -18,6 +18,12 @@ function createScrollMotionValues() {
     scrollY: motionValue(0),
     scrollXProgress: motionValue(0),
     scrollYProgress: motionValue(0),
+    /**
+     * The maximum scroll offset of each axis, so the distance from the end
+     * of the container is `scrollYLength.get() - scrollY.get()`.
+     */
+    scrollXLength: motionValue(0),
+    scrollYLength: motionValue(0),
   }
 }
 
@@ -78,8 +84,10 @@ export function useScroll(options: MaybeRefOrGetter<UseScrollOptions> = {}) {
       (_progress, { x, y }) => {
         values.scrollX.set(x.current)
         values.scrollXProgress.set(x.progress)
+        values.scrollXLength.set(x.scrollLength)
         values.scrollY.set(y.current)
         values.scrollYProgress.set(y.progress)
+        values.scrollYLength.set(y.scrollLength)
       },
       {
         ...rest,

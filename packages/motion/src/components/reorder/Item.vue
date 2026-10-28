@@ -2,6 +2,7 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
+import type { MotionNameSpace } from './context'
 import { computed, nextTick, ref, shallowRef, toRefs, useAttrs } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
@@ -71,7 +72,14 @@ function warning() {
 // Call immediately to fail during setup, not render
 warning()
 
-const { axis, registerItem, updateOrder, groupRef, hasReordered, onKeyDown: reorderKeyDown } = context!
+const { namespace, axis, registerItem, updateOrder, groupRef, hasReordered, onKeyDown: reorderKeyDown } = context!
+// The group's namespace is `m` inside LazyMotion and needs resolving per
+// tag. Outside it, the namespace is Motion, which reads `as` itself.
+const resolvesTag = namespace !== (Motion as unknown as MotionNameSpace)
+const motionComponent = computed(() => resolvesTag
+  ? namespace[props.as as string]
+  : Motion,
+)
 const orderBeforeGrab = shallowRef<V[]>()
 const attrs = useAttrs()
 
@@ -108,12 +116,17 @@ function handleBlur(event: FocusEvent) {
 }
 
 function bindProps() {
-  const { value, onDragStart, onDragEnd, onDrag, ...rest } = props
+  // A resolved `m` component's tag is already `as`; spreading it drops the
+  // slot. Motion reads `as` itself.
+  const { as, value, onDragStart, onDragEnd, onDrag, ...rest } = props
+  const resolved = resolvesTag
+    ? Object.fromEntries(Object.entries(rest).filter(([, propValue]) => propValue !== undefined))
+    : { ...rest, as }
   const { onKeyDown, onBlur, ...restAttrs } = attrs
   return {
     tabIndex: 0,
     ...restAttrs,
-    ...rest,
+    ...resolved,
     style: {
       ...style.value,
       x: point.x,
@@ -169,7 +182,8 @@ function handleDragStart(event: PointerEvent, gesturePoint: any) {
 </script>
 
 <template>
-  <Motion
+  <component
+    :is="resolvesTag ? motionComponent : Motion"
     v-bind="bindProps()"
     :drag="drag"
     :drag-snap-to-origin="true"
@@ -183,5 +197,5 @@ function handleDragStart(event: PointerEvent, gesturePoint: any) {
     }"
   >
     <slot :is-dragging="isDragging" />
-  </Motion>
+  </component>
 </template>

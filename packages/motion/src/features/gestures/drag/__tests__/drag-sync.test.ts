@@ -440,6 +440,53 @@ describe('drag: element constraints resolution', () => {
     expect(constraints.y).toEqual({ min: 90, max: 240 })
   })
 
+  it('remeasures ref constraints when a layoutScroll ancestor scrolls', async () => {
+    rects.set('scroller', { left: 0, top: 0, width: 300, height: 300 })
+    rects.set('container', { left: 0, top: 0, width: 200, height: 200 })
+    rects.set('box', { left: 10, top: 10, width: 50, height: 50 })
+
+    const wrapper = render(defineComponent({
+      setup: () => {
+        const container = ref<HTMLElement>()
+        return () => h(Motion, {
+          'layoutScroll': true,
+          'data-testid': 'scroller',
+          'style': { overflow: 'auto' },
+        }, {
+          default: () => h('div', { 'ref': container, 'data-testid': 'container' }, [
+            h(Motion, {
+              'drag': true,
+              'dragConstraints': container.value,
+              'dragElastic': 0,
+              'dragMomentum': false,
+              'data-testid': 'box',
+            }),
+          ]),
+        })
+      },
+    }))
+    await nextTick()
+    const scroller = wrapper.getByTestId('scroller')
+    const box = wrapper.getByTestId('box')
+
+    pointerDown(box, 60, 60)
+    pointerMove(0, 0)
+    await nextFrames(2)
+    pointerUp(0, 0)
+    await nextFrames(2)
+
+    // The ancestor scrolls without a layout measurement. Its offset must be
+    // removed from the constraints box the same way layoutBox removes it.
+    scroller.scrollTop = 80
+
+    pointerDown(box, 60, 60)
+    pointerMove(0, -500)
+    await nextFrames(2)
+
+    const { constraints } = getDragControls(box)
+    expect(constraints.y).toEqual({ min: 70, max: 220 })
+  })
+
   it('repositions the dragged element when constraints shrink on resize', async () => {
     rects.set('container', { left: 0, top: 0, width: 200, height: 200 })
     rects.set('box', { left: 10, top: 10, width: 50, height: 50 })
