@@ -56,8 +56,8 @@ describe('useTransform', () => {
       const opacity = useTransform(x, [0, 1], [0, 1])
 
       expect(opacity.accelerate).toBeDefined()
-      expect(opacity.accelerate!.times).toEqual([0, 1])
-      expect(opacity.accelerate!.keyframes).toEqual([0, 1])
+      expect(opacity.accelerate!.times).toEqual([0, 0, 1, 1])
+      expect(opacity.accelerate!.keyframes).toEqual([0, 0, 1, 1])
       expect(opacity.accelerate!.isTransformed).toBe(true)
       expect(opacity.accelerate!.factory).toBe(mockAccelerate.factory)
     })
@@ -140,7 +140,24 @@ describe('useTransform', () => {
       const opacity = useTransform(x, inputRange, [0, 1])
 
       expect(opacity.accelerate).toBeDefined()
-      expect(opacity.accelerate!.times).toEqual([0, 100])
+      expect(opacity.accelerate!.times).toEqual([0, 0, 100, 1])
+      expect(opacity.accelerate!.keyframes).toEqual([0, 0, 1, 1])
+    })
+
+    it('should pad an ease array to match the endpoint times', () => {
+      const easeFn = (v: number) => v
+      const x = motionValue(0)
+      x.accelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: easeFn,
+        duration: 1,
+      }
+
+      const opacity = useTransform(x, [0, 1], [0, 1], { ease: [easeFn] })
+
+      expect(opacity.accelerate!.ease).toEqual([easeFn, easeFn])
     })
   })
 
