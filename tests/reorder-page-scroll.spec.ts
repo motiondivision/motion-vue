@@ -28,10 +28,8 @@ test.describe('Reorder page scroll', () => {
     const viewportHeight = page.viewportSize()!.height
     await page.mouse.move(startX, startY + 30, { steps: 5 })
     await page.mouse.move(startX, viewportHeight - 20, { steps: 10 })
-    await page.waitForTimeout(300)
 
-    const afterScroll = await page.evaluate(() => window.scrollY)
-    expect(afterScroll).toBeGreaterThan(0)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 
     await page.mouse.up()
   })

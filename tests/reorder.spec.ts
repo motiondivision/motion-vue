@@ -36,7 +36,7 @@ test.describe('Reorder basic (axis auto-detected)', () => {
     expect(item1Box).not.toBeNull()
     await dragItemTo(page, 'item-0', item1Box!.x + item1Box!.width / 2, item1Box!.y + item1Box!.height / 2 + 4)
 
-    expect(await getOrder(page)).toBe('1,0,2,3,4,5')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
     await page.mouse.up()
 
     // Order persists after release
@@ -99,7 +99,7 @@ test.describe('Reorder axis auto-detection', () => {
     expect(item1Box).not.toBeNull()
     await dragItemTo(page, 'h-0', item1Box!.x + item1Box!.width / 2 + 4, item1Box!.y + item1Box!.height / 2)
 
-    expect(await getOrder(page)).toBe('1,0,2,3,4,5')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
     await page.mouse.up()
   })
 
@@ -164,7 +164,7 @@ test.describe('Reorder grid (axis="xy")', () => {
     )
 
     // LTR: item 0 is inserted before the item to its right on the new line
-    expect(await getOrder(page)).toBe('1,2,3,0,4,5')
+    await expect.poll(() => getOrder(page)).toBe('1,2,3,0,4,5')
     await page.mouse.up()
   })
 
@@ -177,7 +177,7 @@ test.describe('Reorder grid (axis="xy")', () => {
     expect(item1Box).not.toBeNull()
     await dragItemTo(page, 'g-0', item1Box!.x + item1Box!.width / 2, item1Box!.y + item1Box!.height / 2)
 
-    expect(await getOrder(page)).toBe('1,0,2,3,4,5')
+    await expect.poll(() => getOrder(page)).toBe('1,0,2,3,4,5')
     await page.mouse.up()
   })
 })
@@ -206,7 +206,7 @@ test.describe('Reorder RTL', () => {
     // visually-next item ("1,2,3,0,4,5"). If RTL detection were broken
     // (always "ltr"), the same gesture would append it to the end of the
     // line instead ("1,2,3,4,5,0").
-    expect(await getOrder(page)).toBe('1,2,3,0,4,5')
+    await expect.poll(() => getOrder(page)).toBe('1,2,3,0,4,5')
     await page.mouse.up()
   })
 })
