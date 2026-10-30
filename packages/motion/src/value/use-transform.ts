@@ -207,6 +207,8 @@ export function useTransform<I, O>(
       && typeof inputRangeOrTransformer !== 'function'
       && Array.isArray(outputRange)
       && options?.clamp !== false
+      // WAAPI can't call a mixer
+      && !options?.mixer
     ) {
       const resolvedInputRange = isRef(inputRangeOrTransformer)
         ? inputRangeOrTransformer.value

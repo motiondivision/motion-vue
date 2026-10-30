@@ -98,14 +98,14 @@ importers:
         specifier: '>=10.0.0'
         version: 12.7.0(typescript@6.0.3)
       framer-motion:
-        specifier: ~14.7.1
-        version: 14.7.1
+        specifier: ~14.8.0
+        version: 14.8.0
       hey-listen:
         specifier: ^1.0.8
         version: 1.0.8
       motion-dom:
-        specifier: ~14.7.1
-        version: 14.7.1
+        specifier: ~14.8.0
+        version: 14.8.0
       motion-utils:
         specifier: ~14.7.0
         version: 14.7.0
@@ -4425,15 +4425,18 @@ packages:
   fraction.js@5.3.4:
     resolution: {integrity: sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ==}
 
-  framer-motion@14.7.1:
-    resolution: {integrity: sha512-mFDYZxyfeZnpvL/zEQEqLZNYVA/ya47c9TBfZb/PEoNBBVSVvCLkMrCv9U38cuw72W161XENZwZB0+4nIBLEJg==}
+  framer-motion@14.8.0:
+    resolution: {integrity: sha512-PQsSx+UlaKiyPhADjVT5wALBErJJdbMeKQS4gQx6ibOrSNni7qjqfTKMvf6YHGG8pQWi6njs7AqrIG7R2hbnxA==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
+      remix: ^3.1.0
     peerDependenciesMeta:
       react:
         optional: true
       react-dom:
+        optional: true
+      remix:
         optional: true
 
   fresh@0.5.2:
@@ -5658,8 +5661,8 @@ packages:
   mocked-exports@0.1.1:
     resolution: {integrity: sha512-aF7yRQr/Q0O2/4pIXm6PZ5G+jAd7QS4Yu8m+WEeEHGnbo+7mE36CbLSDQiXYV8bVL3NfmdeqPJct0tUlnjVSnA==}
 
-  motion-dom@14.7.1:
-    resolution: {integrity: sha512-p9q9F7+HoijbQjUG/cSGNmWS2t1OaAKxkd2RG5gQJRoDwoTap/Khb7K1P5rLW90crnSmx0rcRXzh3Jd5UNrpEw==}
+  motion-dom@14.8.0:
+    resolution: {integrity: sha512-HzA41kvV7BgluM7L/XbW+gHFzDtJUbHnEsrlnIzPS9dqSfoPy9YzL6VKF7ai0TiQcykkkLUqvIxECAdwa9gwAw==}
 
   motion-number-vue@1.0.5:
     resolution: {integrity: sha512-Cc4jX6ZNhwXDVVbqOu6MIDXOLnP7PmqkQHkRK/OL+kcHfASXfssorbiiZ46lff+NaJO5LVlNVkIldLNTWAEPFw==}
@@ -12985,9 +12988,9 @@ snapshots:
 
   fraction.js@5.3.4: {}
 
-  framer-motion@14.7.1:
+  framer-motion@14.8.0:
     dependencies:
-      motion-dom: 14.7.1
+      motion-dom: 14.8.0
       motion-utils: 14.7.0
       tslib: 2.8.1
 
@@ -14251,7 +14254,7 @@ snapshots:
 
   mocked-exports@0.1.1: {}
 
-  motion-dom@14.7.1:
+  motion-dom@14.8.0:
     dependencies:
       motion-utils: 14.7.0
 
