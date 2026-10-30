@@ -24,6 +24,7 @@ export const MotionComponentProps = {
   'layoutId': { type: String, default: undefined },
   'layoutScroll': { type: Boolean, default: false },
   'layoutRoot': { type: Boolean, default: false },
+  'layoutAnchor': { type: [Object, Boolean], default: undefined },
   'data-framer-portal-id': { type: String },
   'crossfade': { type: Boolean, default: true },
   'layoutDependency': { type: null, default: undefined },

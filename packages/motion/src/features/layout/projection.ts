@@ -49,6 +49,7 @@ export class ProjectionFeature extends Feature {
       // initialPromotionConfig
       layoutRoot: options.layoutRoot,
       layoutScroll: options.layoutScroll,
+      layoutAnchor: options.layoutAnchor,
       crossfade: options.crossfade,
       onExitComplete: () => {
         if (!this.projection?.isPresent && this.state.options.layoutId && !this.state.isExiting) {
