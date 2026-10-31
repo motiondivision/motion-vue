@@ -18,16 +18,12 @@ test.describe('useScroll with VueInstance', () => {
       el.scrollTop = 100
     })
 
-    // 等待滚动事件处理完成
-    await page.waitForTimeout(300)
-
     // 验证滚动位置
     const scrollTop = await container.evaluate(el => el.scrollTop)
     expect(scrollTop).toBe(100)
 
     // 验证滚动值是否被正确更新到UI
-    const scrollValue = await page.locator('.scroll-y-value').textContent()
-    expect(scrollValue).toBe('100')
+    await expect.poll(async () => (await page.locator('.scroll-y-value').textContent())?.trim()).toBe('100')
   })
 
   test('should accept VueInstance as target', async ({ page }) => {
@@ -108,13 +104,12 @@ test.describe('useScroll horizontal scroll (axis: x)', () => {
 
     // scroll to end (scrollWidth - clientWidth = 600)
     await container.evaluate((el) => { el.scrollLeft = el.scrollWidth - el.clientWidth })
-    await page.waitForTimeout(100)
 
-    const scrollX = await page.locator('.scroll-x-value').textContent()
-    expect(parseFloat(scrollX || '0')).toBeGreaterThan(0)
+    const scrollX = page.locator('.scroll-x-value')
+    await expect.poll(async () => parseFloat(await scrollX.textContent() || '0')).toBeGreaterThan(0)
 
-    const progress = await page.locator('.scroll-x-progress-value').textContent()
-    expect(parseFloat(progress || '0')).toBeCloseTo(1, 1)
+    const progress = page.locator('.scroll-x-progress-value')
+    await expect.poll(async () => parseFloat(await progress.textContent() || '0')).toBeCloseTo(1, 1)
   })
 })
 
@@ -127,16 +122,15 @@ test.describe('useScroll with ScrollOffset presets', () => {
     await page.waitForSelector('.scroll-container')
     const container = page.locator('.scroll-container')
 
-    const initialProgress = await page.locator('.scroll-y-progress-value').textContent()
-    expect(parseFloat(initialProgress || '1')).toBeGreaterThanOrEqual(0)
+    const progress = page.locator('.scroll-y-progress-value')
+    const initialProgress = parseFloat(await progress.textContent() || '-1')
+    expect(initialProgress).toBeGreaterThanOrEqual(0)
 
     // scroll container down
     await container.evaluate((el) => { el.scrollTop = el.scrollHeight / 2 })
-    await page.waitForTimeout(100)
 
-    const midProgress = await page.locator('.scroll-y-progress-value').textContent()
     // progress should have changed from initial
-    expect(parseFloat(midProgress || '0')).not.toEqual(parseFloat(initialProgress || '-1'))
+    await expect.poll(async () => parseFloat(await progress.textContent() || '0')).not.toBe(initialProgress)
   })
 
   test('ScrollOffset presets are exported from motion-v', async ({ page }) => {
@@ -158,23 +152,18 @@ test.describe('useScroll reactive options', () => {
 
     // start on y axis, scroll vertically
     await container.evaluate((el) => { el.scrollTop = 100 })
-    await page.waitForTimeout(100)
 
-    const scrollYBefore = await page.locator('.scroll-y-value').textContent()
-    expect(parseFloat(scrollYBefore || '0')).toBeGreaterThan(0)
+    const scrollY = page.locator('.scroll-y-value')
+    await expect.poll(async () => parseFloat(await scrollY.textContent() || '0')).toBeGreaterThan(0)
 
     // toggle to x axis
     await page.locator('.toggle-axis').click()
-    await page.waitForTimeout(100)
-
-    const currentAxis = await page.locator('.current-axis').textContent()
-    expect(currentAxis?.trim()).toBe('x')
+    await expect(page.locator('.current-axis')).toHaveText('x')
 
     // scroll horizontally
     await container.evaluate((el) => { el.scrollLeft = 100 })
-    await page.waitForTimeout(100)
 
-    const scrollXAfter = await page.locator('.scroll-x-value').textContent()
-    expect(parseFloat(scrollXAfter || '0')).toBeGreaterThan(0)
+    const scrollX = page.locator('.scroll-x-value')
+    await expect.poll(async () => parseFloat(await scrollX.textContent() || '0')).toBeGreaterThan(0)
   })
 })

@@ -44,7 +44,7 @@ type Transformer<I, O> = SingleTransformer<I, O> | MultiTransformer<string | num
  * </template>
  * ```
  *
- * @param inputValue - `MotionValue`
+ * @param value - `MotionValue`
  * @param inputRange - A linear series of numbers (either all increasing or decreasing)
  * @param outputRange - A series of numbers, colors or strings. Must be the same length as `inputRange`.
  * @param options -
@@ -207,16 +207,31 @@ export function useTransform<I, O>(
       && typeof inputRangeOrTransformer !== 'function'
       && Array.isArray(outputRange)
       && options?.clamp !== false
+      // WAAPI can't call a mixer
+      && !options?.mixer
     ) {
       const resolvedInputRange = isRef(inputRangeOrTransformer)
         ? inputRangeOrTransformer.value
         : inputRangeOrTransformer
+
+      const ease = options?.ease
+
+      /**
+       * WAAPI fills missing 0 and 1 offsets with the underlying value, so
+       * hold the end values to match the clamped transform.
+       */
       result.accelerate = {
         ...inputAccelerate,
-        times: resolvedInputRange,
-        keyframes: outputRange,
+        times: [0, ...resolvedInputRange, 1],
+        keyframes: [
+          outputRange[0],
+          ...outputRange,
+          outputRange[outputRange.length - 1],
+        ],
         isTransformed: true,
-        ...(options?.ease ? { ease: options.ease } : {}),
+        ...(ease
+          ? { ease: Array.isArray(ease) ? [ease[0], ...ease] : ease }
+          : {}),
       }
     }
   }

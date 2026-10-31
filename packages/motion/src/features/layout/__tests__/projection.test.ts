@@ -46,4 +46,34 @@ describe('projectionFeature', () => {
 
     expect(root.scroll?.offset.y).toBe(1000)
   })
+
+  it('passes layoutAnchor to the projection options', async () => {
+    const { getByTestId } = render(Motion, {
+      props: { layout: true, layoutAnchor: { x: 0.5, y: 0.5 } },
+      attrs: { 'data-testid': 'anchored' },
+    })
+    await nextTick()
+
+    expect(getProjection(getByTestId('anchored')).options.layoutAnchor).toEqual({ x: 0.5, y: 0.5 })
+  })
+
+  it('passes layoutAnchor false through to the projection options', async () => {
+    const { getByTestId } = render(Motion, {
+      props: { layout: true, layoutAnchor: false },
+      attrs: { 'data-testid': 'no-anchor' },
+    })
+    await nextTick()
+
+    expect(getProjection(getByTestId('no-anchor')).options.layoutAnchor).toBe(false)
+  })
+
+  it('keeps layoutAnchor undefined when the prop is absent', async () => {
+    const { getByTestId } = render(Motion, {
+      props: { layout: true },
+      attrs: { 'data-testid': 'default-anchor' },
+    })
+    await nextTick()
+
+    expect(getProjection(getByTestId('default-anchor')).options.layoutAnchor).toBeUndefined()
+  })
 })

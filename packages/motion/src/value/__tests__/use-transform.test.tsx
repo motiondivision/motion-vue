@@ -56,8 +56,8 @@ describe('useTransform', () => {
       const opacity = useTransform(x, [0, 1], [0, 1])
 
       expect(opacity.accelerate).toBeDefined()
-      expect(opacity.accelerate!.times).toEqual([0, 1])
-      expect(opacity.accelerate!.keyframes).toEqual([0, 1])
+      expect(opacity.accelerate!.times).toEqual([0, 0, 1, 1])
+      expect(opacity.accelerate!.keyframes).toEqual([0, 0, 1, 1])
       expect(opacity.accelerate!.isTransformed).toBe(true)
       expect(opacity.accelerate!.factory).toBe(mockAccelerate.factory)
     })
@@ -72,7 +72,7 @@ describe('useTransform', () => {
         duration: 1,
       }
 
-      const doubled = useTransform(x, (v) => v * 2)
+      const doubled = useTransform(x, v => v * 2)
 
       expect(doubled.accelerate).toBeUndefined()
     })
@@ -90,6 +90,23 @@ describe('useTransform', () => {
       const opacity = useTransform(x, [0, 1], [0, 1], { clamp: false })
 
       expect(opacity.accelerate).toBeUndefined()
+    })
+
+    it('should not propagate accelerate when a mixer is provided', () => {
+      const x = motionValue(0)
+      x.accelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: (v: number) => v,
+        duration: 1,
+      }
+
+      const filter = useTransform(x, [0, 1], ['blur(0px)', 'blur(10px)'], {
+        mixer: () => () => 'blur(5px)',
+      })
+
+      expect(filter.accelerate).toBeUndefined()
     })
 
     it('should not propagate accelerate when already transformed', () => {
@@ -123,7 +140,24 @@ describe('useTransform', () => {
       const opacity = useTransform(x, inputRange, [0, 1])
 
       expect(opacity.accelerate).toBeDefined()
-      expect(opacity.accelerate!.times).toEqual([0, 100])
+      expect(opacity.accelerate!.times).toEqual([0, 0, 100, 1])
+      expect(opacity.accelerate!.keyframes).toEqual([0, 0, 1, 1])
+    })
+
+    it('should pad an ease array to match the endpoint times', () => {
+      const easeFn = (v: number) => v
+      const x = motionValue(0)
+      x.accelerate = {
+        factory: () => ({ stop: () => {} }) as any,
+        times: [0, 1],
+        keyframes: [0, 1],
+        ease: easeFn,
+        duration: 1,
+      }
+
+      const opacity = useTransform(x, [0, 1], [0, 1], { ease: [easeFn] })
+
+      expect(opacity.accelerate!.ease).toEqual([easeFn, easeFn])
     })
   })
 
