@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-10-31
+
+### Added
+
+-   `motion` components: add the `layoutAnchor` prop. Pass `{ x, y }` to choose where on the parent a layout animation is anchored, or `false` to disable relative projection. `motion-dom` already read this option, but it was never forwarded, so centered layouts drifted during parent layout animations.
+
+### Fixed
+
+-   `useTransform`: stop forwarding scroll acceleration when a mixer is supplied. WAAPI cannot invoke a mixer, so the accelerated transform bypassed it.
+-   `useTransform`: pad accelerated scroll timeline endpoints so the clamped start and end values are no longer skipped.
+
+### Dependencies
+
+-   Update `framer-motion` and `motion-dom` to `~14.8.0`. `motion-utils` stays at `~14.7.0` because upstream published no `14.8.0`.
+
 ## [2.9.0] - 2026-10-28
 
 ### Added
