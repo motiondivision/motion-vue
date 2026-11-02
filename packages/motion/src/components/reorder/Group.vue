@@ -5,10 +5,10 @@ import type { ReorderAxis } from './types'
 import type { AsTag } from '@/types'
 import type { Box, Point } from 'motion-utils'
 import { invariant } from 'hey-listen'
-import { computed, nextTick, onUpdated, ref, useAttrs } from 'vue'
+import { computed, nextTick, onUpdated, ref, useAttrs, watch } from 'vue'
 import { moveItem } from 'motion-utils'
 import { reorderContextProvider } from './context'
-import { checkReorder, detectAxis } from './utils'
+import { checkReorder, detectAxis, keyTarget } from './utils'
 import { useDomRef } from '@/utils'
 </script>
 
@@ -68,12 +68,51 @@ const props = withDefaults(defineProps<GroupProps<AsTag, K, V>>(), {
 })
 
 const itemLayouts = new Map<V, Box>()
+const elements = new Map<V, { current: HTMLElement | null }>()
+const active = ref<V>()
 const detectedAxis = ref<ReorderAxis>('y')
 let isReordering = false
 // Set when a drag reorders; the release ending that drag isn't a click (#2682)
 const hasReordered = ref(false)
 
 const axis = computed<ReorderAxis>(() => props.axis || detectedAxis.value)
+const valuesSet = computed(() => new Set(props.values))
+const tabStop = computed(() => valuesSet.value.has(active.value as V) ? active.value : props.values[0])
+
+function isRendered(value?: V) {
+  return elements.get(value as V)?.current?.isConnected
+}
+
+/**
+ * Only values in `values` can be the tab stop.
+ */
+function activate(value: V) {
+  if (valuesSet.value.has(value))
+    active.value = value
+}
+
+/**
+ * If the tab stop isn't rendered (e.g. it's virtualized), the first
+ * rendered item takes its place. Items check again when they unmount.
+ */
+function checkTabStop() {
+  if (isRendered(tabStop.value))
+    return
+  const first = props.values.find(value => isRendered(value))
+  if (first !== undefined)
+    activate(first)
+}
+
+watch(() => props.values, () => {
+  const values = valuesSet.value
+  for (const map of [itemLayouts, elements]) {
+    map.forEach((_, value) => {
+      if (!values.has(value))
+        map.delete(value)
+    })
+  }
+  checkTabStop()
+}, { immediate: true, deep: true })
 
 function warning() {
   invariant(Boolean(props.values), 'Reorder.Group must be provided a values prop')
@@ -120,6 +159,17 @@ reorderContextProvider({
   groupRef,
   axis,
   hasReordered,
+  isTabStop: value => value === tabStop.value || !valuesSet.value.has(value),
+  setActive: activate,
+  checkTabStop,
+  elements,
+  /**
+   * Space grabs and drops the item, arrows along `axis` move the grabbed
+   * item one place, or a row in a grid (see keyTarget), or move focus that
+   * way if it isn't grabbed, and Escape restores the order in `from`, the
+   * values when it was grabbed. Keys from children or with modifiers
+   * (Alt+Left etc.) are left alone.
+   */
   onKeyDown: (event, item: V, orderBeforeGrab, setKeyboardGrab) => {
     const { key, currentTarget } = event
     if (
@@ -139,10 +189,7 @@ reorderContextProvider({
       if (!event.repeat)
         setKeyboardGrab(currentTarget as Element, orderBeforeGrab ? undefined : [...props.values])
     }
-    else if (!orderBeforeGrab) {
-      return
-    }
-    else if (key === 'Escape') {
+    else if (key === 'Escape' && orderBeforeGrab) {
       const kept = orderBeforeGrab.flatMap(value => order.filter(data => data.value === value))
       commit(order.map(data => orderBeforeGrab.includes(data.value) ? kept.shift()! : data), item)
       restoreFocus(currentTarget as Element)
@@ -152,23 +199,25 @@ reorderContextProvider({
       return
     }
     else {
-      const index = order.findIndex(({ value }) => value === item)
-      const target = index + ((keyIndex > 1) !== Boolean(isX && isRTL()) ? 1 : -1)
-      if (index > -1 && order[target]) {
-        commit(moveItem(order, index, target), item)
-        restoreFocus(currentTarget as Element)
+      // Focus only moves between rendered items
+      const list = orderBeforeGrab
+        ? order
+        : order.filter(({ value }) => isRendered(value))
+      const index = list.findIndex(({ value }) => value === item)
+      const target = keyTarget(list, index, keyIndex, axis.value, Boolean(isX) && isRTL())
+      if (target > -1) {
+        if (orderBeforeGrab) {
+          commit(moveItem(order, index, target), item)
+          restoreFocus(currentTarget as Element)
+        }
+        else {
+          elements.get(list[target].value)?.current?.focus()
+        }
       }
     }
     event.preventDefault()
   },
   registerItem: (value: V, layout: Box) => {
-    // Prune layouts for values no longer in the list (e.g. removed or
-    // exiting with AnimatePresence)
-    const valuesSet = new Set(props.values)
-    itemLayouts.forEach((_, itemValue) => {
-      if (!valuesSet.has(itemValue))
-        itemLayouts.delete(itemValue)
-    })
     itemLayouts.set(value, layout)
     if (!props.axis) {
       const nextAxis = detectAxis(props.values.flatMap((itemValue) => {
