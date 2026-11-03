@@ -66,6 +66,25 @@ test.describe('Reorder basic (axis auto-detected)', () => {
     expect(await getOrder(page)).toBe('1,0,2,3,4,5')
   })
 
+  test('keeps one tab stop and moves focus with arrow keys', async ({ page }) => {
+    const first = page.locator('[data-testid="item-0"]')
+    const second = page.locator('[data-testid="item-1"]')
+
+    await expect(first).toHaveAttribute('tabindex', '0')
+    await expect(second).toHaveAttribute('tabindex', '-1')
+
+    await first.focus()
+    await page.keyboard.press('ArrowDown')
+
+    await expect(second).toBeFocused()
+    await expect(second).toHaveAttribute('tabindex', '0')
+    await expect(first).toHaveAttribute('tabindex', '-1')
+
+    // Arrows across the axis stay with the browser
+    await page.keyboard.press('ArrowLeft')
+    await expect(second).toBeFocused()
+  })
+
   test('keeps keyboard grab after moving toward the start', async ({ page }) => {
     const item = page.locator('[data-testid="item-2"]')
     await item.focus()

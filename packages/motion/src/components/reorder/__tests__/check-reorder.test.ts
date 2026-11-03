@@ -1,6 +1,7 @@
 import type { ItemData } from '../types'
 import { describe, expect, it } from 'vitest'
-import { checkReorder, detectAxis } from '../utils'
+import { moveItem } from 'motion-utils'
+import { checkReorder, detectAxis, keyTarget } from '../utils'
 
 function itemData(
   value: string,
@@ -181,5 +182,73 @@ describe('detectAxis', () => {
     ])).toBe('y')
 
     expect(detectAxis([])).toBe('y')
+  })
+})
+
+describe('keyTarget', () => {
+  // a b c
+  const row = [
+    itemData('a', 0, 100, 0, 100),
+    itemData('b', 100, 200, 0, 100),
+    itemData('c', 200, 300, 0, 100),
+  ]
+
+  it('steps along the order and swaps left and right in RTL', () => {
+    expect(keyTarget(row, 0, 3, 'x', false)).toBe(1)
+    expect(keyTarget(row, 1, 1, 'x', false)).toBe(0)
+    expect(keyTarget(row, 0, 1, 'x', true)).toBe(1)
+    expect(keyTarget(row, 1, 3, 'x', true)).toBe(0)
+    expect(keyTarget(row, 0, 2, 'y', false)).toBe(1)
+    expect(keyTarget(row, 1, 0, 'y', false)).toBe(0)
+  })
+
+  it('returns -1 when there is nowhere to go', () => {
+    expect(keyTarget(row, 0, 0, 'y', false)).toBe(-1)
+    expect(keyTarget(row, 2, 2, 'y', false)).toBe(-1)
+    expect(keyTarget(row, -1, 2, 'y', false)).toBe(-1)
+  })
+
+  it('goes to the nearest item across in the row above or below', () => {
+    // a b c
+    // d e f
+    // g h
+    const grid = [
+      itemData('a', 0, 100, 0, 100),
+      itemData('b', 100, 200, 0, 100),
+      itemData('c', 200, 300, 0, 100),
+      itemData('d', 0, 100, 100, 200),
+      itemData('e', 100, 200, 100, 200),
+      itemData('f', 200, 300, 100, 200),
+      itemData('g', 0, 100, 200, 300),
+      itemData('h', 100, 200, 200, 300),
+    ]
+
+    expect(keyTarget(grid, 4, 0, 'xy', false)).toBe(1)
+    expect(keyTarget(grid, 4, 2, 'xy', false)).toBe(7)
+    expect(keyTarget(grid, 0, 0, 'xy', false)).toBe(-1)
+    expect(keyTarget(grid, 7, 2, 'xy', false)).toBe(-1)
+  })
+
+  it('moves by the row drawn above or below, not the next in order', () => {
+    // flex-wrap: wrap-reverse draws the first row at the bottom:
+    // c
+    // a b
+    const reversed = [
+      itemData('a', 0, 100, 100, 200),
+      itemData('b', 100, 200, 100, 200),
+      itemData('c', 0, 100, 0, 100),
+    ]
+    const move = (value: string, key: number) => {
+      const index = reversed.findIndex(item => item.value === value)
+      const target = keyTarget(reversed, index, key, 'xy', false)
+      return (target < 0 ? reversed : moveItem(reversed, index, target))
+        .map(item => item.value)
+        .join('')
+    }
+
+    expect(move('a', 0)).toBe('bca')
+    expect(move('c', 2)).toBe('cab')
+    expect(move('a', 2)).toBe('abc')
+    expect(move('c', 0)).toBe('abc')
   })
 })

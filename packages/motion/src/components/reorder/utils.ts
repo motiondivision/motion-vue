@@ -3,6 +3,8 @@ import type { Axis, Box, Point } from 'motion-utils'
 import { isMotionValue, mixNumber, motionValue } from 'motion-dom'
 import { moveItem } from 'motion-utils'
 
+const center = ({ min, max }: Axis) => mixNumber(min, max, 0.5)
+
 export function checkReorder<T>(
   order: ItemData<T>[],
   value: T,
@@ -17,30 +19,30 @@ export function checkReorder<T>(
 
   if (axis === 'xy') {
     const { layout } = order[index]
-    const center = {
-      x: mixNumber(layout.x.min, layout.x.max, 0.5) + offset.x,
-      y: mixNumber(layout.y.min, layout.y.max, 0.5) + offset.y,
+    const point = {
+      x: center(layout.x) + offset.x,
+      y: center(layout.y) + offset.y,
     }
 
     const lines = getLines(order)
     const sourceLine = lines.find(line => line.items.includes(order[index]))
     const targetLine = lines.reduce((closest, line) =>
-      distanceToLine(center.y, line) < distanceToLine(center.y, closest)
+      distanceToLine(point.y, line) < distanceToLine(point.y, closest)
         ? line
         : closest,
     )
 
     if (targetLine !== sourceLine) {
-      return moveToLine(order, index, center.x, targetLine, direction)
+      return moveToLine(order, index, point.x, targetLine, direction)
     }
 
-    const currentDistance = distanceToBox(center, layout)
+    const currentDistance = distanceToBox(point, layout)
     let target = -1
     let targetDistance = currentDistance
     order.forEach((item, targetIndex) => {
       if (targetIndex === index)
         return
-      const distance = distanceToBox(center, item.layout)
+      const distance = distanceToBox(point, item.layout)
       if (distance < targetDistance) {
         target = targetIndex
         targetDistance = distance
@@ -64,7 +66,7 @@ export function checkReorder<T>(
   const item = order[index]
   const itemLayout = item.layout[axis]
   const nextLayout = nextItem.layout[axis]
-  const nextItemCenter = mixNumber(nextLayout.min, nextLayout.max, 0.5)
+  const nextItemCenter = center(nextLayout)
 
   if (
     (nextOffset === 1 && itemLayout.max + offset[axis] > nextItemCenter)
@@ -74,6 +76,41 @@ export function checkReorder<T>(
   }
 
   return order
+}
+
+/**
+ * The index an arrow key takes `order[index]` to, or -1 if there's nowhere
+ * to go, `key` being its index in Up, Left, Down, Right. Left and Right go
+ * along the order (swapped in RTL). On the "xy" axis, Up and Down go to
+ * the row above or below, to the item there nearest across.
+ */
+export function keyTarget<T>(
+  order: ItemData<T>[],
+  index: number,
+  key: number,
+  axis: ReorderAxis,
+  isRTL: boolean,
+) {
+  const step = (key > 1) !== Boolean(key % 2 && isRTL) ? 1 : -1
+  let target = index + step
+
+  if (axis === 'xy' && !(key % 2) && index > -1) {
+    // Rows top to bottom as drawn, which isn't their order with
+    // flex-wrap: wrap-reverse.
+    const lines = getLines(order).sort((a, b) => a.min - b.min)
+    const line = lines[lines.findIndex(({ items }) => items.includes(order[index])) + step]
+    const distance = (item: ItemData<T>) =>
+      Math.abs(center(item.layout.x) - center(order[index].layout.x))
+
+    target = line
+      ? order.indexOf(
+        line.items.reduce((nearest, item) =>
+          distance(item) < distance(nearest) ? item : nearest),
+      )
+      : -1
+  }
+
+  return index > -1 && order[target] ? target : -1
 }
 
 interface Line<T> {
@@ -112,8 +149,8 @@ function moveToLine<T>(
 ): ItemData<T>[] {
   const remaining = order.filter((_, itemIndex) => itemIndex !== index)
   const before = line.items.find((item) => {
-    const center = mixNumber(item.layout.x.min, item.layout.x.max, 0.5)
-    return direction === 'ltr' ? x < center : x > center
+    const itemCenter = center(item.layout.x)
+    return direction === 'ltr' ? x < itemCenter : x > itemCenter
   })
   const targetIndex = before
     ? remaining.indexOf(before)

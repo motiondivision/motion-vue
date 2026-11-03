@@ -2,13 +2,14 @@
 import type { MotionProps } from '@/components/motion'
 import { Motion } from '@/components/motion'
 import { useReorderContext } from './context'
-import { computed, nextTick, ref, shallowRef, toRefs, useAttrs } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, toRefs, useAttrs, watch } from 'vue'
 import { useDefaultMotionValue } from './utils'
 import { useTransform } from '@/value'
 import { mountedStates } from '@/state'
 import { invariant } from 'hey-listen'
 import type { ElementType } from '@/types'
 import { autoScrollIfNeeded, resetAutoScrollState } from './auto-scroll'
+import { useDomRef } from '@/utils'
 </script>
 
 <script setup  generic="T extends ElementType = 'li', K = unknown, V = unknown" lang="ts">
@@ -71,9 +72,36 @@ function warning() {
 // Call immediately to fail during setup, not render
 warning()
 
-const { axis, registerItem, updateOrder, groupRef, hasReordered, onKeyDown: reorderKeyDown } = context!
+const { axis, registerItem, updateOrder, groupRef, hasReordered, isTabStop, setActive, checkTabStop, elements, onKeyDown: reorderKeyDown } = context!
 const orderBeforeGrab = shallowRef<V[]>()
 const attrs = useAttrs()
+
+const itemRef = useDomRef()
+const element: { current: HTMLElement | null } = { current: null }
+elements?.set(props.value as V, element)
+
+watch(itemRef, (el) => {
+  element.current = el ?? null
+}, { flush: 'post' })
+
+onMounted(() => {
+  element.current = itemRef.value ?? null
+  checkTabStop?.()
+})
+
+onUnmounted(() => {
+  const value = props.value as V
+  if (elements?.get(value) === element)
+    elements.delete(value)
+  checkTabStop?.()
+})
+
+watch(() => props.value, (value, oldValue) => {
+  if (elements?.get(oldValue as V) === element)
+    elements.delete(oldValue as V)
+  elements?.set(value as V, element)
+  checkTabStop?.()
+})
 
 function callUserHandler(handler: unknown, event: Event) {
   if (Array.isArray(handler))
@@ -111,7 +139,7 @@ function bindProps() {
   const { value, onDragStart, onDragEnd, onDrag, ...rest } = props
   const { onKeyDown, onBlur, ...restAttrs } = attrs
   return {
-    tabIndex: 0,
+    tabIndex: isTabStop?.(props.value as V) ? 0 : -1,
     ...restAttrs,
     ...rest,
     style: {
@@ -171,12 +199,14 @@ function handleDragStart(event: PointerEvent, gesturePoint: any) {
 <template>
   <Motion
     v-bind="bindProps()"
+    ref="itemRef"
     :drag="drag"
     :drag-snap-to-origin="true"
     @drag="handleDrag"
     @drag-end="handleDragEnd"
     @drag-start="handleDragStart"
     @keydown="handleKeyDown"
+    @focusin="() => setActive?.(props.value as V)"
     @blur="handleBlur"
     @layout-measure="(measured) => {
       registerItem?.(value, measured)
