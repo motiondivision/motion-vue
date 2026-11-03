@@ -226,6 +226,7 @@ export class MotionState {
         latestValues: { ...this.latestValues } as any,
       },
       reducedMotionConfig: this.options.motionConfig?.reducedMotion,
+      skipAnimations: this.options.motionConfig?.skipAnimations,
     })
     // No parent.addChild() here — visualElement.mount() registers with the
     // parent after `current` is assigned, so enteringChildren never holds
