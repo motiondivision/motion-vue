@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-11-03
+
+### Added
+
+-   `Reorder.Item`: use a roving tab index — only the last focused item, or the first rendered one, is in the tab order. When no item is grabbed, arrow keys move focus between rendered items; on `axis="xy"`, Up and Down move focus to the nearest item in the row above or below.
+
+### Fixed
+
+-   `MotionConfig`: forward `skipAnimations` to `motion` components and `v-motion` elements, so descendants actually skip animations.
+-   `MotionConfig`: a nested `MotionConfig` that omits `skipAnimations` no longer resets it to `false`; it now keeps the parent value.
+
+### Dependencies
+
+-   Update `framer-motion` and `motion-dom` to `~14.9.0`. `motion-utils` stays at `~14.7.0`.
+
 ## [2.10.0] - 2026-10-31
 
 ### Added
