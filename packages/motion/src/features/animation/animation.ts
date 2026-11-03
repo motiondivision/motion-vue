@@ -1,7 +1,7 @@
 import { Feature } from '@/features/feature'
 import { createAnimationState, isAnimationControls } from 'motion-dom'
 import type { MotionState } from '@/state/motion-state'
-import { isHidden } from '@/utils/is-hidden'
+import { isHiddenByPresenceChild } from '@/utils/is-hidden'
 
 const STATE_TYPES = ['initial', 'animate', 'whileInView', 'whileHover', 'whilePress', 'whileDrag', 'whileFocus', 'exit'] as const
 export type StateType = typeof STATE_TYPES[number]
@@ -29,8 +29,7 @@ export class AnimationFeature extends Feature {
    * Subscribe any provided AnimationControls to the component's VisualElement
    */
   mount() {
-    const isPresent = !isHidden(this.state.element as HTMLElement)
-    if (!isPresent) {
+    if (isHiddenByPresenceChild(this.state.element!, this.state.options.presenceContext)) {
       this.state.setActive('exit', true)
     }
     else {
