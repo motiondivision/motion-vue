@@ -18,6 +18,8 @@ const props = withDefaults(defineProps<MotionConfigProps & { reducedMotion?: 'us
     }
     return defaultConfig.reducedMotion
   },
+  // Vue casts an absent boolean prop to false, which would override the parent's value
+  skipAnimations: undefined,
 })
 
 const parentConfig = useMotionConfig()
