@@ -14,6 +14,8 @@ export interface PresenceContext {
   /** Registry of `usePresence()` handlers under this AnimatePresence. */
   registerHandler?: (handler: PresenceHandler) => void
   unregisterHandler?: (handler: PresenceHandler) => void
+  /** Whether this element is one of the children the Transition renders. */
+  isChild?: (el: Element) => boolean
 }
 
 /**

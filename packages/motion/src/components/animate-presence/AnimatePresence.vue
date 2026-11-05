@@ -1,43 +1,47 @@
-<script setup lang="ts">
-import { Transition, TransitionGroup, computed } from 'vue'
+<script lang="ts">
+import { Fragment, Transition, TransitionGroup, computed, createVNode, defineComponent, h } from 'vue'
+import type { PropType } from 'vue'
 import type { AnimatePresenceProps } from './types'
 import { usePresenceContainer } from './use-presence-container'
 
-defineOptions({
+export default defineComponent({
   name: 'AnimatePresence',
   inheritAttrs: true,
-})
+  props: {
+    mode: { type: String as PropType<AnimatePresenceProps['mode']>, default: 'sync' },
+    initial: { type: Boolean, default: true },
+    as: { type: String, default: undefined },
+    custom: { default: undefined },
+    onExitComplete: { type: Function as PropType<VoidFunction>, default: undefined },
+    anchorX: { type: String as PropType<'left' | 'right'>, default: 'left' },
+  },
+  setup(props, { slots }) {
+    const { enter, exit, markChildren } = usePresenceContainer(props as AnimatePresenceProps)
 
-const props = withDefaults(defineProps<AnimatePresenceProps>(), {
-  mode: 'sync',
-  initial: true,
-  anchorX: 'left',
-})
+    const transitionProps = computed(() => {
+      if (props.mode !== 'wait')
+        return { tag: props.as }
+      return { mode: 'out-in' as const }
+    })
 
-const { enter, exit } = usePresenceContainer(props)
-
-const transitionProps = computed(() => {
-  if (props.mode !== 'wait') {
-    return {
-      tag: props.as,
-    }
-  }
-  return {
-    mode: props.mode === 'wait' ? 'out-in' : undefined,
-  }
+    return () => h(
+      props.mode === 'wait' ? Transition : TransitionGroup,
+      {
+        ...transitionProps.value,
+        appear: true,
+        css: false,
+        onEnter: enter,
+        onLeave: exit,
+      },
+      {
+        // The key makes TransitionGroup install transition hooks on every
+        // child. Unkeyed children get none, so v-show would not fire enter
+        // or leave.
+        default: () => [
+          createVNode(Fragment, { key: '_presence' }, markChildren(slots.default?.() ?? [])),
+        ],
+      },
+    )
+  },
 })
 </script>
-
-<template>
-  <!-- @vue-ignore -->
-  <component
-    :is="mode === 'wait' ? Transition : TransitionGroup"
-    v-bind="transitionProps"
-    appear
-    :css="false"
-    @leave="exit"
-    @enter="enter"
-  >
-    <slot />
-  </component>
-</template>

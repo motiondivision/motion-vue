@@ -1,4 +1,5 @@
-import { onMounted, onUnmounted } from 'vue'
+import { Comment, Fragment, Text, cloneVNode, onMounted, onUnmounted, withDirectives } from 'vue'
+import type { ObjectDirective, VNode } from 'vue'
 import type { MotionState } from '@/state'
 import type { ExitFeature } from '@/features/exit/exit'
 import type { AnimatePresenceProps } from './types'
@@ -23,6 +24,31 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   // attribute tagging or querySelectorAll discovery needed.
   const registered = new Set<MotionState>()
   const handlers = new Set<PresenceHandler>()
+  // Elements the Transition renders directly. Marked while their vnode is
+  // patched, not when the transition enters them: Vue skips transition.enter
+  // for regular elements during hydration, but still runs directive hooks.
+  const children = new WeakSet<Element>()
+
+  const markPresenceChild: ObjectDirective<Element> = {
+    created: el => children.add(el),
+  }
+
+  function markChildren(vnodes: VNode[]): VNode[] {
+    return vnodes.map((vnode) => {
+      if (vnode.type === Fragment) {
+        const clone = cloneVNode(vnode)
+        if (Array.isArray(vnode.children))
+          clone.children = markChildren(vnode.children as VNode[])
+        return clone
+      }
+      if (vnode.type === Comment || vnode.type === Text)
+        return vnode
+      const clone = cloneVNode(vnode)
+      // cloneVNode shares the dirs array, and withDirectives pushes onto it
+      clone.dirs = clone.dirs ? clone.dirs.slice() : null
+      return withDirectives(clone, [[markPresenceChild]])
+    })
+  }
 
   // ===== Provide Context =====
   // Pure data, never mutated after provide: `initial`/`custom` are getters,
@@ -39,6 +65,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     unregister: state => registered.delete(state),
     registerHandler: handler => handlers.add(handler),
     unregisterHandler: handler => handlers.delete(handler),
+    isChild: el => children.has(el),
   }
 
   provideAnimatePresence(presenceContext)
@@ -105,5 +132,6 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   return {
     enter,
     exit,
+    markChildren,
   }
 }
