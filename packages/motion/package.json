@@ -105,9 +105,9 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "framer-motion": "~14.9.0",
+    "framer-motion": "~14.9.1",
     "hey-listen": "^1.0.8",
-    "motion-dom": "~14.9.0",
+    "motion-dom": "~14.9.1",
     "motion-utils": "~14.7.0"
   }
 }
