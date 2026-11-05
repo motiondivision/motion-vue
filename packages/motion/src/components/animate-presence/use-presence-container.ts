@@ -23,6 +23,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   // attribute tagging or querySelectorAll discovery needed.
   const registered = new Set<MotionState>()
   const handlers = new Set<PresenceHandler>()
+  const children = new WeakSet<Element>()
 
   // ===== Provide Context =====
   // Pure data, never mutated after provide: `initial`/`custom` are getters,
@@ -39,6 +40,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
     unregister: state => registered.delete(state),
     registerHandler: handler => handlers.add(handler),
     unregisterHandler: handler => handlers.delete(handler),
+    isChild: el => children.has(el),
   }
 
   provideAnimatePresence(presenceContext)
@@ -74,6 +76,7 @@ export function usePresenceContainer(props: AnimatePresenceProps) {
   // ===== Transition Handlers =====
 
   function enter(el: HTMLElement, done: VoidFunction) {
+    children.add(el)
     sessions.abort(el)
     const states = findMotionStates(el)
     states.forEach((state) => {
