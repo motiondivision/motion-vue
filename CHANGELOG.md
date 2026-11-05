@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.1] - 2026-11-05
+
+### Fixed
+
+-   Children that mount after a parent gesture variant (`whileHover`, `whileInView`, `whileTap`) activates now adopt it.
+-   `AnimatePresence`: elements mounted under a hidden ancestor no longer stay stuck at their exit values.
+
+### Dependencies
+
+-   Update `framer-motion` and `motion-dom` to `~14.9.1`. `motion-utils` stays at `~14.7.0`.
+
 ## [2.11.0] - 2026-11-03
 
 ### Added
