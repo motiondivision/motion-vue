@@ -1,5 +1,6 @@
 import { Feature } from '@/features/feature'
-import { createAnimationState, isAnimationControls } from 'motion-dom'
+import { createAnimationState, isAnimationControls, isVariantLabel } from 'motion-dom'
+import type { AnimationType, VisualElement } from 'motion-dom'
 import type { MotionState } from '@/state/motion-state'
 import { isHiddenByPresenceChild } from '@/utils/is-hidden'
 
@@ -26,6 +27,37 @@ export class AnimationFeature extends Feature {
   }
 
   /**
+   * A child that mounts after a gesture state on its controlling ancestor has
+   * already activated never receives that setActive() propagation: it only
+   * reaches the variant children registered at the time it fires. Adopt the
+   * ancestor's active states so this child resolves the variant an existing
+   * child would have. A label the child declares itself belongs to its own
+   * gesture and is left alone.
+   */
+  private adoptInheritedActiveStates() {
+    const visualElement = this.state.visualElement
+    let source: VisualElement | undefined = visualElement
+    do
+      source = (source.props as { inherit?: boolean }).inherit !== false ? source.parent : undefined
+    while (source && !source.isControllingVariants)
+
+    const activeStates = source?.animationState?.getState()
+    if (!activeStates)
+      return
+
+    const ownProps = visualElement.props as Record<string, unknown>
+    const sourceProps = source!.props as Record<string, unknown>
+    for (const type in activeStates) {
+      // exit is driven by presence, not by variant inheritance
+      if (type === 'exit' || !activeStates[type].isActive || ownProps[type] !== undefined)
+        continue
+      if (!isVariantLabel(sourceProps[type]))
+        continue
+      visualElement.animationState?.setActive(type as AnimationType, true)
+    }
+  }
+
+  /**
    * Subscribe any provided AnimationControls to the component's VisualElement
    */
   mount() {
@@ -33,6 +65,7 @@ export class AnimationFeature extends Feature {
       this.state.setActive('exit', true)
     }
     else {
+      this.adoptInheritedActiveStates()
       this.state.visualElement.animationState?.animateChanges()
     }
     this.updateAnimationControlsSubscription()
