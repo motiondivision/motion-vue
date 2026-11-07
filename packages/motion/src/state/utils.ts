@@ -46,7 +46,14 @@ export function resolveInitialValues(
   const initial = (options.initial === undefined && options.variants)
     ? context?.initial
     : options.initial
-  const sources = initial === false ? ['initial', 'animate'] : ['initial']
+  // Under skipAnimations an element starts where its animation ends, as with
+  // initial: false. The skipped animation applies the animate values only in
+  // the frame loop's next batch, so starting at initial would draw initial for
+  // a frame when the element mounts inside a requestAnimationFrame callback,
+  // or when a CSS transition on it animates the change. Unlike initial: false,
+  // this doesn't block the mount animation, so onAnimationComplete still fires.
+  const startsAtAnimate = initial === false || Boolean(options.motionConfig?.skipAnimations)
+  const sources = startsAtAnimate ? ['initial', 'animate'] : ['initial']
   const custom = options.custom ?? (options as any).presenceContext?.custom
   return sources.reduce<Record<string, any>>((acc, variant) => {
     return {
