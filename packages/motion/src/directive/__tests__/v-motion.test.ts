@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createApp, defineComponent, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
+import MotionConfig from '@/components/motion-config/MotionConfig.vue'
 import { MotionPlugin, createMotionDirective, createPresetDirective, vMotion } from '@/directive'
 import { domAnimation } from '@/features/dom-animation'
 import { delay } from '@/shared/test'
@@ -114,6 +115,19 @@ describe('v-motion directive', () => {
     // After animation completes, should have visible variant
     await delay(200)
     expect(Number(el.style.opacity)).toBe(1)
+  })
+
+  it('starts at animate values under MotionConfig skipAnimations', async () => {
+    const wrapper = mount(defineComponent({
+      components: { MotionConfig },
+      directives: { motion: vMotion },
+      template: `<MotionConfig skip-animations><div v-motion="{ initial: { opacity: 0, x: -50 }, animate: { opacity: 1, x: 0 }, transition: { duration: 10 } }" data-testid="box" /></MotionConfig>`,
+    }))
+    await nextTick()
+    // Before a frame has applied the skipped animation's values
+    const el = wrapper.find('[data-testid="box"]').element as HTMLElement
+    expect(el.style.opacity).toBe('1')
+    expect(el.style.transform).toBe('none')
   })
 
   describe('vNode props extraction', () => {
