@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2026-11-11
+
+### Added
+
+-   `pinch` and `addPinchListeners`: gesture utilities for pinch and rotate on touch, trackpad and Safari gesture events.
+-   `press`: `count`, `hold` and `repeat` options for multi-press, long press and repeating progress.
+
+### Fixed
+
+-   `animate`: a timeline made only of nested sequences is now recognised as a timeline.
+-   `Reorder`: auto-scroll now only targets ancestors that can scroll on the drag axis, and clears every scrolled ancestor when the drag ends.
+
+### Performance
+
+-   Animation engine performance improvements.
+
+### Dependencies
+
+-   Update `framer-motion` and `motion-dom` to `~14.11.1`. `motion-utils` stays at `~14.7.0`.
+
 ## [2.11.1] - 2026-11-05
 
 ### Fixed
