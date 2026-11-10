@@ -196,3 +196,132 @@ describe('autoScrollIfNeeded', () => {
     })
   })
 })
+
+describe('autoScrollIfNeeded in nested scroll containers', () => {
+  afterEach(() => {
+    resetAutoScrollState()
+    document.body.innerHTML = ''
+  })
+
+  function container(scrolls?: 'x' | 'y') {
+    const element = document.createElement('div')
+    // JSDOM doesn't expand the overflow shorthand
+    element.style.overflowX = 'auto'
+    element.style.overflowY = 'auto'
+    mockRect(element, { top: 0, bottom: 300, left: 0, right: 300 })
+    mockScrollProps(element, {
+      clientWidth: 300,
+      clientHeight: 300,
+      scrollWidth: scrolls === 'x' ? 600 : 300,
+      scrollHeight: scrolls === 'y' ? 600 : 300,
+      scrollLeft: 0,
+      scrollTop: 0,
+    })
+    return element
+  }
+
+  /**
+   * An outer container that scrolls horizontally, around a column that
+   * scrolls vertically. A browser computes the column's overflow-x as
+   * auto too, though it has no content to scroll on that axis.
+   */
+  function nestedContainers() {
+    const outer = container('x')
+    const column = container('y')
+    const group = document.createElement('ul')
+    outer.appendChild(column)
+    column.appendChild(group)
+    document.body.appendChild(outer)
+    frameData.delta = 1000 / 60
+    return { outer, column, group }
+  }
+
+  it('scrolls the nearest ancestor that can scroll on the axis', () => {
+    const { outer, column, group } = nestedContainers()
+
+    autoScrollIfNeeded(group, 290, 'x', 1)
+    expect(outer.scrollLeft).toBeGreaterThan(0)
+    expect(column.scrollLeft).toBe(0)
+
+    autoScrollIfNeeded(group, 290, 'y', 1)
+    expect(column.scrollTop).toBeGreaterThan(0)
+    expect(outer.scrollTop).toBe(0)
+  })
+
+  it('forgets every container it scrolled once the drag ends', () => {
+    const { outer, column, group } = nestedContainers()
+    const next = container('y')
+    const nextGroup = document.createElement('ul')
+    next.appendChild(nextGroup)
+    outer.appendChild(next)
+
+    autoScrollIfNeeded(group, 290, 'y', 1)
+    autoScrollIfNeeded(nextGroup, 100, 'y', 1)
+    resetAutoScrollState()
+
+    // The next drag starts by its end, moving away from it
+    const scrolled = column.scrollTop
+    autoScrollIfNeeded(group, 290, 'y', -1)
+    expect(column.scrollTop).toBe(scrolled)
+  })
+})
+
+describe('autoScrollIfNeeded on both axes of one container', () => {
+  afterEach(() => {
+    resetAutoScrollState()
+    document.body.innerHTML = ''
+  })
+
+  function setup() {
+    const element = document.createElement('div')
+    element.style.overflowX = 'auto'
+    element.style.overflowY = 'auto'
+    mockRect(element, { top: 0, bottom: 300, left: 0, right: 300 })
+    const size = { scrollHeight: 600 }
+    const scroll = { left: 0, top: 0 }
+    Object.defineProperties(element, {
+      clientWidth: { value: 300 },
+      clientHeight: { value: 300 },
+      scrollWidth: { value: 600 },
+      scrollHeight: { get: () => size.scrollHeight },
+      scrollLeft: {
+        get: () => scroll.left,
+        set: value => (scroll.left = value),
+      },
+      scrollTop: {
+        get: () => scroll.top,
+        set: value => (scroll.top = value),
+      },
+    })
+    const group = document.createElement('ul')
+    element.appendChild(group)
+    document.body.appendChild(element)
+    frameData.delta = 1000 / 60
+
+    const onDrag = (y: number, velocityY: number) => {
+      autoScrollIfNeeded(group, 150, 'x', 0)
+      autoScrollIfNeeded(group, y, 'y', velocityY)
+    }
+    return { element, size, onDrag }
+  }
+
+  it('keeps scrolling while the pointer is held at an edge', () => {
+    const { element, onDrag } = setup()
+    onDrag(290, 1)
+    const scrolled = element.scrollTop
+    expect(scrolled).toBeGreaterThan(0)
+
+    onDrag(290, 0)
+    expect(element.scrollTop).toBeGreaterThan(scrolled)
+  })
+
+  it('stops at the scroll limit from when it started scrolling', () => {
+    const { element, size, onDrag } = setup()
+    for (let i = 0; i < 100; i++) {
+      onDrag(299, 1)
+      // The dragged item, moved on by the scroll, grows the content
+      size.scrollHeight = 600 + element.scrollTop
+    }
+    expect(element.scrollTop).toBeLessThan(300 + 25)
+  })
+})
