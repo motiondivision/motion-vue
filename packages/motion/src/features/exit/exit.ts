@@ -5,52 +5,65 @@ import { Feature } from '@/features/feature'
 /**
  * Owns the AnimatePresence exit protocol for a motion state: run the exit
  * animation, defer completion across the layoutId projection handoff, and
- * resolve the session's promise exactly once. The `isExiting` flag itself
- * lives on MotionState; this feature owns the sequence around it.
+ * resolve the session's promise exactly once. This feature is the only
+ * writer of the exit-in-flight flag exposed as MotionState.isExiting.
  *
- * The generation counter is bumped by exit() and reenter() — a completion
- * carrying a stale generation is a silent no-op, which is how mid-exit
- * reentry and re-entry-then-exit-again sequences stay consistent.
+ * exit() is idempotent while an exit is in flight. A duplicate leave joins
+ * the pending completion instead of starting a second animation, which would
+ * make motion-dom's no-op setActive resolve immediately and remove the DOM
+ * mid-animation.
+ *
+ * The generation counter is bumped by exit(), reenter(), and unmount(). A
+ * completion carrying a stale generation is a silent no-op, which is how
+ * mid-exit reentry, unmount during exit, and re-entry-then-exit-again
+ * sequences stay consistent.
  */
 export class ExitFeature extends Feature {
   static key = 'exit' as const
 
-  /**
-   * Epoch token for the exit protocol, bumped by both exit() and reenter().
-   * Every async callback captures the generation it was issued in and no-ops
-   * when stale — this is what keeps an exit → reenter → exit-again sequence
-   * consistent: without it, the first exit's late animation resolution would
-   * clobber isExiting (which the second exit just set) and settle the second
-   * exit's pendingExit prematurely, removing the DOM mid-animation.
-   */
   private exitGeneration = 0
-  private pendingExit?: { resolve: () => void }
+  private pendingExit?: { promise: Promise<void>, resolve: () => void }
+
+  /**
+   * The only source of truth for MotionState.isExiting. Only this feature
+   * writes it, so a stale external setActive promise cannot clear a live exit.
+   */
+  private activeExit = false
+
+  get isExiting() {
+    return this.activeExit
+  }
 
   /**
    * Run the full exit sequence for AnimatePresence and resolve when this
-   * state's exit completes — including the layoutId projection handoff,
+   * state's exit completes, including the layoutId projection handoff,
    * which is signalled back via completeExitFromProjection().
    */
   exit(): Promise<void> {
+    if (this.pendingExit)
+      return this.pendingExit.promise
+
     const generation = ++this.exitGeneration
     const state = this.state
-    state.isExiting = true
+    this.activeExit = true
 
-    const completion = new Promise<void>((resolve) => {
-      this.pendingExit = { resolve }
+    let resolveExit!: () => void
+    const promise = new Promise<void>((resolve) => {
+      resolveExit = resolve
     })
+    this.pendingExit = { promise, resolve: resolveExit }
 
     const exitAnimation = state.visualElement?.animationState?.setActive('exit' as AnimationType, true)
     if (exitAnimation) {
       exitAnimation.then(() => {
         if (generation !== this.exitGeneration)
           return
-        state.isExiting = false
+        this.activeExit = false
         // layoutId: defer the check to frame.postRender. The projection
         // handoff animation is created asynchronously (getSnapshot →
         // willUpdate → root.didUpdate → microtask/frame pipeline →
         // startAnimation), so currentAnimation may not exist yet when this
-        // promise settles — checking synchronously would read `undefined`,
+        // promise settles. Checking synchronously would read `undefined`,
         // pass the gate, and remove the DOM before the shared layout
         // animation even starts. postRender is the earliest point in the
         // frame where the projection pipeline is guaranteed to have run.
@@ -60,19 +73,19 @@ export class ExitFeature extends Feature {
       })
     }
     else {
-      state.isExiting = false
+      this.activeExit = false
       this.tryCompleteExit(generation)
     }
 
     state.getSnapshot(false)
-    return completion
+    return promise
   }
 
   /** Re-enter while an exit is in flight; the stale exit resolves silently. */
   reenter() {
     this.exitGeneration++
+    this.activeExit = false
     this.settleExit()
-    this.state.isExiting = false
     this.state.setActive('exit', false)
     this.state.getSnapshot(true)
   }
@@ -83,9 +96,9 @@ export class ExitFeature extends Feature {
   }
 
   private tryCompleteExit(generation: number) {
-    if (generation !== this.exitGeneration || this.state.isExiting)
+    if (generation !== this.exitGeneration || this.activeExit)
       return
-    // A shared layout animation is still in flight — wait for it. The exit
+    // A shared layout animation is still in flight. Wait for it. The exit
     // is only complete once the layoutId handoff finishes: removing the DOM
     // mid-handoff would cut the old element's crossfade and destroy the new
     // lead's render context. Note currentAnimation is not only this node's
@@ -101,12 +114,14 @@ export class ExitFeature extends Feature {
   }
 
   private settleExit() {
-    this.pendingExit?.resolve()
+    // Clear before resolving so a synchronous re-entry starts a fresh exit.
+    const pending = this.pendingExit
     this.pendingExit = undefined
+    pending?.resolve()
   }
 
   /**
-   * Register with the nearest AnimatePresence for exit discovery — only
+   * Register with the nearest AnimatePresence for exit discovery. Only
    * states carrying the exit feature are discoverable, and mount/unmount
    * pairing keeps the registry exact (KeepAlive remounts re-register).
    */
@@ -115,7 +130,9 @@ export class ExitFeature extends Feature {
   }
 
   unmount() {
-    this.state.options.presenceContext?.unregister?.(this.state)
+    this.exitGeneration++
+    this.activeExit = false
     this.settleExit()
+    this.state.options.presenceContext?.unregister?.(this.state)
   }
 }

@@ -5,7 +5,7 @@ import type { AnimatePresenceProps } from './types'
 import type { PresenceHandler } from './presence'
 
 export interface ExitSessionConfig {
-  // Read lazily at track time — mode/anchorX are reactive props
+  // Read lazily at track time, since mode/anchorX are reactive props
   props: Pick<AnimatePresenceProps, 'mode' | 'anchorX'>
   getNonce: () => string | undefined
   onAllComplete: () => void
@@ -13,23 +13,67 @@ export interface ExitSessionConfig {
 
 interface ExitSession {
   el: HTMLElement
-  states: MotionState[]
-  handlers: PresenceHandler[]
+  states: Set<MotionState>
+  handlers: Set<PresenceHandler>
+  /** The latest Vue leave callback for this element; a duplicate leave replaces it. */
   done: VoidFunction
-  aborted: boolean
+  /** Completions still awaited before this element can leave the DOM. */
+  pending: number
+  active: boolean
   popStyle?: HTMLStyleElement
 }
 
 let popId = 0
 
 /**
- * Bookkeeping unit for AnimatePresence exits: one session per exiting
- * container element. Owns pop-layout styling and the fan-in toward
- * `onAllComplete`. `abort` cancels a session whose element re-entered
- * mid-exit; its states' exit promises then resolve silently.
+ * A set of items located by the DOM element they own. The leaving subtree is
+ * exactly the container's descendants, so discovery filters the registry by
+ * reference containment instead of querying the DOM. inject resolves to the
+ * nearest ancestor, so nested AnimatePresence instances scope correctly
+ * without DOM attribute tagging.
+ */
+function createRegistry<T>(elementOf: (item: T) => Element | null | undefined) {
+  const items = new Set<T>()
+  return {
+    add: (item: T) => {
+      items.add(item)
+    },
+    remove: (item: T) => {
+      items.delete(item)
+    },
+    find(container: Element) {
+      const found: T[] = []
+      for (const item of items) {
+        const el = elementOf(item)
+        if (el && (el === container || container.contains(el)))
+          found.push(item)
+      }
+      return found
+    },
+    clear: () => {
+      items.clear()
+    },
+  }
+}
+
+/**
+ * Bookkeeping for AnimatePresence exits. One instance owns the registered
+ * motion states and presence handlers, at most one live session per exiting
+ * element, and the batch that fans `onExitComplete` in.
+ *
+ * A duplicate leave for the same element joins the live session: it keeps the
+ * original exit running, adopts the latest Vue removal callback, and adds any
+ * newly discovered children. This is the shape Vue's Transition/TransitionGroup
+ * hands us. A second leave overwrites the element's leave callback without
+ * cancelling the first.
  */
 export function createExitSession(config: ExitSessionConfig) {
+  const states = createRegistry<MotionState>(state => state.element)
+  const handlers = createRegistry<PresenceHandler>(handler => handler.element())
+  const children = new WeakSet<Element>()
   const sessions = new Map<HTMLElement, ExitSession>()
+  let batchOpen = false
+  let anyFinished = false
 
   // ===== Pop layout =====
 
@@ -88,62 +132,152 @@ export function createExitSession(config: ExitSessionConfig) {
 
   // ===== Session lifecycle =====
 
-  function track(el: HTMLElement, states: MotionState[], done: VoidFunction, handlers: PresenceHandler[] = []) {
-    const session: ExitSession = { el, states, handlers, done, aborted: false }
-    sessions.set(el, session)
-    addPopStyle(session)
+  function track(el: HTMLElement, done: VoidFunction) {
+    let session = sessions.get(el)
+    if (session) {
+      // A duplicate Vue leave owns the latest removal callback.
+      session.done = done
+    }
+    else {
+      if (sessions.size === 0) {
+        batchOpen = true
+        anyFinished = false
+      }
+      session = {
+        el,
+        states: new Set(),
+        handlers: new Set(),
+        done,
+        pending: 0,
+        active: true,
+      }
+      sessions.set(el, session)
+      addPopStyle(session)
+    }
 
-    const completions = states.map(state =>
-      state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve(),
-    )
-    for (const handler of handlers)
-      completions.push(Promise.resolve(handler.onExit()))
+    for (const state of states.find(el)) {
+      if (session.states.has(state))
+        continue
+      session.states.add(state)
+      session.pending++
+      const completion = state.getFeature<ExitFeature>('exit')?.exit() ?? Promise.resolve()
+      completion.then(() => settle(session))
+    }
 
-    Promise.all(completions).then(() => {
-      if (!session.aborted)
-        finalize(session)
-    })
+    for (const handler of handlers.find(el)) {
+      if (session.handlers.has(handler))
+        continue
+      session.handlers.add(handler)
+      session.pending++
+      Promise.resolve(handler.onExit()).then(() => settle(session))
+    }
+
+    // A child with nothing to wait for still joins the batch. Defer so sibling
+    // leaves in the same patch register before onExitComplete can fire.
+    if (session.pending === 0)
+      queueMicrotask(() => finishIfIdle(session))
   }
 
-  function abort(el: HTMLElement) {
-    const session = sessions.get(el)
-    if (!session)
+  function settle(session: ExitSession) {
+    if (!session.active)
       return
-    session.aborted = true
-    sessions.delete(el)
-    removePopStyle(session)
-    session.handlers.forEach(handler => handler.onEnter?.())
+    session.pending--
+    finishIfIdle(session)
   }
 
-  function finalize(session: ExitSession) {
-    sessions.delete(session.el)
+  function finishIfIdle(session: ExitSession) {
+    if (session.active && session.pending === 0)
+      finish(session)
+  }
+
+  function finish(session: ExitSession) {
+    session.active = false
+    if (sessions.get(session.el) === session)
+      sessions.delete(session.el)
+    anyFinished = true
     removePopStyle(session)
     session.states.forEach((state) => {
       state.getSnapshot(false)
     })
     // Call done to remove DOM
     session.done()
-
     if (!session.el.isConnected) {
       session.states.forEach((state) => {
         state.unmount()
       })
     }
-    config.onAllComplete()
+    closeBatch()
+  }
+
+  function abort(el: HTMLElement) {
+    const session = sessions.get(el)
+    if (session)
+      cancel(session, true)
+  }
+
+  function cancel(session: ExitSession, notifyEnter: boolean) {
+    if (!session.active)
+      return
+    session.active = false
+    if (sessions.get(session.el) === session)
+      sessions.delete(session.el)
+    removePopStyle(session)
+    if (notifyEnter)
+      session.handlers.forEach(handler => handler.onEnter?.())
+    closeBatch()
+  }
+
+  // ===== Transition handlers =====
+
+  function enter(el: HTMLElement, done: VoidFunction) {
+    children.add(el)
+    abort(el)
+    states.find(el).forEach((state) => {
+      state.getFeature<ExitFeature>('exit')?.reenter()
+    })
+    done()
+  }
+
+  function exit(el: Element, done: VoidFunction) {
+    track(el as HTMLElement, done)
+  }
+
+  // ===== Batch =====
+
+  function closeBatch() {
+    if (!batchOpen || sessions.size > 0)
+      return
+    const fire = anyFinished
+    batchOpen = false
+    anyFinished = false
+    if (fire)
+      config.onAllComplete()
   }
 
   function dispose() {
-    sessions.forEach((session) => {
+    // Container teardown never reports exit completion, and cancelling first
+    // stops in-flight promises from finalizing after the tree is gone.
+    batchOpen = false
+    anyFinished = false
+    for (const session of Array.from(sessions.values())) {
+      cancel(session, false)
       session.states.forEach((state) => {
         state.unmount()
       })
-    })
+    }
     sessions.clear()
+    states.clear()
+    handlers.clear()
   }
 
   return {
-    track,
-    abort,
+    register: states.add,
+    unregister: states.remove,
+    registerHandler: handlers.add,
+    unregisterHandler: handlers.remove,
+    isChild: (el: Element) => children.has(el),
+    enter,
+    exit,
     dispose,
   }
 }
