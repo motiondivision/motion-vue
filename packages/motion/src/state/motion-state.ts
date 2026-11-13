@@ -4,6 +4,7 @@ import type { AnimationType, DOMKeyframesDefinition, VisualElement, VisualElemen
 import { isVariantLabel } from 'motion-dom'
 import { isSVGElement, resolveInitialValues } from '@/state/utils'
 import type { Feature, FeatureKey, StateType } from '@/features'
+import type { ExitFeature } from '@/features/exit/exit'
 import type { PresenceContext } from '@/components/animate-presence/presence'
 
 // Map to track mounted motion states by element
@@ -30,8 +31,11 @@ export class MotionState {
   // Parent reference for handling component tree relationships
   public parent?: MotionState
 
-  // Whether the element is exiting (driven by ExitFeature / setActive)
-  public isExiting = false
+  /** Derived from ExitFeature, which owns the only exit-in-flight flag. */
+  get isExiting() {
+    return this.getFeature<ExitFeature>('exit')?.isExiting ?? false
+  }
+
   public options: Options & {
     presenceContext?: PresenceContext
   }
@@ -186,17 +190,9 @@ export class MotionState {
 
   // Set animation state active status and propagate to children
   setActive(name: StateType, isActive: boolean) {
-    if (name === 'exit' && isActive) {
-      this.isExiting = true
-    }
     // motion-dom's animation state keys use 'whileTap'; Vue's public prop is 'whilePress'
     const type = (name === 'whilePress' ? 'whileTap' : name) as AnimationType
     this.visualElement?.animationState?.setActive(type, isActive)
-      .then(() => {
-        if (name === 'exit' && isActive) {
-          this.isExiting = false
-        }
-      })
   }
 
   isMounted() {

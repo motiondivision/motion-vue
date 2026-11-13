@@ -3,18 +3,18 @@ import type { MotionState } from '@/state'
 import type { ExitSessionConfig } from '../exit-session'
 import { createExitSession } from '../exit-session'
 
-function createFakeState() {
+function createFakeState(el: Element | null = null) {
   let resolveExit!: () => void
   const exitPromise = new Promise<void>((resolve) => {
     resolveExit = resolve
   })
   const exit = vi.fn(() => exitPromise)
+  const reenter = vi.fn()
   const state = {
-    getFeature: vi.fn(() => ({ exit })),
+    element: el,
+    getFeature: vi.fn(() => ({ exit, reenter })),
     getSnapshot: vi.fn(),
-    didUpdate: vi.fn(),
     unmount: vi.fn(),
-    options: {},
   }
   return { state: state as unknown as MotionState, resolveExit, exit }
 }
@@ -42,11 +42,13 @@ describe('createExitSession', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
-    const a = createFakeState()
-    const b = createFakeState()
+    const a = createFakeState(el)
+    const b = createFakeState(el)
     const done = vi.fn()
 
-    sessions.track(el, [a.state, b.state], done)
+    sessions.register(a.state)
+    sessions.register(b.state)
+    sessions.exit(el, done)
 
     expect(a.exit).toHaveBeenCalledTimes(1)
     expect(b.exit).toHaveBeenCalledTimes(1)
@@ -57,11 +59,13 @@ describe('createExitSession', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
-    const a = createFakeState()
-    const b = createFakeState()
+    const a = createFakeState(el)
+    const b = createFakeState(el)
     const done = vi.fn()
 
-    sessions.track(el, [a.state, b.state], done)
+    sessions.register(a.state)
+    sessions.register(b.state)
+    sessions.exit(el, done)
     a.resolveExit()
     await flush()
     expect(done).not.toHaveBeenCalled()
@@ -77,10 +81,11 @@ describe('createExitSession', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
-    const a = createFakeState()
+    const a = createFakeState(el)
     const done = vi.fn()
 
-    sessions.track(el, [a.state], done)
+    sessions.register(a.state)
+    sessions.exit(el, done)
     a.resolveExit()
     await flush()
 
@@ -93,10 +98,11 @@ describe('createExitSession', () => {
     const sessions = createExitSession(config)
     const el = document.createElement('div')
     document.body.appendChild(el)
-    const a = createFakeState()
+    const a = createFakeState(el)
     const done = vi.fn()
 
-    sessions.track(el, [a.state], done)
+    sessions.register(a.state)
+    sessions.exit(el, done)
     a.resolveExit()
     await flush()
 
@@ -108,11 +114,12 @@ describe('createExitSession', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
-    const a = createFakeState()
+    const a = createFakeState(el)
     const done = vi.fn()
 
-    sessions.track(el, [a.state], done)
-    sessions.abort(el)
+    sessions.register(a.state)
+    sessions.exit(el, done)
+    sessions.enter(el, vi.fn())
     a.resolveExit()
     await flush()
 
@@ -123,21 +130,24 @@ describe('createExitSession', () => {
 
   it('abort without a session is a no-op', () => {
     const sessions = createExitSession(createConfig())
-    expect(() => sessions.abort(document.createElement('div'))).not.toThrow()
+    expect(() => sessions.enter(document.createElement('div'), vi.fn())).not.toThrow()
   })
 
   it('a container can be tracked again after abort', async () => {
     const config = createConfig()
     const sessions = createExitSession(config)
     const el = document.createElement('div')
-    const first = createFakeState()
-    const second = createFakeState()
+    const first = createFakeState(el)
+    const second = createFakeState(el)
 
-    sessions.track(el, [first.state], vi.fn())
-    sessions.abort(el)
+    sessions.register(first.state)
+    sessions.exit(el, vi.fn())
+    sessions.enter(el, vi.fn())
+    sessions.unregister(first.state)
 
     const done = vi.fn()
-    sessions.track(el, [second.state], done)
+    sessions.register(second.state)
+    sessions.exit(el, done)
     second.resolveExit()
     await flush()
 
@@ -148,15 +158,91 @@ describe('createExitSession', () => {
   it('dispose unmounts every still-tracked state', () => {
     const config = createConfig()
     const sessions = createExitSession(config)
-    const a = createFakeState()
-    const b = createFakeState()
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    const a = createFakeState(first)
+    const b = createFakeState(second)
 
-    sessions.track(document.createElement('div'), [a.state], vi.fn())
-    sessions.track(document.createElement('div'), [b.state], vi.fn())
+    sessions.register(a.state)
+    sessions.exit(first, vi.fn())
+    sessions.register(b.state)
+    sessions.exit(second, vi.fn())
     sessions.dispose()
 
     expect(a.state.unmount).toHaveBeenCalledTimes(1)
     expect(b.state.unmount).toHaveBeenCalledTimes(1)
+  })
+
+  it('dispose aborts in-flight sessions without running done or onExitComplete', async () => {
+    const config = createConfig()
+    const sessions = createExitSession(config)
+    const el = document.createElement('div')
+    const a = createFakeState(el)
+    const done = vi.fn()
+
+    sessions.register(a.state)
+    sessions.exit(el, done)
+    sessions.dispose()
+    a.resolveExit()
+    await flush()
+
+    expect(done).not.toHaveBeenCalled()
+    expect(config.onAllComplete).not.toHaveBeenCalled()
+  })
+
+  it('dispose removes popLayout styles for sessions still in flight', async () => {
+    const config = createConfig({ props: { mode: 'popLayout', anchorX: 'left' } })
+    const sessions = createExitSession(config)
+    const el = document.createElement('div')
+    const a = createFakeState(el)
+
+    sessions.register(a.state)
+    sessions.exit(el, vi.fn())
+    sessions.dispose()
+    await new Promise(resolve => setTimeout(resolve, 50))
+
+    const leftover = Array.from(document.head.querySelectorAll('style'))
+      .some(s => s.sheet?.cssRules[0]?.cssText.includes('data-motion-pop-id'))
+    expect(leftover).toBe(false)
+  })
+
+  it('a late finalize does not orphan the current session', async () => {
+    const config = createConfig()
+    const sessions = createExitSession(config)
+    const el = document.createElement('div')
+    const a = createFakeState(el)
+    const b = createFakeState(el)
+
+    sessions.register(a.state)
+    sessions.exit(el, vi.fn())
+    sessions.register(b.state)
+    sessions.exit(el, vi.fn())
+
+    a.resolveExit()
+    await flush()
+
+    sessions.dispose()
+    expect(b.state.unmount).toHaveBeenCalledTimes(1)
+  })
+
+  it('tracking the same element twice keeps waiting on the original exit', async () => {
+    const config = createConfig()
+    const sessions = createExitSession(config)
+    const el = document.createElement('div')
+    const a = createFakeState(el)
+    const firstDone = vi.fn()
+    const secondDone = vi.fn()
+
+    sessions.register(a.state)
+    sessions.exit(el, firstDone)
+    sessions.exit(el, secondDone)
+
+    a.resolveExit()
+    await flush()
+
+    expect(firstDone).not.toHaveBeenCalled()
+    expect(secondDone).toHaveBeenCalledTimes(1)
+    expect(config.onAllComplete).toHaveBeenCalledTimes(1)
   })
 
   describe('popLayout mode', () => {
@@ -164,9 +250,10 @@ describe('createExitSession', () => {
       const config = createConfig({ props: { mode: 'popLayout', anchorX: 'left' } })
       const sessions = createExitSession(config)
       const el = document.createElement('div')
-      const a = createFakeState()
+      const a = createFakeState(el)
 
-      sessions.track(el, [a.state], vi.fn())
+      sessions.register(a.state)
+      sessions.exit(el, vi.fn())
 
       expect(el.dataset.motionPopId).toMatch(/^pop-\d+$/)
       const style = Array.from(document.head.querySelectorAll('style'))
@@ -184,9 +271,10 @@ describe('createExitSession', () => {
       const config = createConfig()
       const sessions = createExitSession(config)
       const el = document.createElement('div')
-      const a = createFakeState()
+      const a = createFakeState(el)
 
-      sessions.track(el, [a.state], vi.fn())
+      sessions.register(a.state)
+      sessions.exit(el, vi.fn())
 
       expect(el.dataset.motionPopId).toBeUndefined()
     })
@@ -195,10 +283,11 @@ describe('createExitSession', () => {
       const config = createConfig({ props: { mode: 'popLayout', anchorX: 'left' } })
       const sessions = createExitSession(config)
       const el = document.createElement('div')
-      const a = createFakeState()
+      const a = createFakeState(el)
 
-      sessions.track(el, [a.state], vi.fn())
-      sessions.abort(el)
+      sessions.register(a.state)
+      sessions.exit(el, vi.fn())
+      sessions.enter(el, vi.fn())
       await new Promise(resolve => setTimeout(resolve, 50))
 
       const leftover = Array.from(document.head.querySelectorAll('style'))
@@ -212,9 +301,10 @@ describe('createExitSession', () => {
       const otherDoc = document.implementation.createHTMLDocument('pop')
       const el = otherDoc.createElement('div')
       otherDoc.body.appendChild(el)
-      const a = createFakeState()
+      const a = createFakeState(el)
 
-      sessions.track(el, [a.state], vi.fn())
+      sessions.register(a.state)
+      sessions.exit(el, vi.fn())
 
       const hasPopRule = (doc: Document) =>
         Array.from(doc.head.querySelectorAll('style'))

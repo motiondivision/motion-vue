@@ -93,11 +93,48 @@ describe('exitFeature', () => {
     expect(state.isExiting).toBe(false)
   })
 
-  it('unmount settles a pending exit promise', async () => {
+  it('unmount settles a pending exit promise and clears isExiting', async () => {
     const { state, exitFeature } = createState()
     const completion = exitFeature.exit()
     state.unmount()
     await completion
+    expect(state.isExiting).toBe(false)
+  })
+
+  it('a stale external activation cannot clear an in-flight exit', async () => {
+    const { state, exitFeature, animationResolvers } = createState()
+
+    state.setActive('exit', true)
+    exitFeature.exit()
+
+    animationResolvers[0]()
+    await flush()
+    expect(state.isExiting).toBe(true)
+
+    animationResolvers[1]()
+    await flush()
+    expect(state.isExiting).toBe(false)
+  })
+
+  it('a second exit while one is in flight shares its completion', async () => {
+    const { state, exitFeature, setActive, animationResolvers } = createState()
+    let firstDone = false
+    let secondDone = false
+    exitFeature.exit().then(() => {
+      firstDone = true
+    })
+    exitFeature.exit().then(() => {
+      secondDone = true
+    })
+
+    expect(setActive).toHaveBeenCalledTimes(1)
+
+    animationResolvers[0]()
+    await flush()
+
+    expect(firstDone).toBe(true)
+    expect(secondDone).toBe(true)
+    expect(state.isExiting).toBe(false)
   })
 
   describe('layoutId handoff', () => {
