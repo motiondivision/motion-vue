@@ -65,19 +65,19 @@
   "bundlesize": [
     {
       "path": "./dist/size-rollup-motion.js",
-      "maxSize": "46.09 kB"
+      "maxSize": "46.14 kB"
     },
     {
       "path": "./dist/size-rollup-m.js",
-      "maxSize": "5.32 kB"
+      "maxSize": "5.37 kB"
     },
     {
       "path": "./dist/size-rollup-m-dom-animation.js",
-      "maxSize": "30.83 kB"
+      "maxSize": "30.90 kB"
     },
     {
       "path": "./dist/size-rollup-m-dom-max.js",
-      "maxSize": "46.25 kB"
+      "maxSize": "46.28 kB"
     },
     {
       "path": "./dist/size-rollup-animate.js",
@@ -105,9 +105,9 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "framer-motion": "~14.13.0",
+    "framer-motion": "~14.14.0",
     "hey-listen": "^1.0.8",
-    "motion-dom": "~14.13.0",
+    "motion-dom": "~14.14.0",
     "motion-utils": "~14.7.0"
   }
 }

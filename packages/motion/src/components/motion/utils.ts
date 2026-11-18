@@ -9,7 +9,7 @@ import type { ComponentProps, MotionHTMLAttributes } from '@/types'
 
 type MotionCompProps = {
   create: {
-    <T extends DefineComponent>(component: T, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, any>, 'as' | 'asChild'> & ComponentProps<T>>
+    <T extends new (...args: any[]) => { $props: any }>(component: T, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, any>, 'as' | 'asChild'> & Omit<ComponentProps<T>, 'fx'>>
     (component: string, options?: MotionCreateOptions): DefineComponent<Omit<MotionProps<any, any>, 'as' | 'asChild'>>
   }
 }
@@ -31,6 +31,10 @@ function renderSlotFragments(fragments: any[]) {
       result.push(item)
   }
   return result
+}
+
+function normalizeFx(value: unknown): '' | undefined {
+  return value === true || value === '' ? '' : undefined
 }
 
 const SELF_CLOSING_TAGS = ['area', 'img', 'input']
@@ -57,6 +61,8 @@ function handlePrimitiveAndSlot(asTag: string | any, allAttrs: any, slots: any) 
     const mergedProps = firstNonComment.props
       ? mergeProps(allAttrs, firstNonComment.props)
       : allAttrs
+
+    mergedProps.fx = normalizeFx(mergedProps.fx)
 
     if (allAttrs.class && firstNonComment.props?.class)
       delete firstNonComment.props.class
@@ -128,6 +134,7 @@ export function createMotionComponent(
         const allAttrs = {
           ...(props.forwardMotionProps ? motionProps : {}),
           ...motionAttrs,
+          fx: normalizeFx(props.fx),
           onVnodeUpdated,
         }
 

@@ -1,4 +1,5 @@
 export const MotionComponentProps = {
+  'fx': { type: Boolean, default: undefined },
   'ignoreStrict': { type: Boolean },
   'forwardMotionProps': { type: Boolean, default: false },
   'asChild': { type: Boolean, default: false },
