@@ -126,6 +126,24 @@ export interface DragProps extends DragHandlers {
   dragSnapToOrigin?: boolean | 'x' | 'y'
 
   /**
+   * If set, the element animates to the nearest `dragConstraints` edge when
+   * dragging ends. Pass `"x"` or `"y"` to snap only that axis.
+   *
+   * The nearest edge is measured from the release position. Where the axes
+   * overlap, `dragSnapToOrigin` wins. Without `dragConstraints` this prop
+   * does nothing. It also takes precedence over `dragTransition.modifyTarget`.
+   *
+   * ```jsx
+   * <motion.div
+   *   drag
+   *   dragConstraints={{ left: 0, right: 300 }}
+   *   dragSnapToConstraints
+   * />
+   * ```
+   */
+  dragSnapToConstraints?: boolean | 'x' | 'y'
+
+  /**
    * If `true`, this will lock dragging to the initially-detected direction. Defaults to `false`.
    *
    * ```jsx

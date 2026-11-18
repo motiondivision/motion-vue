@@ -43,6 +43,7 @@ export const MotionComponentProps = {
   'onViewportLeave': { type: Function },
   'drag': { type: [Boolean, String] },
   'dragSnapToOrigin': { type: [Boolean, String] },
+  'dragSnapToConstraints': { type: [Boolean, String] },
   'dragDirectionLock': { type: Boolean },
   'dragPropagation': { type: Boolean },
   'dragConstraints': { type: [Boolean, Object] },
