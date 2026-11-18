@@ -17,7 +17,7 @@ Subsystem internals live in [docs/agents/architecture.md](docs/agents/architectu
 
 ## Important Implementation Notes
 
-1. **Framer Motion Integration**: The library wraps Framer Motion's core functionality (v12.23.26), requiring careful path aliasing to specific internal modules in `vite.config.ts`. Changes to Framer Motion internals may require updating these aliases.
+1. **Framer Motion Integration**: The library wraps `framer-motion` and `motion-dom` core functionality (`~14.14.0`), with `motion-utils` at `~14.7.0`. Dependencies are imported through package exports and externalized in `packages/motion/vite.config.ts`. Upstream changes require checking the Vue adapters and package exports.
 
 ## Development Workflow
 

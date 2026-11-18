@@ -1,11 +1,7 @@
-import type { Component, DefineComponent, ExtractPropTypes, ExtractPublicPropTypes, IntrinsicElementAttributes, MaybeRef } from 'vue'
+import type { Component, IntrinsicElementAttributes, MaybeRef } from 'vue'
 
-export type ComponentProps<T> = T extends DefineComponent<
-  ExtractPropTypes<infer Props>,
-  any,
-  any
->
-  ? ExtractPublicPropTypes<Props>
+export type ComponentProps<T> = T extends new (...args: any[]) => { $props: infer Props }
+  ? Props
   : never
 
 export type ElementType = keyof IntrinsicElementAttributes

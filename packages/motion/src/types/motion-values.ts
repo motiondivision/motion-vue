@@ -104,4 +104,4 @@ export type SetMotionValueType<T, Keys extends keyof T> = {
 }
 
 type IntrinsicElementAttributesAsMotionValues = SetMotionValueType<IntrinsicElementAttributes, keyof SVGAttributesWithMotionValues>
-export type MotionHTMLAttributes<C extends ElementType> = Omit<IntrinsicElementAttributesAsMotionValues[C], keyof Options | 'style' | 'as' | 'asChild'>
+export type MotionHTMLAttributes<C extends ElementType> = Omit<IntrinsicElementAttributesAsMotionValues[C], keyof Options | 'style' | 'as' | 'asChild' | 'fx'>

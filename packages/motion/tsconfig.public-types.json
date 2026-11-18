@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["src/components/__tests__/fx.test-d.ts"]
+}
